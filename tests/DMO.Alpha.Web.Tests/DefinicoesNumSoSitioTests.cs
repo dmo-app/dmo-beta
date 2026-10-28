@@ -1,3 +1,4 @@
+using DMO.Alpha.Core.Tools;
 using System.Net;
 using System.Text.RegularExpressions;
 using DMO.Alpha.Core.Admin;
@@ -319,14 +320,15 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         var (client, _) = await LoginOperatorAsync("7314", DmoCapabilities.Boquilhas, DmoCapabilities.ControloCreate, DmoCapabilities.Ferramentas);
         var html = WebUtility.HtmlDecode(await GetOkAsync(client, "/Definicoes"));
 
-        // Ferramentas: «Utilização pela produção» no Geral; só «Ler pasta» fica ativo.
+        // Ferramentas: «Utilização pela produção» no Geral; só «Atualizar do SAP» fica ativo.
         var producao = Regex.Match(html, "<section id=\"ferrDefSap\"[\\s\\S]*?</section>").Value;
         Assert.Contains("Utilização pela produção", producao);
-        Assert.DoesNotContain("SAP<", producao);
-        Assert.Contains("data-ferr-sap-pasta disabled=\"disabled\"", producao);
+        Assert.DoesNotContain("SAP</h3>", Regex.Match(producao, "<h3 id=\"ferr-sap-title\"[\\s\\S]*?</h3>").Value);
         Assert.Contains("data-ferr-sap-codigos disabled=\"disabled\"", producao);
-        // «Ler agora» passa a «Ler pasta», o resto dentro de «Opções» (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraHPADVWa4FvWFsfvbAFqbcy).
-        Assert.Matches("data-ferr-sap-ler>Ler pasta", producao);
+        // Um só botão, «Atualizar do SAP»; «Ligar pasta» e «Ler pasta» saíram das Opções (Diogo, 28/10/2026).
+        Assert.Contains("data-ferr-sap-atualizar>Atualizar do SAP", producao);
+        Assert.DoesNotContain("data-ferr-sap-ler", producao);
+        Assert.DoesNotContain("data-ferr-sap-pasta", producao);
         // As pastas juntas em Este computador (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP).
         var computador = Regex.Match(html, "<section id=\"sec-computador\"[\\s\\S]*?(?=<section id=\"sec-controlo\")").Value;
         Assert.Contains("id=\"ferrDefSap\"", computador);
@@ -439,6 +441,72 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         // Um operador abre o cadeado com o PIN novo.
         var (client, _) = await LoginOperatorAsync("7323", DmoCapabilities.Boquilhas);
         Assert.EndsWith("pin=ok", (await AbrirCadeadoAsync(client, "1357")).Headers.Location!.OriginalString);
+    }
+
+    [Fact]
+    public async Task OAdmin_MudaOSap_EOsScriptsDaPastaLevamAsDefinicoes()
+    {
+        using var admin = await LoginAdminAsync();
+        var pagina = await GetOkAsync(admin, "/Definicoes?secao=admin&sub=sap");
+        Assert.Contains("id=\"admSap\"", pagina);
+        Assert.Contains("id=\"admSapLeituras\"", pagina);
+        Assert.Contains("DMO_SAP_DIARIO.vbs", pagina);
+        var token = HtmlFormHelpers.ExtractRequestVerificationToken(pagina)!;
+
+        var hora = await admin.PostAsync("/Admin/Definicoes?handler=SaveSap", HtmlFormHelpers.BuildFormPost(
+            ("sap_utilizador", "USERX"), ("sap_senha", ""), ("sap_hora", "24"), ("sap_dias", "90"), ("__RequestVerificationToken", token)));
+        Assert.EndsWith("sap=HoraInvalida", hora.Headers.Location!.OriginalString);
+        var gravado = await admin.PostAsync("/Admin/Definicoes?handler=SaveSap", HtmlFormHelpers.BuildFormPost(
+            ("sap_utilizador", "USERX"), ("sap_senha", "Ab\"9zQ"), ("sap_hora", "7"), ("sap_dias", "90"), ("__RequestVerificationToken", token)));
+        Assert.EndsWith("sap=ok", gravado.Headers.Location!.OriginalString);
+        var depois = await GetOkAsync(admin, "/Definicoes?secao=admin&sub=sap");
+        Assert.DoesNotContain("Ab\"9zQ", WebUtility.HtmlDecode(depois));
+        Assert.Contains("placeholder=\"guardada\"", depois);
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var valor = (await scope.ServiceProvider.GetRequiredService<DmoDbContext>().ModuleSettings.AsNoTracking()
+                .SingleAsync(s => s.SettingKey == SapDefinicoesRegras.ChaveSenha)).SettingValue;
+            Assert.DoesNotContain("9zQ", valor);
+        }
+
+        // Os scripts que o «Atualizar do SAP» grava na pasta.
+        var (client, _) = await LoginOperatorAsync("7324", DmoCapabilities.Ferramentas);
+        var scripts = await ScriptsAsync(client);
+        Assert.Equal(SapScriptsRegras.Nomes.Order(), scripts.Keys.Order());
+        Assert.Contains("Const SENHA = \"Ab\"\"9zQ\"", scripts[SapScriptsRegras.Uso]);
+        Assert.Contains("Const UTILIZADOR = \"USERX\"", scripts[SapScriptsRegras.Fabrico]);
+        Assert.Contains("Const DIAS = 90", scripts[SapScriptsRegras.Fabrico]);
+        Assert.Contains("Const HORA = 7", scripts[SapScriptsRegras.Diario]);
+        Assert.Contains("Name=USERX", scripts[SapScriptsRegras.Atalho]);
+        Assert.Contains("dmo-sap\\shell\\open\\command", scripts[SapScriptsRegras.Instalar]);
+        Assert.DoesNotContain("{{", string.Concat(scripts.Values));
+
+        // Abrir, mudar e guardar o script; «Repor» volta ao da app.
+        var mudado = await admin.PostAsync("/Admin/Definicoes?handler=SaveSapScript", HtmlFormHelpers.BuildFormPost(
+            ("sap_script", SapScriptsRegras.Diario), ("sap_texto", "' marca do Admin\nConst HORA = {{HORA}}\n"), ("__RequestVerificationToken", token)));
+        Assert.EndsWith("sap=ok-script", mudado.Headers.Location!.OriginalString);
+        Assert.Contains("' marca do Admin\r\nConst HORA = 7", (await ScriptsAsync(client))[SapScriptsRegras.Diario]);
+        Assert.Contains("mudado no Admin", await GetOkAsync(admin, "/Definicoes?secao=admin&sub=sap"));
+        var reposto = await admin.PostAsync("/Admin/Definicoes?handler=SaveSapScript", HtmlFormHelpers.BuildFormPost(
+            ("sap_script", SapScriptsRegras.Diario), ("sap_texto", "x"), ("sap_repor", "1"), ("__RequestVerificationToken", token)));
+        Assert.EndsWith("sap=ok-repor", reposto.Headers.Location!.OriginalString);
+        Assert.DoesNotContain("marca do Admin", (await ScriptsAsync(client))[SapScriptsRegras.Diario]);
+        var desconhecido = await admin.PostAsync("/Admin/Definicoes?handler=SaveSapScript", HtmlFormHelpers.BuildFormPost(
+            ("sap_script", "outro.vbs"), ("sap_texto", "x"), ("__RequestVerificationToken", token)));
+        Assert.EndsWith("sap=ScriptDesconhecido", desconhecido.Headers.Location!.OriginalString);
+    }
+
+    private static async Task<Dictionary<string, string>> ScriptsAsync(HttpClient client)
+    {
+        using var json = System.Text.Json.JsonDocument.Parse(await GetOkAsync(client, "/Ferramentas/Definicoes?handler=ScriptsSap"));
+        return json.RootElement.EnumerateArray().ToDictionary(
+            f => f.GetProperty("nome").GetString()!,
+            f =>
+            {
+                var bytes = Convert.FromBase64String(f.GetProperty("base64").GetString()!);
+                return bytes is [0xFF, 0xFE, ..] ? System.Text.Encoding.Unicode.GetString(bytes, 2, bytes.Length - 2) : System.Text.Encoding.Latin1.GetString(bytes);
+            });
     }
 
     private static async Task<HttpResponseMessage> MudarPalavraPasseAsync(HttpClient client, string atual, string nova, string confirmar)

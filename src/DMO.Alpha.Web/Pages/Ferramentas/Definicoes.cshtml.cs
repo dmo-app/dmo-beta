@@ -23,7 +23,7 @@ namespace DMO.Alpha.Web.Pages.Ferramentas;
 // ASP.NET ignora-os (aviso MVC1001) e o conteúdo ficava nos 4 MB.
 [RequestFormLimits(ValueLengthLimit = 16 * 1024 * 1024)]
 [RequestSizeLimit(20 * 1024 * 1024)]
-public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, IFerramentasUsoSap usoSap, IFerramentasFabricoSap fabricoSap) : PageModel
+public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, IFerramentasUsoSap usoSap, IFerramentasFabricoSap fabricoSap, SapScripts sapScripts) : PageModel
 {
     /// <summary>A última lista do SAP lida (o cartão «Utilização pelo SAP»); nenhuma ainda.</summary>
     public UsoSapUltimaLeitura? UltimaLeituraSap { get; private set; }
@@ -32,11 +32,14 @@ public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, 
     /// GET (o ficheiro ferramentas-sap.js): os códigos a pedir ao SAP (o nome
     /// técnico e o lote de cada ferramenta) e a data do último ficheiro lido
     /// (a lista da utilização ou o relatório de fabrico), para não ler duas
-    /// vezes o mesmo.
+    /// vezes o mesmo. Com <paramref name="todas"/> («Pedir todas» ligado neste
+    /// computador), os códigos de todas as ferramentas com nome técnico.
     /// </summary>
-    public async Task<IActionResult> OnGetUsoSapAsync()
+    public async Task<IActionResult> OnGetUsoSapAsync(bool todas = false)
     {
-        var codigos = await usoSap.CodigosAsync(HttpContext.RequestAborted);
+        var codigos = todas
+            ? await usoSap.TodosOsCodigosAsync(HttpContext.RequestAborted)
+            : await usoSap.CodigosAsync(HttpContext.RequestAborted);
         var ultima = await usoSap.UltimaLeituraAsync(HttpContext.RequestAborted);
         var fabrico = await fabricoSap.UltimoFicheiroAsync(HttpContext.RequestAborted);
         var ultimoFicheiro = new[] { ultima?.FicheiroModificadoEmUtc, fabrico }.Max();
@@ -45,6 +48,36 @@ public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, 
             codigos,
             ficheiroModificadoEm = ultimoFicheiro is { } data ? new DateTimeOffset(DateTime.SpecifyKind(data, DateTimeKind.Utc)).ToUnixTimeMilliseconds() : (long?)null
         });
+    }
+
+    /// <summary>
+    /// GET (o ficheiro ferramentas-sap.js): os scripts do SAP com as definições
+    /// do Admin › SAP lá dentro, para o browser os gravar na pasta ligada antes
+    /// de cada «Atualizar do SAP» (Diogo, 28/10/2026: «o script passa a ser
+    /// função interna da app»).
+    /// </summary>
+    public async Task<IActionResult> OnGetScriptsSapAsync()
+    {
+        var ficheiros = await sapScripts.FicheirosAsync(HttpContext.RequestAborted);
+        Response.Headers.CacheControl = "no-store";
+        return new JsonResult(ficheiros.Select(f => new { nome = f.Nome, base64 = Convert.ToBase64String(f.Conteudo) }));
+    }
+
+    /// <summary>
+    /// GET: os códigos das ferramentas de uma referência, só de um tipo
+    /// (cm, mf, bq) ou de todos: o «Atualizar do SAP» por referência.
+    /// </summary>
+    public async Task<IActionResult> OnGetCodigosSapAsync(string? referencia, string? tipo)
+    {
+        ToolType? tipoPedido = tipo?.ToLowerInvariant() switch
+        {
+            "cm" => ToolType.Cm,
+            "mf" => ToolType.Mf,
+            "bq" => ToolType.Bq,
+            _ => null
+        };
+        var codigos = await usoSap.CodigosDaReferenciaAsync(referencia ?? string.Empty, tipoPedido, HttpContext.RequestAborted);
+        return new JsonResult(new { codigos });
     }
 
     // Um ficheiro mais antigo do que o último lido do mesmo tipo não volta a

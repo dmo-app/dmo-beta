@@ -4,7 +4,7 @@
  * A fábrica tem um servidor com pastas partilhadas. Em cada computador
  * escolhe-se uma vez a pasta (por exemplo «Controlo 2026») nas Definições do
  * Controlo; a partir daí, os PDFs do Controlo gravam-se lá, dentro de
- * <referência>/<nº de produção>/, que a app cria. A subpasta vem do servidor
+ * <referência>/<nº de produção> <referência>/, que a app cria. A subpasta vem do servidor
  * no cabeçalho X-Dmo-Pdf-Pasta (ControloDocumentPaths).
  *
  * O PDF continua a ser gerado em memória e nunca fica no servidor: a pasta é
@@ -96,17 +96,43 @@
     return attempt(1);
   }
 
+  // A PASTA DA PRODUÇÃO COM A REFERÊNCIA (Diogo, 28/10/2026): a subpasta
+  // passou de «202601» para «202601 1075C142». Uma pasta antiga, só com o
+  // número, não fica para trás nem se duplica: muda de nome para a nova
+  // quando o browser deixa (move); senão continua a ser usada como está.
+  function folderOf(parent, part, names, last) {
+    var space = last ? part.lastIndexOf(" ") : -1;
+    function create() {
+      return parent.getDirectoryHandle(part, { create: true }).then(function (folder) { names.push(part); return folder; });
+    }
+    if (space <= 0) return create();
+    var oldName = part.slice(0, space);
+    return parent.getDirectoryHandle(part).then(function (folder) { names.push(part); return folder; }, function (error) {
+      if (!error || error.name !== "NotFoundError") throw error;
+      return parent.getDirectoryHandle(oldName).then(function (old) {
+        var renamed = typeof old.move === "function"
+          ? Promise.resolve().then(function () { return old.move(part); }).then(function () { return part; }, function () { return oldName; })
+          : Promise.resolve(oldName);
+        return renamed.then(function (finalName) { names.push(finalName); return old; });
+      }, function (oldError) {
+        if (oldError && oldError.name === "NotFoundError") return create();
+        throw oldError;
+      });
+    });
+  }
+
   function writeInto(root, parts, name, blob) {
     var chain = Promise.resolve(root);
-    parts.forEach(function (part) {
-      chain = chain.then(function (folder) { return folder.getDirectoryHandle(part, { create: true }); });
+    var names = [];
+    parts.forEach(function (part, index) {
+      chain = chain.then(function (folder) { return folderOf(folder, part, names, index === parts.length - 1 && parts.length > 1); });
     });
     return chain.then(function (folder) {
       return freeName(folder, name).then(function (finalName) {
         return folder.getFileHandle(finalName, { create: true }).then(function (file) {
           return file.createWritable().then(function (writable) {
             return writable.write(blob).then(function () { return writable.close(); });
-          }).then(function () { return parts.concat(finalName).join("\\"); });
+          }).then(function () { return names.concat(finalName).join("\\"); });
         });
       });
     });

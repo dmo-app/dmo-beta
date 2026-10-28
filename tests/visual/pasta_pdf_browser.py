@@ -44,6 +44,7 @@ PAGE = """<!DOCTYPE html><html lang="pt-PT"><head><meta charset="utf-8"><title>P
 PDF = b"%PDF-1.4\n% DMO fixture\n%%EOF\n"
 posts = []
 pu_posts = []
+FOLDER = {"resumo": "5447T173/202601"}
 
 
 def handle(route):
@@ -56,7 +57,7 @@ def handle(route):
         headers = {
             "Content-Type": "application/pdf",
             "Content-Disposition": "attachment; filename=RESUMO-5447T173-202601.pdf; filename*=UTF-8''RESUMO-5447T173-202601.pdf",
-            "X-Dmo-Pdf-Pasta": quote("5447T173/202601", safe=""),
+            "X-Dmo-Pdf-Pasta": quote(FOLDER["resumo"], safe=""),
         }
         if "jobon_id=8" in body:
             # O PDF completo de uma produção com punções NNPB (22/10/2026).
@@ -208,6 +209,28 @@ with sync_playwright() as playwright:
     page.click("#completo")
     page.wait_for_timeout(1200)
     assert sorted(names) == ["PU-NNPB-5447T173-202601.pdf", "RESUMO-5447T173-202601.pdf"], names
+
+    # 7. A pasta da produção leva a referência (Diogo, 28/10/2026):
+    #    «202601 5447T173». A pasta antiga «202601» muda de nome (ou, sem
+    #    move, continua a ser usada): nunca ficam duas pastas da produção.
+    FOLDER["resumo"] = "5447T173/202601 5447T173"
+    page.evaluate(CHOOSE_PRIVATE_FOLDER)
+    page.reload()
+    page.wait_for_timeout(300)
+    page.click("#exportar")
+    page.wait_for_function("document.querySelector('[data-dmo-toast]') !== null", timeout=5000)
+    page.wait_for_timeout(600)
+    files = page.evaluate(LIST_FILES)
+    folders = sorted({f.split("/")[1] for f in files})
+    assert len(folders) == 1 and folders[0] in ("202601", "202601 5447T173"), files
+    assert len([f for f in files if "RESUMO" in f]) == 5, files
+    renamed = folders[0] == "202601 5447T173"
+    #    Uma produção nova cria logo a pasta com a referência.
+    FOLDER["resumo"] = "5447T173/202602 5447T173"
+    page.click("#exportar")
+    page.wait_for_timeout(800)
+    assert any(f.startswith("5447T173/202602 5447T173/RESUMO") for f in page.evaluate(LIST_FILES)), page.evaluate(LIST_FILES)
+    print("pasta antiga mudou de nome" if renamed else "pasta antiga mantida (sem move)")
 
     assert errors == [], errors
     browser.close()

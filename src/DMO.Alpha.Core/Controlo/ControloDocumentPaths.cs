@@ -57,7 +57,7 @@ public static class ControloDocumentPaths
     /// A subpasta da produção dentro da pasta escolhida no computador
     /// (Diogo, 17/10/2026: «eu crio a pasta Controlo 2026, e a app por si
     /// cria o resto dos diretórios dependendo da referência e produção»):
-    /// «&lt;referência&gt;/&lt;nº de produção&gt;», com «/» como separador e
+    /// «&lt;referência&gt;/&lt;nº de produção&gt; &lt;referência&gt;», com «/» como separador e
     /// os caracteres que o Windows não aceita num nome trocados por «_».
     /// Vai no cabeçalho <see cref="PdfFolderHeader"/> da resposta do PDF,
     /// codificada para URL; o browser cria as pastas e grava lá o ficheiro.
@@ -68,6 +68,11 @@ public static class ControloDocumentPaths
         // isso mesmo, em vez de recusar o PDF.
         var referenceSegment = string.IsNullOrWhiteSpace(reference) ? "sem-referencia" : SanitizePortableSegment(reference);
         var productionSegment = string.IsNullOrWhiteSpace(productionNumber) ? "sem-producao" : SanitizePortableSegment(productionNumber);
+        // A subpasta da produção leva também a referência, depois do número
+        // (Diogo, 28/10/2026: «202601 1075C142»): quem ficar com a pasta
+        // aberta sabe a que referência pertence.
+        if (!string.IsNullOrWhiteSpace(productionNumber) && !string.IsNullOrWhiteSpace(reference))
+            productionSegment += " " + referenceSegment;
         return $"{referenceSegment}/{productionSegment}";
     }
 

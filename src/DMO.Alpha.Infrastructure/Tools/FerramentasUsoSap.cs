@@ -106,11 +106,34 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
         return new ImportarUsoSapOutcome(ImportarUsoSapResultado.Gravado, leitura.Linhas.Count, novas.Count, semFerramenta.Distinct().ToList());
     }
 
-    public async Task<IReadOnlyList<string>> CodigosAsync(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<string>> CodigosAsync(CancellationToken cancellationToken = default) =>
+        CodigosDeAsync(db.Tools.Where(t => db.FerramentaLembretesUtilizacao.Any(l => l.ToolId == t.ToolId && l.FechadoEmUtc == null)), cancellationToken);
+
+    public Task<IReadOnlyList<string>> TodosOsCodigosAsync(CancellationToken cancellationToken = default) =>
+        CodigosDeAsync(db.Tools.Where(t => t.ToolId != ToolRegistryConstants.RemovedToolId), cancellationToken);
+
+    public Task<IReadOnlyList<string>> CodigosDaReferenciaAsync(string referencia, ToolType? tipo, CancellationToken cancellationToken = default)
     {
-        var ferramentas = await db.Tools.AsNoTracking()
-            .Where(t => t.TechnicalName != null && t.TechnicalName != ""
-                && db.FerramentaLembretesUtilizacao.Any(l => l.ToolId == t.ToolId && l.FechadoEmUtc == null))
+        var texto = (referencia ?? string.Empty).Trim().ToUpperInvariant();
+        if (texto.Length == 0)
+        {
+            return Task.FromResult<IReadOnlyList<string>>([]);
+        }
+
+        var ferramentas = db.Tools.Where(t => t.ToolId != ToolRegistryConstants.RemovedToolId
+            && (t.Reference.ToUpper().Contains(texto) || (t.AssociatedMfReference != null && t.AssociatedMfReference.ToUpper().Contains(texto))));
+        if (tipo is { } t1)
+        {
+            ferramentas = ferramentas.Where(t => t.Type == t1);
+        }
+
+        return CodigosDeAsync(ferramentas, cancellationToken);
+    }
+
+    private static async Task<IReadOnlyList<string>> CodigosDeAsync(IQueryable<Tool> ferramentasPedidas, CancellationToken cancellationToken)
+    {
+        var ferramentas = await ferramentasPedidas.AsNoTracking()
+            .Where(t => t.TechnicalName != null && t.TechnicalName != "")
             .Select(t => new { t.TechnicalName, t.Lot })
             .ToListAsync(cancellationToken);
         return ferramentas
