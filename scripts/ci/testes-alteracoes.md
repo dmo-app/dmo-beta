@@ -4316,13 +4316,3 @@ Novos: 6 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `43d26cce1f4efcab`
-
-## A-0256 · 2026-10-28 · ok-do-diogo
-
-Porquê: PDF do Peso sem duplicados (DMO-526): o peso usado da produção anterior já está no cartão; sai a repetição no rodapé.
-Referência: Diogo 28/10: «folha do peso tem muitos duplicados ter atenção aos duplicados» cmsg_01K75FTs9bQnbhhH7qttpgraKQa9WN4maaHqZRbPbFJPru, «produção anterior peso usado na produção anterior» cmsg_01K75FTs9bQnbhhH7qttpgraEwsGP3Fay6kibY8Ft1Vpub
-Novos: 0 · mudaram: 1 · saíram: 0
-
-- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.cs :: PesoPdfGeneratorTests.ProducaoAnterior_DizProducao_ENaoSAP`
-
-Selo depois: `73d5211bbc1afb56`

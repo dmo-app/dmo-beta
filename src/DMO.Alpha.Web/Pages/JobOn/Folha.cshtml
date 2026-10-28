@@ -204,6 +204,9 @@
 
     // A cabeça das ferramentas (CM, MF, BQ): o código, a referência e o lote.
     // Um clique, no Editar, muda a ferramenta; o duplo clique leva à ficha.
+    // O reparador do CM/MF vai para a linha do Armazém na folha de ver, se ela existir; no Editar fica o campo.
+    bool ReparadorNaLinha(string tipo, JobOnToolFacts? f) => !editar && f?.OndeEsta is not null && tipo is "CM" or "MF";
+
     void CabecaFerramenta(string tipo, string? toolId, string nome)
     {
         var f = Model.Fact(toolId);
@@ -242,7 +245,9 @@
             var armazem = DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.MovimentosDoArmazem(f.ToolId, "Armazém");
             @* O estado primeiro, um espaço e a posição: «Reparado   4094» (Diogo, 28/10/2026: «Reparado, espaço e
                posição do armazém»); fora do Armazém, o sítio por extenso («Reparação · Moldin»). *@
-            <p class="jof-onde" data-dmo-onde-esta title="@ondeEsta">@if (f.Estado is { } estado) {<b>@DMO.Alpha.Core.Armazem.ArmazemTextos.Estado(estado)</b><span class="jof-onde-espaco"> </span>}@if (ondeEsta.StartsWith(NaPosicao, StringComparison.Ordinal)) {if (armazem.PodeAbrir(Model.Capacidades)) {<a class="jof-onde-pos" href="@armazem.Href" title="@ondeEsta: dar entrada ou saída no Armazém"><b>@ondeEsta[NaPosicao.Length..]</b></a>} else {<b>@ondeEsta[NaPosicao.Length..]</b>}} else {@ondeEsta}</p>
+            @* O reparador logo a seguir: «Reparado   5252 · MOLDIN» (Diogo, 28/10/2026: «Reparador deve aparecer
+               depois do estado reparado»). *@
+            <p class="jof-onde" data-dmo-onde-esta title="@ondeEsta">@if (f.Estado is { } estado) {<b>@DMO.Alpha.Core.Armazem.ArmazemTextos.Estado(estado)</b><span class="jof-onde-espaco"> </span>}@if (ondeEsta.StartsWith(NaPosicao, StringComparison.Ordinal)) {if (armazem.PodeAbrir(Model.Capacidades)) {<a class="jof-onde-pos" href="@armazem.Href" title="@ondeEsta: dar entrada ou saída no Armazém"><b>@ondeEsta[NaPosicao.Length..]</b></a>} else {<b>@ondeEsta[NaPosicao.Length..]</b>}} else {@ondeEsta}@if (ReparadorNaLinha(tipo, f) && Mostra(Model.Folha.Valor(tipo.ToLowerInvariant() + "_reparador")) is { } reparador) {<span class="jof-onde-reparador" title="Reparador"> · <b>@reparador</b></span>}</p>
           }
           @if (Model.MostrarAvisoArmazem && f?.AvisoArmazem is { } avisoArmazem)
           {
@@ -273,9 +278,11 @@
             : new[] { ("Diâm. corpo", "mf_corpo", "mf_corpo_tol"), ("Diâm. gargalo", "mf_gargalo", "mf_gargalo_tol"), ("Diâm. exterior", "mf_exterior", "mf_exterior_tol") };
         // O reparador fica à vista no cartão; no MF também o FF com o lote (Diogo, 27/10/2026:
         // «mover o reparador para fora, no MF meter o FF fora com lote»).
+        // Na folha de ver, com a linha do Armazém, o reparador passa para ela (DMO-570).
         var fora = tipo == "CM"
             ? new[] { ("Reparador", "cm_reparador") }
             : new[] { ("Reparador", "mf_reparador"), ("FF", "mf_fundo_final"), ("Lote FF", "mf_lote_ff") };
+        if (ReparadorNaLinha(tipo, f)) fora = fora.Where(c => c.Item1 != "Reparador").ToArray();
         var resto = tipo == "CM"
             ? new[] { ("Tipo", "cm_tipo"), ("Adaptador", "cm_adaptador"), ("Inversão", "cm_inversao"), ("Parafuso", "cm_parafuso"), ("3.ª Almofada", "cm_almofada3") }
             : new[] { ("Tipo", "mf_tipo"), ("Adaptador", "mf_adaptador"), ("Inversão", "mf_inversao"), ("Parafuso", "mf_parafuso") };
@@ -286,12 +293,15 @@
         <article class="card sec" data-jof-familia="@tipo" aria-label="@nome">
           @{ CabecaFerramenta(tipo, toolId, nome); }
           @{ Uso(p + "_utilizacao", f); }
-          <div class="jof-fora" data-jof-fora="@tipo">
-            @foreach (var (rotulo, chave) in fora)
-            {
-              <span class="hv"><small>@rotulo</small><b>@{ Valor(chave, $"{tipo} {rotulo}"); }</b></span>
-            }
-          </div>
+          @if (fora.Length > 0)
+          {
+            <div class="jof-fora" data-jof-fora="@tipo">
+              @foreach (var (rotulo, chave) in fora)
+              {
+                <span class="hv@(rotulo == "Reparador" ? " jof-fora-reparador" : null)"><small>@rotulo</small><b>@{ Valor(chave, $"{tipo} {rotulo}"); }</b></span>
+              }
+            </div>
+          }
           @{ Notas(p + "_notas"); }
           @{ TecnicaAbre(tipo, medidas.SelectMany(m => new[] { m.Item2, m.Item3 }).Concat(folgas).Concat(resto.Select(r => r.Item2))); }
           @if (!editar)

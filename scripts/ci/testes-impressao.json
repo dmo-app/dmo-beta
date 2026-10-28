@@ -1,5 +1,5 @@
 {
-  "selo": "73d5211bbc1afb56",
+  "selo": "43d26cce1f4efcab",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -730,7 +730,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.cs :: PesoPdfGeneratorTests.GenerateBytes_ProducesARealPdf_InMemory": "e06386b7d14b30eb",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.cs :: PesoPdfGeneratorTests.GenerateBytes_ShowsTheGlassDensityWithAllItsDecimals": "98b64c2979646a4c",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.cs :: PesoPdfGeneratorTests.GenerateBytes_WithoutComparison_StillProducesTheSheet": "cf5b7c593a81d3ca",
-    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.cs :: PesoPdfGeneratorTests.ProducaoAnterior_DizProducao_ENaoSAP": "21b0e84c5141288f",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.cs :: PesoPdfGeneratorTests.ProducaoAnterior_DizProducao_ENaoSAP": "c85b1395e99308c5",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoProducaoAnteriorQueryTests.cs :: (resto do ficheiro)": "496aa7b5bc2c4ed6",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoProducaoAnteriorQueryTests.cs :: PesoProducaoAnteriorQueryTests.ComInicio_AsUltimas5_EnoMesmoDiaAsRegistadasAntes": "fecf1b5606056d79",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoProducaoAnteriorQueryTests.cs :: PesoProducaoAnteriorQueryTests.ComInicio_SoAsQueComecaramAntes_SemAsPosterioresNemAsSemDatas": "8c9036c049c16a15",
