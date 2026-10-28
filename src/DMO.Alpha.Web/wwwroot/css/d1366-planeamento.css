@@ -392,9 +392,9 @@ html body .jof2 .jof-fora .hv+.hv:not(:nth-child(2)){margin-left:0;padding-left:
   html body .beta-light-productions .jobon-procura-bloco :is(#lightSearch,.dmo-suggest){grid-area:2/1;width:100%;min-width:0}
   html body .beta-light-productions .jobon-procura-bloco #lightProcuraProducoes{grid-area:2/2;width:100%;min-width:0}
   html body .beta-light-productions .jobon-procura-bloco #jobonCriar{grid-area:2/3}
-  html body .beta-light-productions{--plan-cols:64px minmax(0,1.1fr) minmax(0,1fr) minmax(0,1.6fr)}
+  html body .beta-light-productions{--plan-cols:64px minmax(0,112px) minmax(0,88px) minmax(0,1.3fr) minmax(0,1.3fr)}
 
-  /* A tabela: cabeçalho e linhas com as mesmas colunas */
+  /* A tabela: cabeçalho e linhas com as mesmas colunas. A Produção encostada à Referência e a coluna «Alterações» (as mudanças de lote durante a produção) antes da Próxima mudança (Diogo, 28/10/2026). */
   html body .beta-light-productions .beta-light-list{gap:4px;margin-top:8px}
   html body .beta-light-productions .beta-light-list-head{display:grid;grid-template-columns:var(--plan-cols);column-gap:12px;align-items:center;height:32px;padding:0 12px;border-radius:8px;background:var(--dmo-subtle);color:var(--dmo-muted);font-size:12px;font-weight:500;line-height:1}
   html body .beta-light-productions .beta-light-machine-row{gap:0}
@@ -403,15 +403,15 @@ html body .jof2 .jof-fora .hv+.hv:not(:nth-child(2)){margin-left:0;padding-left:
   html body .beta-light-productions .beta-light-production>span:not([class]){position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
   html body .beta-light-productions .beta-light-production>.beta-light-ref{grid-column:2;grid-row:1;font-size:14px}
   html body .beta-light-productions .beta-light-production>.beta-light-prodnum{grid-column:3;grid-row:1;font-size:14px}
-  html body .beta-light-productions .beta-light-production>.beta-light-next{grid-column:4;grid-row:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+  html body .beta-light-productions .beta-light-production>.beta-light-next{grid-column:5;grid-row:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
   html body .beta-light-productions .beta-light-production>.beta-light-next:empty::before{content:"—";font-weight:400}
-  html body .beta-light-productions .beta-light-production>.beta-light-lot-note{grid-column:2/4;grid-row:2;min-width:0;padding-bottom:6px}
-  html body .beta-light-productions .beta-light-production>.beta-light-lot-note:empty{display:none}
+  html body .beta-light-productions .beta-light-production>.beta-light-lot-note{grid-column:4;grid-row:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+  html body .beta-light-productions .beta-light-production>.beta-light-lot-note:empty::before{content:"—";font-weight:400}
 
   /* A linha livre: Linha, «—», «—», «—» */
   html body .beta-light-productions .beta-light-machine-empty-linha{display:grid;grid-template-columns:var(--plan-cols);column-gap:12px;align-items:center;min-height:40px;padding:0 12px}
-  html body .beta-light-productions .beta-light-machine-empty-linha>.beta-light-next{grid-column:4;grid-row:1;min-width:0;margin:0;padding:0;overflow:hidden;text-overflow:ellipsis;font-size:13px}
-  html body .beta-light-productions .beta-light-machine-empty-linha:not(:has(>.beta-light-next))::after{content:"—";grid-column:4;grid-row:1;color:var(--dmo-muted)}
+  html body .beta-light-productions .beta-light-machine-empty-linha>.beta-light-next{grid-column:5;grid-row:1;min-width:0;margin:0;padding:0;overflow:hidden;text-overflow:ellipsis;font-size:13px}
+  html body .beta-light-productions .beta-light-machine-empty-linha:not(:has(>.beta-light-next))::after{content:"—";grid-column:5;grid-row:1;color:var(--dmo-muted)}
   html body .beta-light-productions .beta-light-machine-empty{grid-column:1/4;grid-row:1;display:grid;grid-template-columns:subgrid;grid-template-rows:minmax(0,1fr) 0;column-gap:12px;row-gap:0;align-items:center;height:40px;padding:0;font-size:0;color:var(--dmo-muted)}
   html body .beta-light-productions .beta-light-machine-empty>strong{grid-column:1;grid-row:1;font-size:15px;font-weight:800;color:var(--dmo-brand-900)}
   html body .beta-light-productions .beta-light-machine-empty::before{content:"—";grid-column:2;grid-row:1;font-size:14px;color:inherit}
@@ -500,4 +500,13 @@ html[data-theme="dark"] body a.dmo-tab-novo:not(:hover):not(.active){color:#fff;
   html body main.beta-light-main:has(#jobonProducoes) .beta-light-productions>:not(#jobonProducoes){flex:none}
   html body main.beta-light-main:has(#jobonProducoes) .beta-light-productions>#jobonProducoes{flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;margin-top:0}
   html body main.beta-light-main:has(#jobonProducoes) #lightProductionList>.beta-light-list-head{position:sticky;top:0;z-index:2}
+}
+
+/* Cores em repouso um pouco mais marcadas no modo claro (Diogo, 28/10/2026: «dar um ligeiro toque nas cores em rest, muito ligeiro»):
+   a mistura da cor da linha passa de 12% para 16% nas linhas do dia, nos cartões das linhas, na gaveta da Folha e no Sumário. O hover e o escolhido ficam iguais. */
+@media screen{
+  html:root:not([data-theme="dark"]) body .beta-light-productions .beta-light-machine-row:not(:has(input:checked)):not(:has(:hover)){background:color-mix(in srgb,var(--dmo-machine-color) 16%,transparent)}
+  html:root:not([data-theme="dark"]) body .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):not(.selected):not(.active):is(.dmo-linha-cor,[data-dmo-linha-cor]):not(:hover):not(:focus-visible){background:color-mix(in srgb,var(--dmo-machine-color,var(--dmo-brand-600)) 16%,var(--dmo-card))}
+  html:root:not([data-theme="dark"]) body .jof2-gaveta .rail-item.dmo-linha-cor:not(.selected):not(:hover):not(:focus-visible){background:color-mix(in srgb,var(--dmo-machine-color) 16%,var(--rail-item))}
+  html:root:not([data-theme="dark"]) body main.sumario-page .sumario-item:not(:hover):not(:focus-within){background:color-mix(in srgb,var(--dmo-machine-color) 16%,transparent)}
 }

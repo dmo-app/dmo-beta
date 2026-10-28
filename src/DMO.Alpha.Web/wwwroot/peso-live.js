@@ -487,6 +487,32 @@
     if (f && pendentes.length && f.form.contains(event.target) && rascunhoVazio(f)) event.preventDefault();
   }, true);
 
+  // Novo Peso: a temperatura escrita e a densidade da água dela (Diogo,
+  // 28/10/2026). A tabela fica no servidor; aqui só se pede o texto.
+  var densidadeTimer = null;
+  var densidadePedido = null;
+  document.addEventListener("input", function (event) {
+    var campo = event.target;
+    if (!campo || campo.name !== "water_temperature" || !campo.form) return;
+    var alvo = campo.form.querySelector("[data-peso-densidade-agua] strong");
+    if (!alvo) return;
+    clearTimeout(densidadeTimer);
+    densidadeTimer = setTimeout(function () {
+      if (densidadePedido) densidadePedido.abort();
+      densidadePedido = new AbortController();
+      fetch("/Controlo/Peso?handler=DensidadeAgua&temperatura=" + encodeURIComponent(campo.value.trim()), {
+        signal: densidadePedido.signal,
+        credentials: "same-origin"
+      })
+        .then(function (response) {
+          if (!response.ok) throw new Error("http " + response.status);
+          return response.json();
+        })
+        .then(function (data) { alvo.textContent = (data && data.texto) || "\u2014"; })
+        .catch(function () { /* sem rede: fica o último valor */ });
+    }, 250);
+  });
+
   // Uma folha aberta com leituras escritas (o echo de uma recusa) mostra
   // logo a pré-visualização delas.
   if (document.readyState === "loading") {

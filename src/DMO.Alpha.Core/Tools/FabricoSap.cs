@@ -185,7 +185,11 @@ public static class FabricoSapExportacao
 /// que se repete mais»). Cada ordem do SAP conta com os dias que tem dentro
 /// das datas do Job On.
 /// </summary>
-public sealed record PesoSapResumo(decimal MediaGramas, decimal ModaGramas, int Dias, int Ordens);
+/// <summary>
+/// O peso de uma produção: a média pelos dias, a moda, os dias em que a moda
+/// se usou (Diogo, 28/10/2026: «quantas vezes usaram 130»), os dias e as ordens.
+/// </summary>
+public sealed record PesoSapResumo(decimal MediaGramas, decimal ModaGramas, int Dias, int Ordens, int ModaDias = 0);
 
 public static class FabricoSapPeso
 {
@@ -219,30 +223,60 @@ public static class FabricoSapPeso
             .GroupBy(o => o.Peso)
             .OrderByDescending(g => g.Sum(o => o.Dias))
             .ThenByDescending(g => g.Max(o => o.InicioEm))
-            .First().Key;
-        return new PesoSapResumo(media, moda, totalDias, comPeso.Count);
+            .First();
+        return new PesoSapResumo(media, moda.Key, totalDias, comPeso.Count, moda.Sum(o => o.Dias));
     }
 }
 
 /// <summary>
+/// A cadência do SAP de uma produção, como o peso (Diogo, 28/10/2026: «uma
+/// versão como a do peso [...] usar uma média e moda, mas mostrar o que foi
+/// usado em cada produção»): a média pesada pelos dias e a moda.
+/// </summary>
+public sealed record CadenciaSapResumo(decimal Media, int Moda, int Dias, int Ordens);
+
+/// <summary>
 /// A cadência do SAP de um Job On (Diogo, 27/10/2026: «cadência para meter
-/// no Job On»): a das ordens com mais dias dentro do Job On, contados como no
-/// <see cref="FabricoSapPeso.Resumo"/>; empatadas, a mais recente. Nenhuma sem
-/// ordens com cadência.
+/// no Job On»): a moda é a das ordens com mais dias dentro do Job On, contados
+/// como no <see cref="FabricoSapPeso.Resumo"/>; empatadas, a mais recente. A
+/// média pesa cada cadência pelos dias. Nenhuma sem ordens com cadência.
 /// </summary>
 public static class FabricoSapCadencia
 {
-    public static int? DoJobOn(IEnumerable<SapFabrico> ordens, DateOnly inicio, DateOnly? fim)
+    public static int? DoJobOn(IEnumerable<SapFabrico> ordens, DateOnly inicio, DateOnly? fim) =>
+        Resumo(ordens, inicio, fim)?.Moda;
+
+    public static CadenciaSapResumo? Resumo(IEnumerable<SapFabrico> ordens, DateOnly inicio, DateOnly? fim)
     {
         var ate = fim is { } f && f >= inicio ? f : DateOnly.MaxValue;
-        return ordens
+        var comCadencia = ordens
             .Where(o => o.Cadencia is > 0)
-            .GroupBy(o => o.Cadencia!.Value)
-            .OrderByDescending(g => g.Sum(o => Math.Max(1, (o.FimEm < ate ? o.FimEm : ate).DayNumber - (o.InicioEm > inicio ? o.InicioEm : inicio).DayNumber)))
+            .Select(o => (Cadencia: o.Cadencia!.Value, Dias: Math.Max(1, (o.FimEm < ate ? o.FimEm : ate).DayNumber - (o.InicioEm > inicio ? o.InicioEm : inicio).DayNumber), o.InicioEm))
+            .ToList();
+        if (comCadencia.Count == 0)
+        {
+            return null;
+        }
+
+        var totalDias = comCadencia.Sum(o => o.Dias);
+        var media = Math.Round((decimal)comCadencia.Sum(o => (long)o.Cadencia * o.Dias) / totalDias, 1);
+        var moda = comCadencia
+            .GroupBy(o => o.Cadencia)
+            .OrderByDescending(g => g.Sum(o => o.Dias))
             .ThenByDescending(g => g.Max(o => o.InicioEm))
-            .Select(g => (int?)g.Key)
-            .FirstOrDefault();
+            .First().Key;
+        return new CadenciaSapResumo(media, moda, totalDias, comCadencia.Count);
     }
+}
+
+/// <summary>
+/// A cadência que o Job On mostra: a da própria produção, depois de feita; sem
+/// ela, a da produção anterior da mesma referência que a tem (Diogo,
+/// 28/10/2026: «atribuir sempre a produção anterior»), com o número dela.
+/// </summary>
+public sealed record CadenciaDoJobOn(CadenciaSapResumo Resumo, int? AnteriorJobOnId = null, string? AnteriorProducao = null)
+{
+    public bool DaAnterior => AnteriorJobOnId.HasValue;
 }
 
 /// <summary>O que se leu do relatório de fabrico: as linhas e quantas eram novas.</summary>
@@ -266,7 +300,8 @@ public sealed record FerramentaProducao(
     long? ProducaoLiquida,
     int LinhasSap,
     decimal? UtilizacaoAntes = null,
-    decimal? UtilizacaoDepois = null)
+    decimal? UtilizacaoDepois = null,
+    CadenciaSapResumo? Cadencia = null)
 {
     /// <summary>Quanto a utilização subiu nesta produção (pontos percentuais); nenhum sem as duas leituras.</summary>
     public decimal? DeltaUtilizacao => UtilizacaoAntes is { } antes && UtilizacaoDepois is { } depois ? depois - antes : null;
@@ -314,8 +349,12 @@ public interface IFerramentasFabricoSap
     /// <summary>O peso do SAP de cada Job On (a referência, a máquina e as datas); fica de fora o Job On sem ordens com peso.</summary>
     Task<IReadOnlyDictionary<int, PesoSapResumo>> PesoDosJobOnsAsync(IReadOnlyCollection<int> jobOnIds, CancellationToken cancellationToken = default);
 
-    /// <summary>A cadência do SAP do Job On (<see cref="FabricoSapCadencia.DoJobOn"/>); nenhuma sem ordens com cadência.</summary>
-    Task<int?> CadenciaDoJobOnAsync(int jobOnId, CancellationToken cancellationToken = default);
+    /// <summary>
+    /// A cadência do SAP do Job On (<see cref="FabricoSapCadencia.Resumo"/>);
+    /// sem ordens com cadência, a da produção anterior da mesma referência que
+    /// as tem (das últimas <see cref="DMO.Alpha.Core.Production.IProductionPickerQuery.MaxResults"/>); nenhuma sem nenhuma.
+    /// </summary>
+    Task<CadenciaDoJobOn?> CadenciaDoJobOnAsync(int jobOnId, CancellationToken cancellationToken = default);
 
     /// <summary>Os Job On em que a ferramenta foi a CM, o MF ou a BQ, do mais recente para o mais antigo.</summary>
     Task<FerramentaProducoes> ProducoesAsync(string toolId, int? pagina, int porPagina, CancellationToken cancellationToken = default);

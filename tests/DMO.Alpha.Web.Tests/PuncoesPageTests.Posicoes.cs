@@ -163,7 +163,7 @@ public partial class PuncoesPageTests
         Assert.DoesNotContain("Posições na linha", registo);
 
         var folha = Zona(WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}&vista=folha")));
-        Assert.Contains($"href=\"/Controlo/Puncoes?controlo_id={controloId}\">← Registo das punções</a>", Bloco(folha, "data-pu-ligacoes", "nav"));
+        Assert.Contains($"href=\"/Controlo/Puncoes?controlo_id={controloId}\">Registo das punções</a>", Bloco(folha, "data-pu-ligacoes", "nav"));
         Assert.Contains("data-pu-grelha", folha);
         Assert.DoesNotContain("pu-add-form", folha);
 

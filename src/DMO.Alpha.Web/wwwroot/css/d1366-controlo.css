@@ -235,18 +235,17 @@
 /* As colunas das leituras e do mapa não alargam a página (num ecrã estreito as tabelas deslizam dentro do cartão). */
 html body main.peg-page :is(.peg-folha,.peg-folha-leituras){min-width:0}
 /* A página não desliza (Diogo, 27/10/2026: «as páginas que deslizam estragam
-   o UI»): ocupa o ecrã; as leituras deslizam dentro da coluna da esquerda e o
-   mapa fica à vista na da direita. */
+   o UI»): ocupa o ecrã e a folha desliza por dentro. O mapa fica por baixo das
+   leituras (Diogo, 28/10/2026: «o mapa aparecia em baixo»). */
 @media (min-width:1100px) and (min-height:640px){
   html body .app:has(>main.peg-page .peg-folha){height:100dvh;display:flex;flex-direction:column;overflow:hidden}
   html body .app:has(>main.peg-page .peg-folha)>*{flex:0 0 auto}
   html body .app>main.peg-page:has(.peg-folha){flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
   html body main.peg-page:has(.peg-folha)>*{flex:0 0 auto}
-  html body main.peg-page>.peg-folha{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:8px;align-items:stretch}
-  html body main.peg-page .peg-folha-leituras{min-height:0;overflow:auto;display:flex;flex-direction:column;gap:8px;scrollbar-gutter:stable}
-  html body main.peg-page .peg-folha>#pegMapa{min-height:0;overflow:auto}
+  html body main.peg-page>.peg-folha{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:8px;overflow:auto;scrollbar-gutter:stable}
+  html body main.peg-page .peg-folha>*{flex:0 0 auto}
+  html body main.peg-page .peg-folha-leituras{display:flex;flex-direction:column;gap:8px}
   html body main.peg-page .peg-folha>#pegMapa:not(:has(*)){display:none}
-  html body main.peg-page .peg-folha:has(>#pegMapa:empty){grid-template-columns:minmax(0,1fr)}
   /* Na coluna: o nominal e o permitido por baixo do título (as ações ficam no canto). */
   html body main.peg-page .peg-folha section.peg-card[data-peg-component]>.peg-ferramenta-linha{grid-column:1/-1;grid-row:2;padding-left:0;margin:0 0 6px}
   html body main.peg-page .peg-folha table.peg-registo-tabela>thead>tr>th:nth-child(1){width:48px}
@@ -549,11 +548,6 @@ html body main.peg-page :is(.peg-folha,.peg-folha-leituras){min-width:0}
   html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-leitura-row{grid-template-columns:72px 112px auto;align-items:end}
   /* O seletor nativo escondido (1 px) não estica o cartão mais baixo. */
   html body main.peso-page form#cmpForm .dmo-suggest-native{overflow:hidden;top:0;bottom:auto}
-
-  /* Peso · registo: «Peso usado — …» e «Diferença para a anterior» numa linha. */
-  html body main.peso-page .peso-resumo[data-producao-anterior-delta]{width:fit-content;max-width:100%}
-  html body main.peso-page .peso-resumo[data-producao-anterior-delta]>.peso-fact{flex:0 0 auto}
-  html body main.peso-page .peso-resumo[data-producao-anterior-delta]>.peso-fact>span{white-space:nowrap}
 }
 
 /* Comparação aberta pelo Resumo: a produção fixa é texto, na altura dos
@@ -618,3 +612,105 @@ html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-row-button{flex:0
   html body main.peso-page:has(>section[data-peso-live]) .dmo-table-wrap{overflow:auto}
   html body main.peso-page:has(>section[data-peso-live]) .dmo-table-wrap>.dmo-table thead th{position:sticky;top:-4px;z-index:2}
 }
+
+/* Resumo › faixa por baixo da Produção selecionada (Diogo, 28/10/2026: «fica mau alinhado» e «aumentar a font das datas início e fim»):
+   sem a margem de 20 px dentro da caixa, «Aprovação» começa à mesma distância da borda que Início e Fim; as datas com a letra do «Por aprovar» (18 px). */
+@media screen{
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-cabecalho>.resumo-window-grid.resumo-context-grid:not(#_){margin-left:0;margin-right:0}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-context-grid>.resumo-mini-card:not(.resumo-approval)>strong:not(#_){font-size:18px}
+}
+
+/* =========================================================================
+   Peso (Diogo, 28/10/2026): «sliding windows + e − ficou mal», «e a data»,
+   «hover na tabela mexe os elementos» e «alinhar densidade de vidro».
+   ========================================================================= */
+
+/* O + e o − da Comparação ao lado dos campos, a qualquer largura útil (antes só
+   a partir de 1100 px, e no painel caíam para baixo e ficavam minúsculos). */
+@media (min-width:761px){
+  html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-leitura-row{grid-template-columns:72px 112px 26px;align-items:end}
+  html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-row-buttons{display:flex;flex-direction:column;gap:2px;height:var(--dmo-control-height);width:26px;align-self:end;margin:0}
+  html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-row-button{flex:0 0 auto;height:calc((var(--dmo-control-height) - 2px) / 2)!important;min-height:0!important;width:26px;min-width:0!important;padding:0!important;font-size:13px;line-height:1}
+}
+
+/* «Produção / Job On» da Comparação: o valor, com a data, numa só linha. */
+html body main.peso-page .peso-cmp-producao-fixa{flex:0 0 auto;width:auto;max-width:100%}
+html body main.peso-page .peso-cmp-producao-fixa strong{white-space:nowrap}
+
+/* O hover das linhas das tabelas só muda o fundo: o peso da letra da linha
+   destacada mantém-se (antes passava de 600 a normal e tudo se mexia). */
+html body .dmo-table tbody tr.peso-linha-destaque:hover>td{font-weight:600}
+
+/* Densidade do vidro: o processo (NNPB…) fica ao lado do valor, pequeno, sem
+   acrescentar uma linha e sem deslocar o rótulo dos vizinhos. */
+html body main.peso-page .peso-facts>.peso-fact{justify-content:flex-start}
+html body main.peso-page .peso-facts>.peso-fact:has(>small){display:grid;grid-template-columns:auto 1fr;align-content:start;column-gap:6px}
+html body main.peso-page .peso-facts>.peso-fact:has(>small)>span{grid-column:1 / -1}
+html body main.peso-page .peso-facts>.peso-fact:has(>small)>small{margin:0;align-self:end;font-size:11px;line-height:20px;white-space:nowrap}
+
+/* O botão «Completar no Job On» do aviso do apoio TP/calote, dentro dos factos,
+   perdia a letra (a regra dos links dos factos herdava a cor do fundo): volta a
+   branco sobre o botão escuro, claro e escuro (Diogo, 28/10/2026). */
+html body main.peso-page :is(.peso-fact,.peso-facts) a.dmo-aviso-link:not(#_),
+html body main.peso-page :is(.peso-fact,.peso-facts) a.dmo-aviso-link:not(#_):is(:hover,:focus-visible){color:var(--dmo-text-on-color);text-decoration:none}
+
+/* =========================================================================
+   Job On (Diogo, 28/10/2026): Opções com «Eliminar Job On» sempre no fim;
+   «Utilização» da folha na cor da paleta; o Editar no painel sem caixa com
+   barra de deslocação própria (é o painel que desliza).
+   ========================================================================= */
+html body .jof2 .menu-list{display:flex;flex-direction:column}
+html body .jof2 .menu-list>a:not([data-dmo-dialog="jobon-delete-dialog"]){order:0}
+html body .jof2 .menu-list>a[data-dmo-dialog="jobon-delete-dialog"]{order:99}
+
+/* A % de utilização abre o histórico da ferramenta: cor do link da paleta, sem
+   sublinhado; no hover só muda a cor da letra. */
+html body .jof2 a.dmo-uso-link,html body .jof2 a.dmo-uso-link b{color:var(--dmo-brand-700);text-decoration:none;cursor:pointer}
+html body .jof2 a.dmo-uso-link:is(:hover,:focus-visible),html body .jof2 a.dmo-uso-link:is(:hover,:focus-visible) b{color:var(--dmo-brand-600);text-decoration:none}
+html[data-theme="dark"] body .jof2 a.dmo-uso-link,html[data-theme="dark"] body .jof2 a.dmo-uso-link b{color:var(--dmo-text)}
+html[data-theme="dark"] body .jof2 a.dmo-uso-link:is(:hover,:focus-visible),html[data-theme="dark"] body .jof2 a.dmo-uso-link:is(:hover,:focus-visible) b{color:var(--dmo-brand-300,#9fb7d3)}
+
+/* No painel, os Calibres do Editar não têm altura própria com barra interna. */
+html:root[data-dmo-embedded="true"] body .jof2.jof2.jof2 .zones .cal-card>.table-wrap{flex:0 0 auto;overflow:visible;max-height:none}
+html:root[data-dmo-embedded="true"] body .jof2.jof2.jof2 .zones .g-cal>.board,html:root[data-dmo-embedded="true"] body .jof2.jof2.jof2 .zones .g-cal>.board>.cal-card{flex:0 0 auto}
+
+/* =========================================================================
+   Boquilhas › Registo (Diogo, 28/10/2026): os valores das quantidades à esquerda
+   e a produção (com «Opções») à direita; rótulos dos valores à mesma altura;
+   a linha escolhida na barra enche-se com a cor da própria linha, misturada
+   como no Planeamento (antes a cor crua da máquina dava um azul fora da paleta).
+   ========================================================================= */
+@media (min-width:1100px){
+  html:root body .beta-bq-layout section#registo:has(.register-open){grid-template-columns:minmax(0,1fr) minmax(0,1.6fr)}
+  html:root body .beta-bq-layout section#registo:has(.register-open)>#bqRegistoAberto>.register-open{grid-column:2;grid-row:3}
+  html:root body .beta-bq-layout section#registo:has(.register-open)>#bqRegistoNumeros>.bq-metrics-card{grid-column:1;grid-row:3}
+}
+html:root body .beta-bq-layout .bq-metrics-card .lot-data>div{justify-content:flex-start}
+html:root body .beta-bq-layout .bq-metrics-card .lot-data>div>span{min-height:calc(2 * 1.35em)}
+
+html body .beta-bq-layout .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]){--dmo-linha-cheia:color-mix(in srgb,var(--dmo-machine-color) 62%,var(--dmo-deep-900))}
+html[data-theme="dark"] body .beta-bq-layout .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]){--dmo-linha-cheia:color-mix(in srgb,var(--dmo-machine-color) 48%,var(--dmo-deep-900))}
+html:root body .beta-bq-layout .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(.selected,.active){background:var(--dmo-linha-cheia,var(--dmo-machine-color));border-color:var(--dmo-linha-cheia,var(--dmo-machine-color));color:var(--dmo-text-on-color);outline:0}
+html:root body .beta-bq-layout .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(.selected,.active) :is(strong,span){color:var(--dmo-text-on-color)}
+
+/* Boquilhas › Registo (Diogo, 28/10/2026): «Corrigir movimentos» passa para as
+   Opções do cartão da produção («Corrigir»); o botão do cabeçalho dos últimos
+   movimentos fica no HTML mas escondido. */
+html body .beta-bq-layout .bq-latest-head>a.btn[href*="editar_mov=1"]{display:none}
+
+/* «Linhas de produção» (Diogo, 28/10/2026: «alinhar os cards»): os cartões da faixa
+   têm todos a mesma largura e repartem-se pela faixa toda (Boquilhas e Reparação;
+   o Planeamento fica como estava). Se não couberem com a largura mínima, a faixa desliza. */
+html:root body .beta-production-rail:not(#armTiposRail):not([aria-label="Planeamento"]) .beta-production-lines{display:flex;flex-wrap:nowrap;overflow-x:auto}
+html:root body .beta-production-rail:not(#armTiposRail):not([aria-label="Planeamento"]) .beta-production-lines>:is(button,.dmo-rail-link){flex:1 1 0;min-width:112px;max-width:none;width:auto}
+html:root body .beta-production-rail:not(#armTiposRail):not([aria-label="Planeamento"]) .beta-production-lines{flex:1 1 0;min-width:0}
+html:root body .beta-production-rail:not(#armTiposRail):not([aria-label="Planeamento"]) .beta-production-lines>:is(button,.dmo-rail-link){white-space:nowrap}
+
+/* Boquilhas (Diogo, 28/10/2026): sem o título «Linhas de produção» na faixa, para
+   caber o cartão a mais que aparece quando uma linha muda de produção. O nome
+   fica para o leitor de ecrã (aria-label da faixa). */
+html:root body #bqCurrentLines>.beta-production-rail-head{display:none}
+
+/* Pegamentos › Contexto da produção: os valores maiores e ao centro (Diogo, 28/10/2026). */
+html body main.peg-page .peg-context-grid>.dmo-fact{text-align:center;align-items:center}
+html body main.peg-page .peg-context-grid>.dmo-fact>strong{font-size:18px}

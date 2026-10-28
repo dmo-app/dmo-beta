@@ -238,13 +238,22 @@
                 <small>Ainda sem média calculada.</small>
               }
               var caAnterior = Model.ControloAnterior is { AverageGlassWeightGrams: { } caValor } ca ? (Valor: (decimal?)caValor, Numero: ca.ProductionNumber) : (Valor: (decimal?)null, Numero: (string?)null);
-              var paAnterior = Model.ProducaoAnterior is { PesoGramas: { } paValor } pa ? (Valor: (decimal?)paValor, Numero: pa.ProductionNumber) : (Valor: (decimal?)null, Numero: (string?)null);
-              var linhasPeso = new (string Rotulo, string? Numero, decimal? Valor, (decimal? Grams, decimal? Percent) Delta)[]
+              // A produção anterior com a média e a moda do peso dela (Diogo,
+              // 28/10/2026: «começarmos a usar os dois»); sem o peso da
+              // produção, o peso escrito à mão de antes.
+              var paNumero = Model.ProducaoAnterior?.ProductionNumber;
+              var paMedia = Model.ProducaoAnteriorPeso?.MediaGramas ?? Model.ProducaoAnterior?.PesoGramas;
+              var paModa = Model.ProducaoAnteriorPeso?.ModaGramas;
+              var linhasPeso = new List<(string Rotulo, string? Numero, decimal? Valor, (decimal? Grams, decimal? Percent) Delta)>
               {
                   ("Nominal", null, linkedPesoValue.NominalWeightGrams, deviation),
                   ("Controlo anterior", caAnterior.Numero, caAnterior.Valor, DMO.Alpha.Core.Controlo.PesoCalculation.NominalDeviation(average, caAnterior.Valor)),
-                  ("Produção anterior", paAnterior.Numero, paAnterior.Valor, Model.ProducaoAnterior is { } paDelta ? paDelta.Delta(average) : DMO.Alpha.Core.Controlo.PesoCalculation.NominalDeviation(average, null))
+                  (Model.ProducaoAnteriorPeso is null ? "Produção anterior" : "Produção anterior · média", paNumero, paMedia, DMO.Alpha.Core.Controlo.PesoCalculation.NominalDeviation(average, paMedia))
               };
+              if (paModa is not null)
+              {
+                  linhasPeso.Add(("Produção anterior · moda", paNumero, paModa, DMO.Alpha.Core.Controlo.PesoCalculation.NominalDeviation(average, paModa)));
+              }
               <table class="dmo-table resumo-peso-tabela" data-resumo-peso-tabela>
                 <thead>
                   <tr><th scope="col"><span class="resumo-sr-only">Comparação</span></th><th scope="col">Valor</th><th scope="col" title="Diferença em gramas">g</th><th scope="col" title="Diferença em %">%</th></tr>

@@ -73,7 +73,7 @@ public partial class FerramentasPagesTests
             .Matches(html, $"<label for=\"{prefixo}-[a-z-]+\">([^<]+)<")
             .Select(m => m.Groups[1].Value).ToArray();
         Assert.Equal(
-            ["Tipo", "Referência", "Lote", "Quantidade do lote", "% uso", "Ref. MF associada", "Nome técnico (produção)"],
+            ["Tipo", "Referência", "Lote", "Quantidade do lote", "% uso", "Ref. MF associada", "Nome técnico (SAP)"],
             Rotulos(criar, "ferr-new").Take(7));
         // A ficha acrescenta a Fábrica de origem (o % uso também está no Criar, 23/10/2026).
         var doCriar = Rotulos(criar, "ferr-new").Take(7).ToList();
@@ -106,7 +106,9 @@ public partial class FerramentasPagesTests
         Assert.Contains(">Linhas compatíveis</span>", ficha, StringComparison.Ordinal);
         Assert.Contains("<span>Linhas</span>", ficha, StringComparison.Ordinal);
         Assert.DoesNotContain("Máquinas / linhas", ficha, StringComparison.Ordinal);
-        Assert.DoesNotContain("(SAP)", ficha, StringComparison.Ordinal);
+        // Só o nome técnico diz «SAP» (Diogo, 28/10/2026: «remove produção, nome técnico meter SAP»).
+        Assert.Contains(">Nome técnico (SAP)</label>", ficha, StringComparison.Ordinal);
+        Assert.DoesNotContain("Linhas compatíveis (SAP)", ficha, StringComparison.Ordinal);
         var bloco = ficha[Posicao(ficha, "id=\"ferr-edit-opcional\"")..];
         bloco = bloco[..bloco.IndexOf("</fieldset>", StringComparison.Ordinal)];
         Assert.Contains(">Informação opcional</legend>", bloco, StringComparison.Ordinal);

@@ -116,8 +116,8 @@
           {
           <div id="lightProductionList" class="beta-light-list" data-dmo-list="Produções do dia" data-dmo-parcial>
               @* O QUADRO COMPLETO DAS LINHAS — servido por RAZOR (o Owner: «quadro do dia pode ir» + a lei «tudo razor»): as máquinas B1..C3 sempre visíveis, as com produção mostram-na (o badge da linha + a referência + o número), as livres ficam vazias «—». Um clique seleciona (o radio escondido) e abre a folha, Enter também; outro clique tira. *@
-              @* O cabeçalho da tabela (Linha · Referência · Produção · Próxima mudança): só aspeto, as linhas por baixo são as mesmas. *@
-              <div class="beta-light-list-head" aria-hidden="true"><span>Linha</span><span>Referência</span><span>Produção</span><span>Próxima mudança</span></div>
+              @* O cabeçalho da tabela (Linha · Referência · Produção · Alterações · Próxima mudança): só aspeto, as linhas por baixo são as mesmas. *@
+              <div class="beta-light-list-head" aria-hidden="true"><span>Linha</span><span>Referência</span><span>Produção</span><span>Alterações</span><span>Próxima mudança</span></div>
               @foreach (var row in Model.DayRows)
               {
                 @* O QUADRO DO DIA (a CORREÇÃO FINAL do Owner 14/10: «deixar
@@ -170,8 +170,8 @@
                         <span class="beta-light-ref" aria-hidden="true">@(production.Experiencia ? "Experiência " : "")@production.Reference</span>
                         <span class="beta-light-prodnum" aria-hidden="true">@production.ProductionNumber</span>
                         @{ var notaLote = string.Join(" · ", production.LotNotes); }
-                        @* Sem o aviso amarelo das alterações na lista do dia: vivem no
-                           resumo do fim da folha do Job On (Diogo, 23/10/2026). *@
+                        @* As alterações da produção (ex.: mudança de lote da BQ) na coluna «Alterações»
+                           (Diogo, 28/10/2026), sem o aviso amarelo (23/10/2026). *@
                         <span class="beta-light-lot-note" title="@notaLote">@notaLote</span>
                         @if (proxima is { Href: { } proximaHref } && production == ultima)
                         {

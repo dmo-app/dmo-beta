@@ -229,4 +229,40 @@ html body .bq-sem-jobon-link:is(:hover,:focus-visible,:active):not(#_),html body
 @media screen{
   html:root body :is(.beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]),.jof2-gaveta .rail-item.dmo-linha-cor):not(.selected):not(.active):not(:disabled):is(:hover,:focus-visible){background:var(--dmo-linha-cheia,var(--dmo-machine-color,var(--dmo-brand-600)));border-color:var(--dmo-linha-cheia,var(--dmo-machine-color,var(--dmo-brand-600)));color:var(--dmo-text-on-color,#fff);outline:0;box-shadow:none}
   html:root body :is(.beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]),.jof2-gaveta .rail-item.dmo-linha-cor):not(.selected):not(.active):not(:disabled):is(:hover,:focus-visible) *{color:var(--dmo-text-on-color,#fff)}
+  /* No escuro, o mesmo enchimento num tom mais claro da cor da linha (Diogo, 28/10/2026: «no dark metemos mais claro»). */
+  html:root[data-theme="dark"] body :is(.beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]),.jof2-gaveta .rail-item.dmo-linha-cor):not(.selected):not(.active):not(:disabled):is(:hover,:focus-visible){background:color-mix(in srgb,var(--dmo-linha-cheia,var(--dmo-machine-color,var(--dmo-brand-600))) 72%,#fff);border-color:color-mix(in srgb,var(--dmo-linha-cheia,var(--dmo-machine-color,var(--dmo-brand-600))) 72%,#fff)}
+  /* O Planeamento do topo: o clique escolhe o cartão e abre logo a produção; ao carregar fica com o
+     aspeto do hover, sem passar a outro estilo (Diogo, 28/10/2026: «ao carregar no cartão altera para
+     outro estilo, ficar sempre com o do hover»). */
+  html:root body .beta-production-rail[aria-label="Planeamento"] .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(.selected,.active):not(#_){background:var(--dmo-linha-cheia,var(--dmo-machine-color,var(--dmo-brand-600)));border-color:var(--dmo-linha-cheia,var(--dmo-machine-color,var(--dmo-brand-600)));color:var(--dmo-text-on-color,#fff);outline:0;box-shadow:none}
+  html:root body .beta-production-rail[aria-label="Planeamento"] .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(.selected,.active):not(#_) *{color:var(--dmo-text-on-color,#fff)}
+  html:root[data-theme="dark"] body .beta-production-rail[aria-label="Planeamento"] .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(.selected,.active):not(#_){background:color-mix(in srgb,var(--dmo-linha-cheia,var(--dmo-machine-color,var(--dmo-brand-600))) 72%,#fff);border-color:color-mix(in srgb,var(--dmo-linha-cheia,var(--dmo-machine-color,var(--dmo-brand-600))) 72%,#fff)}
 }
+
+/* Sem setas nos botões (Diogo, 28/10/2026: «quero as setas fora de todos os botões»; os únicos ícones são a bola de ajuda e o triângulo de minimizar).
+   1) Paginação («Anterior n de N Seguinte»): só palavras pequenas, sem caixa; passar o rato ou o foco muda apenas a cor da letra.
+   2) O «Voltar» fica como texto pequeno (sem seta). */
+@media screen{
+  html:root body :is(.dmo-button,.button,.btn).dmo-arrow:not(#_):not(#_){background:none;border:0;box-shadow:none;height:auto;min-height:0;min-width:0;width:auto;padding:0;font-size:12px;font-weight:var(--dmo-fw-semibold,600);color:var(--dmo-text);text-decoration:none;cursor:pointer}
+  html:root body :is(.dmo-button,.button,.btn).dmo-arrow:not(#_):not(#_):is(:hover,:active,:focus-visible){background:none;border:0;box-shadow:none;color:var(--dmo-brand-600);outline:0;text-decoration:none}
+  html:root[data-theme="dark"] body :is(.dmo-button,.button,.btn).dmo-arrow:not(#_):not(#_):is(:hover,:active,:focus-visible){color:#fff}
+  html:root body :is(.dmo-button,.button,.btn).dmo-arrow:not(#_):not(#_):is(:disabled,[aria-disabled="true"]){background:none;border:0;box-shadow:none;color:var(--dmo-muted);cursor:default;pointer-events:none}
+  html:root body :is(.dmo-button,.button,.btn).dmo-arrow:not(#_):not(#_) :is(svg,i,span){color:inherit}
+
+  /* Calendário: «Anterior»/«Seguinte» em vez de ‹ ›. */
+  html:root body .dmo-calendar .dmo-calendar-nav button.icon-btn:not(#_){width:auto;min-width:0;padding:0 12px;font-size:13px;white-space:nowrap}
+}
+
+/* O mês anterior e o seguinte do calendário como a paginação: só a palavra, pequena e sem caixa nem seta (Diogo, 28/10/2026: «quero as setas fora de todos os botões»). */
+@media screen{
+  html:root body .dmo-calendar .dmo-calendar-nav button.icon-btn:not(#_):not(#_){width:auto;min-width:0;height:auto;min-height:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none;color:var(--dmo-text);font-size:12px;font-weight:500;line-height:1.2}
+  html:root body .dmo-calendar .dmo-calendar-nav button.icon-btn:not(#_):not(#_)::before,html:root body .dmo-calendar .dmo-calendar-nav button.icon-btn:not(#_):not(#_)::after{content:none;display:none}
+  html:root body .dmo-calendar .dmo-calendar-nav button.icon-btn:not(#_):not(#_):is(:hover,:focus-visible){background:none;border:0;color:var(--dmo-brand-600);box-shadow:none}
+  html:root[data-theme="dark"] body .dmo-calendar .dmo-calendar-nav button.icon-btn:not(#_):not(#_):is(:hover,:focus-visible){color:#fff}
+  html:root body .dmo-calendar .dmo-calendar-nav:not(#_){grid-template-columns:auto minmax(0,1fr) auto}
+}
+
+/* Sem o «|» a piscar quando se clica em texto que não é campo (Diogo, 28/10/2026; aparece com a navegação por cursor do Chrome, tecla F7):
+   o cursor de escrever só nos campos. */
+html body{caret-color:transparent}
+html body :is(input,textarea,select,[contenteditable]:not([contenteditable="false"])){caret-color:auto}

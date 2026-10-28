@@ -79,7 +79,7 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
                 ? $"Armazém · posição {posicao.Codigo}"
                 : localizacoes.TryGetValue(t.ToolId, out var l)
                     ? ArmazemTextos.Localizacao(l.Localizacao, l.ReparadorNome)
-                    : ArmazemTextos.Localizacao(FerramentaLocalizacaoTipo.Fabrico, null);
+                    : ArmazemTextos.SemRegisto;
             return new ArmazemProcuraItem(t.ToolId, t.Type, t.Reference, t.Lot, ondeEsta, noArmazem,
                 estados.TryGetValue(t.ToolId, out var estado) ? estado : null,
                 linhasEUso[t.ToolId].Linhas,
