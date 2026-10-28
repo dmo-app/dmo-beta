@@ -34,12 +34,12 @@ else
     <div class="resumo-pager">
       @if (Model.Page > 1)
       {
-        <a class="dmo-button" aria-label="Página mais recente" data-dmo-procura-pagina="@Url.Page("/Controlo/Resumo", "Procurar", new { q = Model.Term, pagina = Model.Page - 1 })" href="/Controlo/Resumo?pagina=@(Model.Page - 1)&reference=@term">‹</a>
+        <a class="dmo-button" aria-label="Página mais recente" data-dmo-procura-pagina="@Url.Page("/Controlo/Resumo", "Procurar", new { q = Model.Term, pagina = Model.Page - 1 })" href="/Controlo/Resumo?pagina=@(Model.Page - 1)&reference=@term">Anterior</a>
       }
       <span class="resumo-pager-info" aria-label="Página @Model.Page de @lastPage">@Model.Page de @lastPage</span>
       @if (Model.Page < lastPage)
       {
-        <a class="dmo-button" aria-label="Página mais antiga" data-dmo-procura-pagina="@Url.Page("/Controlo/Resumo", "Procurar", new { q = Model.Term, pagina = Model.Page + 1 })" href="/Controlo/Resumo?pagina=@(Model.Page + 1)&reference=@term">›</a>
+        <a class="dmo-button" aria-label="Página mais antiga" data-dmo-procura-pagina="@Url.Page("/Controlo/Resumo", "Procurar", new { q = Model.Term, pagina = Model.Page + 1 })" href="/Controlo/Resumo?pagina=@(Model.Page + 1)&reference=@term">Seguinte</a>
       }
     </div>
   }

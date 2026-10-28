@@ -27,7 +27,9 @@ public enum JobOnFolhaCampoCal
 /// (o único bloqueio da folha: um dado que não cabe), com a chave do campo
 /// ou, na CAL, <c>cal:{linha}:designacao</c>, <c>cal:{linha}:valor</c> ou
 /// <c>cal:{linha}:qtd_maq</c>, em que a linha é a posição no envio, a contar
-/// de 1;</item>
+/// de 1; uma folga com mais de um número (Diogo, 28/10/2026: «o Job On não deve
+/// aceitar mais que 1 valor por cada zona, isso é folga da flecha») tem a
+/// mesma recusa, com a chave da folga;</item>
 /// <item>uma linha CAL por omissão sem valor, sem QTD Máq. e com a designação
 /// por mudar não se grava; uma linha sem nada escrito não fica; uma linha só
 /// com um dos campos fica.</item>
@@ -97,7 +99,8 @@ public static class JobOnFolhaRegras
         {
             foreach (var campo in JobOnFolhaCampos.Todos)
             {
-                if (folha.TryGetValue(campo.Chave, out var valor) && valor is { } texto && texto.Length > campo.Maximo)
+                if (folha.TryGetValue(campo.Chave, out var valor) && valor is { } texto
+                    && (texto.Length > campo.Maximo || (EFolga(campo.Chave) && JobOnFolgas.Numeros(texto) > 1)))
                 {
                     return campo.Chave;
                 }
@@ -246,6 +249,9 @@ public static class JobOnFolhaRegras
     /// família («CM · Notas»), e uma chave da CAL dá «CAL · linha 3 · Valor».
     /// Null para uma chave que não é da folha.
     /// </summary>
+    /// <summary>A chave é uma das três folgas do CM ou do MF (um número só).</summary>
+    public static bool EFolga(string chave) => JobOnFolhaCampos.Encontrar(chave)?.Grupo == "Folgas (mm)";
+
     public static string? RotuloDaChave(string chave)
     {
         if (JobOnFolhaCampos.Encontrar(chave) is { } campo)

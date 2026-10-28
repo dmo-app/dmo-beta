@@ -271,7 +271,8 @@ public partial class BoquilhasRegistoPageTests : IClassFixture<CustomWebApplicat
         // «o botao definiçoes devia ser um tab») — o link contextual da
         // folha SAIU (a lição das duplicações: uma função, um caminho).
         Assert.DoesNotContain("href=\"/Admin/Definicoes?definition=boquilhas\"", html);
-        Assert.Contains("Registo — BQ RGT997 · Lote 77", html);
+        Assert.Contains("<h3>Produção</h3>", html);
+        Assert.Contains("RGT997 · Lote 77", html);
         // O PAINEL DAS QUANTIDADES CALCULADAS (o html): «Em reparação» é o
         // legitimamente fora; sem lote contabilístico, «—» truthful.
         Assert.Contains("Em reparação</span><strong>0</strong>", html);
@@ -301,7 +302,8 @@ public partial class BoquilhasRegistoPageTests : IClassFixture<CustomWebApplicat
         // Estes valores existem apenas na persistência semeada — nada de
         // fixtures de browser os fornece. A FOLHA NATIVA: os fatos humanos
         // (a referência da tool, os cards da produção pelo bq_id).
-        Assert.Contains("Registo — BQ RGT998 · Lote 78", html);
+        Assert.Contains("<h3>Produção</h3>", html);
+        Assert.Contains("RGT998 · Lote 78", html);
         Assert.Contains("PN-550011", html);
         // Os cartões do registo (Diogo, 17/10/2026): a referência e a
         // produção em cartões; a máquina já não aparece no cabeçalho.

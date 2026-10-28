@@ -72,9 +72,9 @@ public sealed class JobOnToolFactsArmazemTests
             (factos["no-fabrico"].OndeEsta, factos["no-fabrico"].Estado, factos["no-fabrico"].AvisoArmazem));
         Assert.Equal(("Fabrico", (FerramentaEstadoTipo?)null, "CM 6012A118 / lote 2 não tem estado registado."),
             (factos["sem-estado"].OndeEsta, factos["sem-estado"].Estado, factos["sem-estado"].AvisoArmazem));
-        Assert.Equal(((string?)null, (FerramentaEstadoTipo?)null, "MF 6012A118 / lote 2 não está registada no Armazém e não tem estado."),
+        Assert.Equal(("Sem registo", (FerramentaEstadoTipo?)null, "MF 6012A118 / lote 2 não está registada no Armazém e não tem estado."),
             (factos["nunca"].OndeEsta, factos["nunca"].Estado, factos["nunca"].AvisoArmazem));
-        Assert.Equal(((string?)null, FerramentaEstadoTipo.Reparado, "BQ A118 / lote 07 não está registada no Armazém."),
+        Assert.Equal(("Sem registo", (FerramentaEstadoTipo?)FerramentaEstadoTipo.Reparado, "BQ A118 / lote 07 não está registada no Armazém."),
             (factos["so-estado"].OndeEsta, factos["so-estado"].Estado, factos["so-estado"].AvisoArmazem));
     }
 

@@ -471,7 +471,7 @@
       }
       else
       {
-        <p class="peso-hint" style="margin-top:10px">@(Model.ProducaoFixa ? "Esta produção ainda não tem Peso guardado." : "Escolha uma produção com um Peso guardado.")</p>
+        <p class="peso-hint" style="margin-top:10px">@(Model.ProducaoFixa ? "Esta produção ainda não tem Peso guardado." : "Escolha uma produção com um Peso guardado.")@if (Model.ProducaoFixa && Model.ProducaoSelecionadaJobOnId is int semPesoId) {<partial name="_DmoAvisoLink" model="@DmoAvisoLink.PesoDaProducao(semPesoId)" />}</p>
       }
 
       @* A BASE CM a CM (o Diogo, 16/10: «peso e volume dos CM que foram
@@ -775,11 +775,18 @@
         var pesoDeAntes = Model.PesoAnterior ? Model.Peso : null;
       }
       <div class="peso-facts peso-context-grid">
-        <div class="peso-fact"><span>Nº de produção</span><strong>@productionCtx.ProductionNumber</strong></div>
-        <div class="peso-fact"><span>Referência</span><strong>@productionCtx.Reference</strong></div>
+        @* O número abre o Job On desta produção; a referência abre o Histórico do Planeamento com todas as produções dela (Diogo, 28/10/2026). *@
+        <div class="peso-fact"><span>Nº de produção</span><strong>@if (productionCtx.JobOnId > 0) {<a href="/JobOn/Folha?jobon_id=@productionCtx.JobOnId" target="_top" title="Abrir o Job On desta produção">@productionCtx.ProductionNumber</a>} else {@productionCtx.ProductionNumber}</strong></div>
+        <div class="peso-fact"><span>Referência</span><strong>@if (!string.IsNullOrWhiteSpace(productionCtx.Reference)) {<a href="/JobOn?historico=1&amp;referencia=@Uri.EscapeDataString(productionCtx.Reference)" target="_top" title="Todas as produções desta referência no Histórico">@productionCtx.Reference</a>} else {@productionCtx.Reference}</strong></div>
         <div class="peso-fact"><span>Máquina</span><strong>@productionCtx.Machine</strong></div>
-        <div class="peso-fact"><span>CM</span><strong>@(pesoDeAntes is not null ? pesoDeAntes.CmToolReference ?? "—" : Model.CmTool?.Reference ?? "—")</strong></div>
-        <div class="peso-fact"><span>Lote da CM</span><strong>@(pesoDeAntes is not null ? pesoDeAntes.CmToolLot ?? "—" : Model.CmTool?.Lot ?? Model.Peso?.CmToolLot ?? "—")</strong></div>
+        @* A CM e o lote num só cartão, com link para a ficha da ferramenta (Diogo, 28/10/2026). *@
+        @{
+          var cmRef = pesoDeAntes is not null ? pesoDeAntes.CmToolReference : Model.CmTool?.Reference;
+          var cmLote = pesoDeAntes is not null ? pesoDeAntes.CmToolLot : Model.CmTool?.Lot ?? Model.Peso?.CmToolLot;
+          var cmId = pesoDeAntes is not null ? pesoDeAntes.CmToolId : Model.CmTool?.ToolId ?? productionCtx.CmToolId;
+          var cmTexto = (cmRef ?? "—") + (string.IsNullOrWhiteSpace(cmLote) ? null : $" · Lote {cmLote}");
+        }
+        <div class="peso-fact"><span>CM</span><strong>@if (!string.IsNullOrWhiteSpace(cmId) && cmRef is not null) {<a href="/Ferramentas/Ficha?tool_id=@Uri.EscapeDataString(cmId)" target="_top" title="Abrir a ficha desta CM">@cmTexto</a>} else {@cmTexto}</strong></div>
         <div class="peso-fact"><span>Processo</span><strong>@(Model.Peso?.Process ?? cmProcessLabel(Model.CmTechnical?.Process))</strong></div>
       </div>
 
@@ -869,7 +876,7 @@
             }
             else
             {
-              <div class="peso-aviso-simples" role="status">Complete o diâmetro e a calote do tampão na Folha do Job On (bloco TP). O Peso pode continuar sem este apoio.@if (productionCtx.JobOnId > 0) {<partial name="_DmoAvisoLink" model="@DmoAvisoLink.JobOn(productionCtx.JobOnId, "Completar no Job On", editar: true)" />}</div>
+              <div class="peso-aviso-simples" role="status">Complete o diâmetro e a calote do tampão na Folha do Job On (bloco TP). O Peso pode continuar sem este apoio.@if (productionCtx.JobOnId > 0) {<partial name="_DmoAvisoLink" model="@DmoAvisoLink.FolhaEditar(productionCtx.JobOnId, "Completar no Job On")" />}</div>
             }
             @if (Model.CapSimuladaIlegivel)
             {
@@ -1032,7 +1039,7 @@
            (o cálculo precisa das duas): o aviso diz porquê em vez de a
            secção desaparecer sem explicação. *@
         <div class="peso-aviso warn" role="status" style="margin-top:14px" data-peso-sem-ferramentas>
-          O «Novo Peso da produção» não aparece porque o Job On desta produção não tem @(productionCtx.CmToolId is null && productionCtx.BqToolId is null ? "CM nem boquilha (BQ)" : productionCtx.CmToolId is null ? "CM" : "boquilha (BQ)"). O cálculo do Peso precisa das duas ferramentas: complete o Job On e volte a esta folha.<partial name="_DmoAvisoLink" model="@DmoAvisoLink.JobOn(productionCtx.JobOnId, "Editar o Job On", editar: true)" />
+          O «Novo Peso da produção» não aparece porque o Job On desta produção não tem @(productionCtx.CmToolId is null && productionCtx.BqToolId is null ? "CM nem boquilha (BQ)" : productionCtx.CmToolId is null ? "CM" : "boquilha (BQ)"). O cálculo do Peso precisa das duas ferramentas: complete o Job On e volte a esta folha.<partial name="_DmoAvisoLink" model="@DmoAvisoLink.FolhaEditar(productionCtx.JobOnId, "Editar o Job On")" />
         </div>
       }
     </section>

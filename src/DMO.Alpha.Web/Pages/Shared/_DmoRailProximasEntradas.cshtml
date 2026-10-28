@@ -12,7 +12,7 @@
             return new DMO.Alpha.Web.Presentation.DmoRailItem(
             Code: entrada.Machine ?? "—",
             // A referência e a produção numa linha, o estado noutra: nada cortado (Diogo, 26/10/2026).
-            Detail: $"{entrada.Reference} · Produção {entrada.ProductionNumber}",
+            Detail: $"{entrada.Reference} · {entrada.ProductionNumber}",
             Extra: emCurso
                 ? $"Em curso desde {entrada.InicioEm?.ToString("dd/MM")}"
                 : $"Entra a {entrada.InicioEm?.ToString("dd/MM")}",

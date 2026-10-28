@@ -4069,7 +4069,7 @@ Novos: 0 · mudaram: 4 · saíram: 0
 
 Selo depois: `f4fe603cf0e02cbf`
 
-## A-0258 · 2026-10-27 · teste-novo
+## A-0253 · 2026-10-27 · teste-novo
 
 Porquê: DMO-519: testes novos do uso por produção (a leitura de hoje só conta para a última produção)
 Novos: 3 · mudaram: 0 · saíram: 0
@@ -4101,16 +4101,119 @@ Novos: 0 · mudaram: 1 · saíram: 0
 
 Selo depois: `1ecbaa53f6ccc384`
 
+## A-0262 · 2026-10-28 · ok-do-diogo
+
+Porquê: Diogo aprovou mudar estes testes: sem setas no Voltar e no Registo das punções, CM e lote num cartão no Peso, título «Produção» nas Boquilhas, «Sem registo» no Armazém (DMO-523)
+Referência: thread Rever tudo antes da oficial, Diogo 28/10 09:38 «Mete sim no que está em stand by» e 09:39 «perfeito sim» (cmsg_01K75FTs9bQnbhhH7qttpgraGA5bipyUyVzm4eZtodh1on)
+Novos: 0 · mudaram: 8 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnToolFactsArmazemTests.cs :: JobOnToolFactsArmazemTests.OndeEstaOEstadoEOAviso`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Procurar_SoNoCartaoDoTipo_MostraOndeEstaEAbreAFerramenta`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.CanonicalTraceId_LoadsPersistedTrace`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.PersistedToolAndContextFacts_RenderFromServerData`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoSemRegistoTests.cs :: BoquilhasRegistoPageTests.OpeningAMachine_DoesNotCreateTheTrace`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoPorCombinacaoPageTests.cs :: Producao.CriarDepoisDaTroca_AbreOPesoNovo_CopiaAProducaoAnterior_EOAnteriorFicaSemLeituraNova`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FaixaDaFicha.cs :: DefinicoesPorModuloPageTests.ORegistarDoArmazem_ComUmaFerramenta_TemOVoltar`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Posicoes.cs :: PuncoesPageTests.FolhaDasPuncoes_LigadaDoResumoEDoRegisto_SoComRegisto_EOPdfDoControloTrazODasPuncoes`
+
+Selo depois: `d859e6b4b665092d`
+
+## A-0268 · 2026-10-28 · ok-do-diogo
+
+Porquê: Rótulo «Nome técnico (produção)» passa a «Nome técnico (SAP)», pedido do Diogo (DMO-523)
+Referência: Diogo 28/10 10:41 «removee producao nome tecnico meter SAP» (cmsg_01K75FTs9bQnbhhH7qttpgraL8tPtNgyoZrN2cZWqfG68d)
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.CriarEEditar_UmSoFormulario_EditarGravaONomeTecnico`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Ficha_Editar_LinhasCompativeis_InformacaoOpcionalComFabricaDeOrigem`
+
+Selo depois: `44e498ae87db9050`
+
+## A-0269 · 2026-10-28 · teste-novo
+
+Porquê: DMO-536: referência sem Job On abre o Job On novo na linha de onde se veio
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReferenciaNova.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReferenciaNova.cs :: JobOnPageTests.Folha_ReferenciaSemJobOn_AbreOJobOnNovoNaLinhaDeOndeVeio`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReferenciaNova.cs :: JobOnPageTests.Folha_ReferenciaSemJobOn_QuemSoVe_FicaComOAviso`
+
+Selo depois: `f36070a927fa88b7`
+
+## A-0291 · 2026-10-28 · ok-do-diogo
+
+Porquê: DMO-556: a lista «Produção» do Planeamento vem já com a última produção escolhida
+Referência: Diogo 28/10 13:18 «ok» na thread Job On (cmsg_01K75FTs9bQnbhhH7qttpgra3FCNTj9umBvP7F7hPToAYt)
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Procura_EmDoisCampos_AReferenciaEncheODropdownDasProducoes`
+
+Selo depois: `46c4e9cd976b4215`
+
+## A-0292 · 2026-10-28 · ok-do-diogo
+
+Porquê: Folha do Job On (Diogo, 28/10/2026): tolerância com um só sinal; folgas com um número por espaço (MF folga · tol. · flecha, CM só folga · tol.) e o Editar recusa dois números numa folga; a BQ sem «Antes nesta produção» (o teste dos lotes usados passa a exigir que não aparece); posição e estado do Armazém a negrito, a posição abre o Armazém (o teste do Armazém no cartão passa a exigir o negrito). Pedidos do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraXsQAqwXMvdwzxEBtZXVi8x, cmsg_01K75FTs9bQnbhhH7qttpgraKrQi7JHehQiEg7H86U68T1, cmsg_01K75FTs9bQnbhhH7qttpgraVoYdoBPQWZ26Vyr5f5nUSn, cmsg_01K75FTs9bQnbhhH7qttpgraVgPCefiS4NQsiePhNhB2HE
+Referência: DMO-557
+Novos: 7 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolgasRecusaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolgasRecusaTests.cs :: JobOnFolgasRecusaTests.DoisNumerosNumaFolga_ERecusada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolgasTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolgasTests.cs :: JobOnFolgasTests.UmNumeroPorEspaco`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolgasDimensoes.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolgasDimensoes.cs :: JobOnPageTests.Editar_DoisNumerosNumaFolga_ERecusado`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolgasDimensoes.cs :: JobOnPageTests.Folha_ToleranciaComUmSoSinal_EFolgasUmNumeroPorEspaco`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_OndeEstaNoArmazem_EAvisoSemRegisto`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.LotesUsados.cs :: JobOnPageTests.Folha_DepoisDeAlterarOLoteDaBq_MostraOAtualEOsDeAntes`
+
+Selo depois: `9639e32da4f53b65`
+
+## A-0293 · 2026-10-28 · teste-novo
+
+Porquê: Calibres da folha do Job On: o «mm» vai para o título e sai do valor; «56.40 X 58.60» em três linhas (Diogo, 28/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraY5DcPyZsqrbPRVhQf3PV4y e cmsg_01K75FTs9bQnbhhH7qttpgraYLxGTcbw5qgNTTgafoptKT)
+Referência: DMO-560
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CalMm.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CalMm.cs :: JobOnPageTests.Folha_CalibresComMm_OMmVaiParaOTitulo`
+
+Selo depois: `3c8bedd55fb52a4f`
+
+## A-0294 · 2026-10-28 · ok-do-diogo
+
+Porquê: Folha do Job On (Diogo, 28/10/2026): um clique na CM, MF ou BQ abre a ficha (cmsg_01K75FTs9bQnbhhH7qttpgra8GmmFF8a9FLWUhv4j7vS7F; o teste «bloqueada: um clique não faz nada» passa a «um clique leva à ficha»); a linha do Armazém com o estado primeiro e só a posição, «Reparado 4094» (cmsg_01K75FTs9bQnbhhH7qttpgra5n2GjpqGpVYF5m8QHge882, cmsg_01K75FTs9bQnbhhH7qttpgraLZ41oDX4qovbS7Gq9ksQWZ)
+Referência: DMO-562
+Novos: 1 · mudaram: 1 · saíram: 1
+
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: Bloqueada: um clique leva à ficha`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_OndeEstaNoArmazem_EAvisoSemRegisto`
+- saiu: `tests/ShellProof/jobon-folha.test.cjs :: Bloqueada: um clique não faz nada; o duplo clique leva à ficha`
+
+Selo depois: `0f714b35b5fd7df3`
+
+## A-0295 · 2026-10-28 · ok-do-diogo
+
+Porquê: Diogo 28/10 14:54-14:55 (cmsg_01K75FTs9bQnbhhH7qttpgraN8reRcbxZwyA2NZDx8YcZG, cmsg_01K75FTs9bQnbhhH7qttpgraX1A34EDwGZauiatJpzMRCM): «recomer corredor de nao sei das quantas … deixar Tolerancia 0.20» / «+/- 0.20 mas tirar os comentarios todo». Os testes pedem «Tolerância» e «± 0.20» em vez de «nominal ± 0.20 mm» e dos textos «congelada…».
+Referência: DMO-563
+Novos: 0 · mudaram: 4 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.Folhas.cs :: PegamentosPageTests.CmChanged_PageIsReadyForANewSheet_TheFirstReadingStartsIt_AndThePageSaysSo`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.Folhas.cs :: PegamentosPageTests.SingleSheet_PageLooksAsBefore_NoSheetsCard`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.ToleranciaDasDefinicoes.cs :: PegamentosPageTests.FolhaSemMedicoes_MostraAToleranciaDasDefinicoes_EAPrimeiraMedicaoCongelaA`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.GetFolha_ControloId_ShowsInheritedContext_GargaloMissing_MfAlwaysInherited`
+
+Selo depois: `931a9ce77f2c77bd`
+
 ## A-0258 · 2026-10-28 · teste-novo
 
-Porquê: Peso (DMO-528): o Novo Peso mostra a temperatura escrita e a densidade da água dela, em vez do texto da tabela (Diogo, 28/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgra6yFCa111pk22o44zJ9bmZL).
+Porquê: O Novo Peso mostra a temperatura escrita e a densidade da água dela.
 Referência: DMO-528
 Novos: 2 · mudaram: 0 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoDensidadeAgua.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoDensidadeAgua.cs :: ControloCapabilitiesCutHPageTests.NovoPeso_MostraATemperaturaEADensidadeDaAgua`
 
-Selo depois: `53a6349f7132de7b`
+Selo depois: `5ce5118429769616`
 
 ## A-0300 · 2026-10-28 · teste-novo
 
@@ -4120,7 +4223,7 @@ Novos: 1 · mudaram: 0 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_TampaoSoNaFolhaDoJobOn_LeODaFolha`
 
-Selo depois: `bcd425becb1b4772`
+Selo depois: `b63ea9a29747005d`
 
 ## A-0301 · 2026-10-28 · teste-novo
 
@@ -4131,4 +4234,4 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.AssociarJobOn.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.AssociarJobOn.cs :: PesoFolhaProducaoAnteriorPageTests.CriarControloAnterior_SemJobOnOuNumJobOnAnterior`
 
-Selo depois: `b74471494e7c4121`
+Selo depois: `6428e913d1cfede6`
