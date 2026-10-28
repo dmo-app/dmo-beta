@@ -24,4 +24,7 @@ public sealed record BoquilhasRegistoMovement(
     // Os AN do movimento (Diogo, 28/10/2026); null = sem AN.
     int? AnQuantity = null,
     // A discrepância dos AN neste movimento (o excedente de uma entrada, negativo); null sem ela.
-    int? AnDiscrepancy = null);
+    int? AnDiscrepancy = null,
+    // Quem registou o movimento (o nome do utilizador; senão o número de
+    // operador): o Reparador de uma entrada (Diogo, 28/10/2026).
+    string? RegisteredByName = null);

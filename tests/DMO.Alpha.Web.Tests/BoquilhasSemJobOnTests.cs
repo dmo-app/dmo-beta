@@ -125,6 +125,61 @@ public partial class BoquilhasRegistoPageTests
     }
 
     [Fact]
+    public async Task RegistarSemJobOn_NumJobOnAnterior_FicaNoRegistoDesseJobOn_EODaEntradaDizQuemRegistou()
+    {
+        // Diogo, 28/10/2026: «boquilhas que chegaram atrasadas e não consigo
+        // registar num Job On já feito»; «no reparador meter nome do user que dá entrada».
+        await SeedToolAsync("BQ-ANT-1", "QS501", "1");
+        await SeedToolAsync("BQ-ANT-2", "QS502", "1");
+        var feito = await SeedProductionAsync("BQ-ANT-1", "8326T501", "P-777", "C7");
+        var doOutro = await SeedProductionAsync("BQ-ANT-2", "9999T502", "P-888", "C8");
+        int c7Id;
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            c7Id = await db.Machines.Where(m => m.Code == "C7").Select(m => m.Id).SingleAsync();
+        }
+        SeedUser("4296", "Registo Anterior", "provider-registo-anterior", "RegistoAnterior1!");
+        using var client = await LoginClientAsync("4296", "RegistoAnterior1!");
+
+        // Com a BQ escolhida, as referências em que trabalhou; a produção abre ao escolher a referência.
+        var page = await GetPageHtmlAsync(client, $"{PagePath}?ficheiros=1&ferramenta=BQ-ANT-1");
+        Assert.Contains("<option value=\"8326T501\" data-bq=\"BQ-ANT-1\">8326T501</option>", page);
+        Assert.Contains("<option value=\"9999T502\" data-bq=\"BQ-ANT-2\" hidden=\"hidden\" disabled=\"disabled\">9999T502</option>", page);
+        Assert.Contains($"<option value=\"{feito.Id}\" data-bq=\"BQ-ANT-1\" data-referencia=\"8326T501\" data-linha=\"{c7Id}\" hidden>P-777 · C7</option>", page);
+        Assert.Contains("<select id=\"bqSemJobOnProducao\" name=\"bq_id\" disabled data-bq-producoes>", page);
+
+        async Task<string> RegistarAsync(int bqId)
+        {
+            var (acao, campos) = EnvioDoFormulario.Enviar(page,
+                [("bqSemJobOnBq", "BQ-ANT-1"), ("bqSemJobOnLinha", c7Id.ToString()), ("bqSemJobOnQtd", "6"), ("bqSemJobOnData", "2026-10-27T15:59")],
+                radios: [("movement_type", "entrada")]);
+            using var response = await client.PostAsync(acao, EnvioDoFormulario.Corpo([.. campos, ("bq_id", bqId.ToString())]));
+            Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+            return response.Headers.Location!.OriginalString;
+        }
+
+        // Um Job On de outra BQ é recusado e não grava nada.
+        Assert.Contains("sem_jobon=JobOnErrado", await RegistarAsync(doOutro.Id));
+        var location = await RegistarAsync(feito.Id);
+        Assert.Contains("sem_jobon=ok_jobon", location);
+        Assert.Contains("Movimento registado no Job On da produção P-777.", await GetPageHtmlAsync(client, location));
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            var movimento = await db.BqMovements.AsNoTracking().Include(m => m.Trace).SingleAsync();
+            Assert.Equal(feito.Id, movimento.Trace.BqContextId);
+            Assert.Equal(BqMovementType.Entrada, movimento.Type);
+            Assert.Equal(6, movimento.Quantity);
+        }
+
+        // No registo do Job On, o Reparador da entrada é quem a registou.
+        var registo = await GetPageHtmlAsync(client, $"{PagePath}?bq_id={feito.Id}");
+        Assert.Contains("<td>Entrada</td><td>6</td><td>—</td><td>C7</td><td>Registo Anterior</td>", registo.Replace("\n", "").Replace("                ", ""));
+    }
+
+    [Fact]
     public async Task RegistarSemJobOn_SemQuantidade_ReabreAJanelaComAFrase()
     {
         await SeedToolAsync("BQ-SEMJOB-3", "QS174", "1");

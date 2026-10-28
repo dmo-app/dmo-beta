@@ -90,7 +90,9 @@ public sealed class EditBqMovementHandler : IEditBqMovementHandler
 
         movement.CorrectedByNameFrozen = BqActorName.Freeze(command.CorrectedBy);
         movement.CorrectedAtUtc = now.UtcDateTime;
-        BqDiscrepancyFold.Apply(traceMovements);
+        // A conta é da BQ em todas as produções (Diogo, 28/10/2026); só se gravam os deste registo.
+        var registo = await _db.BqRepairTraces.AsNoTracking().FirstAsync(t => t.Id == command.BqRepairTraceId, cancellationToken);
+        BqDiscrepancyFold.Apply(traceMovements.Concat(await BqDiscrepancyFold.DosOutrosRegistosAsync(_db, registo, cancellationToken)));
         await _db.SaveChangesAsync(cancellationToken);
         if (transaction is not null)
         {

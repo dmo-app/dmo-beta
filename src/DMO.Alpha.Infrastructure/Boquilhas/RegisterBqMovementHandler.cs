@@ -361,7 +361,8 @@ public sealed class RegisterBqMovementHandler : IRegisterBqMovementHandler
                 .Where(m => m.BqRepairTraceId == trace.Id)
                 .ToListAsync(cancellationToken);
         traceMovements.Add(persisted);
-        BqDiscrepancyFold.Apply(traceMovements);
+        // A conta é da BQ em todas as produções (Diogo, 28/10/2026); só se gravam os deste registo.
+        BqDiscrepancyFold.Apply(traceMovements.Concat(await BqDiscrepancyFold.DosOutrosRegistosAsync(_db, trace, cancellationToken)));
 
         _db.BqMovements.Add(persisted);
         await _db.SaveChangesAsync(cancellationToken);

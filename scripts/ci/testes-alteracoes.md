@@ -4171,3 +4171,16 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_ALinhaSoTemAsDaFichaDaBq_EVemJaEscolhida`
 
 Selo depois: `9d50b5039c93e9e9`
+
+## A-0310 · 2026-10-28 · contagem-lista
+
+Porquê: Saldo da BQ em todas as produções e Job On anterior no «Registar sem Job On» (DMO-573, DMO-574): só sobem os limites de consultas (+1 nas aberturas com registo, +2 na grelha do histórico).
+Novos: 4 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqSaldoPorBqTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqSaldoPorBqTests.cs :: NoSettings.BqQueSaiuNumJobOn_EVoltaNoutro_NaoFicaComSaldo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqSaldoPorBqTests.cs :: NoSettings.EntraMaisDoQueSaiu_EmTodasAsProducoes_FicaComSaldo`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_NumJobOnAnterior_FicaNoRegistoDesseJobOn_EODaEntradaDizQuemRegistou`
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasRegistoConsultasTests.cs :: BoquilhasRegistoConsultasTests.Registo_GetFazPoucasConsultas`
+
+Selo depois: `b693433f51db0d77`

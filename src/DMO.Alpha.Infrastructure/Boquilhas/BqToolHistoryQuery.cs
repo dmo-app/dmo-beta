@@ -118,8 +118,47 @@ public sealed class BqToolHistoryQuery : IBqToolHistoryQuery
 
         var rows = filtered
             .OrderByDescending(row => row.OccurredAtUtc);
-        return await ToItems(limit is int max ? rows.Take(max) : rows)
+        var items = await ToItems(limit is int max ? rows.Take(max) : rows)
             .ToListAsync(cancellationToken);
+        return await ComOSaldoDeAgoraAsync(items, cancellationToken);
+    }
+
+    /// <summary>
+    /// O Saldo de cada movimento com a regra de agora (Diogo, 28/10/2026: «só
+    /// deve criar saldo quando entra mais do que saiu»), refeito sobre todos
+    /// os movimentos dos registos da lista, e não o valor gravado, que pode
+    /// ser de antes da regra. A conta é da BQ em todas as produções.
+    /// </summary>
+    private async Task<IReadOnlyList<BqHistoryMovementItem>> ComOSaldoDeAgoraAsync(
+        List<BqHistoryMovementItem> items, CancellationToken cancellationToken)
+    {
+        if (items.Count == 0)
+        {
+            return items;
+        }
+
+        var traceIds = items.Select(i => i.BqRepairTraceId).Distinct().ToList();
+        var registos = await (
+                from t in _db.BqRepairTraces.AsNoTracking()
+                join c in _db.BqContexts.AsNoTracking() on t.BqContextId equals (int?)c.Id into cs
+                from c in cs.DefaultIfEmpty()
+                select new { t.Id, ToolId = t.ToolId ?? (c != null ? c.ToolId : null) })
+            .Where(r => r.ToolId != null)
+            .ToListAsync(cancellationToken);
+        var bqDoRegisto = registos.ToDictionary(r => r.Id, r => r.ToolId!);
+        var bqs = traceIds.Select(id => bqDoRegisto.GetValueOrDefault(id)).OfType<string>().ToHashSet(StringComparer.Ordinal);
+        var registosDasBqs = registos.Where(r => bqs.Contains(r.ToolId!) || traceIds.Contains(r.Id)).Select(r => r.Id).ToList();
+        var todos = await _db.BqMovements.AsNoTracking()
+            .Where(m => registosDasBqs.Contains(m.BqRepairTraceId) || traceIds.Contains(m.BqRepairTraceId))
+            .Select(m => new BqMovement { Id = m.Id, BqRepairTraceId = m.BqRepairTraceId, Type = m.Type, Quantity = m.Quantity, OccurredAtUtc = m.OccurredAtUtc })
+            .ToListAsync(cancellationToken);
+        foreach (var daBq in todos.GroupBy(m => bqDoRegisto.GetValueOrDefault(m.BqRepairTraceId) ?? $"registo:{m.BqRepairTraceId}"))
+        {
+            BqDiscrepancyFold.Apply(daBq);
+        }
+
+        var saldo = todos.ToDictionary(m => m.Id, m => m.Discrepancy);
+        return items.Select(i => i with { Discrepancy = saldo.GetValueOrDefault(i.MovementId) }).ToList();
     }
 
     private static (DateTime StartUtc, DateTime EndUtc) UtcBounds(DateOnly? desde, DateOnly? ate)

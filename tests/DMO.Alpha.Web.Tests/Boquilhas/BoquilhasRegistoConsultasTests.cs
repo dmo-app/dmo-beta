@@ -75,15 +75,18 @@ public sealed class BoquilhasRegistoConsultasTests : IClassFixture<CustomWebAppl
         // da página, em vez de todos os movimentos por inteiro.
         // beta.81: +1 nas aberturas com bq_id, a consulta única dos lotes do
         // «Alterar lote» (Diogo, 26/10/2026).
+        // 28/10/2026: +1 nas aberturas com registo, os movimentos da mesma BQ
+        // nas outras produções (o Saldo é da BQ, DMO-574); +2 na grelha do
+        // histórico, o Saldo refeito sobre os registos das BQ da lista.
         var limits = new Dictionary<string, int>
         {
             ["registo"] = 4,
-            ["bq_id com registo"] = 12,
+            ["bq_id com registo"] = 13,
             ["bq_id sem registo"] = 11,
-            ["trace_id associado"] = 9,
-            ["trace_id sem Job On"] = 8,
+            ["trace_id associado"] = 10,
+            ["trace_id sem Job On"] = 9,
             ["historico"] = 5,
-            ["historico grelha"] = 6
+            ["historico grelha"] = 8
         };
         // O contador está ligado: cada GET lê pelo menos a sessão e o painel.
         Assert.All(counts, count => Assert.True(count.Value >= 4, $"{count.Key}: {count.Value}"));

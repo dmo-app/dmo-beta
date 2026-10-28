@@ -509,7 +509,8 @@
                 <td>@(movement.Quantity == 0 && movement.AnQuantity is not null ? "—" : movement.Quantity.ToString())</td>
                 <td>@(movement.AnQuantity is int an ? an.ToString() : "—")</td>
                 <td>@(movement.MachineCodeFrozen ?? "—")</td>
-                <td>@(movement.BqRepairerNameFrozen ?? "—")</td>
+                @* Numa entrada, quem a registou (Diogo, 28/10/2026). *@
+                <td>@(movement.BqRepairerNameFrozen ?? (movement.MovementType == "saida" ? null : movement.RegisteredByName) ?? "—")</td>
                 <td>@(movement.AnDiscrepancy is int anDisc ? (movement.Discrepancy is int discBq ? $"{discBq} BQ · {anDisc} AN" : $"{anDisc} AN") : movement.Discrepancy is int disc ? disc.ToString() : "—")</td>
               }
               const string movementsHead = "<tr><th>Data/hora</th><th>BQ · lote</th><th>Movimento</th><th>Qtd. BQ</th><th>Qtd. AN</th><th>Máquina</th><th>Reparador</th><th>Saldo</th></tr>";

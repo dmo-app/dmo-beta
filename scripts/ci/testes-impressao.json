@@ -1,5 +1,5 @@
 {
-  "selo": "9d50b5039c93e9e9",
+  "selo": "b693433f51db0d77",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -340,6 +340,9 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqRepairerWriteHandlersTests.cs :: BqRepairerWriteHandlersTests.Edit_ChangesTheName_WithoutTouchingTheFrozenMovements": "5b16dfd5d7e310a5",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqRepairerWriteHandlersTests.cs :: BqRepairerWriteHandlersTests.Edit_MissingRepairer_RefusesTyped": "cd233afca13c9c6c",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqRepairerWriteHandlersTests.cs :: BqRepairerWriteHandlersTests.Edit_NameAlreadyUsedByAnotherRepairer_RefusesTyped": "5d9e5b691abb9479",
+    "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqSaldoPorBqTests.cs :: (resto do ficheiro)": "2b05aaa020f7cf1f",
+    "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqSaldoPorBqTests.cs :: NoSettings.BqQueSaiuNumJobOn_EVoltaNoutro_NaoFicaComSaldo": "8d5a71bce77049b6",
+    "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqSaldoPorBqTests.cs :: NoSettings.EntraMaisDoQueSaiu_EmTodasAsProducoes_FicaComSaldo": "2b278f91247347dc",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/RegisterBqMovementForContextTests.cs :: (resto do ficheiro)": "717cbabe89e16af4",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/RegisterBqMovementForContextTests.cs :: FixedClock.UnknownContext_IsRefusedAsTraceNotFound": "efcc2f1e9586dd44",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/RegisterBqMovementForContextTests.cs :: NoSettings.FirstMovement_CreatesOneAssociatedTrace_AndTheMovement": "7b84f480ea779125",
@@ -1791,7 +1794,7 @@
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.Sidepanel_SurvivesTheHistoryViews": "f957509207a3499c",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.ViewDropdown_AndContextualPdfButton_AreWiredToTheGenerators": "d8d173e449e5d3ff",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasRegistoConsultasTests.cs :: (resto do ficheiro)": "ebe49e8cb3c2744a",
-    "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasRegistoConsultasTests.cs :: BoquilhasRegistoConsultasTests.Registo_GetFazPoucasConsultas": "30b9f91f91325aa4",
+    "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasRegistoConsultasTests.cs :: BoquilhasRegistoConsultasTests.Registo_GetFazPoucasConsultas": "46dc7df1d340cc07",
     "tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: (resto do ficheiro)": "e0f45daa8edaaf63",
     "tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_ADiscrepanciaTambemContaParaOsAn": "bbe02ffdf2505d98",
     "tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_IlegivelOuNegativo_NaoGravaNada_EOFormularioVoltaComOQueSeEscreveu": "bce2643c258ce459",
@@ -1915,6 +1918,7 @@
     "tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_ALinhaPropostaEAUltimaOndeTeveMovimentos_SeForDaFicha": "d93ceea38bc6e0f4",
     "tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_ALinhaSoTemAsDaFichaDaBq_EVemJaEscolhida": "8c15b0cf8da42693",
     "tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_NaPaginaBoquilhas_GravaEMostraOMovimento": "bec6d63a371ed3ed",
+    "tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_NumJobOnAnterior_FicaNoRegistoDesseJobOn_EODaEntradaDizQuemRegistou": "beb7b55d049fff0e",
     "tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_SemQuantidade_ReabreAJanelaComAFrase": "0028663fd2a12e22",
     "tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.SemJobOnTool_Label_MostraOQueIdentificaABq_PelaReferencia": "bfb4ce38e3c87d9e",
     "tests/DMO.Alpha.Web.Tests/BoquilhasToolCatalogTests.CliquesRepetidos.cs :: (resto do ficheiro)": "b476e1f4f12b596a",

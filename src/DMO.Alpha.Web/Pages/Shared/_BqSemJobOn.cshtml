@@ -7,7 +7,8 @@
 <div id="bqSemJobOn" class="dmo-zona" data-dmo-regiao>
 @if (Model.SemJobOnTools.Count > 0)
 {
-  var recusa = Model.SemJobOnResult is { Length: > 0 } r && r != "ok";
+  var gravou = Model.SemJobOnResult is "ok" or "ok_jobon";
+  var recusa = Model.SemJobOnResult is { Length: > 0 } && !gravou;
   var escolhida = Model.ToolSheet?.ToolId;
   @* A Linha só com as da ficha da BQ (Diogo, 28/10/2026: «escolhi uma para C1
      mete logo C1; se for C1 B2, aparecer C1 e depois apenas poder filtrar pela
@@ -16,7 +17,7 @@
   var linhasDaEscolhida = Model.SemJobOnTools.FirstOrDefault(t => t.ToolId == escolhida)?.MachineCodes ?? [];
   var linhaProposta = linhasDaEscolhida.Count == 0 ? null
       : Model.SemJobOnLines.FirstOrDefault(l => string.Equals(l.Code, linhasDaEscolhida[0], StringComparison.OrdinalIgnoreCase))?.MachineId;
-    @if (Model.SemJobOnResult == "ok")
+    @if (gravou)
     {
       <p data-dmo-toast="ok" class="result" role="status">@Model.SemJobOnMessage</p>
     }
@@ -62,6 +63,41 @@
             <select id="bqSemJobOnPeca" name="peca">
               <option value="bq" selected>BQ</option>
               <option value="an">AN</option>
+            </select>
+          </div>
+        </div>
+        @* UM JOB ON ANTERIOR (Diogo, 28/10/2026: «ao escolher a BQ, desbloquear
+           um campo que mostra as referências que esta BQ trabalhou, e depois um
+           dropdown com a produção; o registo fica associado a esse Job On»).
+           Sem referência, é um registo sem Job On. O bq-sem-jobon.js mostra só
+           as da BQ escolhida e, ao escolher a produção, põe a linha dela. *@
+        @{
+          var referencias = Model.SemJobOnJobOns
+              .GroupBy(j => (j.ToolId, Referencia: j.Reference.Trim().ToUpperInvariant()))
+              .Select(g => g.Key)
+              .OrderBy(k => k.ToolId, StringComparer.Ordinal).ThenBy(k => k.Referencia, StringComparer.Ordinal)
+              .ToList();
+          var temReferencias = referencias.Any(k => k.ToolId == escolhida);
+        }
+        <div class="bq-sem-jobon-campos bq-sem-jobon-jobon" data-bq-jobon-da="bqSemJobOnBq">
+          <div class="dmo-field bq-sem-jobon-ref">
+            <label for="bqSemJobOnReferencia" title="As referências em que esta BQ trabalhou. Escolha uma para registar num Job On anterior.">Job On anterior · referência</label>
+            <select id="bqSemJobOnReferencia" disabled="@(!temReferencias)" data-bq-referencias>
+              <option value="">Sem Job On</option>
+              @foreach (var (bqTool, referencia) in referencias)
+              {
+                <!option value="@referencia" data-bq="@bqTool" hidden="@(bqTool != escolhida)" disabled="@(bqTool != escolhida)">@referencia</!option>
+              }
+            </select>
+          </div>
+          <div class="dmo-field bq-sem-jobon-producao">
+            <label for="bqSemJobOnProducao">Produção</label>
+            <select id="bqSemJobOnProducao" name="bq_id" disabled data-bq-producoes>
+              <option value="">—</option>
+              @foreach (var j in Model.SemJobOnJobOns)
+              {
+                <!option value="@j.BqId" data-bq="@j.ToolId" data-referencia="@j.Reference.Trim().ToUpperInvariant()" data-linha="@j.MachineId" hidden>@j.ProductionNumber@(j.InicioEm is DateOnly inicio ? $" · {inicio:dd/MM/yyyy}" : null) · @j.MachineCode</!option>
+              }
             </select>
           </div>
         </div>

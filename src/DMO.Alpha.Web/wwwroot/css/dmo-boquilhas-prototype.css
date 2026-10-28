@@ -334,6 +334,11 @@ html[data-theme="dark"] .bq-escolha-lista li:hover span, html[data-theme="dark"]
 .bq-sem-jobon-janela .bq-sem-jobon-linha > .bq-movement-types label { flex:0 0 auto; }
 .bq-sem-jobon-janela .bq-sem-jobon-linha > .bq-sem-jobon-registar { flex:0 0 auto; }
 .bq-sem-jobon-janela .bq-sem-jobon-curto :is(select,input) { width:68px !important;min-width:0; }
+/* Job On anterior (Diogo, 28/10/2026): a referência e a produção, do tamanho do que levam. */
+.bq-sem-jobon-janela .bq-sem-jobon-jobon { display:flex;flex-wrap:wrap;gap:8px 12px; }
+.bq-sem-jobon-janela .bq-sem-jobon-jobon > .dmo-field { flex:0 0 auto;min-width:0; }
+.bq-sem-jobon-janela .bq-sem-jobon-ref select { width:200px !important;min-width:0; }
+.bq-sem-jobon-janela .bq-sem-jobon-producao select { width:300px !important;min-width:0; }
 .bq-sem-jobon-janela .bq-sem-jobon-qtd input { width:80px !important;min-width:0; }
 .bq-sem-jobon-janela .bq-sem-jobon-dia input { width:150px !important;min-width:0; }
 .bq-sem-jobon-janela .bq-sem-jobon-hora input { width:104px !important;min-width:0; }
