@@ -222,3 +222,11 @@ html body .bq-sem-jobon-link:is(:hover,:focus-visible,:active):not(#_),html body
   html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user span:not(#_){min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user span:not(#_)::before{content:"\00a0·\00a0"}
 }
+
+/* Hover único dos cartões das linhas (B1, B2, C1…; Diogo, 28/10/2026: «a questão das cores no hover tem de ser igual para todos»):
+   em todas as páginas (Boquilhas, Reparação Interna, Sumário, Planeamento, gaveta «Linhas» da Folha), claro e escuro, o cartão não escolhido
+   enche-se com a cor cheia da sua linha (a mesma do Planeamento) e todo o texto passa à cor sobre cor. O escolhido mantém o seu aspeto. */
+@media screen{
+  html:root body :is(.beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]),.jof2-gaveta .rail-item.dmo-linha-cor):not(.selected):not(.active):not(:disabled):is(:hover,:focus-visible){background:var(--dmo-linha-cheia,var(--dmo-machine-color,var(--dmo-brand-600)));border-color:var(--dmo-linha-cheia,var(--dmo-machine-color,var(--dmo-brand-600)));color:var(--dmo-text-on-color,#fff);outline:0;box-shadow:none}
+  html:root body :is(.beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]),.jof2-gaveta .rail-item.dmo-linha-cor):not(.selected):not(.active):not(:disabled):is(:hover,:focus-visible) *{color:var(--dmo-text-on-color,#fff)}
+}

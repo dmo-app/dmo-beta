@@ -152,13 +152,6 @@ html body .jof2 .page-head .pick-row .jof-tipo label>span{box-sizing:border-box;
 html body .jof2 .page-head :is(.pick-row .btn,.head-acoes .btn,.head-acoes summary.btn,.head-tools .btn){box-sizing:border-box;height:var(--dmo-control-height);min-height:0;margin:0}
 html body .jof2 .page-head :is(.head-acoes,.head-tools){align-self:center;margin:0}
 
-/* Gaveta das produções (Linhas): no hover o cartão enche-se com a cor da
-   linha e a letra fica branca, como os cartões das linhas por baixo do
-   título (exceção pedida pelo Diogo, 27/10/2026, à regra do hover só na letra). */
-html body .jof2-gaveta .rail-item.dmo-linha-cor:not(:disabled):is(:hover,:focus-visible),
-html[data-theme="dark"] body .jof2-gaveta .rail-item.dmo-linha-cor:not(:disabled):is(:hover,:focus-visible){background:var(--dmo-machine-color,var(--dmo-brand-600));border-color:var(--dmo-machine-color,var(--dmo-brand-600));color:#fff}
-html body .jof2-gaveta .rail-item.dmo-linha-cor:not(:disabled):is(:hover,:focus-visible) :is(b,small,span){color:#fff}
-
 /* ------------------------------------------------------------------ */
 /* Job On › folha em ver: continua a caber em 1366×768.                 */
 /* ------------------------------------------------------------------ */
@@ -440,13 +433,7 @@ html body .jof2 .jof-fora .hv+.hv:not(:nth-child(2)){margin-left:0;padding-left:
 /* Calendário: a legenda com o tamanho dos rótulos (12 px). */
 html body .beta-light-view .dmo-calendar .dmo-calendar-legend{font-size:12px}
 
-/* Faixa «Planeamento»: no hover o cartão enche-se com a cor da linha e a
-   letra passa a branca, como as linhas de «Produções de <dia>» (Diogo,
-   27/10/2026). O cartão escolhido mantém o seu aspeto. */
-@media screen{
-  html:root body .beta-production-rail[aria-label="Planeamento"] .beta-production-lines :is(button,.dmo-rail-link).dmo-linha-cor:not(.selected):not(.active):is(:hover,:focus-visible){background:var(--dmo-linha-cheia,var(--dmo-brand-600));border-color:var(--dmo-linha-cheia,var(--dmo-brand-600));color:var(--dmo-text-on-color);outline:0;box-shadow:none}
-  html:root body .beta-production-rail[aria-label="Planeamento"] .beta-production-lines :is(button,.dmo-rail-link).dmo-linha-cor:not(.selected):not(.active):is(:hover,:focus-visible) *{color:var(--dmo-text-on-color)}
-}
+/* Hover dos cartões das linhas (todas as páginas): ver dmo-botoes.css, «Hover único dos cartões das linhas». */
 
 /* Histórico: cabeçalhos da tabela com o tamanho e a cor dos rótulos dos
    filtros (12 px); a linha só muda a cor da letra no hover (sem caixa,
@@ -471,9 +458,11 @@ html body #jobonHistoricoResultados .dmo-list-pager{justify-content:flex-end!imp
    escuro da faixa), nos dois modos, sem azul vivo (Diogo, 27/10/2026: «linha escolhida em
    azul vivo no escuro»). O texto por cima é sempre branco. */
 html body .beta-light-productions .beta-light-machine-row,
-html body .beta-production-rail[aria-label="Planeamento"] .beta-production-lines .dmo-linha-cor{--dmo-linha-cheia:color-mix(in srgb,var(--dmo-machine-color) 62%,var(--dmo-deep-900))}
+html body .beta-production-rail .beta-production-lines :is(.dmo-linha-cor,[data-dmo-linha-cor]),
+html body .jof2-gaveta .rail-item.dmo-linha-cor{--dmo-linha-cheia:color-mix(in srgb,var(--dmo-machine-color) 62%,var(--dmo-deep-900))}
 html[data-theme="dark"] body .beta-light-productions .beta-light-machine-row,
-html[data-theme="dark"] body .beta-production-rail[aria-label="Planeamento"] .beta-production-lines .dmo-linha-cor{--dmo-linha-cheia:color-mix(in srgb,var(--dmo-machine-color) 48%,var(--dmo-deep-900))}
+html[data-theme="dark"] body .beta-production-rail .beta-production-lines :is(.dmo-linha-cor,[data-dmo-linha-cor]),
+html[data-theme="dark"] body .jof2-gaveta .rail-item.dmo-linha-cor{--dmo-linha-cheia:color-mix(in srgb,var(--dmo-machine-color) 48%,var(--dmo-deep-900))}
 @media screen{
   html:root body .beta-light-productions .beta-light-machine-row:has(input:checked){background:var(--dmo-linha-cheia)}
   html:root body .beta-light-productions .beta-light-machine-row:has(input:checked) :is(strong,span,a){color:var(--dmo-text-on-color)}

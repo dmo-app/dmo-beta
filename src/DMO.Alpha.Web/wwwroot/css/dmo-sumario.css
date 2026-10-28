@@ -50,8 +50,6 @@ html body main.sumario-page .sumario-item:has(> a.sumario-titulo):is(:hover,:foc
 a.sumario-titulo:focus-visible{outline:none}
 .sumario-item:has(> a.sumario-titulo:focus-visible){outline:2px solid var(--dmo-brand-700);outline-offset:1px}
 /* A barra das produções: no hover muda só a cor da letra (o fundo da cor da máquina, sem contorno, fica). */
-html:root body main.sumario-page .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):not(.selected):not(.active):is(:hover,:focus-visible){background:color-mix(in srgb,var(--dmo-machine-color,var(--dmo-brand-600)) 12%,var(--dmo-card));border:0;outline:0;box-shadow:none}
-html body main.sumario-page .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(:hover,:focus-visible) :is(strong,span){color:var(--dmo-brand-700)}
 html body main.sumario-page .beta-production-rail a.beta-production-rail-title:is(:hover,:focus-visible){color:var(--dmo-brand-700)}
 .sumario-detalhe{color:var(--dmo-text);font-size:13px}
 .sumario-item small{margin-left:auto;color:var(--dmo-text-muted);font-size:12px}

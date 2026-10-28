@@ -149,9 +149,6 @@ html body .beta-bq-layout section.view>.page-head p{margin:0}
 html body .beta-bq-layout section.view .beta-production-rail{margin:0;padding:8px 16px}
 html body .beta-bq-layout section.view .beta-production-lines :is(button,.dmo-rail-link){padding:4px 12px}
 /* Passar o rato num cartão (as linhas, os factos com link) muda só a cor do texto. */
-html body .beta-bq-layout .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):hover:not(.selected):not(.active){background:color-mix(in srgb,var(--dmo-machine-color,var(--dmo-brand-600)) 12%,var(--dmo-card))}
-html body .beta-bq-layout .beta-production-lines :is(button,.dmo-rail-link).bq-line-empty:hover{background:var(--dmo-card)}
-html body .beta-bq-layout .beta-production-lines :is(button,.dmo-rail-link):hover:not(.selected):not(.active) strong{color:var(--dmo-brand-600)}
 html body .beta-bq-layout a.dmo-fact.dmo-fact-link:is(:hover,:focus-visible){background:none}
 html body .beta-bq-layout a.dmo-fact.dmo-fact-link:is(:hover,:focus-visible)>strong{color:var(--dmo-brand-600)}
 html body .beta-bq-layout .card{padding:12px 16px}
