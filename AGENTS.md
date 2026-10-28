@@ -7,10 +7,16 @@ Português de Portugal em tudo o que se escreve (PR, relatórios, textos da app)
 
 ## Quem faz o quê
 
-1. **O Claude** faz a mudança (refinamento, correção, funcionalidade) e abre o PR para o ramo
-   `integracao`, com a etiqueta **`agentes: testar`**.
-2. **O agente de fora** pega nesse PR, resolve os conflitos com a `integracao`, corre os testes,
-   corrige o que falhar e deixa um **relatório da correção** no PR (modelo abaixo). Muda a etiqueta para
+1. **O Claude** implementa a mudança (refinamento, correção, funcionalidade) e **escreve os testes**
+   dela. Em cada PR (modelo em `.github/pull_request_template.md`) diz:
+   - a **prioridade de entrada** (1 = entra primeiro; ordem em que os PRs devem entrar na `integracao`);
+   - a **lista de testes**: cada teste com a funcionalidade que garante, em frase do negócio.
+     Esta lista fica também registada na guarda dos testes (`guarda-testes.py registar --porque`).
+   Abre o PR para o ramo `integracao` com a etiqueta **`agentes: testar`**. O Claude não corre o CI.
+2. **O agente de fora** trata de tudo o que é CI e PR: pega nos PRs pela prioridade, resolve os
+   conflitos com a `integracao`, corre o CI, corrige o que falhar e escreve o **relatório** de como
+   tudo foi feito (modelo abaixo) no PR e em `relatorios/` do repositório
+   [dmo-app/dmo-ci](https://github.com/dmo-app/dmo-ci), que tem o passo a passo e o script. Muda a etiqueta para
    **`agentes: pronto`** (CI verde) ou **`agentes: ajuda`** (não conseguiu, diz porquê).
 3. **O Claude** lê o relatório. Se a correção estiver mal, sugere no PR (comentário) e volta a pôr
    `agentes: testar`. Não a refaz por cima.
@@ -19,8 +25,9 @@ Português de Portugal em tudo o que se escreve (PR, relatórios, textos da app)
 
 ## Como encontrar o trabalho
 
-PRs abertos com a etiqueta `agentes: testar`, do mais antigo para o mais recente:
-`is:pr is:open label:"agentes: testar"`. Um PR de cada vez; trabalhar sempre no ramo do próprio PR.
+PRs abertos com a etiqueta `agentes: testar`, pela **prioridade de entrada** escrita no PR
+(empate: o mais antigo primeiro): `is:pr is:open label:"agentes: testar"`. Um PR de cada vez;
+trabalhar sempre no ramo do próprio PR.
 
 ## Conflitos
 
@@ -35,18 +42,11 @@ PRs abertos com a etiqueta `agentes: testar`, do mais antigo para o mais recente
 
 ## Testes e CI
 
-Precisa de .NET 10 (`global.json`), PostgreSQL 16 local, Node.js 22, Python 3.12 com
-`playwright==1.56.0` e o Chromium (`python3 -m playwright install --with-deps chromium`).
-
-```sh
-bash scripts/ci/ci-local.sh
-```
-
-- Só vale **«CI local: OK»** na última linha. «INCOMPLETO» (com `CI_SEM_POSTGRES`, `CI_SEM_NODE` ou
-  `CI_SEM_BROWSER`) não vale como OK.
-- O PostgreSQL do CI é sempre um local descartável (`CI_PG_ADMIN`, por omissão `localhost:5432`, `postgres/postgres`).
-- O GitHub corre o mesmo script em `.github/workflows/ci.yml` em cada push ao PR; o relatório
-  diz o resultado dos dois.
+O CI é **local**, na máquina do agente, com a base PostgreSQL num contentor **Docker** descartável.
+O passo a passo e o script estão no [dmo-ci](https://github.com/dmo-app/dmo-ci):
+`bash scripts/correr-ci.sh <nº do PR>` (traz o PR, junta a `integracao`, arranca a base e corre
+`scripts/ci/ci-local.sh`). Só vale **«CI local: OK»** na última linha; «INCOMPLETO» não vale.
+O GitHub Actions não substitui o CI local.
 
 ## O que se pode corrigir
 
@@ -80,6 +80,8 @@ bash scripts/ci/ci-local.sh
 **O que falhava:** <teste ou erro, com a mensagem copiada>
 **Causa:** <uma ou duas frases>
 **Correção:** <ficheiros e o que mudou; commit>
+**Prioridade:** <a do PR>
+**Testes do PR:** <cada teste da lista: passou / falhou>
 **Testes mudados:** nenhum | <quais e o registo da guarda>
 **Por resolver / dúvidas:** nenhuma | <o quê>
 ```
