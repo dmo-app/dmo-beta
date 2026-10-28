@@ -4129,3 +4129,12 @@ Novos: 4 · mudaram: 5 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
 
 Selo depois: `af57a25520e69d31`
+
+## A-0261 · 2026-10-28 · contagem-lista
+
+Porquê: Os filtros Estado, Localização e Fábrica (DMO-529) entram na linha das Ferramentas: o browser da paginação conta 9 caixas em vez de 6; continua a verificar que ficam todas numa linha, sem deslizar.
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/visual/paginacao_parcial_browser.py`
+
+Selo depois: `fd8a7571dbcd50e2`

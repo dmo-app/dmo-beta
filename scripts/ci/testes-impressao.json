@@ -1,5 +1,5 @@
 {
-  "selo": "af57a25520e69d31",
+  "selo": "fd8a7571dbcd50e2",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -3204,7 +3204,7 @@
     "tests/visual/historicos_parcial_browser.py": "64ce36444badbae3",
     "tests/visual/jobon_folha_browser.py": "020b9460fc6c3126",
     "tests/visual/nok_agente_browser.py": "38157f0e523cc2cb",
-    "tests/visual/paginacao_parcial_browser.py": "571e64a6f5ea69fc",
+    "tests/visual/paginacao_parcial_browser.py": "e9fd21e044518a16",
     "tests/visual/painel_cores_linhas_browser.py": "314294fe9aeb453c",
     "tests/visual/painel_lateral_browser.py": "85c135a8f92bce44",
     "tests/visual/pasta_pdf_browser.py": "9d48fc2ea93cddb1",
