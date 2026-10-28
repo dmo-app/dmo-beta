@@ -37,3 +37,17 @@ html body .peso-comparar-filtros .dmo-field>input:is([name=calote_atual],[name=c
 /* Planeamento › Nova produção: as duas filas com as mesmas colunas, cada uma da largura do que leva
    (Referência / Secções, Nº / Gota, Máquina / Processo, Início / Peso, Fim). */
 html body #lightForm .beta-light-fields{grid-template-columns:var(--dmo-campo-ref) var(--dmo-campo-ref) var(--dmo-campo-escolha) var(--dmo-campo-data) var(--dmo-campo-data);justify-content:start}
+
+/* Os que faltavam (medidos pela thread Design em 63 páginas, 28/10/2026). */
+/* Armazém › Registo › Registar entrada: Posição e Estado (a grelha de 2 colunas 1fr do
+   d1366-armazem-reparacao-admin.css esticava-os). */
+html body main.arm-page #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha{grid-template-columns:var(--dmo-campo-curto) var(--dmo-campo-escolha);justify-content:start}
+/* Pegamentos sem Job On: referências da CM, MF e BQ, referência a associar e produção. */
+html body .peg-page :is(input[name="cm_ref"],input[name="mf_ref"],input[name="bq_ref"],input[name="referencia"]){max-width:var(--dmo-campo-ref)}
+html body .peg-page select[name="jobon_id"]{max-width:200px}
+/* Peso: calote simulada (mm). */
+html body .peso-page input[name="cap_h"]{max-width:var(--dmo-campo-medida)}
+/* PU NNPB sem Job On: referência. */
+html body .pu-page input[name="procura"]{max-width:180px}
+/* Admin › Utilizador: PIN (até 12 algarismos). */
+html body .dfu-page input[name="pin"]{max-width:160px}
