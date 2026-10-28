@@ -4464,3 +4464,13 @@ Novos: 2 · mudaram: 8 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.ArmazemEntrada_DeFerramentaNaLista_SugereReparado_AvisaAoMudar_EALinhaFicaCinza`
 
 Selo depois: `a913e7297f49e5fe`
+
+## A-0314 · 2026-10-28 · ok-do-diogo
+
+Porquê: A janela Utilização conta também as saídas do Armazém (DMO-571, #271): mais uma leitura por ferramenta, o teste das consultas passa de n*4 para n*5; os resultados continuam iguais.
+Referência: Diogo 28/10 «Sim, muda o teste» (cmsg_01K75FTs9bQnbhhH7qttpgraWAyxNzW7qWufbX2ZnbyHFg)
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoricoLote.cs :: PostgresMigrationIntegrationTests.HistoricoFerramentas_ProducoesEmLote_IguaisAUmaAUma_ComConsultasFixas`
+
+Selo depois: `c2acdce52a1c5ddb`
