@@ -47,6 +47,12 @@ html body main.sumario-page a.sumario-titulo{color:var(--dmo-text);text-decorati
 html body main.sumario-page .sumario-item:has(> a.sumario-titulo):is(:hover,:focus-within){background:color-mix(in srgb,var(--dmo-machine-color) 12%,transparent)!important;box-shadow:none!important}
 html body main.sumario-page .sumario-grupo.sumario-importante .sumario-item:has(> a.sumario-titulo):is(:hover,:focus-within){box-shadow:inset 3px 0 0 var(--dmo-warning)!important}
 html body main.sumario-page .sumario-item:has(> a.sumario-titulo):is(:hover,:focus-within) > a.sumario-titulo{color:var(--dmo-brand-700)}
+/* O hover igual aos cartões das linhas (Diogo, 28/10/2026: «hover foi removido, precisamos de um hover» e «tem de ser igual para todos»):
+   a linha que abre uma página enche-se com a cor da sua linha e a letra fica branca; no escuro, um tom mais claro. */
+html:root body main.sumario-page .sumario-item:has(> a.sumario-titulo):is(:hover,:focus-within){--sumario-cheia:color-mix(in srgb,var(--dmo-machine-color,var(--dmo-brand-600)) 62%,var(--dmo-deep-900));background:var(--sumario-cheia)!important;box-shadow:none!important}
+html:root[data-theme="dark"] body main.sumario-page .sumario-item:has(> a.sumario-titulo):is(:hover,:focus-within){background:color-mix(in srgb,var(--sumario-cheia) 72%,#fff)!important}
+html:root body main.sumario-page .sumario-grupo.sumario-importante .sumario-item:has(> a.sumario-titulo):is(:hover,:focus-within){box-shadow:inset 3px 0 0 var(--dmo-warning)!important}
+html:root body main.sumario-page .sumario-item:has(> a.sumario-titulo):is(:hover,:focus-within) :is(*,a.sumario-titulo){color:var(--dmo-text-on-color,#fff)!important}
 a.sumario-titulo:focus-visible{outline:none}
 .sumario-item:has(> a.sumario-titulo:focus-visible){outline:2px solid var(--dmo-brand-700);outline-offset:1px}
 /* A barra das produções: no hover muda só a cor da letra (o fundo da cor da máquina, sem contorno, fica). */
