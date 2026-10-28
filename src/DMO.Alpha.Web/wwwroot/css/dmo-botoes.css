@@ -255,3 +255,8 @@ html body .bq-sem-jobon-link:is(:hover,:focus-visible,:active):not(#_),html body
   html:root[data-theme="dark"] body .dmo-calendar .dmo-calendar-nav button.icon-btn:not(#_):not(#_):is(:hover,:focus-visible){color:#fff}
   html:root body .dmo-calendar .dmo-calendar-nav:not(#_){grid-template-columns:auto minmax(0,1fr) auto}
 }
+
+/* Sem o «|» a piscar quando se clica em texto que não é campo (Diogo, 28/10/2026; aparece com a navegação por cursor do Chrome, tecla F7):
+   o cursor de escrever só nos campos. */
+html body{caret-color:transparent}
+html body :is(input,textarea,select,[contenteditable]:not([contenteditable="false"])){caret-color:auto}
