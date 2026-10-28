@@ -86,40 +86,17 @@ public partial class FerramentasPagesTests
         Assert.DoesNotContain("<button", html.Split("id=\"histLista\"")[1].Split("</table>")[0]);
     }
 
+    /// <summary>Sem separador «Histórico» (Diogo, 28/10/2026: «deixar apenas pesquisar»): sem ferramenta, vai para o Pesquisar.</summary>
     [Fact]
-    public async Task HistoricoDasFerramentas_AbreVazio_EProcuraPelaReferencia()
+    public async Task HistoricoSemFerramenta_VaiParaOPesquisar()
     {
         SeedUser("4496", "Ferramentas Histórico", "provider-ferr-hist2", "FerrHist96!");
-        var toolId = await SeedRealToolAsync();
-        await SeedJobOnDoCmAsync(toolId);
         using var client = await LoginClientAsync("4496", "FerrHist96!");
 
-        var vazio = System.Net.WebUtility.HtmlDecode(await GetPageHtmlAsync(client, HistoricoPath));
-        Assert.Contains("Histórico das Ferramentas", vazio);
-        Assert.Contains("id=\"histConvite\"", vazio);
-        Assert.DoesNotContain("id=\"histLista\"", vazio);
-        // A referência primeiro, depois os filtros, o «Limpar filtros» (sem «Procurar»).
-        var ordem = new[] { "histReferencia", "histTipo", "histLinha", "histDe", "histAte", "histLimpar" }
-            .Select(id => vazio.IndexOf($"id=\"{id}\"", StringComparison.Ordinal)).ToList();
-        Assert.All(ordem, i => Assert.True(i > 0));
-        Assert.Equal(ordem.Order(), ordem);
-        Assert.Contains("href=\"/Ferramentas/Historico\"", vazio);
+        var response = await client.GetAsync(HistoricoPath);
 
-        var procura = System.Net.WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{HistoricoPath}?referencia=5447&tipo=CM"));
-        Assert.Contains("CM 5447 · Lote 3", procura);
-        Assert.Contains(">202599</summary>", procura);
-        // As mesmas colunas; o Tipo escolhido (CM) é o destacado, sem a coluna Ferramenta.
-        Assert.Contains("<th class=\"hist-destaque\" data-hist-tipo=\"CM\">CM</th>", procura);
-        Assert.DoesNotContain("<th>Ferramenta</th>", procura);
-        Assert.Contains("BQ T173 · Lote 2", procura);
-        Assert.DoesNotContain("BQ 5447T173", procura);
-
-        // Com o Tipo BQ, a coluna BQ é a destacada e a BQ mostra só a sua parte.
-        var bq = System.Net.WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{HistoricoPath}?referencia=5447&tipo=BQ"));
-        Assert.Contains("<th class=\"hist-destaque\" data-hist-tipo=\"BQ\">BQ</th>", bq);
-        Assert.Contains("<th data-hist-tipo=\"CM\">CM</th>", bq);
-        Assert.Matches(new System.Text.RegularExpressions.Regex("<td class=\"hist-destaque\">\\s*<span class=\"hist-ferr\">BQ T173 · Lote 2<"), bq);
-        Assert.DoesNotContain("BQ 5447T173", bq);
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Equal("/Ferramentas", response.Headers.Location?.OriginalString);
     }
 
     [Fact]
@@ -180,28 +157,6 @@ public partial class FerramentasPagesTests
         Assert.Contains("BQ T173 · Lote 2<span class=\"hist-uso\"> · —</span>", html);
     }
 
-    [Fact]
-    public async Task HistoricoDasFerramentas_AcimaDoLimite_MostraOAviso()
-    {
-        SeedUser("4499", "Ferramentas Histórico", "provider-ferr-hist5", "FerrHist99!");
-        await SeedRealToolAsync();
-        using (var scope = _factory.Services.CreateScope())
-        {
-            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
-            db.Tools.AddRange(Enumerable.Range(1, DMO.Alpha.Infrastructure.Tools.FerramentaHistoricoQuery.MaxFerramentas + 1)
-                .Select(i => new Tool { ToolId = $"Tmuitas{i:000}", Type = ToolType.Cm, Reference = "9999", Lot = i.ToString() }));
-            await db.SaveChangesAsync();
-        }
-        using var client = await LoginClientAsync("4499", "FerrHist99!");
-
-        var acima = System.Net.WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{HistoricoPath}?referencia=9999"));
-        var dentro = System.Net.WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{HistoricoPath}?referencia=5447"));
-
-        Assert.Contains("id=\"histCortada\"", acima);
-        Assert.Contains("Há mais resultados", acima);
-        Assert.DoesNotContain("id=\"histCortada\"", dentro);
-    }
-
     /// <summary>
     /// Os separadores das Ferramentas (Diogo, 22/10/2026): «Ver» passa a
     /// «Pesquisar» e «Reparação Programada» a «Registar Reparação»; os
@@ -213,7 +168,7 @@ public partial class FerramentasPagesTests
         SeedUser("4500", "Ferramentas Separadores", "provider-ferr-hist6", "FerrHist00!");
         using var client = await LoginClientAsync("4500", "FerrHist00!");
 
-        var html = System.Net.WebUtility.HtmlDecode(await GetPageHtmlAsync(client, HistoricoPath));
+        var html = System.Net.WebUtility.HtmlDecode(await GetPageHtmlAsync(client, "/Ferramentas"));
         var barra = System.Text.RegularExpressions.Regex.Match(html,
             "<nav class=\"tabs dmo-secondary-nav\"[^>]*>.*?</nav>", System.Text.RegularExpressions.RegexOptions.Singleline).Value;
         Assert.NotEmpty(barra);
@@ -228,5 +183,7 @@ public partial class FerramentasPagesTests
         // 2. Só depois: os nomes antigos já não estão na barra.
         Assert.DoesNotContain("Reparação Programada", barra);
         Assert.DoesNotContain(links, l => l.Texto == "Ver");
+        // Sem «Histórico» (Diogo, 28/10/2026: «deixar apenas pesquisar»).
+        Assert.DoesNotContain(links, l => l.Texto == "Histórico");
     }
 }

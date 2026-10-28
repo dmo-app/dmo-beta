@@ -115,7 +115,25 @@
       <div class="dmo-field ferr-w-fab">
         @* Sem o círculo da ajuda (Diogo, 27/10/2026); o texto passa ao title do campo. *@
         <label for="@(p)-fabrica">Fábrica de origem</label>
-        <input id="@(p)-fabrica" data-dmo-maiusculas autocapitalize="characters" name="fabrica_origem" value="@Model.FabricaOrigem" maxlength="32" placeholder="MG" title="A fábrica dona da ferramenta (ex.: MG). Ajuda a separar as ferramentas emprestadas." />
+        @* Escolhe-se das fábricas da BA das Definições (Diogo, 28/10/2026); sem elas, o texto livre. *@
+        @if (Model.Fabricas is { Count: > 0 } fabricas)
+        {
+          <select id="@(p)-fabrica" name="fabrica_origem" title="A fábrica dona da ferramenta. Ajuda a separar as ferramentas emprestadas.">
+            <option value="" selected="@string.IsNullOrEmpty(Model.FabricaOrigem)">—</option>
+            @if (!string.IsNullOrEmpty(Model.FabricaOrigem) && !fabricas.Contains(Model.FabricaOrigem))
+            {
+              <option value="@Model.FabricaOrigem" selected>@Model.FabricaOrigem</option>
+            }
+            @foreach (var sigla in fabricas)
+            {
+              <option value="@sigla" selected="@(Model.FabricaOrigem == sigla)">@sigla</option>
+            }
+          </select>
+        }
+        else
+        {
+          <input id="@(p)-fabrica" data-dmo-maiusculas autocapitalize="characters" name="fabrica_origem" value="@Model.FabricaOrigem" maxlength="32" placeholder="MG" title="A fábrica dona da ferramenta (ex.: MG). Ajuda a separar as ferramentas emprestadas." />
+        }
       </div>
     }
   </div>

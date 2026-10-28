@@ -25,7 +25,8 @@ namespace DMO.Alpha.Web.Pages.Armazem;
 [Authorize]
 [ModuleEntry(DmoCapabilities.ArmazemGestao)]
 public sealed class MovimentosModel(
-    IArmazemMovimentos movimentos, IArmazemHistorico historico, IArmazemLotesNovos lotesNovos, CurrentUserCapabilities capabilities, ShellStateFactory shellState) : PageModel
+    IArmazemMovimentos movimentos, IArmazemHistorico historico, IArmazemLotesNovos lotesNovos, CurrentUserCapabilities capabilities, ShellStateFactory shellState,
+    IFabricasBa fabricasBa) : PageModel
 {
     /// <summary>Os três cartões do painel, por esta ordem (Diogo, 22/10/2026: «CM MF BQ»).</summary>
     public static readonly IReadOnlyList<ToolType> Tipos = [ToolType.Cm, ToolType.Mf, ToolType.Bq];
@@ -106,6 +107,12 @@ public sealed class MovimentosModel(
     public string? ReparadorEscolhido { get; private set; }
 
     public string? Fabrica { get; private set; }
+
+    /// <summary>As fábricas da BA ativas, para o Empréstimo (Armazém › Definições).</summary>
+    public IReadOnlyList<FabricaBaItem> Fabricas { get; private set; } = [];
+
+    /// <summary>A fábrica proposta: MG quando existe (Diogo, 28/10/2026).</summary>
+    public string? FabricaPorOmissao => FabricasBaTextos.PorOmissao(Fabricas);
 
     /// <summary>A Linha escolhida (Saída para Produção, ou a Linha com que vem na Entrada).</summary>
     public string? LinhaEscolhida { get; private set; }
@@ -237,14 +244,15 @@ public sealed class MovimentosModel(
         [FromForm(Name = "criar_posicao")] string? criarPosicao,
         [FromForm(Name = "linha")] int? linha = null,
         [FromForm(Name = "reparador_vinda")] string? reparadorVinda = null,
-        [FromForm(Name = "vinda")] string? vinda = null)
+        [FromForm(Name = "vinda")] string? vinda = null,
+        [FromForm(Name = "fabrica")] string? fabrica = null)
     {
         // Com os campos da vinda no formulário, grava o que lá ficou (vazio
         // fica vazio); sem eles (outro cliente), os da última Saída.
         var saida = await movimentos.EntradaAsync(
             new PedidoDeEntrada(Operacao(operacaoId), ToolId ?? string.Empty, posicao, OrigemDe(origem), EstadoDe(estado),
                 DataUtc(data), observacoes, criarPosicao == "1", false,
-                LinhaId: linha, Reparador: reparadorVinda, LinhaEReparadorDoFormulario: vinda == "1"),
+                LinhaId: linha, Reparador: reparadorVinda, LinhaEReparadorDoFormulario: vinda == "1", Fabrica: fabrica),
             HttpContext.RequestAborted);
         return await Responder(saida, "entrada", operacaoId, () =>
         {
@@ -253,6 +261,7 @@ public sealed class MovimentosModel(
             EstadoEscolhido = estado;
             LinhaEscolhida = linha?.ToString(CultureInfo.InvariantCulture);
             ReparadorDaVinda = reparadorVinda;
+            Fabrica = fabrica;
             Data = data;
             Observacoes = observacoes;
         });
@@ -383,6 +392,7 @@ public sealed class MovimentosModel(
             if (Situacao is not null)
             {
                 Tipo = Situacao.Tipo;
+                Fabricas = (await fabricasBa.ListarAsync(HttpContext.RequestAborted)).Where(f => f.Ativa).ToList();
             }
         }
         else if (Tipo is not null && !string.IsNullOrWhiteSpace(Procura))

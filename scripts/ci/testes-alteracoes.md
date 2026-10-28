@@ -4356,6 +4356,69 @@ Novos: 25 · mudaram: 5 · saíram: 0
 
 Selo depois: `6c1ef279e6a499af`
 
+## A-0313 · 2026-10-28 · ok-do-diogo
+
+Porquê: Lote 0.3.0-beta.228: #266 filtros Estado/Localização/Fábrica e Fábricas da BA (DMO-529/530, antes A-0297..A-0299); #268 relatórios do dmo-Improvements (DMO-533/546/547, antes A-0283, contagem-lista); #273 consulta da reparação arrumada (DMO-577, teste novo); #276 regras dos agentes.
+Referência: ver os PR #266, #268, #273 e #276
+Novos: 41 · mudaram: 11 · saíram: 2
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/ReporAcessoPrimeiroAAppTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/ReporAcessoPrimeiroAAppTests.cs :: ReporAcessoPrimeiroAAppTests.AGravacaoNaAppFalha_APalavraPasseNaoMudaNoProvider`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/ReporAcessoPrimeiroAAppTests.cs :: ReporAcessoPrimeiroAAppTests.OProviderNaoResponde_ASessaoAntigaJaCaiuEAMudancaEObrigatoria`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/ReporAcessoPrimeiroAAppTests.cs :: ReporAcessoPrimeiroAAppTests.OProviderRecusa_OUtilizadorFicaComoEstava`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/ReporAcessoPrimeiroAAppTests.cs :: ReporAcessoPrimeiroAAppTests.ReporComSucesso_FechaAsSessoesEDevolveOPin`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/FabricasBaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/FabricasBaTests.cs :: FabricasBaTests.Comeca_vazia_e_acrescenta_com_sigla_de_duas_letras_unica`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/FabricasBaTests.cs :: FabricasBaTests.Desativa_sem_apagar_e_MG_e_a_proposta`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/FabricasBaTests.cs :: FabricasBaTests.Emprestimo_filtra_pela_fabrica_da_ultima_saida`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararLimiteTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararLimiteTests.cs :: PesoCompararLimiteTests.OPesoDeOndeSeParte_ForaDos500MaisRecentes_FicaDoLadoAtual`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararLimiteTests.cs :: PesoCompararLimiteTests.Os500MaisRecentesNoutraMaquina_ACmDestaMaquinaContinuaACompararSe`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCorrigidoDepoisDaAprovacaoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCorrigidoDepoisDaAprovacaoTests.cs :: PesoCorrigidoDepoisDaAprovacaoTests.ApagarAUnicaLeituraDepoisDaAprovacao_FicaComAData`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCorrigidoDepoisDaAprovacaoTests.cs :: PesoCorrigidoDepoisDaAprovacaoTests.AsCorrecoesDeOutroControlo_NaoContam`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCorrigidoDepoisDaAprovacaoTests.cs :: PesoCorrigidoDepoisDaAprovacaoTests.SemCorrecoes_AUltimaCorrecaoFicaVazia`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCorrigidoDepoisDaAprovacaoTests.cs :: PesoCorrigidoDepoisDaAprovacaoTests.UmaCorrecaoAntesDeAprovar_NaoContaDepoisDaAprovacao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCorrigidoDepoisDaAprovacaoTests.cs :: PesoCorrigidoDepoisDaAprovacaoTests.UmaLeituraCorrigidaDepoisDaAprovacao_MantemAAprovacao_EFicaComAData`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.TrincoDoPeso.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.TrincoDoPeso.cs :: PostgresMigrationIntegrationTests.LeituraDoPeso_EsperaPeloTrincoDoCorrigirEApagar`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Planeamento/SumarioLimiteTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Planeamento/SumarioLimiteTests.cs :: SumarioLimiteTests.PoucasLinhas_UmaLeituraComoAntes`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Planeamento/SumarioLimiteTests.cs :: SumarioLimiteTests.QuinhentasProducoesNoDia1_NaoEscondemADoDia24`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateEstadoLocalTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateEstadoLocalTests.cs :: ToolCandidateEstadoLocalTests.Estado_e_o_ultimo_registado`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateEstadoLocalTests.cs :: ToolCandidateEstadoLocalTests.Fabrica_de_origem_sem_maiusculas_e_antes_da_paginacao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateEstadoLocalTests.cs :: ToolCandidateEstadoLocalTests.Localizacao_armazem_primeiro_e_sem_movimentos_e_fabrico`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.HistoricoSemFerramenta_VaiParaOPesquisar`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaConsultaPaginaTests.cs :: ReparacaoInternaConsultaPaginaTests.OResumoPorPessoa_Repartido_ONomeFiltraPorEla`
+- novo: `tests/ShellProof/excel-bq-escritas.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/excel-bq-escritas.test.cjs :: S03: sem registo novo durante a escrita, escreve uma só vez`
+- novo: `tests/ShellProof/excel-bq-escritas.test.cjs :: S03: um registo durante uma escrita lenta volta a escrever e o Excel fica com ele`
+- novo: `tests/ShellProof/excel-bq-escritas.test.cjs :: S04: dois separadores escrevem um de cada vez, e o Excel fica com o mais novo`
+- novo: `tests/ShellProof/excel-bq-escritas.test.cjs :: sem Web Locks no browser, um separador escreve como antes`
+- novo: `tests/ShellProof/jobon-rascunho-envio.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/jobon-rascunho-envio.test.cjs :: S01: na mesma versão o rascunho volta como antes`
+- novo: `tests/ShellProof/jobon-rascunho-envio.test.cjs :: S01: o rascunho da versão 3 não substitui sozinho a versão 4; «Usar o rascunho» traz-o`
+- novo: `tests/ShellProof/jobon-rascunho-envio.test.cjs :: S01: «Descartar rascunho» numa versão nova apaga-o`
+- novo: `tests/ShellProof/jobon-rascunho-envio.test.cjs :: S02: a folha gravada apaga a cópia do envio, e o rascunho não volta`
+- novo: `tests/ShellProof/jobon-rascunho-envio.test.cjs :: S02: um envio sem resposta (rede) e depois outra página não perde o que se escreveu`
+- novo: `tests/ShellProof/jobon-rascunho-envio.test.cjs :: S02: voltar atrás à mesma folha depois de um envio falhado traz o que se escreveu`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloResumoSchemaTests.cs :: ControloResumoSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingControlos`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosSchemaTests.cs :: PegamentosSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingPegamentosTables`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoToolScopedSchemaTests.cs :: PesoToolScopedSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingPesoTables`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.OsCodigosAPedirAoSap_SaoOsPedidosNaFicha`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.BarraDasFerramentas_PesquisarERegistarReparacao_SemOsNomesAntigos`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: FerramentasPagesTests.GetIndex_ShowsHumanFactsList_ToolIdOnlyInUrl_NeverAField`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.GetFicha_ComposesFactsAndGenesisTpGeometry_ShownAsRegistered`
+- mudou: `tests/ShellProof/package.json`
+- mudou: `tests/visual/paginacao_parcial_browser.py`
+- saiu: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.HistoricoDasFerramentas_AbreVazio_EProcuraPelaReferencia`
+- saiu: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.HistoricoDasFerramentas_AcimaDoLimite_MostraOAviso`
+
+Selo depois: `fe7959d2a3a9a1df`
+
 ## A-0290 · 2026-10-28 · ok-do-diogo
 
 Porquê: A localização passa de «A reparar · X» para «Reparação · X» e mostra a fábrica no empréstimo; sem registo no Armazém, a ficha e o Armazém dizem «Sem registo» em vez de «Fabrico» (DMO-555): as verificações antigas esperam o texto novo.
@@ -4373,4 +4436,4 @@ Novos: 2 · mudaram: 8 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.AFicha_MostraALocalizacaoEOsMovimentos_SoAQuemTemOArmazem`
 - mudou: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.ArmazemEntrada_DeFerramentaNaLista_SugereReparado_AvisaAoMudar_EALinhaFicaCinza`
 
-Selo depois: `a991abf3e61919c8`
+Selo depois: `75aff2b8f22e2a7f`

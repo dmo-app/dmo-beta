@@ -96,10 +96,12 @@ public sealed class ControloApprovalHandler
             .ToListAsync(cancellationToken);
 
     /// <summary>
-    /// Quando o Peso recebeu o último registo novo (um Peso) e a última
-    /// leitura, para a Revisão comparar com a decisão: um Peso novo depois da
-    /// aprovação pede aprovação própria (C7); uma leitura registada só avisa
-    /// (C9). Uma consulta.
+    /// Quando o Peso recebeu o último registo novo (um Peso), a última
+    /// leitura e a última correção (mudar ou apagar uma leitura), para a
+    /// Revisão comparar com a decisão: um Peso novo depois da aprovação pede
+    /// aprovação própria (C7); uma leitura registada ou corrigida só avisa
+    /// (C9). A correção vem do rasto das leituras (relatório do
+    /// dmo-Improvements de 28/10/2026, S05: era sempre null). Uma consulta.
     /// </summary>
     public async Task<IReadOnlyDictionary<ControloParte, ControloParteRegistos>> RegistosAsync(
         int controloId,
@@ -111,7 +113,10 @@ public sealed class ControloApprovalHandler
             .Select(c => new
             {
                 PesoNovo = _db.Pesos.Where(p => p.ControloId == c.Id).Max(p => p.RegistadoEmUtc),
-                PesoLeitura = _db.PesoMeasurements.Where(m => m.Peso.ControloId == c.Id).Max(m => m.RegistadoEmUtc)
+                PesoLeitura = _db.PesoMeasurements.Where(m => m.Peso.ControloId == c.Id).Max(m => m.RegistadoEmUtc),
+                PesoCorrecao = _db.PesoMeasurementHistorico
+                    .Where(h => _db.Pesos.Any(p => p.Id == h.PesoId && p.ControloId == c.Id))
+                    .Max(h => (DateTime?)h.EmUtc)
             })
             .FirstOrDefaultAsync(cancellationToken);
         if (row is null)
@@ -121,7 +126,7 @@ public sealed class ControloApprovalHandler
 
         return new Dictionary<ControloParte, ControloParteRegistos>
         {
-            [ControloParte.Peso] = new(row.PesoNovo, row.PesoLeitura, null)
+            [ControloParte.Peso] = new(row.PesoNovo, row.PesoLeitura, row.PesoCorrecao)
         };
     }
 

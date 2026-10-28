@@ -22,7 +22,8 @@ public sealed record PedidoDeEntrada(
     bool ComPar = false,
     int? LinhaId = null,
     string? Reparador = null,
-    bool LinhaEReparadorDoFormulario = false);
+    bool LinhaEReparadorDoFormulario = false,
+    string? Fabrica = null);
 
 /// <summary>Uma Saída: o destino e, conforme o destino, o reparador, a fábrica, o estado ou a Linha (Produção).</summary>
 public sealed record PedidoDeSaida(
@@ -171,6 +172,9 @@ public sealed record ArmazemSituacao(
 
     /// <summary>O reparador com que a ferramenta vem (o da última Saída), para a Entrada.</summary>
     public string? VindaReparador { get; init; }
+
+    /// <summary>A fábrica da BA de onde a ferramenta volta (a da última Saída para Emprestado).</summary>
+    public string? VindaFabrica { get; init; }
 }
 
 /// <summary>Uma Linha (máquina) que se pode escolher.</summary>

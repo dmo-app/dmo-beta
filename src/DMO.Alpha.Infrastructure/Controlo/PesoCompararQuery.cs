@@ -75,33 +75,23 @@ public sealed class PesoCompararQuery : IPesoCompararQuery
         }
 
         var referenciaMaiuscula = referencia.ToUpperInvariant();
-        var pesos = await _db.Pesos.AsNoTracking()
-            .Where(p => (p.CmToolReferenceFrozen ?? p.CmTool.Reference).ToUpper() == referenciaMaiuscula)
+        var daReferencia = _db.Pesos.AsNoTracking()
+            .Where(p => (p.CmToolReferenceFrozen ?? p.CmTool.Reference).ToUpper() == referenciaMaiuscula);
+        // Os 500 mais recentes e sempre o Peso de onde se parte (relatório do
+        // dmo-Improvements de 28/10/2026, S06: ficava de fora quando era mais
+        // antigo e a página mostrava outro Peso como atual).
+        var ids = await daReferencia
             .OrderByDescending(p => p.RegistadoEmUtc)
             .ThenByDescending(p => p.Id)
             .Take(MaxPesos)
-            .Select(p => new
-            {
-                p.Id,
-                p.CmToolId,
-                CmReferencia = p.CmToolReferenceFrozen ?? p.CmTool.Reference,
-                CmLote = p.CmToolLotFrozen ?? p.CmTool.Lot,
-                Referencia = p.Controlo == null ? null : p.Controlo.JobOn.Reference,
-                Producao = p.Controlo == null ? null : p.Controlo.JobOn.ProductionNumber,
-                Maquina = p.Controlo == null
-                    ? null
-                    : _db.Machines.Where(m => m.Id == p.Controlo.JobOn.MachineId).Select(m => m.Code).FirstOrDefault(),
-                p.RegistadoEmUtc,
-                p.GlassDensityGramsPerCm3,
-                p.TampaoDiametroMm,
-                p.TampaoCaloteMm,
-                JobOnDiametro = p.Controlo == null ? null : p.Controlo.JobOn.TampaoDiametroMm,
-                JobOnCalote = p.Controlo == null ? null : p.Controlo.JobOn.CaloteMm,
-                FolhaTampao = p.Controlo == null ? null : _db.JobOnFolhas.Where(f => f.JobOnId == p.Controlo.JobOnId).Select(f => new { f.TpDiametroPs, f.TpBaciaPs }).FirstOrDefault(),
-                FichaDiametro = _db.ToolTechnicalContexts.Where(t => t.ToolId == p.CmToolId).Select(t => t.TpDiametroMm).FirstOrDefault(),
-                FichaCalote = _db.ToolTechnicalContexts.Where(t => t.ToolId == p.CmToolId).Select(t => t.TpSagittaMm).FirstOrDefault()
-            })
+            .Select(p => p.Id)
             .ToListAsync(cancellationToken);
+        if (pesoBaseId is int baseId && !ids.Contains(baseId))
+        {
+            ids.Add(baseId);
+        }
+
+        var pesos = await LerAsync(daReferencia.Where(p => ids.Contains(p.Id)), cancellationToken);
 
         // Um Peso sem Job On não tem máquina: valem as da ficha da CM.
         var semMaquina = pesos.Where(p => p.Maquina is null).Select(p => p.CmToolId).Distinct().ToList();
@@ -128,6 +118,39 @@ public sealed class PesoCompararQuery : IPesoCompararQuery
                 : null)
             ?? maquinaBase
             ?? pesos.Select(p => MaquinasDe(p.Maquina, p.CmToolId).Order(StringComparer.Ordinal).FirstOrDefault()).FirstOrDefault(m => m is not null);
+
+        // Uma CM sem nenhum Peso desta máquina entre os 500 mais recentes (os
+        // 500 eram de outra máquina, S06): o mais recente dela nesta máquina.
+        if (maquina is not null && ids.Count >= MaxPesos)
+        {
+            var cmsComPeso = pesos
+                .Where(p => MaquinasDe(p.Maquina, p.CmToolId).Contains(maquina))
+                .Select(p => p.CmToolId)
+                .Distinct()
+                .ToList();
+            var faltam = await daReferencia
+                .Where(p => !cmsComPeso.Contains(p.CmToolId))
+                .Where(p => p.Controlo != null
+                    ? _db.Machines.Any(m => m.Id == p.Controlo.JobOn.MachineId && m.Code == maquina)
+                    : _db.ToolMachineLinks.Any(l => l.ToolId == p.CmToolId && _db.Machines.Any(m => m.Id == l.MachineId && m.Code == maquina)))
+                .GroupBy(p => p.CmToolId)
+                .Select(g => g.OrderByDescending(p => p.RegistadoEmUtc).ThenByDescending(p => p.Id).Select(p => p.Id).First())
+                .ToListAsync(cancellationToken);
+            if (faltam.Count > 0)
+            {
+                var extra = await LerAsync(daReferencia.Where(p => faltam.Contains(p.Id)), cancellationToken);
+                foreach (var cm in extra.Where(p => p.Maquina is null).Select(p => p.CmToolId).Distinct().Where(cm => !maquinasDaFicha.ContainsKey(cm)).ToList())
+                {
+                    var codigos = await _db.ToolMachineLinks.AsNoTracking()
+                        .Where(l => l.ToolId == cm)
+                        .Join(_db.Machines, l => l.MachineId, m => m.Id, (l, m) => m.Code)
+                        .ToListAsync(cancellationToken);
+                    maquinasDaFicha[cm] = codigos.ToHashSet(StringComparer.OrdinalIgnoreCase);
+                }
+
+                pesos.AddRange(extra);
+            }
+        }
 
         // O mais recente de cada CM; a CM do Peso de onde se parte fica com ele.
         var escolhidos = pesos
@@ -164,6 +187,60 @@ public sealed class PesoCompararQuery : IPesoCompararQuery
         }
 
         return new PesoCompararCms(pesoBaseId, referencia, maquina, referencias, maquinas, linhas);
+    }
+
+    // Os factos de cada Peso, do mais recente para o mais antigo.
+    private Task<List<PesoLido>> LerAsync(IQueryable<DMO.Alpha.Core.Controlo.Peso> pesos, CancellationToken cancellationToken) =>
+        pesos
+            .OrderByDescending(p => p.RegistadoEmUtc)
+            .ThenByDescending(p => p.Id)
+            .Select(p => new PesoLido
+            {
+                Id = p.Id,
+                CmToolId = p.CmToolId,
+                CmReferencia = p.CmToolReferenceFrozen ?? p.CmTool.Reference,
+                CmLote = p.CmToolLotFrozen ?? p.CmTool.Lot,
+                Referencia = p.Controlo == null ? null : p.Controlo.JobOn.Reference,
+                Producao = p.Controlo == null ? null : p.Controlo.JobOn.ProductionNumber,
+                Maquina = p.Controlo == null
+                    ? null
+                    : _db.Machines.Where(m => m.Id == p.Controlo.JobOn.MachineId).Select(m => m.Code).FirstOrDefault(),
+                RegistadoEmUtc = p.RegistadoEmUtc,
+                GlassDensityGramsPerCm3 = p.GlassDensityGramsPerCm3,
+                TampaoDiametroMm = p.TampaoDiametroMm,
+                TampaoCaloteMm = p.TampaoCaloteMm,
+                JobOnDiametro = p.Controlo == null ? null : p.Controlo.JobOn.TampaoDiametroMm,
+                JobOnCalote = p.Controlo == null ? null : p.Controlo.JobOn.CaloteMm,
+                FolhaTampao = p.Controlo == null ? null : _db.JobOnFolhas.Where(f => f.JobOnId == p.Controlo.JobOnId).Select(f => new FolhaTampaoLido { TpDiametroPs = f.TpDiametroPs, TpBaciaPs = f.TpBaciaPs }).FirstOrDefault(),
+                FichaDiametro = _db.ToolTechnicalContexts.Where(t => t.ToolId == p.CmToolId).Select(t => t.TpDiametroMm).FirstOrDefault(),
+                FichaCalote = _db.ToolTechnicalContexts.Where(t => t.ToolId == p.CmToolId).Select(t => t.TpSagittaMm).FirstOrDefault()
+            })
+            .ToListAsync(cancellationToken);
+
+    private sealed class PesoLido
+    {
+        public int Id { get; init; }
+        public string CmToolId { get; init; } = string.Empty;
+        public string? CmReferencia { get; init; }
+        public string? CmLote { get; init; }
+        public string? Referencia { get; init; }
+        public string? Producao { get; init; }
+        public string? Maquina { get; init; }
+        public DateTime? RegistadoEmUtc { get; init; }
+        public decimal GlassDensityGramsPerCm3 { get; init; }
+        public decimal? TampaoDiametroMm { get; init; }
+        public decimal? TampaoCaloteMm { get; init; }
+        public decimal? JobOnDiametro { get; init; }
+        public decimal? JobOnCalote { get; init; }
+        public FolhaTampaoLido? FolhaTampao { get; init; }
+        public decimal? FichaDiametro { get; init; }
+        public decimal? FichaCalote { get; init; }
+    }
+
+    private sealed class FolhaTampaoLido
+    {
+        public string? TpDiametroPs { get; init; }
+        public string? TpBaciaPs { get; init; }
     }
 
     private static string? Limpo(string? texto) =>

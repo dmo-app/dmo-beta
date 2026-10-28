@@ -1,3 +1,4 @@
+using DMO.Alpha.Core.Armazem;
 using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Infrastructure.Data;
 using DMO.Alpha.Infrastructure.Search;
@@ -173,6 +174,51 @@ public sealed class ToolCandidateQuery : IToolCandidateQuery
             query = query.Where(tool => com.Contains(tool.ToolId)
                 || naReferencia.Contains(tool.ToolId)
                 || _db.ToolMachineLinks.Any(link => link.ToolId == tool.ToolId && link.MachineId == linha));
+        }
+
+        if (filter?.Estado is { } estado)
+        {
+            // O estado atual é o último registado (Armazém › Entrada).
+            query = query.Where(tool => _db.FerramentaEstados.Any(e => e.ToolId == tool.ToolId && e.Estado == estado
+                && !_db.FerramentaEstados.Any(o => o.ToolId == e.ToolId && o.Id > e.Id)));
+        }
+
+        if (filter?.Local is { } local)
+        {
+            // Numa posição do Armazém primeiro; senão, a localização dos
+            // movimentos; sem movimentos é Fabrico (Diogo, 27/10/2026).
+            var naPosicao = _db.ArmazemOcupacoes.Where(o => o.LibertadaEmUtc == null).Select(o => o.ToolId);
+            if (local.Tipo == ToolCandidateLocalTipo.Armazem)
+            {
+                query = query.Where(tool => naPosicao.Contains(tool.ToolId));
+            }
+            else if (local.Tipo == ToolCandidateLocalTipo.Fabrico)
+            {
+                query = query.Where(tool => !naPosicao.Contains(tool.ToolId)
+                    && !_db.FerramentaLocalizacoes.Any(l => l.ToolId == tool.ToolId && l.Localizacao != FerramentaLocalizacaoTipo.Fabrico));
+            }
+            else
+            {
+                var onde = local.Tipo switch
+                {
+                    ToolCandidateLocalTipo.Reparacao => FerramentaLocalizacaoTipo.AReparar,
+                    ToolCandidateLocalTipo.Sucata => FerramentaLocalizacaoTipo.Sucata,
+                    _ => FerramentaLocalizacaoTipo.Emprestado
+                };
+                var reparador = local.Reparador?.Trim().ToUpperInvariant();
+                var fabrica = local.Fabrica?.Trim().ToUpperInvariant();
+                query = query.Where(tool => !naPosicao.Contains(tool.ToolId)
+                    && _db.FerramentaLocalizacoes.Any(l => l.ToolId == tool.ToolId && l.Localizacao == onde
+                        && (reparador == null || (l.ReparadorNome != null && l.ReparadorNome.ToUpper() == reparador))
+                        && (fabrica == null || _db.ArmazemMovimentos.Any(m => m.Id == l.MovimentoId
+                            && m.FabricaDestino != null && m.FabricaDestino.ToUpper() == fabrica))));
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter?.FabricaOrigem))
+        {
+            var fabrica = filter.FabricaOrigem.Trim().ToUpperInvariant();
+            query = query.Where(tool => tool.FabricaOrigem != null && tool.FabricaOrigem.ToUpper().StartsWith(fabrica));
         }
 
         if (ReferenceMatch.Normalize(filter?.ReferenceContains) is { } part)

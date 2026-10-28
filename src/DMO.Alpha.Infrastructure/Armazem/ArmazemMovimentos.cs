@@ -200,7 +200,8 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
             LinhasDaFerramenta = await db.ToolMachineLinks.AsNoTracking()
                 .Where(l => l.ToolId == tool.ToolId).Select(l => l.MachineId).ToListAsync(cancellationToken),
             VindaLinhaId = saida?.MachineId,
-            VindaReparador = saida?.ReparadorNome
+            VindaReparador = saida?.ReparadorNome,
+            VindaFabrica = saida?.Destino == ArmazemDestino.Emprestado ? saida.FabricaDestino : null
         };
     }
 
@@ -324,6 +325,7 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
         movimento.Estado = pedido.Estado;
         movimento.MachineId = linha;
         movimento.EntradaReparadorNome = reparadorDaVinda;
+        movimento.FabricaDestino = Cortado(Limpo(pedido.Fabrica), ArmazemMovimento.FabricaMaxLength);
         movimento.JobOnId = jobOnDaVinda;
         var saida = await GravarAsync(movimento, posicao, async () =>
         {
@@ -833,6 +835,11 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
                 if (m.Origem is { } origem && origem != ArmazemOrigem.JaEstava)
                 {
                     partes.Add(ArmazemTextos.Origem(origem));
+                }
+
+                if (m.FabricaDestino is { } fabricaDaVinda)
+                {
+                    partes.Add(fabricaDaVinda);
                 }
 
                 if (m.Estado is { } estado)

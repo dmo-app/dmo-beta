@@ -54,7 +54,8 @@ public sealed class RecordPesoMeasurementHandler : IRecordPesoMeasurementHandler
     public Task<RecordPesoMeasurementOutcome> HandleAsync(
         RecordPesoMeasurement command,
         CancellationToken cancellationToken = default) =>
-        UniqueViolationRetry.RunAsync(_db, () => HandleOnceAsync(command, cancellationToken));
+        UniqueViolationRetry.RunAsync(_db, () =>
+            DbWrite.InTransactionAsync(_db, () => HandleOnceAsync(command, cancellationToken), cancellationToken));
 
     private async Task<RecordPesoMeasurementOutcome> HandleOnceAsync(
         RecordPesoMeasurement command,
@@ -106,7 +107,13 @@ public sealed class RecordPesoMeasurementHandler : IRecordPesoMeasurementHandler
             return Refused(RecordPesoMeasurementResult.ResultNonPositive);
         }
 
-        // 2. Posição física da leitura: ordem de registo dentro do Peso.
+        // 2. Posição física da leitura: ordem de registo dentro do Peso. O
+        //    trinco do Peso é o mesmo do corrigir/apagar, partilhado: uma
+        //    leitura nova não conta as posições enquanto outra é apagada e as
+        //    posições são renumeradas (relatório de backend do dmo-Improvements
+        //    de 28/10/2026, BE08). Duas leituras novas não esperam uma pela
+        //    outra: colidem na posição e a segunda repete (acima).
+        await DbWrite.LockSharedAsync(_db, $"peso:registo:{peso.Id}", cancellationToken);
         var nextRowPosition = await _db.PesoMeasurements
             .AsNoTracking()
             .Where(m => m.PesoId == peso.Id)

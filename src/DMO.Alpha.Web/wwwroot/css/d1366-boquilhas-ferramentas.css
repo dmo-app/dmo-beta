@@ -268,6 +268,12 @@ html body main.ferr-page .ferr-filters>.ferr-w-ref input{width:120px}
 html body main.ferr-page .ferr-filters>.ferr-w-lot input{width:56px}
 html body main.ferr-page .ferr-filters>.ferr-w-type select{width:192px}
 html body main.ferr-page .ferr-filters>.ferr-w-machine select{width:96px}
+/* Com o Estado, a Localização e a Fábrica (28/10/2026) tudo continua numa linha a 1290 px. */
+html body main.ferr-page .ferr-filters{gap:12px}
+html body main.ferr-page .ferr-filters>.ferr-w-type select{width:168px}
+html body main.ferr-page .ferr-filters>.ferr-w-estado select{width:124px}
+html body main.ferr-page .ferr-filters>.ferr-w-local select{width:224px;padding-right:32px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body main.ferr-page .ferr-filters>.ferr-w-fabrica :is(input,select){width:84px;padding-right:28px}
 html body main.ferr-page .ferr-filter-actions{gap:8px}
 html body main.ferr-page #ferrResultados .card-note{margin:-4px 0 8px;font-size:12px;line-height:16px}
 html body main.ferr-page #ferrResultados .dmo-table :is(th,td){padding-block:6px;height:32px}
