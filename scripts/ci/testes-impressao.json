@@ -1,5 +1,5 @@
 {
-  "selo": "3f4d1d2b421330dd",
+  "selo": "1aebe084f6288ba7",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2537,6 +2537,8 @@
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReferenciaNova.cs :: (resto do ficheiro)": "2b0dbe9095d6d9d3",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReferenciaNova.cs :: JobOnPageTests.Folha_ReferenciaSemJobOn_AbreOJobOnNovoNaLinhaDeOndeVeio": "d285eb94b8a6ed87",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReferenciaNova.cs :: JobOnPageTests.Folha_ReferenciaSemJobOn_QuemSoVe_FicaComOAviso": "39cf1da7e7ce7528",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReparadorNaLinha.cs :: (resto do ficheiro)": "6e68b12bf364b9ec",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReparadorNaLinha.cs :: JobOnPageTests.Folha_ReparadorDepoisDoEstadoEDaPosicao_SemLinhaAParte": "c52320795fc58780",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: (resto do ficheiro)": "124178416bdd3dda",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: JobOnPageTests.Criar_ReferenciaExistente_ComProducaoNova_AbreODuplicarComAProducaoEALinha": "4c5cf2aee4b442ac",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: JobOnPageTests.Folha_UtilizacaoComPontoEAcimaDe100ComCor": "5940df2bf965d63e",

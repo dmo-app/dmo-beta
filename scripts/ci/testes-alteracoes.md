@@ -4218,3 +4218,14 @@ Novos: 6 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.GotaNomeTecnico.cs :: JobOnPageTests.Folha_SemNomeNaCm_GotaDoMf_ESemNenhum_AEscrita`
 
 Selo depois: `3f4d1d2b421330dd`
+
+## A-0297 · 2026-10-28 · teste-novo
+
+Porquê: DMO-570: na folha de ver, o reparador do CM/MF passa para a linha do Armazém, depois do estado e da posição («Reparado 5252 · MOLDIN»), sem a linha «Reparador» à parte (Diogo, 28/10/2026: «Reparador deve aparecer depois do estado reparado»). Teste novo.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraHojdh5Q9K7vNixdDyzceoM
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReparadorNaLinha.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReparadorNaLinha.cs :: JobOnPageTests.Folha_ReparadorDepoisDoEstadoEDaPosicao_SemLinhaAParte`
+
+Selo depois: `1aebe084f6288ba7`

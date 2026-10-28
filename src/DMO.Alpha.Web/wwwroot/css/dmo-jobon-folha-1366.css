@@ -318,7 +318,7 @@ html:root body .jof2.jof2.jof2.jof2:not(.editing) .folgas{padding-top:2px}
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .sec>details.more>summary{min-height:20px}
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .jof-fora{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px;margin:0}
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .jof-fora .hv{flex:0 0 auto;margin:0;padding:0;border:0}
-html:root body .jof2.jof2.jof2.jof2:not(.editing) .jof-fora .hv:first-child{flex:0 0 100%}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .jof-fora .hv.jof-fora-reparador{flex:0 0 100%}
 
 /* ---- Editar: o «▸ Trocar» no canto do cartão (não parte a linha da referência) e a CS com os furos por baixo do rótulo ---- */
 html:root body .jof2.editing.editing.editing .sec .tool-head .tool-hint{position:absolute;top:12px;right:10px;margin:0}
@@ -511,6 +511,9 @@ html body .jof2 :is(.card.sec,.sec):has(>.jof-tool-slot+.use)>.jof-tool-slot{dis
 html body .jof2 :is(.card.sec,.sec):has(>.jof-tool-slot+.use)>.jof-tool-slot>.tool-head{order:1}
 html body .jof2 :is(.card.sec,.sec):has(>.jof-tool-slot+.use)>.use{order:2}
 html body .jof2 :is(.card.sec,.sec):has(>.jof-tool-slot+.use)>.jof-tool-slot>.jof-onde{order:3;margin:2px 0 0}
+/* O aviso «não está registada no Armazém» também vai para debaixo da Utilização: com uma, duas ou três
+   linhas de aviso, a % uso fica à mesma altura (Diogo, 28/10/2026: «metam a %uso alinhada»). */
+html body .jof2 :is(.card.sec,.sec):has(>.jof-tool-slot+.use)>.jof-tool-slot>.jobon-aviso{order:3}
 html body .jof2 :is(.card.sec,.sec):has(>.jof-tool-slot+.use)>:not(.jof-tool-slot,.use){order:4}
 html body .jof2 .jof-tool-slot>.tool-head{column-gap:10px}
 html body .jof2 .jof-tool-slot>.tool-head>.hv{white-space:nowrap}
