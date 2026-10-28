@@ -15,7 +15,8 @@ Português de Portugal em tudo o que se escreve (PR, relatórios, textos da app)
    Abre o PR para o ramo `integracao` com a etiqueta **`agentes: testar`**. O Claude não corre o CI.
 2. **O agente de fora** trata de tudo o que é CI e PR: pega nos PRs pela prioridade, resolve os
    conflitos com a `integracao`, corre o CI, corrige o que falhar e escreve o **relatório** de como
-   tudo foi feito (modelo abaixo) no PR e no repositório de relatórios do Diogo. Muda a etiqueta para
+   tudo foi feito (modelo abaixo) no PR e em `relatorios/` do repositório
+   [dmo-app/dmo-ci](https://github.com/dmo-app/dmo-ci), que tem o passo a passo e o script. Muda a etiqueta para
    **`agentes: pronto`** (CI verde) ou **`agentes: ajuda`** (não conseguiu, diz porquê).
 3. **O Claude** lê o relatório. Se a correção estiver mal, sugere no PR (comentário) e volta a pôr
    `agentes: testar`. Não a refaz por cima.
@@ -41,18 +42,11 @@ trabalhar sempre no ramo do próprio PR.
 
 ## Testes e CI
 
-Precisa de .NET 10 (`global.json`), PostgreSQL 16 local, Node.js 22, Python 3.12 com
-`playwright==1.56.0` e o Chromium (`python3 -m playwright install --with-deps chromium`).
-
-```sh
-bash scripts/ci/ci-local.sh
-```
-
-- Só vale **«CI local: OK»** na última linha. «INCOMPLETO» (com `CI_SEM_POSTGRES`, `CI_SEM_NODE` ou
-  `CI_SEM_BROWSER`) não vale como OK.
-- O PostgreSQL do CI é sempre um local descartável (`CI_PG_ADMIN`, por omissão `localhost:5432`, `postgres/postgres`).
-- O GitHub corre o mesmo script em `.github/workflows/ci.yml` em cada push ao PR; o relatório
-  diz o resultado dos dois.
+O CI é **local**, na máquina do agente, com a base PostgreSQL num contentor **Docker** descartável.
+O passo a passo e o script estão no [dmo-ci](https://github.com/dmo-app/dmo-ci):
+`bash scripts/correr-ci.sh <nº do PR>` (traz o PR, junta a `integracao`, arranca a base e corre
+`scripts/ci/ci-local.sh`). Só vale **«CI local: OK»** na última linha; «INCOMPLETO» não vale.
+O GitHub Actions não substitui o CI local.
 
 ## O que se pode corrigir
 
