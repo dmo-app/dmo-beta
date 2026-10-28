@@ -4288,3 +4288,15 @@ Novos: 1 · mudaram: 10 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_PropoeAMaisRecente_GuardaOPesoDoSap_EMostraODelta`
 
 Selo depois: `d5028b5b0339c195`
+
+## A-0254 · 2026-10-28 · ok-do-diogo
+
+Porquê: DMO-524: o Diogo pediu um campo para colar o link do mcaliper e «Medições» que abre o mcaliper em vez do link/copiar. Os três testes deixam de exigir a janela «Associar link do mcaliper», o «Link do mcaliper associado» e o «Copiar» (data-dmo-copiar) e passam a exigir o campo com o link e o «Medições» com o endereço; o teste do link ganha a gravação JSON do campo (recusa e gravação).
+Referência: mensagem do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraGpkfZmVrGptNbCoC9pNFFB («basta meter um campo para colar o link e no controlo.ver em vez d ver um link aparece Mediçoe abre o mcaliper»)
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ErrosDoResumo.cs :: ControloCapabilitiesCutHPageTests.Resumo_ErrosDe27Out_CabecalhoMcaliperRegistarEVoltar`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: ControloCapabilitiesCutHPageTests.ResumoDoControlo_CartoesDasAreas_GravamEVoltamAoResumo`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.McaliperLink_CreateAssociatesOnToolSheet_ApproveCopiesIt`
+
+Selo depois: `7f41a6c1558f560b`

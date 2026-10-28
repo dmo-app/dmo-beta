@@ -1,5 +1,5 @@
 {
-  "selo": "d5028b5b0339c195",
+  "selo": "7f41a6c1558f560b",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2118,7 +2118,7 @@
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Detalhe.cs :: ControloCapabilitiesCutHPageTests.RevisaoDetalhe_MostraAsLeiturasDoPesoComoARevisao": "aa8ed3ea80ae3c6d",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Detalhe.cs :: ControloCapabilitiesCutHPageTests.RevisaoDetalhe_OsPegamentosUsamOFormatoDaFolha": "0de6a902373cefa6",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ErrosDoResumo.cs :: (resto do ficheiro)": "6ebea7ac72464a48",
-    "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ErrosDoResumo.cs :: ControloCapabilitiesCutHPageTests.Resumo_ErrosDe27Out_CabecalhoMcaliperRegistarEVoltar": "905872099609b050",
+    "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ErrosDoResumo.cs :: ControloCapabilitiesCutHPageTests.Resumo_ErrosDe27Out_CabecalhoMcaliperRegistarEVoltar": "09210a55a9e12b9a",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: (resto do ficheiro)": "67df1872b1d0b8fc",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_Folha_SoOCorpoDesliza": "f69d1890b3c8a652",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_JobOnNoPainel_TituloLarguraEFolha": "b5a11fb575ed74f6",
@@ -2147,7 +2147,7 @@
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ResumoPdf.cs :: (resto do ficheiro)": "8b5162daea7ee919",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ResumoPdf.cs :: ControloCapabilitiesCutHPageTests.PdfDoResumo_NaRevisaoENoResumo_MesmoFicheiroEMesmaPasta": "428d382e552304b5",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: (resto do ficheiro)": "0fddf57c253fbf03",
-    "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: ControloCapabilitiesCutHPageTests.ResumoDoControlo_CartoesDasAreas_GravamEVoltamAoResumo": "978c0f189c19860f",
+    "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: ControloCapabilitiesCutHPageTests.ResumoDoControlo_CartoesDasAreas_GravamEVoltamAoResumo": "c4a8407c36a20974",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: ControloCapabilitiesCutHPageTests.ResumoDoControlo_PuECs_EscrevemAReferenciaECmNao": "fa4b7885c487e317",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: ControloCapabilitiesCutHPageTests.ResumoDoControlo_SeparadorComProcura_MostraOControloInteiro": "636936e105501384",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: ControloCapabilitiesCutHPageTests.Revisao_ArrumadaComoODiogoPediu": "e11d9cad474bdfbf",
@@ -2163,7 +2163,7 @@
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.AreaState_OperacionalSavesOkNokAndComment_ChefeIsRefusedTyped": "59c4d42a5c877388",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.ChefeApproveOnly_CreateRefusedTyped_ApproveSucceeds": "600aa6970c6ba1b9",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.ChefeApproveOnly_UsesDistinctReviewPages_WithoutOperationalForms": "53c15138aaab6dc4",
-    "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.McaliperLink_CreateAssociatesOnToolSheet_ApproveCopiesIt": "357300c30729f64d",
+    "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.McaliperLink_CreateAssociatesOnToolSheet_ApproveCopiesIt": "444e2cc66dccf5cf",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.PesoAssociation_PrePesoWithJobOnCm_IsOfferedAndAssociatedOnlyByExplicitCreatePost": "8825c8a6d5f8697a",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.PesoCreation_ReadableNominal_NoWarning": "40a5614369aaeb51",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.PesoCreation_UnreadableOrNonPositiveOptionalNominal_CreatesWithoutNominalAndWarns": "c9732c304b309bc1",
