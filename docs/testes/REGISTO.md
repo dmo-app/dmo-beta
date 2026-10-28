@@ -1,6 +1,6 @@
 # Registo dos testes: o que cada teste garante
 
-Revisão de 28/10/2026 sobre a `integracao` 0.3.0-beta.230 (abbbae36), pedida pelo Diogo
+Revisão de 28/10/2026 sobre a `integracao` 0.3.0-beta.230 (abbbae36), com as correções de DMO-580, pedida pelo Diogo
 («ver os testes se estão todos bem e testam o que realmente se quer»). Comparado com as decisões
 do Diogo guardadas na memória do projeto, o código atual e o histórico; **não** com o blueprint,
 que está desatualizado (Diogo, 28/10 17:22).
@@ -21,15 +21,15 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 
 | Estado | Testes |
 |---|---|
-| OK | 2358 |
+| OK | 2365 |
 | FRACO | 241 |
-| ERRADO | 5 |
+| ERRADO | 0 |
 | DUPLICADO | 41 |
-| OBSOLETO | 24 |
+| OBSOLETO | 0 |
 
 ## Controlo (Peso, Pegamentos, Punções, Resumo, Aprovar)
 
-711 linhas: OK 596, FRACO 92, DUPLICADO 22, ERRADO 1
+711 linhas: OK 597, FRACO 92, DUPLICADO 22
 
 ### `tests/DMO.Alpha.Infrastructure.Tests/Controlo/AprovacaoNosPdfsTests.cs`
 
@@ -752,7 +752,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | Teste | Garante | Estado | Nota |
 |---|---|---|---|
 | EnvioEmailPesoPageTests.Modelos_UmSoModelo_VemEscolhido | Com um só modelo a linha vem escolhida | FRACO | verifica atributos e classes HTML (class="selected", checked), não o efeito |
-| EnvioEmailPesoPageTests.Modelos_UmaLinhaEscolhe_EUmSoAbrirNoCanto | Modelos de email: linha escolhe, um só «Abrir» no canto | ERRADO | Aceita um botão × em cada linha (ctl-def-x); Diogo: «Nunca botões dentro das linhas» (peso-arrumado-pr212.md; A-0226 tirou os × dos Pegamentos/PU em design-164-integracao.md); também verifica classes/atributos HTML |
+| EnvioEmailPesoPageTests.Modelos_UmaLinhaEscolhe_EUmSoAbrirNoCanto | Modelos de email: sem botões nas linhas; Abrir e Apagar no canto, Apagar em último | OK | Corrigido em DMO-580 (#285). |
 
 ### `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs`
 
@@ -1414,18 +1414,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 
 ## Boquilhas e Armazém
 
-466 linhas: OK 409, FRACO 31, OBSOLETO 22, DUPLICADO 4
-
-### `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemEntradaComParTests.cs`
-
-| Teste | Garante | Estado | Nota |
-|---|---|---|---|
-| ASituacao_MostraOParEOndeEsta | A situação mostra o par (CM/MF) e a posição dele | OBSOLETO | A página já não envia com_par (Diogo 22/10, par saiu do cartão; ver ArmazemEntradaComParPaginaTests.AEntrada_EntraSoACm); ComPar sem uso nas páginas |
-| ComOPar_ACmEOMfEntramNaMesmaPosicao (Theory x2) | CM e MF do mesmo lote entram juntos na mesma posição, cada um com movimento e ocupação | OBSOLETO | A página já não envia com_par (Diogo 22/10, par saiu do cartão; ver ArmazemEntradaComParPaginaTests.AEntrada_EntraSoACm); ComPar sem uso nas páginas |
-| OMesmoEnvioDuasVezes_GravaOParUmaVez | Envio repetido da entrada com par grava uma só vez | OBSOLETO | Par sem uso nas páginas; envio único da entrada normal já está em ArmazemMovimentosTests |
-| OParJaNoArmazem_EntraSoAFerramentaEAvisa | Se o par já está no armazém, entra só uma e avisa | OBSOLETO | A página já não envia com_par (Diogo 22/10, par saiu do cartão; ver ArmazemEntradaComParPaginaTests.AEntrada_EntraSoACm); ComPar sem uso nas páginas |
-| SemOPar_EntraSoAFerramenta | Sem escolher o par, entra só a ferramenta escolhida | OBSOLETO | A página já não envia com_par (Diogo 22/10, par saiu do cartão; ver ArmazemEntradaComParPaginaTests.AEntrada_EntraSoACm); ComPar sem uso nas páginas |
-| SemParQueExista_EntraSoAFerramenta (Theory x2) | BQ ou ferramenta sem par entra sozinha, sem aviso | OBSOLETO | A página já não envia com_par (Diogo 22/10, par saiu do cartão; ver ArmazemEntradaComParPaginaTests.AEntrada_EntraSoACm); ComPar sem uso nas páginas |
+444 linhas: OK 409, FRACO 31, DUPLICADO 4
 
 ### `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemHistoricoTests.cs`
 
@@ -1466,17 +1455,6 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | Resolver_ComFerramentaQueNaoExiste_NaoResolve | Resolver com ferramenta inexistente é recusado e o lote continua por criar | OK |  |
 | Resolver_DaAEntradaNaPosicaoGuardada_EOUltimoMovimentoPoeLa | Ao criar a ferramenta, a entrada nasce na posição guardada, uma só vez | OK |  |
 
-### `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMapaTests.cs`
-
-| Teste | Garante | Estado | Nota |
-|---|---|---|---|
-| APosicao_CorredorEstanteEPrateleira (Theory x3) | Posição de 4 algarismos dá corredor, estante e prateleira | OBSOLETO | Mapa sem página: nenhuma página usa ArmazemMapa |
-| OFiltro_ContaSempreOArmarioInteiro (Theory x3) | Filtros do mapa (livres, ocupadas, por reparar) | OBSOLETO | Mapa sem página no código |
-| OParDaMesmaReferenciaELote_NaoEMisturado | Mapa distingue par CM/MF da mesma referência e lote de mistura | OBSOLETO | Mapa sem página no código |
-| SemArmario_AbreOPrimeiro_ComAOcupacao | Mapa do armazém abre o primeiro armário com a ocupação | OBSOLETO | Mapa sem página no código; serviço só registado no Program.cs, sem página |
-| SemPosicoes_UmMapaVazio | Mapa vazio sem posições | OBSOLETO | Mapa sem página no código |
-| TodosOsArmarios_OuUmQueNaoExisteAbreOPrimeiro (Theory x5) | Escolha de armário no mapa | OBSOLETO | Mapa sem página no código |
-
 ### `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMovimentosTests.cs`
 
 | Teste | Garante | Estado | Nota |
@@ -1515,26 +1493,6 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | Situacao_NoArmazem_MostraAPosicaoOEstadoEOsUltimosMovimentos | Situação mostra posição, estado e últimos movimentos (último em cima) | OK |  |
 | Situacao_SemMovimentos_EstaNoFabricoSemPropostas | Sem movimentos a ferramenta aparece em Fabrico, sem propostas | OK |  |
 | UmaFerramentaQueNaoExiste_RecusaENaoGravaNada (Theory x3) | Entrada, saída e correção de ferramenta inexistente são recusadas sem gravar nada | OK |  |
-
-### `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemPosicoesTests.cs`
-
-| Teste | Garante | Estado | Nota |
-|---|---|---|---|
-| Criar_ForaDaRegra_NaoGrava (Theory x11) | Posição fora dos 4 algarismos é recusada e nada grava | OBSOLETO | Serviço ArmazemPosicoes sem página; a regra dos 4 algarismos na Entrada tem de ter o seu teste |
-| Criar_OMesmoCodigoComEspacos_JaExiste | Posição repetida (com espaços) não se cria outra vez | OBSOLETO | Serviço ArmazemPosicoes sem página |
-| Criar_QuatroAlgarismos_Grava (Theory x2) | Criar posição com 4 algarismos | OBSOLETO | Separador Posições saiu e as posições nascem na Entrada (código); nenhuma página usa ArmazemPosicoes |
-| Listar_MaisDoQueUmaPagina_Pagina | Lista de posições pagina | OBSOLETO | Nenhuma página usa ArmazemPosicoes |
-| Listar_PeloInicioDoCodigoEPeloEstado_PelaOrdemDoCodigo | Lista de posições por início do código e estado | OBSOLETO | Nenhuma página usa ArmazemPosicoes |
-| MudarAtiva_ArquivaEReativa_SemApagar | Posição arquiva-se e reativa-se, nunca se apaga | OBSOLETO | Nenhuma página usa ArmazemPosicoes |
-
-### `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs`
-
-| Teste | Garante | Estado | Nota |
-|---|---|---|---|
-| AsProducoesDoPeriodo_PelaDataDeInicio | Próximos Job On do armazém por data de início | OBSOLETO | Próximos Job On sem página no código; ArmazemProximos só registado no Program.cs |
-| CadaFerramenta_OndeEstaEOQueFalta | Próximos Job On mostra onde está cada ferramenta | OBSOLETO | Próximos Job On sem página no código |
-| ForaDoArmazemEDoFabrico_NaoDisponivel (Theory x3) | Ferramenta em reparação, emprestada ou sucata não está disponível | OBSOLETO | Próximos Job On sem página no código |
-| SemProducoes_ListaVazia | Sem produções a lista de próximos é vazia | OBSOLETO | Próximos Job On sem página no código |
 
 ### `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemReparacaoTests.cs`
 
@@ -2244,7 +2202,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 
 ## Job On, Ferramentas, Planeamento, SAP
 
-691 linhas: OK 615, FRACO 71, DUPLICADO 3, ERRADO 2
+691 linhas: OK 617, FRACO 71, DUPLICADO 3
 
 ### `tests/DMO.Alpha.Infrastructure.Tests/Planeamento/SumarioLimiteTests.cs`
 
@@ -3189,7 +3147,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | Teste | Garante | Estado | Nota |
 |---|---|---|---|
 | JobOnAvisoArmazemEmEsperaTests.ComOInterruptor_OAvisoDoArmazemVolta | Com interruptor o aviso do Armazém volta | OK |  |
-| JobOnAvisoArmazemEmEsperaTests.PorOmissao_AAplicacaoNaoOLigaNasDefinicoes | Por omissão o aviso do Armazém está desligado | ERRADO | Possível: fixa o aviso «Sem registo no Armazém» desligado por omissão; regra do Diogo 27/10 (MEMORY.md, DADOS OFICIAIS): sem registo → «Sem registo» + aviso. Confirmar. |
+| JobOnAvisoArmazemEmEsperaTests.PorOmissao_OAvisoDoArmazemMostraSe | Por omissão o aviso «não registada no Armazém» mostra-se | OK | Corrigido em DMO-580 (#285), Diogo 28/10. |
 | JobOnAvisoArmazemEmEsperaTests.SemOInterruptor_OAvisoDoArmazemNaoAparece_EOsOutrosSim | Sem interruptor o aviso do Armazém não aparece | OK |  |
 
 ### `tests/DMO.Alpha.Web.Tests/JobOn/JobOnDuplicarFolhaTests.cs`
@@ -3214,7 +3172,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 
 | Teste | Garante | Estado | Nota |
 |---|---|---|---|
-| JobOnFichaTests.AvisoDoArmazem_EmEspera_NaoApareceNaFicha_NemNoEndpoint_MasOsOutrosSim | Aviso do Armazém em espera não aparece na ficha | ERRADO | Possível: exige que «não registada no Armazém» NÃO apareça; regra do Diogo 27/10 (MEMORY.md): sem registo → «Sem registo» + aviso. Confirmar. |
+| JobOnFichaTests.AvisoDoArmazem_EmEspera_NaoApareceNaFicha_NemNoEndpoint_MasOsOutrosSim | Com o interruptor desligado, o aviso do Armazém some e os outros ficam | OK | Testa só o interruptor posto a false; por omissão o aviso mostra-se (DMO-580). |
 | JobOnFichaTests.CaloteEditavel_GravaPelaEdicao | Calote editável grava pela edição | OK |  |
 | JobOnFichaTests.CaloteIgnorada_NaCriacao_GravaOJobOnSemCaloteEAvisa | Calote ilegível na criação grava sem calote e avisa | OK |  |
 | JobOnFichaTests.CaloteIgnorada_NaEdicaoSemCaloteAnterior_FicaSemCaloteEAvisa | Calote ilegível sem anterior fica vazia e avisa | OK |  |
@@ -4747,7 +4705,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 
 ## Reparação Interna, JavaScript (ShellProof) e browser (visual)
 
-302 linhas: OK 273, FRACO 24, ERRADO 2, OBSOLETO 2, DUPLICADO 1
+302 linhas: OK 277, FRACO 24, DUPLICADO 1
 
 ### `tests/DMO.Alpha.Infrastructure.Tests/ReparacaoInterna/ReparacoesInternasConsultaTests.cs`
 
@@ -4907,7 +4865,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 |---|---|---|---|
 | ReparacaoInternaOutraFerramentaPaginaTests.AFerramentaMostrada_LevaAFicha_SoComAsFerramentas_AEscritaFicaTexto | Ficha só com a chave Ferramentas; escrita fica texto | OK |  |
 | ReparacaoInternaOutraFerramentaPaginaTests.Consultar_AJanelaAssociar_GravaUmaVez_EALinhaFicaComAFerramenta | A janela Associar grava uma vez e a linha mostra a ferramenta | OK | Janela tem Cancelar (não Voltar); decidir se vale como janela. |
-| ReparacaoInternaOutraFerramentaPaginaTests.Consultar_PorAssociar_AMarca_AEscrita_EOFiltro_SemBotoesNasLinhas | Filtro por associar mostra a escrita e a marca na linha | ERRADO | Exige um link «Por associar» (data-dmo-dialog) dentro de cada linha: ação na linha, contra «nunca botões dentro de linhas» (design-novo.md). A confirmar com o Diogo. Também afirma classe dmo-table. |
+| ReparacaoInternaOutraFerramentaPaginaTests.Consultar_PorAssociar_AMarca_AEscrita_EOFiltro_SemBotoesNasLinhas | Por associar: marca só texto, a linha abre a janela, filtro, sem botões | OK | Corrigido em DMO-580 (#285). |
 | ReparacaoInternaOutraFerramentaPaginaTests.Consultar_SemFerramentaQueSirva_AJanelaAvisaComOLinkParaRegistar | Sem ferramenta que sirva, a janela aponta para registar | OK |  |
 | ReparacaoInternaOutraFerramentaPaginaTests.CorrigirParaOMesmoNumero_NadaMuda_ESemAviso | Corrigir para o mesmo número não avisa | FRACO | Faz só um GET com ?correcao=igual e vê que não há toast; nunca corrige nada nem mostra um aviso antes. Duplica Corrigir_ParaOMesmoNumero (infra). |
 | ReparacaoInternaOutraFerramentaPaginaTests.GravarComOutraCm_AvisaQueFaltaAssociar_EOCampoVoltaVazioEDesmarcado | Gravar com outra CM avisa que falta associar | OK |  |
@@ -5284,7 +5242,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 
 | Teste | Garante | Estado | Nota |
 |---|---|---|---|
-| ajuda_junto_browser.py (script, 3 casos x claro/escuro) | Ajuda encostada ao que explica, sem círculos de dica | ERRADO | Exige que nenhum círculo de ajuda esteja à vista (Diogo 27/10), mas botoes-seletores.md (28/10 08:25) mantém a bola de ajuda como ícone permitido. Corre no CI. |
+| ajuda_junto_browser.py (script, 3 casos x claro/escuro) | Ajuda encostada ao que explica, sem círculos de dica | OK | Proíbe a bola de ajuda nestes 3 sítios; a regra do Diogo (28/10 17:40) é só não a pôr ao lado do triângulo de minimizar, o que estes casos respeitam. |
 
 ### `tests/visual/boquilhas_catalog_browser.py`
 
@@ -5308,13 +5266,13 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 
 | Teste | Garante | Estado | Nota |
 |---|---|---|---|
-| design-review.cjs (script) | Inspeciona o HTML exportado: largura e erros de JS | OBSOLETO | ÓRFÃO; CONTINUAR.md chama-lhe experimental, nunca corre no CI. |
+| design-review.cjs (script) | Inspeciona o HTML exportado: largura e erros de JS | OK | Não é teste: ferramenta manual de inspeção do design (DESIGN.md); não corre no CI (fica). |
 
 ### `tests/visual/dmo_chromium.py`
 
 | Teste | Garante | Estado | Nota |
 |---|---|---|---|
-| dmo_chromium.py (módulo auxiliar) | Escolhe o Chromium dos scripts | OBSOLETO | Não é teste, só auxiliar (usado pelos scripts do CI). |
+| dmo_chromium.py (módulo auxiliar) | Escolhe o Chromium dos scripts | OK | Não é teste: auxiliar dos scripts do browser (fica). |
 
 ### `tests/visual/ecra_pequeno_browser.py`
 

@@ -6,48 +6,11 @@ regras importantes que nenhum teste guarda. Mudar um teste que já existe precis
 
 ## Testes ERRADOS (contra decisões do Diogo)
 
-- `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.SemBotoesNasLinhas.cs` — EnvioEmailPesoPageTests.Modelos_UmaLinhaEscolhe_EUmSoAbrirNoCanto: Aceita um botão × em cada linha (ctl-def-x); Diogo: «Nunca botões dentro das linhas» (peso-arrumado-pr212.md; A-0226 tirou os × dos Pegamentos/PU em design-164-integracao.md); também verifica classes/atributos HTML
-- `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisoArmazemEmEsperaTests.cs` — JobOnAvisoArmazemEmEsperaTests.PorOmissao_AAplicacaoNaoOLigaNasDefinicoes: Possível: fixa o aviso «Sem registo no Armazém» desligado por omissão; regra do Diogo 27/10 (MEMORY.md, DADOS OFICIAIS): sem registo → «Sem registo» + aviso. Confirmar.
-- `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs` — JobOnFichaTests.AvisoDoArmazem_EmEspera_NaoApareceNaFicha_NemNoEndpoint_MasOsOutrosSim: Possível: exige que «não registada no Armazém» NÃO apareça; regra do Diogo 27/10 (MEMORY.md): sem registo → «Sem registo» + aviso. Confirmar.
-- `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs` — ReparacaoInternaOutraFerramentaPaginaTests.Consultar_PorAssociar_AMarca_AEscrita_EOFiltro_SemBotoesNasLinhas: Exige um link «Por associar» (data-dmo-dialog) dentro de cada linha: ação na linha, contra «nunca botões dentro de linhas» (design-novo.md). A confirmar com o Diogo. Também afirma classe dmo-table.
-- `tests/visual/ajuda_junto_browser.py` — ajuda_junto_browser.py (script, 3 casos x claro/escuro): Exige que nenhum círculo de ajuda esteja à vista (Diogo 27/10), mas botoes-seletores.md (28/10 08:25) mantém a bola de ajuda como ícone permitido. Corre no CI.
+Nenhum. Os 4 encontrados foram corrigidos em DMO-580 (#285, «sim» do Diogo 28/10 17:40); o quinto (bola de ajuda) afinal estava certo. Saíram também os 22 testes OBSOLETOS do Armazém.
 
 ## Testes OBSOLETO
 
-### Boquilhas e Armazém
-
-| Ficheiro | Teste | Nota |
-|---|---|---|
-| `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemEntradaComParTests.cs` | ComOPar_ACmEOMfEntramNaMesmaPosicao (Theory x2) | A página já não envia com_par (Diogo 22/10, par saiu do cartão; ver ArmazemEntradaComParPaginaTests.AEntrada_EntraSoACm); ComPar sem uso nas páginas |
-| `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemEntradaComParTests.cs` | SemOPar_EntraSoAFerramenta | A página já não envia com_par (Diogo 22/10, par saiu do cartão; ver ArmazemEntradaComParPaginaTests.AEntrada_EntraSoACm); ComPar sem uso nas páginas |
-| `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemEntradaComParTests.cs` | OParJaNoArmazem_EntraSoAFerramentaEAvisa | A página já não envia com_par (Diogo 22/10, par saiu do cartão; ver ArmazemEntradaComParPaginaTests.AEntrada_EntraSoACm); ComPar sem uso nas páginas |
-| `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemEntradaComParTests.cs` | SemParQueExista_EntraSoAFerramenta (Theory x2) | A página já não envia com_par (Diogo 22/10, par saiu do cartão; ver ArmazemEntradaComParPaginaTests.AEntrada_EntraSoACm); ComPar sem uso nas páginas |
-| `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemEntradaComParTests.cs` | OMesmoEnvioDuasVezes_GravaOParUmaVez | Par sem uso nas páginas; envio único da entrada normal já está em ArmazemMovimentosTests |
-| `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemEntradaComParTests.cs` | ASituacao_MostraOParEOndeEsta | A página já não envia com_par (Diogo 22/10, par saiu do cartão; ver ArmazemEntradaComParPaginaTests.AEntrada_EntraSoACm); ComPar sem uso nas páginas |
-| `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMapaTests.cs` | APosicao_CorredorEstanteEPrateleira (Theory x3) | Mapa sem página: nenhuma página usa ArmazemMapa |
-| `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMapaTests.cs` | SemArmario_AbreOPrimeiro_ComAOcupacao | Mapa sem página no código; serviço só registado no Program.cs, sem página |
-| `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMapaTests.cs` | OParDaMesmaReferenciaELote_NaoEMisturado | Mapa sem página no código |
-| `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMapaTests.cs` | OFiltro_ContaSempreOArmarioInteiro (Theory x3) | Mapa sem página no código |
-| `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMapaTests.cs` | TodosOsArmarios_OuUmQueNaoExisteAbreOPrimeiro (Theory x5) | Mapa sem página no código |
-| `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMapaTests.cs` | SemPosicoes_UmMapaVazio | Mapa sem página no código |
-| `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemPosicoesTests.cs` | Criar_QuatroAlgarismos_Grava (Theory x2) | Separador Posições saiu e as posições nascem na Entrada (código); nenhuma página usa ArmazemPosicoes |
-| `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemPosicoesTests.cs` | Criar_ForaDaRegra_NaoGrava (Theory x11) | Serviço ArmazemPosicoes sem página; a regra dos 4 algarismos na Entrada tem de ter o seu teste |
-| `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemPosicoesTests.cs` | Criar_OMesmoCodigoComEspacos_JaExiste | Serviço ArmazemPosicoes sem página |
-| `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemPosicoesTests.cs` | MudarAtiva_ArquivaEReativa_SemApagar | Nenhuma página usa ArmazemPosicoes |
-| `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemPosicoesTests.cs` | Listar_PeloInicioDoCodigoEPeloEstado_PelaOrdemDoCodigo | Nenhuma página usa ArmazemPosicoes |
-| `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemPosicoesTests.cs` | Listar_MaisDoQueUmaPagina_Pagina | Nenhuma página usa ArmazemPosicoes |
-| `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs` | AsProducoesDoPeriodo_PelaDataDeInicio | Próximos Job On sem página no código; ArmazemProximos só registado no Program.cs |
-| `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs` | CadaFerramenta_OndeEstaEOQueFalta | Próximos Job On sem página no código |
-| `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs` | ForaDoArmazemEDoFabrico_NaoDisponivel (Theory x3) | Próximos Job On sem página no código |
-| `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs` | SemProducoes_ListaVazia | Próximos Job On sem página no código |
-
-### Reparação Interna, JavaScript (ShellProof) e browser (visual)
-
-| Ficheiro | Teste | Nota |
-|---|---|---|
-| `tests/visual/dmo_chromium.py` | dmo_chromium.py (módulo auxiliar) | Não é teste, só auxiliar (usado pelos scripts do CI). |
-| `tests/visual/design-review.cjs` | design-review.cjs (script) | ÓRFÃO; CONTINUAR.md chama-lhe experimental, nunca corre no CI. |
-
+Nenhum.
 
 ## Testes FRACO
 
@@ -404,7 +367,7 @@ regras importantes que nenhum teste guarda. Mudar um teste que já existe precis
 10. As consultas «não gravam nada» só olham para o ChangeTracker — fonte: REGRAS-DOS-TESTES.md (regra 5) — onde testar: PegamentosEscolhasQueryTests, PesoComparacaoEstadoQueryTests, PesoEscolhasQueryTests — como: reler as tabelas da base depois do pedido.
 
 #### Piores testes
-- EnvioEmailPesoPageTests.Modelos_UmaLinhaEscolhe_EUmSoAbrirNoCanto (ERRADO): exige botões dentro das linhas (ctl-def-x); contradiz «nunca botões dentro das linhas».
+- [CORRIGIDO em DMO-580, #285] EnvioEmailPesoPageTests.Modelos_UmaLinhaEscolhe_EUmSoAbrirNoCanto (era ERRADO): exige botões dentro das linhas (ctl-def-x); contradiz «nunca botões dentro das linhas».
 - EnvioEmailPesoPageTests.Modelos_UmSoModelo_VemEscolhido: só verifica classes/atributos.
 - Estrutura_Folha_SoOCorpoDesliza e Estrutura_PainelDeApoio_TemOEsqueletoFixo: só CSS/classes (regra 10).
 - PegamentosPdf_SemSeloDeAprovacao: só DoesNotContain, sem afirmar que o PDF tem conteúdo.
@@ -440,7 +403,7 @@ Base de comparação: memória da equipa, código atual e histórico git (sem o 
 - Web.Tests/BoquilhasRegistoPageTests.MachinesCard_ShowsTheThreeLiveValues_WhenTheCurrentBqExists — FRACO: o nome promete três valores, verifica dois e só pelo texto do rótulo.
 - Infrastructure.Tests/Boquilhas/*QueryTests (OsPedidos_NaoGravamNada e semelhantes) — FRACO: verificam o ChangeTracker vazio, não a base relida.
 
-Nota: há 22 testes OBSOLETOS em Infrastructure.Tests/Armazem (ArmazemMapa, ArmazemPosicoes, ArmazemProximos, ArmazemEntradaComPar): os serviços estão registados no Program.cs mas nenhuma página os usa, e a página já não envia com_par. Há 4 DUPLICADOS e 0 ERRADOS.
+Nota: os 22 testes OBSOLETOS de Infrastructure.Tests/Armazem (ArmazemMapa, ArmazemPosicoes, ArmazemProximos, ArmazemEntradaComPar) saíram em DMO-580 (#285, «sim» do Diogo); os serviços continuam registados no Program.cs sem página. Há 4 DUPLICADOS e 0 ERRADOS.
 
 ### Job On, Ferramentas, Planeamento, SAP
 
@@ -450,7 +413,7 @@ Nota: já existem muitos testes PostgreSQL de concorrência em tests/DMO.Alpha.I
 1. Aviso «SAP tem X em vez de Y… substituir? Sim/Não» para quantidade de lote e % uso: recusar/substituir não grava nada sem confirmação — fonte: sap-fabrico-zfmd.md, utilizacao-delta-estimado.md — onde testar: DMO.Alpha.Web.Tests/FerramentasPagesTests (nova classe FerramentasSapAvisoTests) — como: gravar valor diferente do SAP, ver aviso com os dois valores, responder Não e reler da BD que nada mudou, Sim e reler o valor SAP. (Texto «SAP tem» não existe no código: confirmar se está implementado.)
 2. Eliminar ferramenta (DeleteTool) é tudo-ou-nada e o Job On/produções ligados mantêm o id da ferramenta — fonte: ferramentas-quantidade-nome-tecnico.md (ligação por cm_id/mf_id/bq_id) — onde testar: Infrastructure.Tests/Data/PostgresMigrationIntegrationTests (novo ficheiro EliminarFerramenta) — como: PG, forçar falha a meio e reler que nada foi apagado; eliminar ao mesmo tempo que se associa uma produção.
 3. Dois envios simultâneos do mesmo Job On novo (mesmo nº de produção) gravam uma só vez e o segundo recebe recusa tipada — fonte: fluxo-jobon-novo.md — onde testar: PostgresMigrationIntegrationTests.JobOn* — como: duas tarefas em paralelo com CreateJobOnHandler, reler contagem=1 e uma recusa.
-4. Aviso «Sem registo» no Armazém ligado por omissão (Dmo:Avisos:ArmazemSemRegisto hoje false por omissão e testado como tal) — fonte: MEMORY.md (Armazém sem registo = «Sem registo» + aviso) — onde testar: JobOn/JobOnAvisoArmazemEmEsperaTests e JobOnFichaTests — como: corrigir o teste para exigir aviso por omissão e testar o interruptor só como exceção.
+4. [FEITO em DMO-580, #285] Aviso «Sem registo» no Armazém ligado por omissão (Dmo:Avisos:ArmazemSemRegisto hoje false por omissão e testado como tal) — fonte: MEMORY.md (Armazém sem registo = «Sem registo» + aviso) — onde testar: JobOn/JobOnAvisoArmazemEmEsperaTests e JobOnFichaTests — como: corrigir o teste para exigir aviso por omissão e testar o interruptor só como exceção.
 5. Ferramenta B1 com PSX em vez de NNX no nome técnico: aviso na ficha e no Job On — fonte: ferramentas-quantidade-nome-tecnico.md — onde testar: FerramentasPagesTests (página) além de TechnicalNameParserAvisoTests (só parser) — como: abrir ficha com nome PSX e verificar o aviso na página real.
 6. UsoSapCodigo.Corresponde só trata dígitos: lotes MGnn e regra BQ NX* não ligam o uso SAP — fonte: utilizacao-delta-estimado.md, sap-fabrico-zfmd.md — onde testar: Infrastructure.Tests/Tools/FerramentasUsoSapTests — como: casos MG01 e NX* com resultado esperado de ligação por id.
 7. Painéis não fecham ao clicar fora; Eliminar/Opções em último — fonte: estrutura-paineis-paginas.md — onde testar: Chromium nos fluxos principais (regra 13), ficheiro de fluxo Job On/Ferramentas — como: abrir painel, clicar fora, afirmar que continua aberto; ler a ordem dos botões do menu.
@@ -460,8 +423,8 @@ Nota: já existem muitos testes PostgreSQL de concorrência em tests/DMO.Alpha.I
 
 #### Piores testes
 
-- JobOnAvisoArmazemEmEsperaTests.PorOmissao_AAplicacaoNaoOLigaNasDefinicoes — ERRADO: fixa o aviso «Sem registo» desligado por omissão (MEMORY.md diz aviso sempre).
-- JobOnFichaTests.AvisoDoArmazem_EmEspera_NaoApareceNaFicha_NemNoEndpoint_MasOsOutrosSim — ERRADO/FRACO: consagra a ausência do aviso do Armazém, contra a decisão do Diogo.
+- [CORRIGIDO em DMO-580, #285: agora PorOmissao_OAvisoDoArmazemMostraSe] JobOnAvisoArmazemEmEsperaTests.PorOmissao_AAplicacaoNaoOLigaNasDefinicoes — era ERRADO: fixa o aviso «Sem registo» desligado por omissão (MEMORY.md diz aviso sempre).
+- [OK depois de DMO-580: só testa o interruptor desligado] JobOnFichaTests.AvisoDoArmazem_EmEspera_NaoApareceNaFicha_NemNoEndpoint_MasOsOutrosSim — dito ERRADO/FRACO: consagra a ausência do aviso do Armazém, contra a decisão do Diogo.
 - EdicoesAoMesmoTempoTests (Infrastructure, em memória) — FRACO: versão é sempre 0 em memória (regra 7); a garantia real está só nos testes PG.
 - FerramentasPagesTests.PostEdit_SavedMeanwhileByAnotherUser_RefusesFactsAndTechnical_NothingSaved — FRACO: depende de em memória para a recusa por versão.
 - JobOnPageTests.EditFlow_SavedMeanwhileByAnotherUser_RefusesAndShowsWhatWasSaved — FRACO: mesma razão, trinco só em memória.
@@ -513,8 +476,8 @@ Comparado só com a memória do projeto , o código atual e o histórico git. O 
 ci-local.sh corre só 12 scripts: boquilhas_catalog, paginacao_parcial, nok_agente, painel_lateral, painel_cores_linhas, puncoes_tabela, ajuda_junto, ri_hora, jobon_folha, ecra_pequeno, pasta_pdf, excel_bq (CI_SEM_BROWSER=1 salta-os). ÓRFÃOS (nenhum script do CI os chama): calendario_parcial, definicoes_parcial, ferramentas_parcial_servidor, ficha_avisos, ficha_botoes, gravacoes_zonas, historicos_parcial, resumo_parcial, revisao_aprovar, revisao_parcial_servidor, tecnica_alinhada (precisam de um servidor «stress» local à parte), mais design-review.cjs e validate_pdf_evidence.py (este último fora por desenho, testes.md). grupos.py só agrupa os projetos dotnet (TRX), não corre visual. ShellProof: 36 de 37 ficheiros estão no `test:js`; painel-propria-pagina.test.cjs é órfão. Nenhum visual tem funções test_ (são scripts).
 
 #### Piores testes
-1. ReparacaoInternaOutraFerramentaPaginaTests.Consultar_PorAssociar_AMarca_AEscrita_EOFiltro_SemBotoesNasLinhas — ERRADO a confirmar: exige link «Por associar» que abre janela dentro de cada linha (nunca botões dentro de linhas).
-2. visual/ajuda_junto_browser.py — ERRADO: exige zero círculos de ajuda, mas a bola de ajuda é ícone permitido (botoes-seletores.md 28/10).
+1. [CORRIGIDO em DMO-580, #285] ReparacaoInternaOutraFerramentaPaginaTests.Consultar_PorAssociar_AMarca_AEscrita_EOFiltro_SemBotoesNasLinhas — era ERRADO: exige link «Por associar» que abre janela dentro de cada linha (nunca botões dentro de linhas).
+2. [NÃO ERA ERRADO: o Diogo, 28/10 17:40, só proíbe a bola ao lado do triângulo de minimizar] visual/ajuda_junto_browser.py — dito ERRADO: exige zero círculos de ajuda, mas a bola de ajuda é ícone permitido (botoes-seletores.md 28/10).
 3. ReparacaoInternaOutraFerramentaPaginaTests.CorrigirParaOMesmoNumero_NadaMuda_ESemAviso — FRACO: só um GET sem corrigir nada, passa sempre.
 4. ReparacaoInternaPaginaTests.ComAChave_AbreComOMenuEAsZonas — FRACO: marcação e classes, quase sem efeito.
 5. ReparacaoInternaCorrigirPaginaTests.ATabela_SemBotoes_ODuploCliqueAbreAReparacao_ComCorrigirEAnular — FRACO: classes e regex da estrutura.
