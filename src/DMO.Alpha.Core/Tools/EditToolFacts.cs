@@ -24,4 +24,6 @@ public sealed record EditToolFacts(
     // A fábrica de origem (ex.: MG). null = fica como está; vazio = limpa.
     string? FabricaOrigem = null,
     // A quantidade de AN do lote (só na BQ; Diogo, 28/10/2026). null = vazia.
-    int? AnQuantity = null);
+    int? AnQuantity = null,
+    // A B2 em que trabalha: null mantém, vazio tira, «Dupla»/«Tripla» escolhe.
+    string? B2Modo = null);

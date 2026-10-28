@@ -37,19 +37,23 @@ public sealed partial class EnvioEmailPesoPageTests
         Assert.Contains("data-dmo-precisa-escolha data-dmo-dialog-modelo=\"ctl-modelo-{id}\" disabled>", abrir);
         Assert.DoesNotContain("data-dmo-dialog=", abrir);
         Assert.Contains("data-dmo-dialog=\"ctl-modelo-novo\">Novo modelo</button>", canto);
+        // O «Apagar» também no canto, em último, para a linha escolhida (Diogo: nunca botões nas linhas; Eliminar em último).
+        var apagar = Regex.Match(canto, "<button[^>]*>Apagar</button>").Value;
+        Assert.Contains("data-dmo-precisa-escolha data-dmo-dialog-modelo=\"ctl-modelo-apagar-{id}\" disabled>", apagar);
+        Assert.True(PosicaoNoHtml.Posicao(canto, "Novo modelo</button>") < PosicaoNoHtml.Posicao(canto, ">Apagar</button>"));
 
-        // Nas linhas, só o «×» de apagar; cada linha abre a janela do seu modelo.
+        // Nas linhas, nenhum botão; cada linha abre a janela do seu modelo.
         var tabela = Regex.Match(cartao, "<table class=\"dmo-table\" id=\"ctlDefModelosLista\" data-dmo-list=\"Modelos de email\"[\\s\\S]*?</table>").Value;
         Assert.NotEmpty(tabela);
         var semJanelas = Regex.Replace(tabela, "<dialog[\\s\\S]*?</dialog>", "");
         var nasLinhas = Regex.Matches(semJanelas, "<button[^>]*>").Select(m => m.Value).ToList();
-        Assert.Equal(2, nasLinhas.Count);
-        Assert.All(nasLinhas, b => Assert.Contains("class=\"ctl-def-x\"", b));
+        Assert.Empty(nasLinhas);
         foreach (var (id, nome) in new[] { (primeiro, "Peso para a produção"), (segundo, "Qualidade") })
         {
             Assert.Matches($"<tr data-dmo-modelo-email=\"{id}\" data-dmo-row data-id=\"{id}\" data-dmo-abre-janela=\"ctl-modelo-{id}\" aria-selected=\"false\"[^>]*>"
                 + $"\\s*<td><input type=\"radio\" name=\"ctl_modelo_escolhido\" value=\"{id}\" aria-label=\"Escolher o modelo {nome}\" /></td>\\s*<td>{nome}</td>", tabela);
             Assert.Contains($"<dialog id=\"ctl-modelo-{id}\" class=\"dmo-dialog\"", cartao);
+            Assert.Contains($"<dialog id=\"ctl-modelo-apagar-{id}\" class=\"dmo-dialog\"", cartao);
         }
     }
 

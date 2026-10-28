@@ -4497,12 +4497,96 @@ Novos: 0 · mudaram: 3 · saíram: 0
 
 Selo depois: `32dc4f2d6565160f`
 
+## A-0315 · 2026-10-28 · ok-do-diogo
+
+Porquê: Codificação por linha (DMO-578): a tabela das Definições das Ferramentas passa a codificação por linha (nomes técnicos editáveis, Qtd. CM/MF/BQ/AN, seletor B2 Dupla/Tripla, «Atualizar (N)»), a migração FerramentaB2Modo entra na lista e os testes novos garantem a folha da MG, o modo da B2, o criar/editar e o Job On. Procura da Reparação Programada (DMO-579): a Referência encontra pela referência toda e pelo nome técnico.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra9XbzqvdhTJocukrC3eQNhA, cmsg_01K75FTs9bQnbhhH7qttpgraCCgozAHgc15Raax5tq4XMg, cmsg_01K75FTs9bQnbhhH7qttpgraMyPMrUNJqfd5WoPEoSXomY, cmsg_01K75FTs9bQnbhhH7qttpgra8k8joixEkf2QtoBdbDNiqp, cmsg_01K75FTs9bQnbhhH7qttpgra9rGu8RYhnhF261Md4bRX3F
+Novos: 12 · mudaram: 3 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Programada/ReparacaoProgramadaTests.cs :: ReparacaoProgramadaTests.Procurar_PelaReferenciaToda_OuPeloNomeTecnico_EncontraACmEOMf`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoFerramentasTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoFerramentasTests.cs :: CodificacaoFerramentasTests.Atualizar_aplica_a_tabela_as_ferramentas_registadas`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoFerramentasTests.cs :: CodificacaoFerramentasTests.Guardar_muda_os_nomes_e_as_quantidades_e_deixa_de_fora_a_ma`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoFerramentasTests.cs :: CodificacaoFerramentasTests.O_modo_da_B2_poe_as_quantidades_desse_modo_na_B2`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoFerramentasTests.cs :: CodificacaoFerramentasTests.Sem_nada_gravado_a_tabela_e_a_folha_da_MG`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoFerramentasTests.cs :: CodificacaoFerramentasTests.Sugerir_pela_linha_e_pelo_modo_da_B2`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs :: CodificacaoNasFerramentasTests.Criar_poe_o_nome_tecnico_da_linha_e_o_modo_da_B2`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs :: CodificacaoNasFerramentasTests.Editar_muda_o_modo_da_B2`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs :: CodificacaoNasFerramentasTests.O_Job_On_da_B2_filtra_pelo_modo_escolhido`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_Codificacao_SeletorDaB2`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_TotalsGrid_SavesWithGuardar`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesTrocaTests.cs :: DefinicoesPorModuloPageTests.E10_FerramentasDefinicoes_QuadroNumaZona_OAvisoVaiParaOCanto`
+
+Selo depois: `cc3a3e5d878ee217`
+
+## A-0317 · 2026-10-28 · ok-do-diogo
+
+Porquê: Revisão dos testes (DMO-580, #285): saem os 22 testes do Armazém de serviços sem página (Mapa, Posições, Próximos, Entrada com par); o aviso «Sem registo» do Armazém passa a estar ligado por omissão (Diogo 28/10); os modelos de email do Peso deixam o «×» nas linhas (Apagar no canto, em último) e a Consulta da Reparação Interna deixa o link «Por associar» na linha (a linha abre a janela): nunca botões nas linhas.
+Referência: Diogo 28/10 17:40 «sim» (cmsg_01K75FTs9bQnbhhH7qttpgraQPo2WgcywrK4oUrJtfhKkr), na thread Rever os testes; PR #285
+Novos: 1 · mudaram: 2 · saíram: 27
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisoArmazemEmEsperaTests.cs :: JobOnAvisoArmazemEmEsperaTests.PorOmissao_OAvisoDoArmazemMostraSe`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.SemBotoesNasLinhas.cs :: EnvioEmailPesoPageTests.Modelos_UmaLinhaEscolhe_EUmSoAbrirNoCanto`
+- mudou: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaOutraFerramentaPaginaTests.cs :: ReparacaoInternaOutraFerramentaPaginaTests.Consultar_PorAssociar_AMarca_AEscrita_EOFiltro_SemBotoesNasLinhas`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemEntradaComParTests.cs :: (resto do ficheiro)`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemEntradaComParTests.cs :: ArmazemEntradaComParTests.ASituacao_MostraOParEOndeEsta`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemEntradaComParTests.cs :: ArmazemEntradaComParTests.ComOPar_ACmEOMfEntramNaMesmaPosicao`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemEntradaComParTests.cs :: ArmazemEntradaComParTests.OMesmoEnvioDuasVezes_GravaOParUmaVez`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemEntradaComParTests.cs :: ArmazemEntradaComParTests.OParJaNoArmazem_EntraSoAFerramentaEAvisa`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemEntradaComParTests.cs :: ArmazemEntradaComParTests.SemOPar_EntraSoAFerramenta`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemEntradaComParTests.cs :: ArmazemEntradaComParTests.SemParQueExista_EntraSoAFerramenta`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMapaTests.cs :: (resto do ficheiro)`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMapaTests.cs :: ArmazemMapaTests.APosicao_CorredorEstanteEPrateleira`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMapaTests.cs :: ArmazemMapaTests.OFiltro_ContaSempreOArmarioInteiro`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMapaTests.cs :: ArmazemMapaTests.OParDaMesmaReferenciaELote_NaoEMisturado`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMapaTests.cs :: ArmazemMapaTests.SemArmario_AbreOPrimeiro_ComAOcupacao`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMapaTests.cs :: ArmazemMapaTests.SemPosicoes_UmMapaVazio`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMapaTests.cs :: ArmazemMapaTests.TodosOsArmarios_OuUmQueNaoExisteAbreOPrimeiro`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemPosicoesTests.cs :: (resto do ficheiro)`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemPosicoesTests.cs :: ArmazemPosicoesTests.Criar_ForaDaRegra_NaoGrava`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemPosicoesTests.cs :: ArmazemPosicoesTests.Criar_OMesmoCodigoComEspacos_JaExiste`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemPosicoesTests.cs :: ArmazemPosicoesTests.Criar_QuatroAlgarismos_Grava`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemPosicoesTests.cs :: ArmazemPosicoesTests.Listar_MaisDoQueUmaPagina_Pagina`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemPosicoesTests.cs :: ArmazemPosicoesTests.Listar_PeloInicioDoCodigoEPeloEstado_PelaOrdemDoCodigo`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemPosicoesTests.cs :: ArmazemPosicoesTests.MudarAtiva_ArquivaEReativa_SemApagar`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs :: (resto do ficheiro)`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs :: ArmazemProximosTests.AsProducoesDoPeriodo_PelaDataDeInicio`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs :: ArmazemProximosTests.CadaFerramenta_OndeEstaEOQueFalta`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs :: ArmazemProximosTests.ForaDoArmazemEDoFabrico_NaoDisponivel`
+- saiu: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs :: ArmazemProximosTests.SemProducoes_ListaVazia`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisoArmazemEmEsperaTests.cs :: JobOnAvisoArmazemEmEsperaTests.PorOmissao_AAplicacaoNaoOLigaNasDefinicoes`
+
+Selo depois: `5c318483048cbfe4`
+
 ## A-0319 · 2026-10-28 · teste-novo
 
-Porquê: DMO-582: o script do SAP envia direto para a app com a chave
-Referência: Diogo 28/10/2026: «amanhã quero ter a app a funcionar com o sistema já nela, sem ter de ler pasta»
+Porquê: O script do SAP envia os ficheiros direto para a app com a chave do Admin › SAP; sem a chave recusa (DMO-582).
+Referência: PR #290
 Novos: 1 · mudaram: 0 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.OScriptDoSap_EnviaDireto_ComAChave_ESemElaNao`
 
-Selo depois: `0f01aa73bdaad785`
+Selo depois: `be0b65595a608b7e`
+
+## A-0322 · 2026-10-28 · contagem-lista
+
+Porquê: Tabela dos códigos de procura no SAP para CM, MF e BQ por Linha e «Código SAP» por ferramenta (DMO-585/586). As listas ganham a migração SapCodigoDaFerramenta, os endpoints /sap/codigos e /sap/enviar (com chave, DMO-582) e a coluna «search» lida do CSV; o que cada teste verifica fica igual.
+Referência: PR #290
+Novos: 9 · mudaram: 3 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.ACodigo_PorOmissao_EONomeTecnicoComOLote`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.ARegraDaLinha_GanhaAGeral_EOCodigoAMaoGanhaATudo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.AsTresGerais_EstaoSempre_EAsGravadasLeemSeDeVolta`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.OCsvDoScript_LigaPeloCodigoProcurado_QuandoONomeTecnicoNaoBate`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.OsCodigosPedidosAoSap_SeguemATabelaEOCodigoSap_DeTodosOsTipos`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.ATabelaDosCodigosDeProcura_GravaNoAdminEMudaOsCodigosPedidos`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.OCodigoSapDaFicha_GanhaATabela_EVazioVoltaAEla`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.OCsvDoScript_LeOPercDasLinhasEncontradasEDeixaAsOutras`
+- mudou: `tests/DMO.Alpha.Web.Tests/PaginasSemSessaoTests.cs :: PaginasSemSessaoTests.SemSessao_SoAbremAsPaginasPublicas`
+
+Selo depois: `22d7c7aa100fe569`

@@ -76,7 +76,7 @@ public sealed class FolhaModel(
     }
 
     /// <summary>O aviso «não está registada no Armazém» (o mesmo interruptor do Planeamento, Dmo:Avisos:ArmazemSemRegisto).</summary>
-    public bool MostrarAvisoArmazem { get; } = configuration.GetValue(IndexModel.AvisoArmazemChave, false);
+    public bool MostrarAvisoArmazem { get; } = configuration.GetValue(IndexModel.AvisoArmazemChave, IndexModel.AvisoArmazemPorOmissao);
 
     /// <summary>
     /// Os avisos depois de gravar, os mesmos do Planeamento (a ficha antiga

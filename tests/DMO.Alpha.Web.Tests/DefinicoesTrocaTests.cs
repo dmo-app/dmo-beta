@@ -89,7 +89,7 @@ public sealed partial class DefinicoesPorModuloPageTests
             Posicao(html, "<main class=\"def-page dmo-workspace\" aria-labelledby=\"def-title\" data-dmo-troca>");
             var zona = Posicao(html, "<section id=\"ferrDefTotais\" class=\"dmo-card ferr-def-card\" aria-labelledby=\"tool-quantities-title\" data-dmo-regiao data-dmo-parcial>");
             Assert.True(Posicao(html, "handler=SaveToolLotQuantities") > zona);
-            Assert.Contains($"<input id=\"ferr-total-BQ-B1\" name=\"quantities[{b1}]\"", html);
+            Assert.Contains($"<input id=\"ferr-total-BQ-B1\" class=\"ferr-cod-qtd\" name=\"quantities[{b1}]\"", html);
             Assert.Contains("<button type=\"submit\" class=\"dmo-button\" id=\"ferrDefGuardar\" form=\"ferrDefTotaisForm\">Guardar</button>", html);
 
             // Gravar com uma quantidade má desenha a página com o aviso: na

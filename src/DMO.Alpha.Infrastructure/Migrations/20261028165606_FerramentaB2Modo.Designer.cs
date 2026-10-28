@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DMO.Alpha.Infrastructure.Migrations
 {
     [DbContext(typeof(DmoDbContext))]
-    [Migration("20261028182940_SapCodigoDaFerramenta")]
-    partial class SapCodigoDaFerramenta
+    [Migration("20261028165606_FerramentaB2Modo")]
+    partial class FerramentaB2Modo
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -2815,6 +2815,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<string>("AssociatedMfReference")
                         .HasColumnType("text");
 
+                    b.Property<int?>("B2Modo")
+                        .HasColumnType("integer");
+
                     b.Property<int?>("BqAccountedQuantity")
                         .HasColumnType("integer");
 
@@ -2842,10 +2845,6 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     b.Property<DateTime?>("RegisteredAtUtc")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("SapCodigo")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
 
                     b.Property<string>("TechnicalName")
                         .HasColumnType("text");

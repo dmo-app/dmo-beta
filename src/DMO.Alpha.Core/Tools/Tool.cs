@@ -85,6 +85,13 @@ public sealed class Tool
     public string? SapCodigo { get; set; }
 
     /// <summary>
+    /// A B2 em que a ferramenta trabalha (Diogo, 28/10/2026): uma da C3+B2
+    /// fica sempre com B2 Tripla, uma da C1+B2 com B2 Dupla. Null fora da B2
+    /// e, na B2, enquanto não for escolhida (aviso importante).
+    /// </summary>
+    public B2Modo? B2Modo { get; set; }
+
+    /// <summary>
     /// A FÁBRICA DE ORIGEM (Diogo, 22/10/2026): a fábrica dona da ferramenta
     /// (ex.: «MG»), para separar depois as ferramentas emprestadas. Null = não indicada.
     /// </summary>

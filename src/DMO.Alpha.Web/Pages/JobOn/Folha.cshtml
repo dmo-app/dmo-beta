@@ -249,6 +249,11 @@
                depois do estado reparado»). *@
             <p class="jof-onde" data-dmo-onde-esta title="@ondeEsta">@if (f.Estado is { } estado) {<b>@DMO.Alpha.Core.Armazem.ArmazemTextos.Estado(estado)</b><span class="jof-onde-espaco"> </span>}@if (ondeEsta.StartsWith(NaPosicao, StringComparison.Ordinal)) {if (armazem.PodeAbrir(Model.Capacidades)) {<a class="jof-onde-pos" href="@armazem.Href" title="@ondeEsta: dar entrada ou saída no Armazém"><b>@ondeEsta[NaPosicao.Length..]</b></a>} else {<b>@ondeEsta[NaPosicao.Length..]</b>}} else {@ondeEsta}@if (ReparadorNaLinha(tipo, f) && Mostra(Model.Folha.Valor(tipo.ToLowerInvariant() + "_reparador")) is { } reparador) {<span class="jof-onde-reparador" title="Reparador"> · <b>@reparador</b></span>}</p>
           }
+          @* A B2 sem Dupla nem Tripla é um aviso importante (Diogo, 28/10/2026). *@
+          @if (f?.AvisoB2 is { } avisoB2)
+          {
+            <div class="jobon-aviso warn" role="status" data-dmo-aviso-b2>@avisoB2@{ var linkB2 = DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.FichaFerramenta(f.ToolId, "Escolher na ferramenta"); }@if (linkB2.PodeAbrir(Model.Capacidades)) {<text> </text><a class="dmo-aviso-link" href="@linkB2.Href">@linkB2.Texto</a>}</div>
+          }
           @if (Model.MostrarAvisoArmazem && f?.AvisoArmazem is { } avisoArmazem)
           {
             <div class="jobon-aviso warn" role="status" data-dmo-aviso-armazem>@avisoArmazem@{ var link = DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.FichaFerramenta(f.ToolId, "Registar na ferramenta"); }@if (link.PodeAbrir(Model.Capacidades)) {<text> </text><a class="dmo-aviso-link" href="@link.Href">@link.Texto</a>}</div>

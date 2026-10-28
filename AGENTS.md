@@ -12,6 +12,8 @@ Português de Portugal em tudo o que se escreve (PR, relatórios, textos da app)
    - a **prioridade de entrada** (1 = entra primeiro; ordem em que os PRs devem entrar na `integracao`);
    - a **lista de testes**: cada teste com a funcionalidade que garante, em frase do negócio.
      Esta lista fica também registada na guarda dos testes (`guarda-testes.py registar --porque`).
+     Cada teste novo ganha também a sua linha em [docs/testes/REGISTO.md](docs/testes/REGISTO.md)
+     (o que cada teste garante; os testes fracos ou errados conhecidos estão em `docs/testes/PROBLEMAS.md`).
    Abre o PR para o ramo `integracao` com a etiqueta **`agentes: testar`**. O Claude não corre o CI.
 2. **O agente de fora** trata de tudo o que é CI e PR: pega nos PRs pela prioridade, resolve os
    conflitos com a `integracao`, corre o CI, corrige o que falhar e escreve o **relatório** de como
@@ -42,11 +44,11 @@ trabalhar sempre no ramo do próprio PR.
 
 ## Testes e CI
 
-O CI é **local**, na máquina do agente, com a base PostgreSQL num contentor **Docker** descartável.
-O passo a passo e o script estão no [dmo-ci](https://github.com/dmo-app/dmo-ci):
-`bash scripts/correr-ci.sh <nº do PR>` (traz o PR, junta a `integracao`, arranca a base e corre
-`scripts/ci/ci-local.sh`). Só vale **«CI local: OK»** na última linha; «INCOMPLETO» não vale.
-O GitHub Actions não substitui o CI local.
+O CI é **local**, na máquina do agente, e corre **todo dentro de um contentor Linux** (Docker), com a
+base PostgreSQL descartável noutro contentor. O passo a passo está no
+[dmo-ci](https://github.com/dmo-app/dmo-ci): `docker compose run --rm ci` sobre o ramo do PR.
+Não correr o `ci-local.sh` diretamente no Windows (o vstest falha lá). Só vale **«CI local: OK»**;
+«INCOMPLETO», testes abortados ou grupos com 0 testes não valem. O GitHub Actions não substitui o CI local.
 
 ## O que se pode corrigir
 

@@ -34,7 +34,7 @@ public sealed class PaginasSemSessaoTests(CustomWebApplicationFactory factory) :
             .ToArray();
 
         Assert.Equal(
-            ["error", "favicon.ico", "instalar", "login", "logout", "posto", "versao"],
+            ["error", "favicon.ico", "instalar", "login", "logout", "posto", "sap/codigos", "sap/enviar", "versao"],
             publicas);
     }
 }

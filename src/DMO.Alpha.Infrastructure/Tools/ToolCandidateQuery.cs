@@ -140,6 +140,18 @@ public sealed class ToolCandidateQuery : IToolCandidateQuery
                     : query.Where(tool =>
                         _db.ToolMachineLinks.Any(link =>
                             link.ToolId == tool.ToolId && link.MachineId == machineId));
+
+                // A B2 em dupla ou em tripla (Diogo, 28/10/2026): na B2 só
+                // aparecem as ferramentas do modo escolhido nas Definições
+                // (e as que ainda não têm modo, com aviso).
+                if (_db.Machines.Any(m => m.Id == machineId && m.Code == "B2"))
+                {
+                    var modo = Codificacao.ModoDe(_db.ModuleSettings
+                        .Where(s => s.SettingKey == Codificacao.ModoB2Chave)
+                        .Select(s => s.SettingValue)
+                        .FirstOrDefault()) ?? B2Modo.Dupla;
+                    query = query.Where(tool => tool.B2Modo == null || tool.B2Modo == modo);
+                }
             }
 
             if (!string.IsNullOrWhiteSpace(filter.MfReference))

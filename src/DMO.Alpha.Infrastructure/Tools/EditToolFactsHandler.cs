@@ -137,6 +137,11 @@ public sealed class EditToolFactsHandler : IEditToolFactsHandler
             tool.FabricaOrigem = fabrica is { Length: > 32 } ? fabrica[..32] : fabrica;
         }
 
+        // A B2 em que trabalha (Diogo, 28/10/2026): sem a B2 nas linhas não há modo.
+        if (command.B2Modo is not null) tool.B2Modo = Codificacao.ModoDe(command.B2Modo);
+        var naB2 = machineIds.Count > 0 && await _db.Machines.AnyAsync(m => machineIds.Contains(m.Id) && m.Code == "B2", cancellationToken);
+        if (!naB2) tool.B2Modo = null;
+
         var existingLinks = await _db.ToolMachineLinks
             .Where(link => link.ToolId == tool.ToolId)
             .ToListAsync(cancellationToken);
