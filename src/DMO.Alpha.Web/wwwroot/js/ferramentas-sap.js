@@ -326,7 +326,7 @@
         const estadoSap = await lerEstado(pasta);
         if (!estadoSap || estadoSap.quando < comeco - 2000) {
           if (!arrancou && volta === 12) {
-            mensagem("aviso", "O SAP não arrancou. Neste PC, faça uma vez «Opções › Instalar neste PC».");
+            mensagem("aviso", "O SAP não arrancou. Neste PC, carregue uma vez em «Instalar».");
             mostrarEstado("«" + pasta.name + "» · o SAP não arrancou");
             return;
           }

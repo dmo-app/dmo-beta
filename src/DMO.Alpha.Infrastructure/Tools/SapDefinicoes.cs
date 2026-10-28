@@ -83,13 +83,13 @@ public sealed class SapDefinicoes(DmoDbContext db, IDataProtectionProvider prote
     }
 
     public Task<string?> ScriptEditadoAsync(string nome, CancellationToken cancellationToken = default) =>
-        SapScriptsRegras.Conhecido(nome)
+        SapScriptsRegras.Editavel(nome)
             ? ValorAsync(SapDefinicoesRegras.ChaveScript + nome, cancellationToken)
             : Task.FromResult<string?>(null);
 
     public async Task<SapGravacao> GravarScriptAsync(string nome, string? texto, CancellationToken cancellationToken = default)
     {
-        if (!SapScriptsRegras.Conhecido(nome))
+        if (!SapScriptsRegras.Editavel(nome))
         {
             return SapGravacao.ScriptDesconhecido;
         }

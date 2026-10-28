@@ -78,7 +78,8 @@ public class IndexModel(
         Sap = await sapDefinicoes.LerAsync(HttpContext.RequestAborted);
         SapLeituras = await sapDefinicoes.LeiturasAsync(20, HttpContext.RequestAborted);
         var textos = new List<(string, string, bool)>();
-        foreach (var nome in SapScriptsRegras.Nomes)
+        // O INSTALAR.cmd não se edita: só instala (Diogo, 28/10/2026 18:31).
+        foreach (var nome in SapScriptsRegras.Nomes.Where(n => n != SapScriptsRegras.Instalar))
         {
             var editado = await sapDefinicoes.ScriptEditadoAsync(nome, HttpContext.RequestAborted);
             textos.Add((nome, editado ?? SapScripts.Original(nome), editado is not null));

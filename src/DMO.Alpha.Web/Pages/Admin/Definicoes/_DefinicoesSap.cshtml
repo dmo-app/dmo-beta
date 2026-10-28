@@ -40,17 +40,18 @@
             <h3 id="admin-sap-pasta-title">Pasta do SAP neste computador</h3>
             <div class="dmo-card-topo-acoes">
                 <button type="button" class="dmo-button" data-ferr-sap-atualizar>Atualizar do SAP</button>
+                @* «Instalar» à vista, ao lado do Atualizar (Diogo, 28/10/2026 18:31). *@
+                <button type="button" class="dmo-button" data-ferr-sap-instalar>Instalar</button>
                 <details class="dmo-options" data-dmo-tab-menu>
                     <summary class="dmo-button" aria-label="Opções da pasta do SAP"><span class="dmo-caret" aria-hidden="true"></span>Opções</summary>
                     <div class="dmo-options-list">
                         <button type="button" class="dmo-options-item" data-sap-admin-ligar>Ligar pasta</button>
-                        <button type="button" class="dmo-options-item" data-ferr-sap-instalar>Instalar neste PC</button>
                     </div>
                 </details>
             </div>
         </div>
         <p><span data-sap-admin-estado data-ferr-sap-estado role="status">Nenhuma pasta ligada</span></p>
-        <p class="card-note">Na primeira vez em cada PC: «Ligar pasta», depois «Instalar neste PC» e duplo clique no INSTALAR.cmd. O que o SAP lê vai direto para a app, sem abrir as Ferramentas.</p>
+        <p class="card-note">Na primeira vez em cada PC: «Ligar pasta» (Opções), depois «Instalar» e duplo clique no INSTALAR.cmd. O que o SAP lê vai direto para a app, sem abrir as Ferramentas.</p>
         <partial name="/Pages/Ferramentas/_SapAtualizarJanela.cshtml" />
     </section>
     <section id="admSapScripts" class="dmo-card adm-card" aria-labelledby="admin-sap-scripts-title">

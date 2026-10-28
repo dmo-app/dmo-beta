@@ -18,10 +18,11 @@
            «Atualizar do SAP» escreve os scripts na pasta, abre o SAP e grava tudo quando acaba. «Ligar pasta» e «Ler pasta» saíram das Opções:
            a pasta liga-se no Admin › Definições › SAP ou no primeiro «Atualizar do SAP». *@
         <button type="button" class="dmo-button" id="ferrSapAtualizar" data-ferr-sap-atualizar>Atualizar do SAP</button>
+        @* «Instalar» à vista, ao lado do Atualizar (Diogo, 28/10/2026 18:31): o INSTALAR.cmd só instala ou volta a instalar. *@
+        <button type="button" class="dmo-button" id="ferrSapInstalar" data-ferr-sap-instalar>Instalar</button>
         <details class="dmo-options" data-dmo-tab-menu data-ferr-sap-opcoes>
           <summary class="dmo-button" aria-label="Opções da utilização pela produção"><span class="dmo-caret" aria-hidden="true"></span>Opções</summary>
           <div class="dmo-options-list">
-            <button type="button" class="dmo-options-item" id="ferrSapInstalar" data-ferr-sap-instalar>Instalar neste PC</button>
             <button type="button" class="dmo-options-item" id="ferrSapCodigos" data-ferr-sap-codigos disabled="@cadeado">Copiar códigos</button>
             @* «Pedir todas» (Diogo, 28/10/2026: «pq eu nao tenho um botao para fazer update a todas»): o dmo-codigos.txt passa a levar todas as ferramentas com nome técnico, neste computador, até se carregar outra vez. *@
             <button type="button" class="dmo-options-item" id="ferrSapTodas" data-ferr-sap-todas disabled="@cadeado">Pedir todas</button>

@@ -102,4 +102,7 @@ public static class SapScriptsRegras
     public static readonly IReadOnlyList<string> Nomes = [Diario, Fabrico, Uso, Instalar, Atalho];
 
     public static bool Conhecido(string? nome) => nome is not null && Nomes.Contains(nome);
+
+    /// <summary>Os que se abrem e mudam no Admin › SAP: todos menos o INSTALAR.cmd, que só instala.</summary>
+    public static bool Editavel(string? nome) => Conhecido(nome) && nome != Instalar;
 }
