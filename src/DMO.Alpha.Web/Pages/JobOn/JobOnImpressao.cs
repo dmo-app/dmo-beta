@@ -52,8 +52,10 @@ public sealed class JobOnImpressao
         Campo("seccoes", "Cabeçalho", "Secções", "cab_seccoes");
         Por("gota", "Cabeçalho", "Gota", "Nome técnico da CM (senão do MF): 55 = 2, 44/4T/50/5T = 3, 95 = 4; sem ele, Folha · Gota (cab_gota)", model.Gota ?? "");
         Por("peso", "Cabeçalho", "Peso", "Folha · Peso (g) (cab_peso)", Model("cab_peso") is { Length: > 0 } p ? p + " g" : "");
-        Por("cadencia", "Cabeçalho", "Cadência", "SAP · Cadência da produção (a das ordens com mais dias); sem ela, escreve-se à mão",
-            model.CadenciaSap?.ToString(CultureInfo.InvariantCulture) ?? "");
+        Por("cadencia", "Cabeçalho", "Cadência usada", "SAP · Cadência usada na produção (a moda: a das ordens com mais dias); sem ela, a da produção anterior com «ant.»; sem nenhuma, escreve-se à mão",
+            model.CadenciaSap is { } cadencia
+                ? cadencia.Resumo.Moda.ToString(CultureInfo.InvariantCulture) + (cadencia.DaAnterior ? " ant." : "")
+                : "");
         Por("processo", "Rodapé", "Processo", "Folha · Processo (cab_processo); sem ele, o processo da CM",
             Model("cab_processo") is { Length: > 0 } pr ? pr : (cm?.Processo ?? ""));
 
