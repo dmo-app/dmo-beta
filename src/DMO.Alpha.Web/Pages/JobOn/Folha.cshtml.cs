@@ -291,7 +291,8 @@ public sealed class FolhaModel(
         [FromQuery(Name = "removida")] string? removida = null,
         [FromQuery(Name = "etapa")] string? etapa = null,
         [FromQuery(Name = "producao")] string? producao = null,
-        [FromQuery(Name = "tipo")] string? tipo = null)
+        [FromQuery(Name = "tipo")] string? tipo = null,
+        [FromQuery(Name = "linha_de")] string? linhaDe = null)
     {
         VistaAlteracoes = vista == "alteracoes";
         AlteracaoRemovida = removida == "1";
@@ -397,6 +398,19 @@ public sealed class FolhaModel(
             {
                 var ultima = dela.OrderByDescending(p => p.ProductionNumber, StringComparer.Ordinal).First();
                 return Redirect($"/JobOn/Folha?jobon_id={ultima.JobOnId}{NovoDestino}");
+            }
+            // UMA REFERÊNCIA SEM JOB ON (Diogo, 28/10/2026: «estava no jobon da C3, queria iniciar
+            // um jobon para essa linha, meti a referência que vai entrar e disse que não existia»):
+            // quem cria abre logo o Job On novo dela, na linha de onde veio (a do Planeamento ou a
+            // do Job On que estava a ver), como no Criar. Quem só vê fica com o aviso.
+            if (PodeEditar)
+            {
+                var linhaNova = machineId ?? (linhaDe?.Trim() is { Length: > 0 } codigo
+                    ? (await machineList.ListAsync(ct)).FirstOrDefault(m => string.Equals(m.Code, codigo, StringComparison.OrdinalIgnoreCase))?.MachineId
+                    : null);
+                return Redirect($"/JobOn/Folha?novo=1&etapa=criar&referencia={Uri.EscapeDataString(procurada.ToUpperInvariant())}"
+                    + (linhaNova is int l ? $"&machine_id={l}" : "")
+                    + ((NovoInicio ?? DiaPlaneamento) is { } diaNovo ? $"&inicio_em={diaNovo:yyyy-MM-dd}" : ""));
             }
             ReferenciaSemProducoes = true;
         }
