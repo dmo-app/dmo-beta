@@ -39,7 +39,7 @@ public sealed record JobOnToolFacts(
 
     /// <summary>
     /// Onde a ferramenta está pelo Armazém («Armazém · posição 1033»,
-    /// «A reparar · Moldes Lda», «Fabrico»); null quando nunca foi registada
+    /// «Reparação · Moldes Lda», «Fabrico»); null quando nunca foi registada
     /// no Armazém.
     /// </summary>
     public string? OndeEsta { get; init; }

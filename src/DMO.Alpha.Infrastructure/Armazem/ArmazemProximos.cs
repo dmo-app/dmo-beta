@@ -46,6 +46,7 @@ public sealed class ArmazemProximos(DmoDbContext db) : IArmazemProximos
         var localizacoes = await db.FerramentaLocalizacoes.AsNoTracking()
             .Where(l => toolIds.Contains(l.ToolId))
             .ToDictionaryAsync(l => l.ToolId, cancellationToken);
+        var pormenores = await LocalizacaoPormenor.PorFerramentaAsync(db, localizacoes.Values, cancellationToken);
 
         ArmazemProximaFerramenta? Ferramenta(string toolId)
         {
@@ -61,7 +62,7 @@ public sealed class ArmazemProximos(DmoDbContext db) : IArmazemProximos
 
             var onde = localizacoes.TryGetValue(toolId, out var l) ? l.Localizacao : FerramentaLocalizacaoTipo.Fabrico;
             return new(toolId, tool.Type, tool.Reference, tool.Lot,
-                ArmazemTextos.Localizacao(onde, l?.ReparadorNome),
+                ArmazemTextos.Localizacao(onde, pormenores.GetValueOrDefault(toolId)),
                 onde == FerramentaLocalizacaoTipo.Fabrico ? ArmazemProximoAcao.Pronta : ArmazemProximoAcao.Indisponivel);
         }
 

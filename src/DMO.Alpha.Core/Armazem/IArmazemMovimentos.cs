@@ -126,7 +126,7 @@ public sealed record ArmazemSituacao(
     string? Posicao,
     DateTime? NaPosicaoDesdeUtc,
     FerramentaLocalizacaoTipo Localizacao,
-    string? LocalizacaoReparador,
+    string? LocalizacaoPormenor,
     DateTime? LocalizacaoDesdeUtc,
     FerramentaEstadoTipo? Estado,
     DateTime? EstadoEmUtc,
@@ -138,6 +138,18 @@ public sealed record ArmazemSituacao(
     IReadOnlyList<ArmazemMovimentoLinha> UltimosMovimentos)
 {
     public bool NoArmazem => Posicao is not null;
+
+    /// <summary>
+    /// Onde está, para a ficha e o Armazém: a posição, o sítio da Saída
+    /// («Reparação · Moldin», «Fabrico» quando saiu para uma Linha) ou, sem
+    /// nenhum registo no Armazém, «Sem registo» (Diogo, 28/10/2026: «Fabrico»
+    /// é só quando está a ser usada numa linha).
+    /// </summary>
+    public string OndeEsta => NoArmazem
+        ? $"Armazém · posição {Posicao}"
+        : LocalizacaoDesdeUtc is null
+            ? ArmazemTextos.SemRegisto
+            : ArmazemTextos.Localizacao(Localizacao, LocalizacaoPormenor);
 
     /// <summary>O par desta ferramenta (o MF da CM, ou a CM do MF, da mesma referência e lote), se existir.</summary>
     public ArmazemPar? Par { get; init; }
@@ -249,13 +261,21 @@ public static class ArmazemTextos
     /// «os que não têm registo no armazém mete sem registo»; antes dizia «Fabrico»).</summary>
     public const string SemRegisto = "Sem registo";
 
-    public static string Localizacao(FerramentaLocalizacaoTipo localizacao, string? reparador) => localizacao switch
+    /// <summary>
+    /// Onde está, com o sítio escolhido na Saída (Diogo, 28/10/2026):
+    /// «Reparação · Moldin», «Emprestado · fábrica». O pormenor é o
+    /// reparador ou, no empréstimo, a fábrica para onde foi.
+    /// </summary>
+    public static string Localizacao(FerramentaLocalizacaoTipo localizacao, string? pormenor) => localizacao switch
     {
-        FerramentaLocalizacaoTipo.AReparar => string.IsNullOrWhiteSpace(reparador) ? "A reparar" : $"A reparar · {reparador}",
-        FerramentaLocalizacaoTipo.Emprestado => "Emprestado",
+        FerramentaLocalizacaoTipo.AReparar => ComPormenor("Reparação", pormenor),
+        FerramentaLocalizacaoTipo.Emprestado => ComPormenor("Emprestado", pormenor),
         FerramentaLocalizacaoTipo.Sucata => "Sucata",
         _ => "Fabrico"
     };
+
+    private static string ComPormenor(string onde, string? pormenor) =>
+        string.IsNullOrWhiteSpace(pormenor) ? onde : $"{onde} · {pormenor.Trim()}";
 
     /// <summary>Os destinos pela ordem da lista (Diogo, 18/10/2026).</summary>
     public static readonly IReadOnlyList<ArmazemDestino> Destinos =

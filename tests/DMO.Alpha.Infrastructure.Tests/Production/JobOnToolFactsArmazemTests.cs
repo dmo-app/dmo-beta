@@ -66,7 +66,7 @@ public sealed class JobOnToolFactsArmazemTests
 
         Assert.Equal(("Armazém · posição 1033", FerramentaEstadoTipo.Reparado, (string?)null),
             (factos["na-posicao"].OndeEsta, factos["na-posicao"].Estado, factos["na-posicao"].AvisoArmazem));
-        Assert.Equal(("A reparar · Moldes Lda", FerramentaEstadoTipo.PorReparar, (string?)null),
+        Assert.Equal(("Reparação · Moldes Lda", FerramentaEstadoTipo.PorReparar, (string?)null),
             (factos["a-reparar"].OndeEsta, factos["a-reparar"].Estado, factos["a-reparar"].AvisoArmazem));
         Assert.Equal(("Fabrico", FerramentaEstadoTipo.Novo, (string?)null),
             (factos["no-fabrico"].OndeEsta, factos["no-fabrico"].Estado, factos["no-fabrico"].AvisoArmazem));

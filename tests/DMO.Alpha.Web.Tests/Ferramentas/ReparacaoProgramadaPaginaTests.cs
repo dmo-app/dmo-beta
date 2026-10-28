@@ -175,7 +175,7 @@ public sealed class ReparacaoProgramadaPaginaTests : IClassFixture<CustomWebAppl
         using var chefia = await LoginAsync("7403", DmoCapabilities.Ferramentas);
         var depoisDaSaida = await chefia.GetStringAsync(Pagina);
         Assert.Matches("data-dmo-progresso class=\"rp-saiu\">Saída \\d\\d/\\d\\d<", depoisDaSaida);
-        Assert.Contains("A reparar · Moldin", depoisDaSaida);
+        Assert.Contains("Reparação · Moldin", depoisDaSaida);
 
         using var armazem = await LoginAsync("7404", DmoCapabilities.ArmazemGestao);
         var entrada = await armazem.GetStringAsync($"/Armazem/Movimentos?ferramenta={Cm}");

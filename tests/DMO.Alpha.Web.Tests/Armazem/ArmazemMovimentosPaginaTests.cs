@@ -355,7 +355,7 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
 
         Assert.Contains("Saída registada.", Elemento(depois, "id=\"armMovAvisos\""));
         Assert.Contains("é no futuro", Elemento(depois, "data-dmo-aviso"));
-        Assert.Contains("A reparar · Moldes Lda", Elemento(depois, "data-dmo-onde"));
+        Assert.Contains("Reparação · Moldes Lda", Elemento(depois, "data-dmo-onde"));
         // Depois da Reparação, a Entrada vem com a origem e o estado escolhidos (D11).
         Assert.Equal("Reparação", Escolhida(depois, "armEntOrigem"));
         Assert.Equal("Reparado", Escolhida(depois, "armEntEstado"));
