@@ -1,5 +1,5 @@
 {
-  "selo": "ea268b5439963e5e",
+  "selo": "aae27af46841fe7c",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -274,6 +274,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqHistorySummaryTests.cs :: BqHistorySummaryTests.HistoryAndCalendar_UseTheLisbonDateAtTheMonthBoundary": "46190ed048e6b6d1",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqHistorySummaryTests.cs :: BqHistorySummaryTests.MovementsList_FiltersByRangeTypeAndText_OverTheRealDate": "38f4074800a0b5d8",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: (resto do ficheiro)": "2d26cabf11da4d78",
+    "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: SemDefinicoes.Corrigir_SoAn_AceitaZeroBq_SemAnRecusa": "9b0faf88cb7ea815",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: SemDefinicoes.Corrigir_SoMudaOsAnQuandoOsTraz": "d02901e83d88d95c",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: SemDefinicoes.Registar_AnNegativo_RecusaENadaGrava": "b1ef8c202bac826d",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: SemDefinicoes.Registar_ComAn_GravaOsAn_SemAnOuZeroFicaSemAn": "ade94fb88d47f129",
@@ -1792,11 +1793,12 @@
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasRegistoConsultasTests.cs :: (resto do ficheiro)": "ebe49e8cb3c2744a",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasRegistoConsultasTests.cs :: BoquilhasRegistoConsultasTests.Registo_GetFazPoucasConsultas": "30b9f91f91325aa4",
     "tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: (resto do ficheiro)": "e0f45daa8edaaf63",
+    "tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_ADiscrepanciaTambemContaParaOsAn": "bbe02ffdf2505d98",
     "tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_IlegivelOuNegativo_NaoGravaNada_EOFormularioVoltaComOQueSeEscreveu": "bce2643c258ce459",
     "tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_NaFichaDaBq_GravaEMostraBqEAn": "fd94797e1f131901",
     "tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_NoRegisto_GravaComOMovimento_EContaOsAnFora": "a617825abe564e05",
     "tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_NosMovimentos_OFiltroPecaAn_MostraSoOsMovimentosComAn": "9d41d45310e332cc",
-    "tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_RegistarSemJobOn_GravaOsAn_EAFichaMostraAColuna": "6c34f355d3a1f237",
+    "tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_RegistarSemJobOn_APecaVemEmBq_ComAnGravaSoOsAn": "d5ec0fb603d1c2fb",
     "tests/DMO.Alpha.Web.Tests/BoquilhasAvisosTests.cs :: (resto do ficheiro)": "5b64a43b7e6b805f",
     "tests/DMO.Alpha.Web.Tests/BoquilhasAvisosTests.cs :: BoquilhasRegistoPageTests.AssociateForm_SendsTheChosenReference_AndOnlyItsProductionIsAssociated": "5b63e663930cc4f6",
     "tests/DMO.Alpha.Web.Tests/BoquilhasAvisosTests.cs :: BoquilhasRegistoPageTests.AssociateForm_WithTheStartOfTheReference_AssociatesTheChosenProduction_NotAnotherWithTheSameNumber": "ea48658a209fae5f",

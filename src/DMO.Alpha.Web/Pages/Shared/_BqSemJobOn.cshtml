@@ -57,13 +57,19 @@
           <label><input type="radio" name="movement_type" value="entrada_sem_reparacao" /><span>Entrada sem reparação</span></label>
         </fieldset>
         <div class="bq-sem-jobon-campos">
+          @* A PEÇA (Diogo, 28/10/2026: «registar sem jobon passa ter dropdown
+             de BQ e AN, pré-definição sempre BQ»): a quantidade é das BQ ou
+             dos AN; um movimento de AN não leva BQ. *@
           <div class="dmo-field">
-            <label for="bqSemJobOnQtd">Qtd. BQ</label>
-            <input id="bqSemJobOnQtd" name="quantity" type="number" lang="en" min="1" required placeholder="Ex.: 1" />
+            <label for="bqSemJobOnPeca">Peça</label>
+            <select id="bqSemJobOnPeca" name="peca">
+              <option value="bq" selected>BQ</option>
+              <option value="an">AN</option>
+            </select>
           </div>
           <div class="dmo-field">
-            <label for="bqSemJobOnAn">Qtd. AN</label>
-            <input id="bqSemJobOnAn" name="quantity_an" type="number" lang="en" min="0" placeholder="Ex.: 1" title="Quantidade de AN (anéis) neste movimento. Em branco, sem AN." />
+            <label for="bqSemJobOnQtd">Quantidade</label>
+            <input id="bqSemJobOnQtd" name="quantity" type="number" lang="en" min="1" required placeholder="Ex.: 1" />
           </div>
           <div class="dmo-field">
             <label for="bqSemJobOnData">Data e hora reais</label>

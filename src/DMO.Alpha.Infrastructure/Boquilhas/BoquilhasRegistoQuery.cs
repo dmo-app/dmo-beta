@@ -238,9 +238,14 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
         var quantityLegitimatelyOut = 0;
         var accumulatedDiscrepancy = 0;
         var hasDiscrepancy = false;
-        // Os AN fora, com a mesma conta, só com os movimentos que levam AN.
+        // Os AN fora, com a mesma conta, só com os movimentos que levam AN;
+        // a discrepância também conta para os AN (Diogo, 28/10/2026), com a
+        // mesma regra: o excedente de uma entrada fica negativo.
         var anOut = 0;
         var hasAn = false;
+        var anAccumulated = 0;
+        var hasAnDiscrepancy = false;
+        var anDiscrepancies = new Dictionary<int, int>();
         foreach (var movement in chronological)
         {
             if (movement.Type == BqMovementType.Saida)
@@ -256,7 +261,25 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
             if (movement.AnQuantity is int an)
             {
                 hasAn = true;
-                anOut = movement.Type == BqMovementType.Saida ? anOut + an : anOut - Math.Min(an, anOut);
+                if (movement.Type == BqMovementType.Saida)
+                {
+                    anOut += an;
+                }
+                else
+                {
+                    var anMatched = Math.Min(an, anOut);
+                    anOut -= anMatched;
+                    if (an > anMatched)
+                    {
+                        anDiscrepancies[movement.Id] = anMatched - an;
+                        if (header.DiscrepancyResetAtUtc is not DateTime anResetAt
+                            || BqDiscrepancyFold.CountsAfterReset(movement.OccurredAtUtc, movement.CreatedAtUtc, anResetAt))
+                        {
+                            anAccumulated += anMatched - an;
+                            hasAnDiscrepancy = true;
+                        }
+                    }
+                }
             }
 
             // Depois de posta a zero, a discrepância acumulada só conta os
@@ -306,7 +329,11 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
                 movement.MachineCodeFrozen,
                 movement.CorrectedByNameFrozen,
                 movement.CorrectedAtUtc,
-                movement.AnQuantity)).ToList(),
+                movement.AnQuantity,
+                header.DiscrepancyResetAtUtc is DateTime anShownResetAt
+                    && !BqDiscrepancyFold.CountsAfterReset(movement.OccurredAtUtc, movement.CreatedAtUtc, anShownResetAt)
+                    ? null
+                    : anDiscrepancies.TryGetValue(movement.Id, out var anDisc) ? anDisc : null)).ToList(),
             quantityLegitimatelyOut,
             hasDiscrepancy || header.DiscrepancyResetAtUtc is not null ? accumulatedDiscrepancy : null,
             header.ToolAccountedQuantity,
@@ -315,6 +342,7 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
             chronological.Count,
             page,
             header.ToolAnQuantity,
-            hasAn ? anOut : null);
+            hasAn ? anOut : null,
+            hasAnDiscrepancy || (hasAn && header.DiscrepancyResetAtUtc is not null) ? anAccumulated : null);
     }
 }

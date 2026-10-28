@@ -22,7 +22,7 @@
                           <td>@fmtDate(movement.OccurredAtUtc)</td>
                           <td>@movement.ToolReference@(movement.ToolLot is { } tl ? $" · Lote {tl}" : null)</td>
                           <td>@movementLabel(movement.MovementType)</td>
-                          <td>@movement.Quantity</td>
+                          <td>@(movement.Quantity == 0 && movement.AnQuantity is not null ? "—" : movement.Quantity.ToString())</td>
                           <td>@(movement.AnQuantity is int an ? an.ToString() : "—")</td>
                           <td>@(movement.BqRepairerNameFrozen ?? "—")</td>
                           <td>@(movement.MachineCode ?? "—")</td>

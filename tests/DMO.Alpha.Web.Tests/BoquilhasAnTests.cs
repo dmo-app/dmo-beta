@@ -124,32 +124,72 @@ public partial class BoquilhasRegistoPageTests
     }
 
     [Fact]
-    public async Task An_RegistarSemJobOn_GravaOsAn_EAFichaMostraAColuna()
+    public async Task An_RegistarSemJobOn_APecaVemEmBq_ComAnGravaSoOsAn()
     {
+        // Diogo, 28/10/2026: «registar sem jobon passa ter dropdown de BQ e AN,
+        // pré-definição sempre BQ».
         await SeedToolAsync("BQ-AN-SEMJOB", "AN176", "2");
         SeedUser("4384", "AN Sem Job", "provider-an-semjob", "AnSemJob1!");
         using var client = await LoginClientAsync("4384", "AnSemJob1!");
 
         var page = await GetPageHtmlAsync(client, $"{PagePath}?ficheiros=1");
-        Assert.Contains("<label for=\"bqSemJobOnAn\">Qtd. AN</label>", page);
-        var (acao, campos) = EnvioDoFormulario.Enviar(page,
-            [("bqSemJobOnBq", "BQ-AN-SEMJOB"), ("bqSemJobOnQtd", "3"), ("bqSemJobOnAn", "5"), ("bqSemJobOnData", "2026-10-02T09:00")],
-            radios: [("movement_type", "saida")]);
-        using var response = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
-        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
-        Assert.Contains("sem_jobon=ok", response.Headers.Location!.OriginalString);
+        Assert.Contains("<select id=\"bqSemJobOnPeca\" name=\"peca\">", page);
+        Assert.Contains("<option value=\"bq\" selected>BQ</option>", page);
+
+        async Task<string> RegistarAsync(string peca, string quantidade, string data)
+        {
+            var html = await GetPageHtmlAsync(client, $"{PagePath}?ficheiros=1");
+            var (acao, campos) = EnvioDoFormulario.Enviar(html,
+                [("bqSemJobOnBq", "BQ-AN-SEMJOB"), ("bqSemJobOnPeca", peca), ("bqSemJobOnQtd", quantidade), ("bqSemJobOnData", data)],
+                radios: [("movement_type", "saida")]);
+            using var response = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
+            Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+            Assert.Contains("sem_jobon=ok", response.Headers.Location!.OriginalString);
+            return response.Headers.Location!.OriginalString;
+        }
+
+        await RegistarAsync("bq", "3", "2026-10-02T09:00");
+        var location = await RegistarAsync("an", "5", "2026-10-02T10:00");
 
         using (var scope = _factory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
-            var movimento = await db.BqMovements.AsNoTracking().SingleAsync(m => m.Trace.ToolId == "BQ-AN-SEMJOB");
-            Assert.Equal(3, movimento.Quantity);
-            Assert.Equal(5, movimento.AnQuantity);
+            var movimentos = await db.BqMovements.AsNoTracking()
+                .Where(m => m.Trace.ToolId == "BQ-AN-SEMJOB").OrderBy(m => m.Id).ToListAsync();
+            Assert.Equal([3, 0], movimentos.Select(m => m.Quantity));
+            Assert.Equal([null, 5], movimentos.Select(m => m.AnQuantity));
         }
 
-        var depois = await GetPageHtmlAsync(client, response.Headers.Location!.OriginalString);
+        var depois = await GetPageHtmlAsync(client, location);
         Assert.Contains("<th>Qtd.</th><th>Qtd. AN</th><th>Linha</th>", depois);
-        Assert.Contains("<td>02/10/2026 09:00</td><td>Saída</td><td>3</td><td>5</td>", depois);
+        Assert.Contains("<td>02/10/2026 10:00</td><td>Saída</td><td>—</td><td>5</td>", depois);
+        Assert.Contains("<td>02/10/2026 09:00</td><td>Saída</td><td>3</td><td>—</td>", depois);
+    }
+
+    [Fact]
+    public async Task An_ADiscrepanciaTambemContaParaOsAn()
+    {
+        // Diogo, 28/10/2026 («A discrepância também conta para os AN?» → «Sim»).
+        await SeedToolAsync("BQ-AN-DISC", "AN178", "5");
+        var bq = await SeedProductionAsync("BQ-AN-DISC", "5447AN178", "202643", "C1");
+        var trace = await SeedTraceAsync(null, bq.Id);
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var handler = scope.ServiceProvider.GetRequiredService<IRegisterBqMovementHandler>();
+            var hora = new DateTime(2026, 10, 3, 8, 0, 0, DateTimeKind.Utc);
+            Assert.Equal(RegisterBqMovementResult.Success,
+                (await handler.HandleAsync(new RegisterBqMovement(trace.Id, "saida", 2, OccurredAtUtc: hora, AnQuantity: 3))).Result);
+            Assert.Equal(RegisterBqMovementResult.Success,
+                (await handler.HandleAsync(new RegisterBqMovement(trace.Id, "entrada", 2, OccurredAtUtc: hora.AddHours(1), AnQuantity: 5))).Result);
+        }
+        SeedUser("4386", "AN Discrepancia", "provider-an-disc", "AnDisc1!");
+        using var client = await LoginClientAsync("4386", "AnDisc1!");
+
+        var html = await GetPageHtmlAsync(client, TraceUrl(trace.Id));
+        // Saem 3 AN e entram 5: discrepância -2 nos AN; as BQ batem certo.
+        Assert.Contains("<td>-2 AN</td>", html);
+        Assert.Contains("aria-label=\"Discrepância acumulada dos AN -2 — um clique para meter a zero\">-2</a><small class=\"bq-peca\">AN</small>", html);
+        Assert.Contains("<span>Em reparação</span><strong>0<small class=\"bq-peca\">BQ</small><span class=\"bq-an\">0<small class=\"bq-peca\">AN</small></span></strong>", html);
     }
 
     [Fact]

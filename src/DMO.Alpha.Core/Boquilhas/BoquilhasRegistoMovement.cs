@@ -22,4 +22,6 @@ public sealed record BoquilhasRegistoMovement(
     string? CorrectedByNameFrozen = null,
     DateTime? CorrectedAtUtc = null,
     // Os AN do movimento (Diogo, 28/10/2026); null = sem AN.
-    int? AnQuantity = null);
+    int? AnQuantity = null,
+    // A discrepância dos AN neste movimento (o excedente de uma entrada, negativo); null sem ela.
+    int? AnDiscrepancy = null);

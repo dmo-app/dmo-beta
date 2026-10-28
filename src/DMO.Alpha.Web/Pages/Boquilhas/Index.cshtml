@@ -430,10 +430,12 @@
               @{
                 var resetNote = Model.DiscrepancyResetNote;
                 var resettable = trace.AccumulatedDiscrepancy is int nonZero && nonZero != 0 && trace.BqRepairTraceId > 0;
+                @* Meter a zero vale para as BQ e os AN juntos (a mesma data). *@
+                var anResettable = trace.AnAccumulatedDiscrepancy is int anNonZero && anNonZero != 0 && trace.BqRepairTraceId > 0;
               }
-              <div title="@(resetNote.Length > 0 ? resetNote : null)"><span>@("Discrepância acumulada")@if (resetNote.Length > 0) {<partial name="_DmoHelp" model="resetNote" />}</span><strong>@if (resettable) {<a class="bq-reset-link" href="@(Model.DiscrepancyResetHref(trace.BqRepairTraceId, open: true))#bqMetrics" aria-label="Discrepância acumulada @trace.AccumulatedDiscrepancy — um clique para meter a zero">@trace.AccumulatedDiscrepancy</a>} else {@(trace.AccumulatedDiscrepancy is int shown ? shown.ToString() : "—")}</strong></div>
+              <div title="@(resetNote.Length > 0 ? resetNote : null)"><span>@("Discrepância acumulada")@if (resetNote.Length > 0) {<partial name="_DmoHelp" model="resetNote" />}</span><strong>@if (resettable) {<a class="bq-reset-link" href="@(Model.DiscrepancyResetHref(trace.BqRepairTraceId, open: true))#bqMetrics" aria-label="Discrepância acumulada @trace.AccumulatedDiscrepancy — um clique para meter a zero">@trace.AccumulatedDiscrepancy</a>} else {@(trace.AccumulatedDiscrepancy is int shown ? shown.ToString() : "—")}@if (temAn) {<small class="bq-peca">BQ</small><span class="bq-an">@if (anResettable) {<a class="bq-reset-link" href="@(Model.DiscrepancyResetHref(trace.BqRepairTraceId, open: true))#bqMetrics" aria-label="Discrepância acumulada dos AN @trace.AnAccumulatedDiscrepancy — um clique para meter a zero">@trace.AnAccumulatedDiscrepancy</a>} else {@(trace.AnAccumulatedDiscrepancy is int anDisc ? anDisc.ToString() : "—")}<small class="bq-peca">AN</small></span>}</strong></div>
             </div>
-            @if (Model.DiscrepancyResetOpen && trace.BqRepairTraceId > 0 && trace.AccumulatedDiscrepancy is int toReset && toReset != 0)
+            @if (Model.DiscrepancyResetOpen && trace.BqRepairTraceId > 0 && ((trace.AccumulatedDiscrepancy ?? 0) != 0 || (trace.AnAccumulatedDiscrepancy ?? 0) != 0))
             {
               <div class="dmo-modal-backdrop open" id="bqDiscrepancyReset" role="dialog" aria-modal="true" aria-labelledby="bqDiscrepancyResetTitle">
                 <div class="dmo-modal bq-reset-modal">
@@ -441,7 +443,7 @@
                     <h2 id="bqDiscrepancyResetTitle" title="A discrepância acumulada passa a 0 e conta só os movimentos com data e hora depois de agora. Os movimentos, o saldo de cada linha e o «Em reparação» ficam como estão.">Meter a discrepância a zero?</h2>
                   </div>
                   <div class="dmo-modal-body">
-                    <p>BQ @trace.ToolReference@(trace.ToolLot is null ? null : $" · Lote {trace.ToolLot}") · discrepância acumulada @toReset</p>
+                    <p>BQ @trace.ToolReference@(trace.ToolLot is null ? null : $" · Lote {trace.ToolLot}") · discrepância acumulada @(trace.AccumulatedDiscrepancy ?? 0)@(trace.AnAccumulatedDiscrepancy is int anToReset && anToReset != 0 ? $" BQ · {anToReset} AN" : null)</p>
                     <div class="dmo-list-actions bq-correct-actions">
                       <form method="post" asp-page="/Boquilhas/Index" asp-page-handler="ResetDiscrepancy">
                         <input type="hidden" name="trace_id" value="@trace.BqRepairTraceId" />
@@ -491,11 +493,11 @@
                 <td>@fmtDate(movement.OccurredAtUtc)</td>
                 <td>@trace.ToolReference@(trace.ToolLot is null ? null : $" · Lote {trace.ToolLot}")</td>
                 <td>@movementLabel(movement.MovementType)</td>
-                <td>@movement.Quantity</td>
+                <td>@(movement.Quantity == 0 && movement.AnQuantity is not null ? "—" : movement.Quantity.ToString())</td>
                 <td>@(movement.AnQuantity is int an ? an.ToString() : "—")</td>
                 <td>@(movement.MachineCodeFrozen ?? "—")</td>
                 <td>@(movement.BqRepairerNameFrozen ?? "—")</td>
-                <td>@(movement.Discrepancy is int disc ? disc.ToString() : "—")</td>
+                <td>@(movement.AnDiscrepancy is int anDisc ? (movement.Discrepancy is int discBq ? $"{discBq} BQ · {anDisc} AN" : $"{anDisc} AN") : movement.Discrepancy is int disc ? disc.ToString() : "—")</td>
               }
               const string movementsHead = "<tr><th>Data/hora</th><th>BQ · lote</th><th>Movimento</th><th>Qtd. BQ</th><th>Qtd. AN</th><th>Máquina</th><th>Reparador</th><th>Saldo</th></tr>";
               <div class="dmo-table-wrap">
@@ -587,7 +589,7 @@
                   </fieldset>
                     <div class="field dmo-field bq-line-quantity">
                       <label for="editQuantity">Qtd. BQ</label>
-                      <input id="editQuantity" name="quantity" type="number" lang="en" min="1" required value="@editing.Quantity" />
+                      <input id="editQuantity" name="quantity" type="number" lang="en" min="@(editing.AnQuantity is > 0 ? 0 : 1)" required value="@editing.Quantity" />
                     </div>
                     <div class="field dmo-field bq-line-quantity">
                       <label for="editQuantityAn">Qtd. AN</label>

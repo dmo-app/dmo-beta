@@ -46,14 +46,17 @@ public sealed class EditBqMovementHandler : IEditBqMovementHandler
             return new EditBqMovementOutcome(EditBqMovementResult.UnknownMovementType);
         }
 
-        if (command.Quantity < 1)
-        {
-            return new EditBqMovementOutcome(EditBqMovementResult.InvalidQuantity);
-        }
-
         if (command.ChangesAn && command.AnQuantity < 0)
         {
             return new EditBqMovementOutcome(EditBqMovementResult.InvalidAnQuantity);
+        }
+
+        // Um movimento só de AN (Diogo, 28/10/2026: «Registar sem Job On» com
+        // a peça AN) tem 0 BQ; sem AN, as BQ continuam a ser pelo menos 1.
+        var anDepois = command.ChangesAn ? command.AnQuantity : movement.AnQuantity;
+        if (command.Quantity < 0 || (command.Quantity == 0 && anDepois is not > 0))
+        {
+            return new EditBqMovementOutcome(EditBqMovementResult.InvalidQuantity);
         }
 
         // Uma hora que cai no salto da mudança de hora (março) passa para a

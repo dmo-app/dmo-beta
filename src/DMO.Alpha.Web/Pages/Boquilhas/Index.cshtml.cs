@@ -1220,7 +1220,8 @@ public sealed partial class IndexModel : PageModel
         [FromForm(Name = "quantity")] int? quantity,
         [FromForm(Name = "occurred_at")] string? occurredAt,
         [FromForm(Name = "movement_machine_id")] int? lineId,
-        [FromForm(Name = "quantity_an")] string? quantityAn = null)
+        [FromForm(Name = "quantity_an")] string? quantityAn = null,
+        [FromForm(Name = "peca")] string? peca = null)
     {
         if (User?.Identity?.IsAuthenticated != true)
         {
@@ -1244,6 +1245,14 @@ public sealed partial class IndexModel : PageModel
             return RedirectToPage("/Boquilhas/Index", Volta(nameof(RegisterBqMovementResult.InvalidAnQuantity)));
         }
 
+        // A peça AN (Diogo, 28/10/2026): a quantidade é dos AN e o movimento não leva BQ.
+        var bqQuantity = quantity.Value;
+        if (string.Equals(peca?.Trim(), "an", StringComparison.OrdinalIgnoreCase))
+        {
+            anQuantity = bqQuantity;
+            bqQuantity = 0;
+        }
+
         var trace = await _createTrace.HandleAsync(new CreateBqRepairTrace(id), HttpContext.RequestAborted);
         if (trace.Trace is null)
         {
@@ -1262,7 +1271,7 @@ public sealed partial class IndexModel : PageModel
             new RegisterBqMovement(
                 trace.Trace.BqRepairTraceId,
                 movementType ?? string.Empty,
-                quantity.Value,
+                bqQuantity,
                 User.FindFirst(DmoClaimTypes.OperatorId)?.Value,
                 occurredAtUtc,
                 lineId,

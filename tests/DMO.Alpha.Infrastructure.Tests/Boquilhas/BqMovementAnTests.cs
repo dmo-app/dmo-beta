@@ -99,4 +99,21 @@ public sealed class BqMovementAnTests : IDisposable
         Assert.Equal(EditBqMovementResult.InvalidAnQuantity,
             (await edit.HandleAsync(new EditBqMovement(trace.Id, id, "saida", 5, AnQuantity: -2, ChangesAn: true))).Result);
     }
+
+    [Fact]
+    public async Task Corrigir_SoAn_AceitaZeroBq_SemAnRecusa()
+    {
+        // «Registar sem Job On» com a peça AN grava 0 BQ (Diogo, 28/10/2026).
+        var trace = await SeedTraceAsync();
+        Assert.Equal(RegisterBqMovementResult.Success,
+            (await Register().HandleAsync(new RegisterBqMovement(trace.Id, "saida", 0, AnQuantity: 5))).Result);
+        var id = (await _db.BqMovements.AsNoTracking().SingleAsync()).Id;
+        var edit = new EditBqMovementHandler(_db, new FixedClock(Now));
+
+        Assert.Equal(EditBqMovementResult.Success,
+            (await edit.HandleAsync(new EditBqMovement(trace.Id, id, "saida", 0, AnQuantity: 6, ChangesAn: true))).Result);
+        Assert.Equal(EditBqMovementResult.InvalidQuantity,
+            (await edit.HandleAsync(new EditBqMovement(trace.Id, id, "saida", 0, AnQuantity: null, ChangesAn: true))).Result);
+        Assert.Equal(6, (await _db.BqMovements.AsNoTracking().SingleAsync()).AnQuantity);
+    }
 }
