@@ -54,13 +54,17 @@ public sealed class IndexModel : PageModel
     }
 
     /// <summary>
-    /// EM ESPERA (Diogo, 22/10/2026): os avisos «… não está registada no
-    /// Armazém e não tem estado» das Ferramentas usadas ficam escondidos.
-    /// Para os voltar a mostrar: Dmo:Avisos:ArmazemSemRegisto = true
-    /// (appsettings ou variável Dmo__Avisos__ArmazemSemRegisto). O
-    /// JobOnToolFactsQuery continua a calculá-los.
+    /// Os avisos «… não está registada no Armazém e não tem estado» das
+    /// Ferramentas usadas. Estiveram em espera (Diogo, 22/10/2026); voltaram
+    /// a estar ligados por omissão (Diogo, 28/10/2026: sem registo no Armazém
+    /// → «Sem registo» + aviso; DMO-580). Para os esconder:
+    /// Dmo:Avisos:ArmazemSemRegisto = false (appsettings ou variável
+    /// Dmo__Avisos__ArmazemSemRegisto).
     /// </summary>
     public const string AvisoArmazemChave = "Dmo:Avisos:ArmazemSemRegisto";
+
+    /// <summary>Sem nada nas definições, os avisos do Armazém mostram-se.</summary>
+    public const bool AvisoArmazemPorOmissao = true;
 
     /// <summary>Se os avisos do Armazém (sem registo, sem estado) se mostram.</summary>
     public bool MostrarAvisoArmazem { get; }
@@ -99,7 +103,7 @@ public sealed class IndexModel : PageModel
         IJobOnFolhaQuery folha,
         Microsoft.Extensions.Configuration.IConfiguration configuration)
     {
-        MostrarAvisoArmazem = configuration.GetValue(AvisoArmazemChave, false);
+        MostrarAvisoArmazem = configuration.GetValue(AvisoArmazemChave, AvisoArmazemPorOmissao);
         _createJobOn = createJobOn;
         _updateJobOn = updateJobOn;
         _jobOnList = jobOnList;

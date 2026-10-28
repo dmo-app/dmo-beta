@@ -236,6 +236,15 @@ html body .ctl-def-grade[hidden]{display:none}
           <button type="button" class="dmo-button" id="ctlDefModeloAbrir" data-dmo-precisa-escolha data-dmo-dialog-modelo="ctl-modelo-{id}" disabled>Abrir</button>
         }
         <button type="button" class="dmo-button" data-dmo-dialog="ctl-modelo-novo">Novo modelo</button>
+        @* O Apagar também vai para o canto, em último (DMO-580): nada de «×» nas linhas. *@
+        @if (umSoModelo)
+        {
+          <button type="button" class="dmo-button" id="ctlDefModeloApagar" data-dmo-precisa-escolha data-dmo-dialog-modelo="ctl-modelo-apagar-{id}" data-dmo-dialog="ctl-modelo-apagar-@Model.Modelos[0].Id">Apagar</button>
+        }
+        else if (Model.Modelos.Count > 1)
+        {
+          <button type="button" class="dmo-button" id="ctlDefModeloApagar" data-dmo-precisa-escolha data-dmo-dialog-modelo="ctl-modelo-apagar-{id}" disabled>Apagar</button>
+        }
       </div>
     </div>
     @if (Model.Modelos.Count == 0)
@@ -246,7 +255,7 @@ html body .ctl-def-grade[hidden]{display:none}
     {
       <div class="dmo-table-wrap">
         <table class="dmo-table" id="ctlDefModelosLista" data-dmo-list="Modelos de email" data-dmo-modelos-email>
-          <thead><tr><th></th><th>Modelo</th><th>Assunto</th><th>Lista</th><th><span class="dmo-visually-hidden">Apagar</span></th></tr></thead>
+          <thead><tr><th></th><th>Modelo</th><th>Assunto</th><th>Lista</th></tr></thead>
           <tbody>
           @foreach (var modelo in Model.Modelos)
           {
@@ -255,9 +264,7 @@ html body .ctl-def-grade[hidden]{display:none}
               <td><input type="radio" name="ctl_modelo_escolhido" value="@modelo.Id" checked="@umSoModelo" aria-label="Escolher o modelo @modelo.Nome" /></td>
               <td>@modelo.Nome</td>
               <td>@modelo.Assunto</td>
-              <td>@(listaOpcoes.FirstOrDefault(l => l.Id == modelo.ListaId)?.Nome ?? "—")</td>
-              <td>
-                <button type="button" class="ctl-def-x" data-dmo-dialog="ctl-modelo-apagar-@modelo.Id" aria-label="Apagar o modelo @modelo.Nome" title="Apagar">×</button>
+              <td>@(listaOpcoes.FirstOrDefault(l => l.Id == modelo.ListaId)?.Nome ?? "—")
                 <dialog id="ctl-modelo-apagar-@modelo.Id" class="dmo-dialog" aria-labelledby="ctl-modelo-apagar-titulo-@modelo.Id">
                   <h3 id="ctl-modelo-apagar-titulo-@modelo.Id">Apagar modelo</h3>
                   <p class="dmo-aviso-discreto">Apagar o modelo @modelo.Nome? Os envios já feitos ficam registados.</p>
