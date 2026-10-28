@@ -44,7 +44,7 @@ bash scripts/ci/ci-local.sh
 
 - Só vale **«CI local: OK»** na última linha. «INCOMPLETO» (com `CI_SEM_POSTGRES`, `CI_SEM_NODE` ou
   `CI_SEM_BROWSER`) não vale como OK.
-- O PostgreSQL é sempre um local descartável (`CI_PG_ADMIN`, por omissão `localhost:5432`, `postgres/postgres`).
+- O PostgreSQL do CI é sempre um local descartável (`CI_PG_ADMIN`, por omissão `localhost:5432`, `postgres/postgres`).
 - O GitHub corre o mesmo script em `.github/workflows/ci.yml` em cada push ao PR; o relatório
   diz o resultado dos dois.
 
@@ -62,8 +62,10 @@ bash scripts/ci/ci-local.sh
   Mudar um teste existente precisa do ok do Diogo (`--tipo ok-do-diogo`): sem esse ok, `agentes: ajuda`.
 - Mexer na `main`, juntar PRs, aprovar PRs, mudar `version.props`, os números DMO-xxx / A-xxxx
   ou o `ReleaseNotes.json`.
-- Ligar-se à base oficial, ao servidor do portátil, ao ensaio, ao Supabase ou ao Railway.
-  Só PostgreSQL local descartável.
+- Tocar na oficial (o servidor do portátil e a sua base) ou em dados reais. Os testes correm no
+  PostgreSQL local descartável; para ver a app a funcionar, **só o ensaio**.
+- Deixar lixo no ensaio: no fim apaga-se tudo o que o agente criou (Job On, produções 2099…,
+  movimentos, registos) e o relatório diz o que foi criado e apagado.
 - Escrever palavras-passe, chaves ou ligações reais no código, nos PR ou nos relatórios.
 - Tirar proteções (ponto 12 de REGRAS-DE-CODIGO.md) ou criar migrações novas sem o PR o pedir.
 - Mudanças fora do PR (limpezas, refactors, «já agora»). Se vir outro erro, escreve-o no relatório.
