@@ -219,7 +219,8 @@ public sealed partial class ControloCapabilitiesCutHPageTests
 
         var html = await GetPageHtmlAsync(client, pagina);
         Assert.Contains("name=\"voltar\" value=\"resumo-controlo\"", html);
-        Assert.Contains("Associar link do mcaliper", html);
+        // O link do mcaliper cola-se num campo da linha (DMO-524, A-0254).
+        Assert.Contains("placeholder=\"Colar o link do mcaliper\" aria-label=\"Link do mcaliper CM\"", html);
         var token = await GetVerificationTokenAsync(client, pagina);
 
         var estado = await client.PostAsync("/Controlo/Resumo?handler=AreaState", HtmlFormHelpers.BuildFormPost(
@@ -244,7 +245,7 @@ public sealed partial class ControloCapabilitiesCutHPageTests
         var cm = Regex.Match(depois, "<div class=\"resumo-area nok\" data-revisao-area=\"CM\">[\\s\\S]*?Por [^<]*").Value;
         Assert.Contains("<option value=\"NOK\" selected=\"selected\">NOK</option>", cm);
         Assert.Contains("Riscada na zona 3", cm);
-        Assert.Contains("data-dmo-copiar=\"https://mcaliper.example/5447\"", cm);
+        Assert.Contains("href=\"https://mcaliper.example/5447\" target=\"_blank\" rel=\"noopener noreferrer\" data-resumo-mcaliper-abrir=\"CM\">Medições</a>", cm);
         Assert.Contains("Por Chefe Completo", cm);
         // Sem a gravação vir daqui, o Resumo da produção continua a voltar a si.
         var semVoltar = await client.PostAsync("/Controlo/Resumo?handler=AreaState", HtmlFormHelpers.BuildFormPost(

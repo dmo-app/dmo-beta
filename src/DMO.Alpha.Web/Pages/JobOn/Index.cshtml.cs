@@ -1029,7 +1029,8 @@ public sealed class IndexModel : PageModel
         [FromQuery(Name = "mf_tool_id")] string? mfToolId,
         [FromQuery(Name = "cm_tool_id")] string? cmToolId,
         [FromQuery(Name = "bq_tool_id")] string? bqToolId = null,
-        [FromQuery(Name = "all")] bool showAll = false)
+        [FromQuery(Name = "all")] bool showAll = false,
+        [FromServices] DMO.Alpha.Core.Tools.IFerramentasUsoSap? usoSap = null)
     {
         ToolType? toolType = Sanitize(type)?.ToUpperInvariant() switch
         {
@@ -1142,7 +1143,16 @@ public sealed class IndexModel : PageModel
             }
         }
 
-        return new JsonResult(new { items = page.Items, total = page.TotalCount, filtro });
+        // O % uso de cada uma nas listas de escolha (Diogo, 28/10/2026: «nas listas de seleção mostrar % uso»).
+        var usos = usoSap is null || page.Items.Count == 0
+            ? new Dictionary<string, decimal>()
+            : await usoSap.UltimasPercentagensAsync(page.Items.Select(i => i.ToolId).ToList(), HttpContext.RequestAborted);
+        var items = page.Items.Select(i => new
+        {
+            i.ToolId, i.Type, i.Reference, i.Lot, i.MachineCodes,
+            uso = usos.TryGetValue(i.ToolId, out var u) ? u.ToString("0.##", System.Globalization.CultureInfo.GetCultureInfo("pt-PT")) + "%" : null
+        }).ToList();
+        return new JsonResult(new { items, total = page.TotalCount, filtro });
     }
 
     public async Task<IActionResult> OnPostCreateAsync(

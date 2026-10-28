@@ -69,11 +69,7 @@
     if (event.target.closest('[data-dmo-painel-fechar]')) return void fechar(painel);
     if (event.target.closest('[data-dmo-painel-continuar]')) { aviso(painel).hidden = true; return; }
     if (event.target.closest('[data-dmo-painel-descartar]')) return void fechar(painel, true);
-    // Clicar fora (no fundo do <dialog>) fecha.
-    if (event.target === painel) {
-      const r = painel.getBoundingClientRect();
-      if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) fechar(painel);
-    }
+    // Clicar fora (no fundo do <dialog>) não faz nada: fecha-se no «Fechar» ou no Esc (Diogo, 28/10/2026).
   });
   document.addEventListener('cancel', event => {
     const painel = doPainel(event.target);

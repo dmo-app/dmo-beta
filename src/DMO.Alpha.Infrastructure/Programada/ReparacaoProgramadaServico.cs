@@ -330,7 +330,7 @@ public sealed class ReparacaoProgramadaServico(DmoDbContext db, ICurrentAccountC
                 ? $"Armazém · posição {posicao}"
                 : localizacoes.TryGetValue(id, out var l)
                     ? ArmazemTextos.Localizacao(l.Localizacao, l.ReparadorNome)
-                    : ArmazemTextos.Localizacao(FerramentaLocalizacaoTipo.Fabrico, null);
+                    : ArmazemTextos.SemRegisto;
             return new Factos(usos.GetValueOrDefault(id), linhas.GetValueOrDefault(id), posicao, onde,
                 estados.TryGetValue(id, out var e) ? e : null);
         });

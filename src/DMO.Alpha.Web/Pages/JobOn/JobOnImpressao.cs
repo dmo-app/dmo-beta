@@ -50,10 +50,12 @@ public sealed class JobOnImpressao
         Por("entrada.dia", "Cabeçalho", "Dia da entrada", "Job On · Data de entrada (dia da semana)", DiaDaSemana(jobOn.InicioEm));
         Por("saida", "Cabeçalho", "Saída", "Job On · Data de saída", Data(jobOn.FimEm));
         Campo("seccoes", "Cabeçalho", "Secções", "cab_seccoes");
-        Campo("gota", "Cabeçalho", "Gota", "cab_gota");
+        Por("gota", "Cabeçalho", "Gota", "Nome técnico da CM (senão do MF): 55 = 2, 44/4T/50/5T = 3, 95 = 4; sem ele, Folha · Gota (cab_gota)", model.Gota ?? "");
         Por("peso", "Cabeçalho", "Peso", "Folha · Peso (g) (cab_peso)", Model("cab_peso") is { Length: > 0 } p ? p + " g" : "");
-        Por("cadencia", "Cabeçalho", "Cadência", "SAP · Cadência da produção (a das ordens com mais dias); sem ela, escreve-se à mão",
-            model.CadenciaSap?.ToString(CultureInfo.InvariantCulture) ?? "");
+        Por("cadencia", "Cabeçalho", "Cadência usada", "SAP · Cadência usada na produção (a moda: a das ordens com mais dias); sem ela, a da produção anterior com «ant.»; sem nenhuma, escreve-se à mão",
+            model.CadenciaSap is { } cadencia
+                ? cadencia.Resumo.Moda.ToString(CultureInfo.InvariantCulture) + (cadencia.DaAnterior ? " ant." : "")
+                : "");
         Por("processo", "Rodapé", "Processo", "Folha · Processo (cab_processo); sem ele, o processo da CM",
             Model("cab_processo") is { Length: > 0 } pr ? pr : (cm?.Processo ?? ""));
 
@@ -171,8 +173,11 @@ public sealed class JobOnImpressao
 
     private string Percent(string campo) => Model(campo) is { Length: > 0 } x ? x.TrimEnd('%') + "%" : "";
 
+    // Um número por espaço (JobOnFolgas): no MF, «0.12 / 0.16» no primeiro vai para o primeiro e o último.
     private string Folgas(string tipo) =>
-        string.Join(" | ", new[] { 1, 2, 3 }.Select(n => Model($"{tipo}_folga{n}")).Where(f => f.Length > 0));
+        string.Join(" | ", (tipo == "mf"
+            ? JobOnFolgas.UmaPorEspaco(_m.Folha.Valor("mf_folga1"), _m.Folha.Valor("mf_folga2"), _m.Folha.Valor("mf_folga3"))
+            : [_m.Folha.Valor("cm_folga1"), _m.Folha.Valor("cm_folga2"), _m.Folha.Valor("cm_folga3")]).Select(N).Where(f => f.Length > 0));
 
     private static string LoteDe(JobOnToolFacts? f) => f is null ? "" : FolhaModel.Lote(f.Lot);
 
