@@ -1,5 +1,6 @@
 {
   "fixes": [
+    { "id": "DMO-589", "module": "Aplicação", "description": "0.3.0-beta.233: no Resumo, a Aprovação, o Início e o Fim com o rótulo e o valor na mesma linha; na folha do Job On a 1290×646, os oito calibres cabem no cartão e uma nota muito comprida fica com a altura do ecrã e, aberta, é sempre maior do que fechada; no Registo das Boquilhas a 1290×646, o «Sem data no Job On» do Início já não fica cortado." },
     { "id": "DMO-587", "module": "Job On", "description": "0.3.0-beta.233: no cartão do Job On a localização fica sempre a negrito e, para quem gere o Armazém, abre a Entrada/Saída da ferramenta (também com «Sem registo»); as Dimensões e as Folgas ficam alinhadas em colunas; os diâmetros (Corpo, Pata, Gargalo, Exterior) só aceitam um valor, a tolerância vai no campo ao lado; nos Calibres as colunas ficam iguais e a última já não fica cortada." },
     { "id": "DMO-583", "module": "Job On", "description": "0.3.0-beta.232: no Planeamento, num ecrã mais alto a Referência, a Produção e o «Criar Job On» ficam logo a seguir à lista das produções do dia; o espaço que sobra fica por baixo, não entre a lista e a procura." },
     { "id": "DMO-001", "module": "Aplicação", "description": "Página de erro com referência para diagnóstico, em vez de uma página inexistente." },

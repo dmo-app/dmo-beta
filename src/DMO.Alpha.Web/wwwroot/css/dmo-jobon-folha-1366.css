@@ -421,7 +421,11 @@ html:root body .jof2.jof2 .jof-artigo-escolher:hover{outline-color:var(--dmo-bor
   html:root body main.jof2.jof2.jof2>.wrap{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;width:100%;box-sizing:border-box;padding-bottom:4px}
   html:root body main.jof2.jof2.jof2>.wrap>*{flex:none}
   html:root body main.jof2.jof2.jof2>.wrap>.sheet{flex:1 1 0;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
-  html:root body .jof2.jof2.jof2.jof2.jof2.jof2:not(.editing) .sec>.note-box.note-view:not(.is-ampliada)>p{flex:1 1 auto !important;overflow:visible}
+  /* Uma nota muito comprida não estica o cartão para lá do ecrã: fica com a altura do ecrã menos o cabeçalho e
+     desliza por dentro; aberta, a nota usa quase o ecrã todo e fica sempre maior do que fechada. */
+  html:root body .jof2.jof2.jof2.jof2.jof2.jof2:not(.editing) .sec>.note-box.note-view:not(.is-ampliada)>p{flex:1 1 auto !important;max-height:calc(100vh - 230px) !important;overflow-y:auto}
+  html:root body .jof2.jof2.jof2 .note-box.is-ampliada{top:40px}
+  html:root body .jof2.jof2.jof2 .note-box.is-ampliada>p{max-height:calc(100vh - 130px) !important}
   html:root body .jof2.jof2.jof2 .side>.notes>ul{flex:1 1 auto;min-height:72px}
 }
 @container board (min-width:640px){
@@ -457,6 +461,11 @@ html:root body .jof2.jof2 .jof-artigo-escolher:hover{outline-color:var(--dmo-bor
      cabe fica com o que ele precisa, e a última nunca fica cortada a 1290 px. */
   html:root body .jof2.jof2.jof2:not(.editing) table.calv{grid-auto-columns:minmax(min-content,1fr)}
   html:root body .jof2.jof2.jof2:not(.editing) table.calv td:nth-child(n){font-size:12px}
+  /* A 1290×646 os oito calibres cabem no cartão: um nome que não cabe quebra onde for preciso, nunca sai do cartão. */
+  html:root body .jof2.jof2.jof2:not(.editing) table.calv tbody th:nth-child(n){overflow-wrap:anywhere;font-size:10.5px;line-height:1.15;padding-inline:1px;letter-spacing:-.01em}
+  html:root body .jof2.jof2.jof2:not(.editing) table.calv thead th:nth-child(n){font-size:11px}
+  html:root body .jof2.jof2.jof2:not(.editing) table.calv .cal-vezes{line-height:1.05}
+  html:root body .jof2.jof2.jof2:not(.editing) table.calv .cal-vezes>span:nth-child(2){font-size:10px}
 }
 
 /* ---- CAL em Editar/Duplicar: a lista das medidas desliza dentro do cartão, com o cabeçalho sempre à vista ---- */

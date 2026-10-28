@@ -773,6 +773,11 @@
 
   // Calibres (ver): cada valor «P 59.20 / M 58.60» quebra, se for preciso, só na « / » e nunca a meio de um número.
   function calibresValores() {
+    // O nome do calibre colado («Cab.Sopro») pode quebrar a seguir ao ponto, para os oito caberem a 1290 px.
+    document.querySelectorAll('.jof2:not(.editing) table[data-jof-cal] tbody th').forEach(th => {
+      if (th.children.length || !/\.\S/.test(th.textContent)) return;
+      th.textContent = th.textContent.replace(/\.(?=\S)/g, '.\u200B');
+    });
     document.querySelectorAll('.jof2:not(.editing) table[data-jof-cal] tbody td').forEach(td => {
       if (td.children.length) return;
       const partes = td.textContent.trim().split(' / ');
