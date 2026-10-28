@@ -147,12 +147,12 @@ public sealed partial class PostgresMigrationIntegrationTests
                         Assert.Equal(itens, novas[id]);
                     }
 
-                    // Antes: 5 leituras por ferramenta (com os movimentos do Armazém, DMO-571); depois: um número fixo (máx. 6).
+                    // Antes: 5 leituras por ferramenta (ou menos sem Job On; a 5.ª é a do Armazém, DMO-571); depois: um número fixo (máx. 7).
                     Assert.Equal(n * 5, contaAntes.Vezes);
-                    Assert.True(contaDepois.Vezes <= 6, $"{contaDepois.Vezes} consultas");
+                    Assert.True(contaDepois.Vezes <= 7, $"{contaDepois.Vezes} consultas");
                     if (filtro is null)
                     {
-                        Assert.Equal(6, contaDepois.Vezes);
+                        Assert.Equal(7, contaDepois.Vezes);
                     }
                 }
             }
@@ -184,7 +184,7 @@ public sealed partial class PostgresMigrationIntegrationTests
 
             // Antes: 1 + 4 por ferramenta + 5 (5 → 26, 40 → 166); depois: igual para 5 e para 40.
             Assert.Equal(contagens[5], contagens[40]);
-            Assert.Equal(12, contagens[40]);
+            Assert.Equal(13, contagens[40]);
         }
         finally
         {
