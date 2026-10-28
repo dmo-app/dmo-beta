@@ -77,7 +77,7 @@
         return {
           // A linha ao lado do lote: o contexto que distingue os lotes.
           // Sem lote, «sem lote» e não «Lote s/lote» (ronda de 26/10/2026, J10).
-          items: page.items.map(item => ({ value: item.toolId, label: item.reference + ' · ' + (item.lot && item.lot !== 's/lote' ? 'Lote ' + lote(item.lot) : 'sem lote') + (item.machineCodes ? ' · ' + item.machineCodes : '') })),
+          items: page.items.map(item => ({ value: item.toolId, label: item.reference + ' · ' + (item.lot && item.lot !== 's/lote' ? 'Lote ' + lote(item.lot) : 'sem lote') + (item.machineCodes ? ' · ' + item.machineCodes : '') + (item.uso ? ' · ' + item.uso : '') })),
           note: nota(page.filtro) || contagem,
           empty: term ? 'Sem resultados para «' + term + '».' : 'Escreva a referência da ' + tipo + '.'
         };
@@ -795,7 +795,19 @@
     });
   }
 
+  // No painel deslizante (?painel=1) o «Cancelar» do Editar volta ao resumo da
+  // folha dentro do painel, não à folha inteira (Diogo, 28/10/2026).
+  function cancelarNoPainel() {
+    if (document.documentElement.dataset.dmoEmbedded !== 'true') return;
+    document.querySelectorAll('.head-tools a.btn[href^="/JobOn/Folha"]').forEach(a => {
+      const u = new URL(a.getAttribute('href'), location.href);
+      u.searchParams.set('painel', '1');
+      a.setAttribute('href', u.pathname + u.search);
+    });
+  }
+
   function init() {
+    cancelarNoPainel();
     calibresValores();
     dimensoesLongas();
     painel();

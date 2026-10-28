@@ -446,7 +446,7 @@ else if (Model.JobOn is not { } jobOn)
       @* Haver sempre «← Voltar» (Diogo, 27/10/2026): como nas páginas de registo do
          controlo, volta à página de onde se veio (data-dmo-voltar); sem origem, ao Job On.
          As fichas das ferramentas abertas daqui não contam como origem. *@
-      <a class="dmo-voltar-texto" id="jofVoltar" href="/JobOn" data-dmo-voltar="folha" data-dmo-voltar-ignorar="/JobOn/Folha /Ferramentas/Ficha /Ferramentas/Historico"><span aria-hidden="true">←</span> Voltar</a>
+      <a class="dmo-voltar-texto" id="jofVoltar" href="/JobOn" data-dmo-voltar="folha" data-dmo-voltar-ignorar="/JobOn/Folha /Ferramentas/Ficha /Ferramentas/Historico">Voltar</a>
       <div class="page-head">
         <div><h1>Job On</h1></div>
       </div>
@@ -505,7 +505,7 @@ else
           @foreach (var e in Model.ProximasEntradas)
           {
             var sel = e.JobOnId == jobOn.JobOnId;
-            <a class="rail-item dmo-linha-cor mch-@e.Machine@(sel ? " selected" : null)" href="/JobOn/Folha?jobon_id=@e.JobOnId" aria-current="@(sel ? "true" : null)"><b>@e.Reference<span class="mch dmo-linha-cor mch-@e.Machine">@e.Machine</span></b><small>Produção @e.ProductionNumber@(e.InicioEm is { } ini ? $" · {ini:dd/MM}" : null)</small></a>
+            <a class="rail-item dmo-linha-cor mch-@e.Machine@(sel ? " selected" : null)" href="/JobOn/Folha?jobon_id=@e.JobOnId" aria-current="@(sel ? "true" : null)"><b>@e.Reference<span class="mch dmo-linha-cor mch-@e.Machine">@e.Machine</span></b><small>@e.ProductionNumber@(e.InicioEm is { } ini ? $" · {ini:dd/MM}" : null)</small></a>
           }
         </div>
       </aside>
@@ -537,7 +537,7 @@ else
     }
   <main class="jof2@(editar ? " editing" : null)" id="main">
     <div class="wrap">
-    <a class="dmo-voltar-texto" id="jofVoltar" href="/JobOn" data-dmo-voltar="folha" data-dmo-voltar-ignorar="/JobOn/Folha /Ferramentas/Ficha /Ferramentas/Historico"><span aria-hidden="true">←</span> Voltar</a>
+    <a class="dmo-voltar-texto" id="jofVoltar" href="/JobOn" data-dmo-voltar="folha" data-dmo-voltar-ignorar="/JobOn/Folha /Ferramentas/Ficha /Ferramentas/Historico">Voltar</a>
     <div class="page-head">
       <div class="facts" role="group" aria-label="Dados da produção">
         <div class="fact-col mach" title="Linha"><span class="sr-only">Linha</span><span class="fv">
@@ -955,6 +955,11 @@ else
       @if (Model.NovoMachineId is int linhaProcura)
       {
         <input type="hidden" name="machine_id" value="@linhaProcura" />
+      }
+      else if (Model.JobOn is { } jobOnProcura)
+      {
+        @* Uma referência sem Job On começa o Job On novo na linha deste (Diogo, 28/10/2026). *@
+        <input type="hidden" name="linha_de" value="@jobOnProcura.Machine" />
       }
       @if (Model.NovoInicio is { } inicioProcura)
       {

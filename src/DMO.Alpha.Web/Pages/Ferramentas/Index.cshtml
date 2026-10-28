@@ -45,10 +45,8 @@
   @* ------------------------------------------------------------------ *@
   @if (!Model.ShowCreate)
   {
-  <section class="dmo-card ferr-card" aria-labelledby="ferr-filter-title">
-    <div class="dmo-card-topo">
-      <h3 id="ferr-filter-title" title="Os resultados mudam enquanto escreve; os dropdowns aplicam logo.">Filtrar ferramentas registadas</h3>
-    </div>
+  @* Sem título (Diogo, 28/10/2026: «remover filtrar ferramentas»). *@
+  <section class="dmo-card ferr-card" aria-label="Procurar ferramentas">
     @* TUDO NUMA LINHA (Diogo, 19/10/2026: «aqui no ver ferramentas podemos
        meter tudo numa fila incluindo os botões», «reduzindo por página e
        resto»): os filtros com a largura do conteúdo e os dois botões no fim

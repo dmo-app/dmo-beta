@@ -164,11 +164,11 @@ html body .arm-filtros .dmo-field select{width:auto;max-width:16ch}
         <p class="arm-filtro-ferramenta" id="armMovFerramenta">Só @(Model.FerramentaDoFiltro ?? "esta ferramenta").
           @if (voltarSeguro is not null)
           {
-            <a class="arm-voltar" id="armMovVoltar" href="@voltarSeguro">← Voltar</a>
+            <a class="arm-voltar" id="armMovVoltar" href="@voltarSeguro">Voltar</a>
           }
           else
           {
-            <a class="arm-voltar" id="armMovVoltar" href="@Url.Page("/Armazem/Ultimos")" data-dmo-voltar="@Model.ToolId" data-dmo-voltar-ignorar="/Armazem/Ultimos">← Voltar</a>
+            <a class="arm-voltar" id="armMovVoltar" href="@Url.Page("/Armazem/Ultimos")" data-dmo-voltar="@Model.ToolId" data-dmo-voltar-ignorar="/Armazem/Ultimos">Voltar</a>
           }
         </p>
       }

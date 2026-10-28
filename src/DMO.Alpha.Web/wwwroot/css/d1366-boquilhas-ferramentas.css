@@ -149,9 +149,6 @@ html body .beta-bq-layout section.view>.page-head p{margin:0}
 html body .beta-bq-layout section.view .beta-production-rail{margin:0;padding:8px 16px}
 html body .beta-bq-layout section.view .beta-production-lines :is(button,.dmo-rail-link){padding:4px 12px}
 /* Passar o rato num cartão (as linhas, os factos com link) muda só a cor do texto. */
-html body .beta-bq-layout .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):hover:not(.selected):not(.active){background:color-mix(in srgb,var(--dmo-machine-color,var(--dmo-brand-600)) 12%,var(--dmo-card))}
-html body .beta-bq-layout .beta-production-lines :is(button,.dmo-rail-link).bq-line-empty:hover{background:var(--dmo-card)}
-html body .beta-bq-layout .beta-production-lines :is(button,.dmo-rail-link):hover:not(.selected):not(.active) strong{color:var(--dmo-brand-600)}
 html body .beta-bq-layout a.dmo-fact.dmo-fact-link:is(:hover,:focus-visible){background:none}
 html body .beta-bq-layout a.dmo-fact.dmo-fact-link:is(:hover,:focus-visible)>strong{color:var(--dmo-brand-600)}
 html body .beta-bq-layout .card{padding:12px 16px}
@@ -324,7 +321,7 @@ html.dmo-bloqueado body form[method="post"] :is(.ferr-checks,.bq-movement-types,
 html body .beta-bq-layout{--bq-topo:95px}
 @media (min-width:1100px){
   html body .beta-bq-layout{min-height:0}
-  html body .beta-bq-layout>.main{box-sizing:border-box;height:calc(100vh - var(--bq-topo));min-height:560px}
+  html body .beta-bq-layout>.main{box-sizing:border-box;height:calc(100vh - var(--bq-topo));min-height:520px}
   html body .beta-bq-layout>.main>section.view{height:100%;min-height:0}
 
   /* Cartões de lista: cabeçalho e paginação fixos, a tabela desliza. */
@@ -503,3 +500,21 @@ html body .beta-bq-layout #bqTraceMovements :is(th,td):nth-child(8){width:11%}
 /* Os AN (Diogo, 28/10/2026): nos valores do registo, os AN por baixo das BQ. */
 html body .beta-bq-layout .lot-data.bq-com-an strong .bq-peca{font-size:12px;font-weight:600;color:var(--dmo-muted);margin-left:4px}
 html body .beta-bq-layout .lot-data.bq-com-an strong .bq-an{display:block}
+
+/* Ferramentas › Criar (Diogo, 28/10/2026): a Informação técnica vem antes da
+   opcional («é mais importante»), como na ficha (uso, técnica, opcional), e os
+   dois títulos são iguais: letra do «Informação opcional» e o traço à direita. */
+html body main.ferr-page #ferr-create-form{display:flex;flex-direction:column}
+html body main.ferr-page #ferr-create-form>.ferr-editar-linha{display:contents}
+html body main.ferr-page #ferr-create-form>.ferr-create-row-machines{order:1}
+html body main.ferr-page #ferr-create-form>.ferr-editar-linha>.ferr-editar-principal{order:2;margin-top:8px}
+html body main.ferr-page #ferr-create-form>.ferr-hint{order:3}
+html body main.ferr-page #ferr-create-form>.ferr-create-tech{order:4;margin-top:16px;padding-top:0;border-top:0}
+html body main.ferr-page #ferr-create-form>.ferr-editar-linha>.ferr-opcional{order:5;flex:none;margin-top:16px;padding-top:0;border-top:0}
+html body main.ferr-page #ferr-create-form>.ferr-create-tech>summary,
+html body main.ferr-page #ferr-create-form .ferr-opcional>.ferr-opcional-titulo{display:flex;align-items:center;gap:4px;width:100%;height:16px;margin:0 0 8px;padding:0;list-style:none;font-size:12px;font-weight:500;line-height:16px;text-transform:none;letter-spacing:0;color:var(--dmo-text-muted,#5a6273)}
+html body main.ferr-page #ferr-create-form>.ferr-create-tech>summary::-webkit-details-marker{display:none}
+html body main.ferr-page #ferr-create-form>.ferr-create-tech>summary::after,
+html body main.ferr-page #ferr-create-form .ferr-opcional>.ferr-opcional-titulo::after{content:"";flex:1 1 auto;margin-left:8px;border-top:1px solid var(--dmo-border)}
+html body main.ferr-page #ferr-create-form>.ferr-create-tech>summary:is(:hover,:focus-visible){color:var(--dmo-brand-700);outline:0}
+:root[data-theme="dark"] body main.ferr-page #ferr-create-form>.ferr-create-tech>summary:is(:hover,:focus-visible){color:#fff}

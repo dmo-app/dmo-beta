@@ -78,7 +78,8 @@
           <div class="card register-open">
             <div class="card-head">
               <div>
-                <h3>Registo — BQ @trace.ToolReference@(trace.ToolLot is null ? null : $" · Lote {trace.ToolLot}")</h3>
+                @* Só «Produção»: a BQ e o lote ficam no cartão, com link (Diogo, 28/10/2026). *@
+                <h3>Produção</h3>
               </div>
               @* A PÁGINA NÃO MEXE (Diogo, 27/10/2026: «página mexe» ao trocar de
                  máquina): o aviso «O Job On mudou depois deste registo» deixou
@@ -119,6 +120,11 @@
                     <summary class="dmo-button" aria-label="Opções desta BQ e lote"><span class="dmo-caret" aria-hidden="true"></span>Opções</summary>
                     <div class="dmo-options-list">
                       <a class="dmo-options-item bq-register-history-link" href="/Boquilhas?historico=1&amp;bq_ferramenta=@Uri.EscapeDataString(historyToolId)" title="Movimentos desta BQ e lote">Movimentos</a>
+                      @* «Corrigir» (Diogo, 28/10/2026): o botão «Corrigir movimentos» do cabeçalho dos últimos movimentos passa para as Opções (o botão fica escondido por CSS). *@
+                      @if (trace.MovementCount > 0)
+                      {
+                        <a class="dmo-options-item bq-register-corrigir-link" href="@(Model.MovementCorrectionHref(trace.BqRepairTraceId, editMode: true))#bqLatest" title="Corrigir ou apagar movimentos desta BQ e lote">Corrigir</a>
+                      }
                       @if (Model.LotesParaAlterar is not null)
                       {
                         <button type="button" class="dmo-options-item" id="bqAlterarLoteAbrir" data-dmo-dialog="bq-alterar-lote">Alterar lote</button>
@@ -342,7 +348,7 @@
               <p class="muted" role="status">Esta boquilha tem um registo sem Job On com @Model.PendingUnresolvedMovementCount @(Model.PendingUnresolvedMovementCount == 1 ? "movimento" : "movimentos"). Ao guardar o primeiro movimento desta produção, esse registo passa a ser desta produção, com os movimentos que já tem. <a href="@Url.Page("/Boquilhas/Index", null, new { ficheiros = 1, ferramenta = trace.ToolId }, null, null, "bqSemJobOnMovimentos")">Ver os movimentos sem Job On</a></p>
             }
 
-            <form method="post" asp-page="/Boquilhas/Index" asp-page-handler="RegisterMovement" class="bq-movement-form">
+            <form method="post" asp-page="/Boquilhas/Index" asp-page-handler="RegisterMovement" class="bq-movement-form" aria-label="Registar entrada ou saída">
               @* A máquina sem registo envia o bq_id: o primeiro movimento cria o registo. *@
               @if (Model.PendingRegisterBqContextId is int pendingBqId)
               {
@@ -352,9 +358,6 @@
               {
                 <input type="hidden" name="trace_id" value="@trace.BqRepairTraceId" />
               }
-              <div class="dmo-card-topo">
-                <h3 title="@(trace.BqContextId is null ? "Movimento associado à boquilha, lote e máquina. Número e referência de produção em branco." : "Produção, boquilha e lote associados ao movimento.")">Registar Entrada ou Saída</h3>
-              </div>
               @* SEM FOCO AUTOMÁTICO no tipo (Diogo, 22/10/2026): ao voltar do
                  Histórico pelo painel lateral, a «Saída» aparecia com o anel
                  de foco. O anel fica só para o teclado (:focus-visible).
@@ -390,9 +393,19 @@
                    backfill dos ~2 meses de registos passados escreve a
                    data/hora real (o Owner 2026-10-14). Sem ids na folha:
                    o trace_id canónico segue no input hidden. *@
+                @* A data e a hora em dois campos: muitas vezes só se muda a hora (Diogo, 28/10/2026).
+                   O campo junto (occurred_at) continua a ser o que vai ao servidor; o bq-registo.js junta os dois. *@
                 <div class="field dmo-field bq-line-date">
+                  <label for="occurredAtDia">Data</label>
+                  <input id="occurredAtDia" type="date" data-bq-dia="occurredAt" value="@((Model.MovementFormOccurredAt).Split('T')[0])" required />
+                </div>
+                <div class="field dmo-field bq-line-hora">
+                  <label for="occurredAtHora">Hora</label>
+                  <input id="occurredAtHora" type="time" data-bq-hora="occurredAt" value="@((Model.MovementFormOccurredAt).Split('T').ElementAtOrDefault(1))" required />
+                </div>
+                <div class="bq-data-hora-junta" hidden>
                   <label for="occurredAt">Data e hora reais</label>
-                  <input id="occurredAt" name="occurred_at" type="datetime-local" value="@Model.MovementFormOccurredAt" required />
+                  <input id="occurredAt" name="occurred_at" type="datetime-local" value="@Model.MovementFormOccurredAt" />
                 </div>
               </div>
             </form>
@@ -405,7 +418,7 @@
         {
           <div class="card bq-metrics-card" id="bqMetrics">
             @* O título é a ferramenta escolhida, sem «valores» nem dica (Diogo, 27/10/2026: «Registo T188 - Lote 22»). *@
-            <h3 title="Quantidades calculadas para este lote e contexto, com base na sequência de movimentos; não são stock editável.">Registo @trace.ToolReference@(trace.ToolLot is null ? null : $" - Lote {trace.ToolLot}")</h3>
+            <h3 title="Quantidades calculadas para este lote e contexto, com base na sequência de movimentos; não são stock editável.">Quantidades</h3>
             @* O PAINEL DAS QUANTIDADES CALCULADAS (o card das metrics do
                dmo-html: «Quantidade do lote — Fabricação — Em reparação —
                Discrepância acumulada»): TODOS os valores vêm do backend (a
@@ -595,9 +608,19 @@
                       <label for="editQuantityAn">Qtd. AN</label>
                       <input id="editQuantityAn" name="quantity_an" type="number" lang="en" min="0" value="@editing.AnQuantity" title="Quantidade de AN (anéis) neste movimento. Em branco, sem AN." />
                     </div>
+                    @* A data e a hora em dois campos: muitas vezes só se muda a hora (Diogo, 28/10/2026).
+                       O campo junto (occurred_at) continua a ser o que vai ao servidor; o bq-registo.js junta os dois. *@
                     <div class="field dmo-field bq-line-date">
+                      <label for="editOccurredAtDia">Data</label>
+                      <input id="editOccurredAtDia" type="date" data-bq-dia="editOccurredAt" value="@((Model.EditingMovementOccurredAt).Split('T')[0])" required />
+                    </div>
+                    <div class="field dmo-field bq-line-hora">
+                      <label for="editOccurredAtHora">Hora</label>
+                      <input id="editOccurredAtHora" type="time" data-bq-hora="editOccurredAt" value="@((Model.EditingMovementOccurredAt).Split('T').ElementAtOrDefault(1))" required />
+                    </div>
+                    <div class="bq-data-hora-junta" hidden>
                       <label for="editOccurredAt">Data e hora reais</label>
-                      <input id="editOccurredAt" name="occurred_at" type="datetime-local" value="@Model.EditingMovementOccurredAt" required />
+                      <input id="editOccurredAt" name="occurred_at" type="datetime-local" value="@Model.EditingMovementOccurredAt" />
                     </div>
                   </div>
                 </form>

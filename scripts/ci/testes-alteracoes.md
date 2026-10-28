@@ -4101,24 +4101,41 @@ Novos: 0 · mudaram: 1 · saíram: 0
 
 Selo depois: `1ecbaa53f6ccc384`
 
-## A-0263 · 2026-10-28 · contagem-lista
+## A-0262 · 2026-10-28 · ok-do-diogo
 
-Porquê: Os AN das boquilhas (DMO-531, Diogo 28/10/2026): a lista das migrações ganha a AnDasBoquilhas; a lista dos rótulos do Criar ganha a «Qtd. AN» (só das BQ, por isso a ficha da CM não a tem). O que os testes verificam fica igual. Testes novos dos AN: registo, ficha, sem Job On com a peça BQ/AN, discrepância dos AN e filtro dos Movimentos.
-Novos: 12 · mudaram: 2 · saíram: 0
+Porquê: Diogo aprovou mudar estes testes: sem setas no Voltar e no Registo das punções, CM e lote num cartão no Peso, título «Produção» nas Boquilhas, «Sem registo» no Armazém (DMO-523)
+Referência: thread Rever tudo antes da oficial, Diogo 28/10 09:38 «Mete sim no que está em stand by» e 09:39 «perfeito sim» (cmsg_01K75FTs9bQnbhhH7qttpgraGA5bipyUyVzm4eZtodh1on)
+Novos: 0 · mudaram: 8 · saíram: 0
 
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: SemDefinicoes.Corrigir_SoAn_AceitaZeroBq_SemAnRecusa`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: SemDefinicoes.Corrigir_SoMudaOsAnQuandoOsTraz`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: SemDefinicoes.Registar_AnNegativo_RecusaENadaGrava`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: SemDefinicoes.Registar_ComAn_GravaOsAn_SemAnOuZeroFicaSemAn`
-- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_ADiscrepanciaTambemContaParaOsAn`
-- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_IlegivelOuNegativo_NaoGravaNada_EOFormularioVoltaComOQueSeEscreveu`
-- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_NaFichaDaBq_GravaEMostraBqEAn`
-- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_NoRegisto_GravaComOMovimento_EContaOsAnFora`
-- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_NosMovimentos_OFiltroPecaAn_MostraSoOsMovimentosComAn`
-- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_RegistarSemJobOn_APecaVemEmBq_ComAnGravaSoOsAn`
-- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnToolFactsArmazemTests.cs :: JobOnToolFactsArmazemTests.OndeEstaOEstadoEOAviso`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Procurar_SoNoCartaoDoTipo_MostraOndeEstaEAbreAFerramenta`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.CanonicalTraceId_LoadsPersistedTrace`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.PersistedToolAndContextFacts_RenderFromServerData`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoSemRegistoTests.cs :: BoquilhasRegistoPageTests.OpeningAMachine_DoesNotCreateTheTrace`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoPorCombinacaoPageTests.cs :: Producao.CriarDepoisDaTroca_AbreOPesoNovo_CopiaAProducaoAnterior_EOAnteriorFicaSemLeituraNova`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FaixaDaFicha.cs :: DefinicoesPorModuloPageTests.ORegistarDoArmazem_ComUmaFerramenta_TemOVoltar`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.Posicoes.cs :: PuncoesPageTests.FolhaDasPuncoes_LigadaDoResumoEDoRegisto_SoComRegisto_EOPdfDoControloTrazODasPuncoes`
+
+Selo depois: `d859e6b4b665092d`
+
+## A-0268 · 2026-10-28 · ok-do-diogo
+
+Porquê: Rótulo «Nome técnico (produção)» passa a «Nome técnico (SAP)», pedido do Diogo (DMO-523)
+Referência: Diogo 28/10 10:41 «removee producao nome tecnico meter SAP» (cmsg_01K75FTs9bQnbhhH7qttpgraL8tPtNgyoZrN2cZWqfG68d)
+Novos: 0 · mudaram: 2 · saíram: 0
+
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.CriarEEditar_UmSoFormulario_EditarGravaONomeTecnico`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Ficha_Editar_LinhasCompativeis_InformacaoOpcionalComFabricaDeOrigem`
 
-Selo depois: `aae27af46841fe7c`
+Selo depois: `44e498ae87db9050`
+
+## A-0269 · 2026-10-28 · teste-novo
+
+Porquê: DMO-536: referência sem Job On abre o Job On novo na linha de onde se veio
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReferenciaNova.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReferenciaNova.cs :: JobOnPageTests.Folha_ReferenciaSemJobOn_AbreOJobOnNovoNaLinhaDeOndeVeio`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReferenciaNova.cs :: JobOnPageTests.Folha_ReferenciaSemJobOn_QuemSoVe_FicaComOAviso`
+
+Selo depois: `f36070a927fa88b7`
