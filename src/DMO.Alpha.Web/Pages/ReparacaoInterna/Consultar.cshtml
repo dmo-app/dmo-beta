@@ -184,24 +184,32 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
     <h3 id="ri-consulta-title">Reparações</h3>
     @if (Model.Resumo.Count > 0)
     {
+      @* O resumo repartido em colunas, uma linha por pessoa, para não empurrar a lista
+         para baixo; carregar no nome filtra logo por essa pessoa (Diogo, 28/10/2026: «a
+         tabela dos users deve ser repartida», «ao carregar num nome filtrar logo pelo nome»). *@
       <div id="riConsultaResumo" class="ri-resumo">
         <h4 id="ri-resumo-title">Resumo por pessoa</h4>
-        <div class="dmo-table-wrap">
-          <table class="dmo-table" id="riConsultaResumoLista" data-dmo-list="Resumo por pessoa">
-            <thead><tr><th>Pessoa</th><th>Reparações</th><th>Dias</th><th>Média por dia</th></tr></thead>
-            <tbody>
-            @foreach (var p in Model.Resumo)
-            {
-              <tr>
-                <td>@p.Nome</td>
-                <td>@p.Reparacoes.ToString(System.Globalization.CultureInfo.InvariantCulture)</td>
-                <td>@p.Dias.ToString(System.Globalization.CultureInfo.InvariantCulture)</td>
-                <td>@p.MediaPorDia.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)</td>
-              </tr>
-            }
-            </tbody>
-          </table>
-        </div>
+        <ul class="ri-resumo-pessoas" id="riConsultaResumoLista" aria-labelledby="ri-resumo-title">
+          @foreach (var p in Model.Resumo)
+          {
+            var escolhida = p.PessoaId is not null && p.PessoaId == Model.PessoaId;
+            <li class="@(escolhida ? "ativo" : null)">
+              @if (p.PessoaId is { } pessoaId)
+              {
+                var rota = Model.Rota(null);
+                rota["pessoa"] = escolhida ? null : pessoaId.ToString();
+                <a class="ri-resumo-nome" data-ri-pessoa="@(escolhida ? "" : pessoaId.ToString())" href="@Url.Page("/ReparacaoInterna/Consultar", rota)" aria-current="@(escolhida ? "true" : null)" title="@(escolhida ? "Ver todas as pessoas" : $"Só as reparações de {p.Nome}")">@p.Nome</a>
+              }
+              else
+              {
+                <span class="ri-resumo-nome">@p.Nome</span>
+              }
+              <span class="ri-resumo-num"><b>@p.Reparacoes.ToString(System.Globalization.CultureInfo.InvariantCulture)</b> reparações</span>
+              <span class="ri-resumo-num"><b>@p.Dias.ToString(System.Globalization.CultureInfo.InvariantCulture)</b> dias</span>
+              <span class="ri-resumo-num"><b>@p.MediaPorDia.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)</b> por dia</span>
+            </li>
+          }
+        </ul>
       </div>
     }
     @if (!Model.ComFiltro)
@@ -303,3 +311,4 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
     }
   </section>
 </main>
+<script src="~/js/ri-consulta.js" asp-append-version="true"></script>

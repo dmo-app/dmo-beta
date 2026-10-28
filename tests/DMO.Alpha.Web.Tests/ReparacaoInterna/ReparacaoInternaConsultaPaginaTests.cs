@@ -274,6 +274,28 @@ public sealed class ReparacaoInternaConsultaPaginaTests : IClassFixture<CustomWe
     }
 
     [Fact]
+    public async Task OResumoPorPessoa_Repartido_ONomeFiltraPorEla()
+    {
+        // Diogo, 28/10/2026: «a tabela dos users deve ser repartida», «ao carregar num nome filtrar
+        // logo pelo nome». Uma linha por pessoa; o nome escolhe-a no «Quem» e, escolhida, volta a todas.
+        var (codigo, _, _, ana, rui) = Cenario("R");
+        using var client = await LoginOperatorAsync("6713", DmoCapabilities.ReparacaoInterna, DmoCapabilities.ReparacaoInternaView);
+
+        var todos = Elemento(await client.GetStringAsync($"/ReparacaoInterna/Consultar?maquina={codigo}"), "id=\"riConsultaResumo\"");
+        Assert.Contains("<ul class=\"ri-resumo-pessoas\" id=\"riConsultaResumoLista\"", todos);
+        Assert.Contains($"data-ri-pessoa=\"{ana}\"", todos);
+        Assert.Contains($"data-ri-pessoa=\"{rui}\"", todos);
+        Assert.Contains($"pessoa={ana}", todos);
+        Assert.Contains("<b>1</b> reparações", todos);
+
+        var daAna = Elemento(await client.GetStringAsync($"/ReparacaoInterna/Consultar?maquina={codigo}&pessoa={ana}"), "id=\"riConsultaResumo\"");
+        Assert.Contains("<li class=\"ativo\">", daAna);
+        Assert.Contains("data-ri-pessoa=\"\"", daAna);
+        Assert.Contains("aria-current=\"true\"", daAna);
+        Assert.DoesNotContain("pessoa=", daAna.Split("data-ri-pessoa")[1].Split("aria-current")[0]);
+    }
+
+    [Fact]
     public async Task AProducaoEmDoisPassos_AReferenciaDepoisAsUltimas5()
     {
         var (codigo, jobOnId, referencia, _, _) = Cenario("E");

@@ -135,25 +135,53 @@ html body main.ri-page:has(#riConsultaFiltros) .ri-w-tipo{width:auto;min-width:m
 html body main.ri-page:has(#riConsultaFiltros) .dmo-filter-bar>.dmo-field>label{white-space:nowrap}
 html body main.ri-page:has(#riConsultaFiltros) .ri-filtros-acoes{flex:0 0 auto}
 html body main.ri-page:has(#riConsultaFiltros) .ri-filtros-acoes>.ri-so-por-associar{padding:0 12px}
-@media (max-width:1300px){
-  html body main.ri-page:has(#riConsultaFiltros) .ri-filtros-card,
-  html body main.ri-page:has(#riConsultaFiltros) .ri-filtros-card>.dmo-zona>.dmo-filter-bar{flex-wrap:wrap}
-}
 html body main.ri-page:has(#riConsultaFiltros) .ri-card{padding:16px 20px}
-/* «Resumo por pessoa» (Diogo, 27/10/2026: «muda a posição»): já não fica colado por cima da
-   tabela das reparações, com as colunas espalhadas. Fica à direita, um quadro compacto do
-   tamanho do que leva, alinhado pelo título «Reparações»; a tabela das reparações à esquerda. */
-@media (min-width:1100px){
-  html body #riConsultaResultados:has(>#riConsultaResumo){display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:24px;align-items:start}
-  html body #riConsultaResultados:has(>#riConsultaResumo)>*{grid-column:1}
-  html body #riConsultaResultados:has(>#riConsultaResumo)>#riConsultaResumo{grid-column:2;grid-row:1/span 3;margin:0;padding-left:24px;border-left:1px solid var(--dmo-border);align-self:stretch}
-}
-html body #riConsultaResumo{margin:0 0 16px}
-html body #riConsultaResumo>h4{margin:0 0 12px;font-size:16px;font-weight:650;line-height:1.25}
-html body #riConsultaResumo .dmo-table-wrap{width:max-content;max-width:100%}
-html body #riConsultaResumo .dmo-table{width:auto;min-width:0}
-html body #riConsultaResumo .dmo-table :is(th,td){white-space:nowrap;padding-left:12px;padding-right:12px}
-html body #riConsultaResumo .dmo-table :is(th,td):not(:first-child){text-align:right;font-variant-numeric:tabular-nums}
+/* Os filtros pela ordem da procura, a Referência primeiro, e todos numa linha também no
+   painel do Job On (Diogo, 28/10/2026: «caótico», «ao reduzir esse campo e a linha deve dar para
+   meter as datas na mesma row»): a Produção só com o número e a Linha estreita; o «Sem Job On» e
+   o «Limpar filtros» seguem os campos e, sem lugar, passam para baixo, encostados à direita. */
+html body main.ri-page:has(#riConsultaFiltros) .ri-filtros-card{flex-wrap:wrap;column-gap:10px}
+html body main.ri-page:has(#riConsultaFiltros) .ri-filtros-card>.dmo-zona,
+html body main.ri-page:has(#riConsultaFiltros) .ri-filtros-card>.dmo-zona>.dmo-filter-bar{display:contents}
+html body main.ri-page:has(#riConsultaFiltros) .ri-filtros-card .dmo-filter-bar>.ri-w-producao{min-width:0;width:auto}
+html body main.ri-page:has(#riConsultaFiltros) .ri-w-maquina{width:auto}
+html body main.ri-page:has(#riConsultaFiltros) .ri-w-maquina>select{width:auto;min-width:72px}
+html body main.ri-page:has(#riConsultaFiltros) .ri-w-data{width:132px}
+html body main.ri-page:has(#riConsultaFiltros) .ri-filtros-acoes{margin-left:auto}
+/* No painel do Job On a consulta cabe no ecrã: os filtros e o resumo ficam, a lista das
+   reparações desliza por dentro com os títulos à vista (Diogo, 28/10/2026: «ui das reparações
+   dentro do jobon»). */
+html[data-dmo-embedded] body main.ri-page:has(#riConsultaFiltros){box-sizing:border-box;height:100vh;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+html[data-dmo-embedded] body main.ri-page:has(#riConsultaFiltros)>*{flex:none}
+html[data-dmo-embedded] body main.ri-page:has(#riConsultaFiltros)>#riConsultaResultados{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+html[data-dmo-embedded] body main.ri-page:has(#riConsultaFiltros)>#riConsultaResultados>*{flex:none}
+html[data-dmo-embedded] body main.ri-page:has(#riConsultaFiltros)>#riConsultaResultados>.dmo-table-wrap:has(>#riConsultaLista){flex:1 1 auto;min-height:0;overflow:auto}
+html[data-dmo-embedded] body main.ri-page:has(#riConsultaFiltros) #riConsultaLista>thead th{position:sticky;top:0;z-index:1;background:var(--dmo-card)}
+/* A Produção: o campo mostra só o número; a lista aberta, o número e o resto por baixo (ri-consulta.js). */
+html body .ri-prod-drop{position:relative}
+html body .ri-prod-drop>.ri-prod-botao{display:inline-flex;align-items:center;justify-content:space-between;gap:10px;box-sizing:border-box;min-width:96px;height:var(--dmo-control-height);margin:0;padding:0 10px 0 12px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control,8px);background:var(--dmo-card);color:var(--dmo-text);font:inherit;font-size:14px;font-weight:600;white-space:nowrap;cursor:pointer}
+html body .ri-prod-drop>.ri-prod-lista{position:absolute;z-index:50;top:calc(100% + 4px);left:0;min-width:100%;max-height:min(320px,60vh);overflow:auto;margin:0;padding:4px;list-style:none;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control,8px);background:var(--dmo-card);box-shadow:0 14px 36px rgba(0,0,0,.25)}
+html body .ri-prod-drop>.ri-prod-lista>li{display:flex;flex-direction:column;gap:1px;padding:5px 10px;border-radius:6px;cursor:pointer;white-space:nowrap;outline:none}
+html body .ri-prod-drop>.ri-prod-lista>li>.ri-prod-numero{font-size:14px;font-weight:700;color:var(--dmo-text)}
+html body .ri-prod-drop>.ri-prod-lista>li>.ri-prod-resto{font-size:12px;color:var(--dmo-muted)}
+html body .ri-prod-drop>.ri-prod-lista>li:is(:hover,:focus-visible){background:var(--dmo-row-hover)}
+html body .ri-prod-drop>.ri-prod-lista>li[aria-selected="true"]{background:var(--dmo-text)}
+html body .ri-prod-drop>.ri-prod-lista>li[aria-selected="true"]>span{color:var(--dmo-card)}
+/* «Resumo por pessoa» repartido (Diogo, 28/10/2026: «a tabela dos users deve ser repartida»): por
+   cima da lista, em colunas lado a lado, uma linha por pessoa com os números alinhados. Carregar
+   numa pessoa filtra por ela (a linha inteira é o link); a escolhida fica invertida e um clique
+   nela volta a todas. */
+html body #riConsultaResumo{margin:0 0 12px}
+html body #riConsultaResumo>h4{margin:0 0 6px;font-size:14px;font-weight:650;line-height:1.25}
+html body #riConsultaResumo .ri-resumo-pessoas{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));column-gap:20px}
+html body #riConsultaResumo .ri-resumo-pessoas>li{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 104px 58px 82px;column-gap:8px;align-items:baseline;margin:0;padding:4px 8px;border-bottom:1px solid var(--dmo-border);border-radius:0;font-size:13px;line-height:18px;white-space:nowrap}
+html body #riConsultaResumo .ri-resumo-nome{min-width:0;overflow:hidden;text-overflow:ellipsis;color:var(--dmo-text);font-weight:600;text-decoration:none}
+html body #riConsultaResumo a.ri-resumo-nome::after{content:"";position:absolute;inset:0}
+html body #riConsultaResumo .ri-resumo-num{text-align:right;color:var(--dmo-muted);font-variant-numeric:tabular-nums}
+html body #riConsultaResumo .ri-resumo-num>b{color:var(--dmo-text);font-weight:700}
+html body #riConsultaResumo .ri-resumo-pessoas>li:not(.ativo):has(>a:hover){background:var(--dmo-row-hover)}
+html body #riConsultaResumo .ri-resumo-pessoas>li.ativo{background:var(--dmo-text);border-color:var(--dmo-text)}
+html body #riConsultaResumo .ri-resumo-pessoas>li.ativo :is(.ri-resumo-nome,.ri-resumo-num,.ri-resumo-num>b){color:var(--dmo-card)}
 html body #riConsultaResultados>h3{margin:0 0 12px;line-height:1.25}
 html body #riConsultaResultados .dmo-list-pager{margin-top:12px}
 
