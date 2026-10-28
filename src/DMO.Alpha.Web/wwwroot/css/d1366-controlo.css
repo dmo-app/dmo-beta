@@ -490,7 +490,12 @@ html body main.peg-page :is(.peg-folha,.peg-folha-leituras){min-width:0}
      linha, como na maqueta 04 (DMO-517); depois o estado, o OK/NOK e o comentário. */
   html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area{grid-template-columns:200px 200px 120px 96px minmax(0,1fr)}
   html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area>span:first-child{grid-column:1;grid-row:1}
-  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area>.resumo-area-link{grid-column:2;grid-row:1;justify-self:start;max-width:100%;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area>.resumo-area-mcaliper{grid-column:2;grid-row:1;display:flex;align-items:center;gap:8px;min-width:0}
+  /* O campo do link (DMO-524): a altura dos outros campos da linha; «Medições» ao lado, numa linha. */
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area-mcaliper-form{flex:1 1 auto;min-width:0;margin:0}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area-mcaliper-form input{box-sizing:border-box;width:100%;min-width:0;height:var(--dmo-control-height-compact);padding:0 8px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-field);color:var(--dmo-text);font:inherit;font-size:13px}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area-mcaliper-form input:focus-visible{outline:2px solid var(--design-medium);outline-offset:1px}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area-mcaliper>.resumo-area-link{flex:0 0 auto;margin:0;white-space:nowrap}
   html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area>strong{grid-column:3;grid-row:1}
   html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area>.resumo-area-form{grid-column:4;grid-row:1}
   html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area>.resumo-area-note{grid-column:5;grid-row:1}
@@ -504,8 +509,10 @@ html body main.peg-page :is(.peg-folha,.peg-folha-leituras){min-width:0}
   html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area>:is(.resumo-area-form,strong){grid-column:2;grid-row:1}
   html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area>:is(.resumo-area-ferramenta,.resumo-area-identificacao){grid-column:3;grid-row:1}
   html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area:has(>.resumo-area-identificacao)>.resumo-area-identificacao{grid-column:3/span 2}
-  html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area>.resumo-area-link{grid-column:4;grid-row:1;justify-self:start;margin:0;white-space:nowrap}
-  html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area:has(>.resumo-area-link.set)>.resumo-area-link:not(.set){grid-row:2}
+  html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area>.resumo-area-mcaliper{grid-column:4;grid-row:1;display:flex;align-items:center;gap:8px;min-width:0}
+  html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area-mcaliper-form{flex:1 1 auto;min-width:0;margin:0}
+  html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area-mcaliper-form input{box-sizing:border-box;width:100%;min-width:0;height:var(--dmo-control-height);padding:0 8px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-field);color:var(--dmo-text);font:inherit;font-size:13px}
+  html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area-mcaliper>:is(.resumo-area-link,.resumo-area-by){flex:0 0 auto;margin:0;white-space:nowrap}
   html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area>.resumo-area-note{grid-column:5;grid-row:1}
   html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area>small.resumo-area-by{grid-column:2/span 2;grid-row:2}
   html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area>.resumo-area-historico{grid-column:5;grid-row:2;justify-self:start}
