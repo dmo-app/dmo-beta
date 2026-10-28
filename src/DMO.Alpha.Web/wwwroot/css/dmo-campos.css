@@ -1,0 +1,53 @@
+/* LARGURA DOS CAMPOS (Diogo, 28/10/2026: «os campos usam tamanhos totalmente desnecessários»).
+   Cada campo tem a largura do que leva, não a da coluna. Uma medida por tipo de conteúdo; o texto
+   de exemplo cabe sempre. Carrega depois do dmo-botoes.css: as regras têm o peso da regra geral
+   dos campos (.dmo-field input {width:100%}) e ganham por virem depois. */
+html body{
+  --dmo-campo-curto:72px;    /* lote, posição, número, quantidade (até 4 algarismos) */
+  --dmo-campo-medida:112px;  /* um valor com casas decimais: °C, cm³, g, mm */
+  --dmo-campo-hora:120px;    /* 11:55 (ou 11:55 AM num Chrome em inglês) e o relógio */
+  --dmo-campo-data:148px;    /* 28/10/2026 e o calendário do Chrome */
+  --dmo-campo-ref:140px;     /* referência ou nº de produção (5447T173) */
+  --dmo-campo-escolha:160px; /* lista de escolha curta (máquina, processo) */
+}
+
+/* Armazém › Registo › Criar novo: Referência, Lote e Posição. */
+html body #armLoteNovo .dmo-field:has(>input){flex:none;width:auto}
+html body #armLoteNovo .dmo-field>input[name=referencia]{width:var(--dmo-campo-ref)}
+html body #armLoteNovo .dmo-field>input:is([name=lote],[name=posicao]){width:var(--dmo-campo-curto)}
+
+/* Boquilhas › Registo: Quantidade, Data e Hora (o dmo-botoes.css fixava a Data em 212 px). */
+html body .beta-bq-layout .bq-movement-line :is(.bq-line-quantity,.bq-line-date,.bq-line-hora).dmo-field.field{flex:none;width:auto}
+html body .beta-bq-layout .bq-movement-line .bq-line-quantity>input#quantity{width:var(--dmo-campo-curto)}
+html body .beta-bq-layout .bq-movement-line .bq-line-date>input#occurredAtDia{width:var(--dmo-campo-data)}
+html body .beta-bq-layout .bq-movement-line .bq-line-hora>input#occurredAtHora{width:var(--dmo-campo-hora)}
+
+/* Reparação Interna › Registar: Número, Dia e Hora estão no estilo da própria página, com estas medidas. */
+
+/* Peso › Novo Peso: temperatura, volume da punção e peso nominal do tamanho do exemplo
+   («Ex.: 200,00 ou 200.00»); o processo é uma escolha curta. */
+html body .peso-form-grid .dmo-field>input:is([name=water_temperature],[name=cm_volume_puncao],[name=cm_nominal_weight]){width:176px}
+html body .peso-form-grid .dmo-field>select[name=cm_process]{width:var(--dmo-campo-escolha)}
+
+/* Comparar peso: Máquina e as duas calotes juntas à esquerda. */
+html body .peso-comparar-filtros>.dmo-field:has(>:is(input,select)){flex:none}
+html body .peso-comparar-filtros .dmo-field>select[name=maquina]{width:var(--dmo-campo-escolha)}
+html body .peso-comparar-filtros .dmo-field>input:is([name=calote_atual],[name=calote_com]){width:var(--dmo-campo-medida)}
+
+/* Planeamento › Nova produção: as duas filas com as mesmas colunas, cada uma da largura do que leva
+   (Referência / Secções, Nº / Gota, Máquina / Processo, Início / Peso, Fim). */
+html body #lightForm .beta-light-fields{grid-template-columns:var(--dmo-campo-ref) var(--dmo-campo-ref) var(--dmo-campo-escolha) var(--dmo-campo-data) var(--dmo-campo-data);justify-content:start}
+
+/* Os que faltavam (medidos pela thread Design em 63 páginas, 28/10/2026). */
+/* Armazém › Registo › Registar entrada: Posição e Estado (a grelha de 2 colunas 1fr do
+   d1366-armazem-reparacao-admin.css esticava-os). */
+html body main.arm-page #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha{grid-template-columns:var(--dmo-campo-curto) var(--dmo-campo-escolha);justify-content:start}
+/* Pegamentos sem Job On: referências da CM, MF e BQ, referência a associar e produção. */
+html body .peg-page :is(input[name="cm_ref"],input[name="mf_ref"],input[name="bq_ref"],input[name="referencia"]){max-width:var(--dmo-campo-ref)}
+html body .peg-page select[name="jobon_id"]{max-width:200px}
+/* Peso: calote simulada (mm). */
+html body .peso-page input[name="cap_h"]{max-width:var(--dmo-campo-medida)}
+/* PU NNPB sem Job On: referência. */
+html body .pu-page input[name="procura"]{max-width:180px}
+/* Admin › Utilizador: PIN (até 12 algarismos). */
+html body .dfu-page input[name="pin"]{max-width:160px}

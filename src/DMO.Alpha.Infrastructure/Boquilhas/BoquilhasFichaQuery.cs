@@ -31,7 +31,7 @@ public sealed class BoquilhasFichaQuery : IBoquilhasFichaQuery
         _db.Tools
             .AsNoTracking()
             .Where(t => t.ToolId == toolId)
-            .Select(t => new BqFichaFerramenta(t.Reference, t.Lot, t.BqAccountedQuantity))
+            .Select(t => new BqFichaFerramenta(t.Reference, t.Lot, t.BqAccountedQuantity, t.AnQuantity))
             .FirstOrDefaultAsync(cancellationToken);
 
     public async Task<IReadOnlyList<BqMovimentoSemJobOn>> MovimentosSemJobOnAsync(
@@ -40,6 +40,6 @@ public sealed class BoquilhasFichaQuery : IBoquilhasFichaQuery
             .Where(m => m.Trace.ToolId == toolId && m.Trace.BqContextId == null)
             .OrderByDescending(m => m.OccurredAtUtc).ThenByDescending(m => m.Id)
             .Take(limite)
-            .Select(m => new BqMovimentoSemJobOn(m.Type, m.Quantity, m.MachineCodeFrozen, m.OccurredAtUtc))
+            .Select(m => new BqMovimentoSemJobOn(m.Type, m.Quantity, m.MachineCodeFrozen, m.OccurredAtUtc, m.AnQuantity))
             .ToListAsync(cancellationToken);
 }

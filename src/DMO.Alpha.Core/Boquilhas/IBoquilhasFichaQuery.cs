@@ -20,7 +20,7 @@ public interface IBoquilhasFichaQuery
 }
 
 /// <summary>Os factos da ferramenta na ficha da BQ.</summary>
-public sealed record BqFichaFerramenta(string Reference, string Lot, int? AccountedQuantity);
+public sealed record BqFichaFerramenta(string Reference, string Lot, int? AccountedQuantity, int? AnQuantity = null);
 
 /// <summary>Um movimento sem Job On, tal como está gravado (a hora em UTC).</summary>
-public sealed record BqMovimentoSemJobOn(BqMovementType Type, int Quantity, string? MachineCode, DateTime OccurredAtUtc);
+public sealed record BqMovimentoSemJobOn(BqMovementType Type, int Quantity, string? MachineCode, DateTime OccurredAtUtc, int? AnQuantity = null);

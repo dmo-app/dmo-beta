@@ -57,6 +57,12 @@ public sealed class RegisterBqMovementHandler : IRegisterBqMovementHandler
         RegisterBqMovement command,
         CancellationToken cancellationToken = default)
     {
+        // Os AN (Diogo, 28/10/2026): negativos não são um facto; 0 = sem AN.
+        if (command.AnQuantity is < 0)
+        {
+            return Refused(RegisterBqMovementResult.InvalidAnQuantity);
+        }
+
         // 1. O trace tem de existir.
         var trace = await _db.BqRepairTraces
             .FirstOrDefaultAsync(t => t.Id == command.BqRepairTraceId, cancellationToken);
@@ -88,13 +94,19 @@ public sealed class RegisterBqMovementHandler : IRegisterBqMovementHandler
         CancellationToken cancellationToken,
         bool retried)
     {
+        if (command.AnQuantity is < 0)
+        {
+            return Refused(RegisterBqMovementResult.InvalidAnQuantity);
+        }
+
         var movement = new RegisterBqMovement(
             0,
             command.MovementType,
             command.Quantity,
             command.RegisteredByOperatorId,
             command.OccurredAtUtc,
-            command.MachineId);
+            command.MachineId,
+            command.AnQuantity);
 
         var associated = await _db.BqRepairTraces
             .FirstOrDefaultAsync(t => t.BqContextId == command.BqContextId, cancellationToken);
@@ -310,6 +322,7 @@ public sealed class RegisterBqMovementHandler : IRegisterBqMovementHandler
             Trace = trace,
             Type = type,
             Quantity = command.Quantity,
+            AnQuantity = command.AnQuantity is > 0 ? command.AnQuantity : null,
             CreatedAtUtc = registeredAtUtc,
             OccurredAtUtc = command.OccurredAtUtc ?? registeredAtUtc,
             RegisteredByOperatorId = command.RegisteredByOperatorId,
@@ -348,7 +361,8 @@ public sealed class RegisterBqMovementHandler : IRegisterBqMovementHandler
                 .Where(m => m.BqRepairTraceId == trace.Id)
                 .ToListAsync(cancellationToken);
         traceMovements.Add(persisted);
-        BqDiscrepancyFold.Apply(traceMovements);
+        // A conta é da BQ em todas as produções (Diogo, 28/10/2026); só se gravam os deste registo.
+        BqDiscrepancyFold.Apply(traceMovements.Concat(await BqDiscrepancyFold.DosOutrosRegistosAsync(_db, trace, cancellationToken)));
 
         _db.BqMovements.Add(persisted);
         await _db.SaveChangesAsync(cancellationToken);

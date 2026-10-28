@@ -65,6 +65,8 @@
       });
 
       if (!select) return;
+      // O triângulo à frente de cada ferramenta da lista abre a ficha dela no painel (Diogo, 28/10/2026).
+      select.dmoFicha = id => '/Ferramentas/Ficha?tool_id=' + encodeURIComponent(id);
       select.dmoSource = async term => {
         const query = new URLSearchParams({ handler: 'ToolCandidates', type: tipo, q: term, reference: reference ? reference.value.trim() : '', all: 'false' });
         if (machine && machine.value) query.set('machine_id', machine.value);

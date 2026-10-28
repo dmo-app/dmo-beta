@@ -9,7 +9,7 @@
                 <div class="dmo-table-wrap">
                   <table class="dmo-table" data-dmo-list="Movimentos detalhados">
                     <thead>
-                      <tr><th>Data/hora</th><th>Boquilha / lote</th><th>Movimento</th><th>Qtd.</th><th>Reparador</th><th>Linha</th><th>Produção</th><th>Saldo</th></tr>
+                      <tr><th>Data/hora</th><th>Boquilha / lote</th><th>Movimento</th><th>Qtd.</th><th>Qtd. AN</th><th>Reparador</th><th>Linha</th><th>Produção</th><th>Saldo</th></tr>
                     </thead>
                     <tbody>
                       @foreach (var movement in Model)
@@ -22,7 +22,8 @@
                           <td>@fmtDate(movement.OccurredAtUtc)</td>
                           <td>@movement.ToolReference@(movement.ToolLot is { } tl ? $" · Lote {tl}" : null)</td>
                           <td>@movementLabel(movement.MovementType)</td>
-                          <td>@movement.Quantity</td>
+                          <td>@(movement.Quantity == 0 && movement.AnQuantity is not null ? "—" : movement.Quantity.ToString())</td>
+                          <td>@(movement.AnQuantity is int an ? an.ToString() : "—")</td>
                           <td>@(movement.BqRepairerNameFrozen ?? "—")</td>
                           <td>@(movement.MachineCode ?? "—")</td>
                           <td>@(movement.ProductionNumber is string pn && movement.Reference is string pr ? $"{pn} · {pr}" : movement.ProductionNumber ?? movement.Reference ?? "—")</td>

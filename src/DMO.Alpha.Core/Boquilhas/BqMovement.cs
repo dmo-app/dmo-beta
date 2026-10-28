@@ -30,6 +30,13 @@ public sealed class BqMovement
     /// <summary>Quantidade observada, registada na totalidade.</summary>
     public int Quantity { get; set; }
 
+    /// <summary>
+    /// Os AN (anéis) que foram com as BQ neste movimento (Diogo, 28/10/2026),
+    /// registados na totalidade. Null = o movimento não leva AN. As contas
+    /// das BQ (em reparação, discrepância) nunca os usam.
+    /// </summary>
+    public int? AnQuantity { get; set; }
+
     /// <summary>Máquina efetiva no movimento; preservada se o contexto ou compatibilidades mudarem.</summary>
     public string? MachineCodeFrozen { get; set; }
 

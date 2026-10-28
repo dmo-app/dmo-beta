@@ -58,6 +58,14 @@ public sealed class Tool
     public int? BqAccountedQuantity { get; set; }
 
     /// <summary>
+    /// A quantidade de AN (anéis) do lote da BQ (Diogo, 28/10/2026: «vamos
+    /// passar a registar AN»; BQ+AN são um só componente). Fica ao lado da
+    /// quantidade das BQ, que é outra (B1: 120 BQ, 180 AN). Null nas CM/MF e
+    /// enquanto não for escrita; os movimentos nunca a mudam.
+    /// </summary>
+    public int? AnQuantity { get; set; }
+
+    /// <summary>
     /// O NOME TÉCNICO (o código do desenho — o que está no SAP; o Owner
     /// 2026-10-11: «se introduzirmos o nome tecnico, ou seja o que esta no
     /// sap. apresenta logo tudo»): guardado como o operador escreveu (a
