@@ -964,6 +964,11 @@ else
       {
         <input type="hidden" name="machine_id" value="@linhaProcura" />
       }
+      else if (Model.JobOn is { } jobOnProcura)
+      {
+        @* Uma referência sem Job On começa o Job On novo na linha deste (Diogo, 28/10/2026). *@
+        <input type="hidden" name="linha_de" value="@jobOnProcura.Machine" />
+      }
       @if (Model.NovoInicio is { } inicioProcura)
       {
         <input type="hidden" name="inicio_em" value="@inicioProcura.ToString("yyyy-MM-dd")" />
