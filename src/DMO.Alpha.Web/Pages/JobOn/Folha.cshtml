@@ -444,7 +444,7 @@
     <dl class="jof-painel-faixa">
       @foreach (var (rotulo, chave, unidade) in new[] { ("Secções", "cab_seccoes", ""), ("Gota", "cab_gota", ""), ("Processo", "cab_processo", ""), ("Peso", "cab_peso", " g") })
       {
-        var valorFaixa = Mostra(Vazio(Model.Folha.Valor(chave)));
+        var valorFaixa = Mostra(chave == "cab_gota" ? Model.Gota : Vazio(Model.Folha.Valor(chave)));
         <div><dt>@rotulo</dt><dd>@(valorFaixa is null ? "—" : unidade.Length > 0 && !valorFaixa.TrimEnd().EndsWith(unidade.Trim(), StringComparison.OrdinalIgnoreCase) ? valorFaixa + unidade : valorFaixa)</dd></div>
       }
     </dl>
@@ -628,6 +628,14 @@ else
                       <option value="@opcao" selected="@(opcao == processo ? "selected" : null)">@opcao</option>
                     }
                   </select>
+                }
+                else if (chave == "cab_gota" && Model.GotaOrigem is { } origemGota)
+                {
+                  @* A Gota vem do nome técnico da CM (senão do MF), não se escreve (Diogo, 28/10/2026: «ver se o
+                     jobon já tem em consideração nome técnico para mudar gota e meter número correto»). No Editar,
+                     a escrita à mão vai como está. *@
+                  <strong title="@origemGota" data-jof-gota-nome-tecnico>@Model.Gota</strong>
+                  @if (editar) {<input type="hidden" name="@campo.NomeNoFormulario" value="@Model.Folha.Valor(chave)" />}
                 }
                 else if (editar)
                 {

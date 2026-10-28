@@ -67,6 +67,7 @@ public sealed class JobOnToolFactsQuery : IJobOnToolFactsQuery
                 t.Reference,
                 t.Lot,
                 t.BqAccountedQuantity,
+                t.TechnicalName,
                 Process = tc != null ? tc.Process : null,
                 VolumePuncaoCm3 = tc != null ? tc.VolumePuncaoCm3 : null,
                 VolumeMarisaCm3 = tc != null ? tc.VolumeMarisaCm3 : null,
@@ -221,6 +222,7 @@ public sealed class JobOnToolFactsQuery : IJobOnToolFactsQuery
             {
                 UsosParalelos = usosDaTool ?? new List<JobOnToolUsoParalelo>(),
                 OndeEsta = ondeEsta,
+                NomeTecnico = tool.TechnicalName,
                 Estado = temEstado ? estado : null,
                 Utilizacao = utilizacoes.TryGetValue(tool.ToolId, out var utilizacao) ? utilizacao : null,
                 AvisoArmazem = avisoArmazem

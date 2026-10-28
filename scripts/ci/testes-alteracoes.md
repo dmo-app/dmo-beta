@@ -4204,6 +4204,21 @@ Novos: 0 · mudaram: 4 · saíram: 0
 
 Selo depois: `931a9ce77f2c77bd`
 
+## A-0296 · 2026-10-28 · teste-novo
+
+Porquê: DMO-535: a Gota do Job On vem do nome técnico da CM (senão do MF): 55 = 2, 44/4T/50/5T = 3, 95 = 4 (Diogo, 28/10/2026: «ver se o jobon já tem em consideração nome técnico para mudar gota e meter número correto»). Testes novos do parser e da folha.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraKF2m3xMYuf6tyaurxyUd5F
+Novos: 6 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserGotasTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserGotasTests.cs :: TechnicalNameParserGotasTests.Molde_DizAsGotasPelaDimensao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserGotasTests.cs :: TechnicalNameParserGotasTests.SemNomeAcessorioOuOutraDimensao_NaoDiz`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.GotaNomeTecnico.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.GotaNomeTecnico.cs :: JobOnPageTests.Folha_GotaVemDoNomeTecnicoDaCm_PorCimaDaEscrita`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.GotaNomeTecnico.cs :: JobOnPageTests.Folha_SemNomeNaCm_GotaDoMf_ESemNenhum_AEscrita`
+
+Selo depois: `3f4d1d2b421330dd`
+
 ## A-0255 · 2026-10-28 · ok-do-diogo
 
 Porquê: DMO-525: a cadência do SAP passa a média e moda por produção, como o peso. O teste da cadência no Job On passa a exigir o nome «Cadência usada», a moda com a média no título e, sem SAP dessa produção, a da produção anterior marcada «ant.»; sem nenhuma, «—» como antes. Testes novos: média e moda, a produção anterior, a cadência de cada produção no Histórico de produções e o «≈» do % uso no Histórico.
@@ -4220,4 +4235,4 @@ Novos: 8 · mudaram: 1 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoUsoEstimado.cs :: DefinicoesPorModuloPageTests.OHistorico_SemLeiturasAVolta_EstimaOUsoPeloProduzido`
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CadenciaSap.cs :: JobOnPageTests.Folha_MostraACadenciaDoSap_DaOrdemComMaisDias`
 
-Selo depois: `72a6e5ae974bffeb`
+Selo depois: `f0420e29cb4dc503`
