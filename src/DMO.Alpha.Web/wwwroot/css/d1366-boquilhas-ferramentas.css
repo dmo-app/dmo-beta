@@ -270,7 +270,7 @@ html body main.ferr-page .ferr-filters{gap:12px}
 html body main.ferr-page .ferr-filters>.ferr-w-type select{width:168px}
 html body main.ferr-page .ferr-filters>.ferr-w-estado select{width:124px}
 html body main.ferr-page .ferr-filters>.ferr-w-local select{width:224px;padding-right:32px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-html body main.ferr-page .ferr-filters>.ferr-w-fabrica :is(input,select){width:76px}
+html body main.ferr-page .ferr-filters>.ferr-w-fabrica :is(input,select){width:84px;padding-right:28px}
 html body main.ferr-page .ferr-filter-actions{gap:8px}
 html body main.ferr-page #ferrResultados .card-note{margin:-4px 0 8px;font-size:12px;line-height:16px}
 html body main.ferr-page #ferrResultados .dmo-table :is(th,td){padding-block:6px;height:32px}
