@@ -21,6 +21,10 @@
     var culture = DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture;
     var editar = Model.Editar;
     var desenhados = new HashSet<string>(StringComparer.Ordinal);
+    // As folgas com um número por espaço (JobOnFolgas): o que se mostra, e no Editar o que vai na caixa.
+    var folgasVistas = new Dictionary<string, string?>(StringComparer.Ordinal);
+    var espacosMf = JobOnFolgas.UmaPorEspaco(Model.Folha.Valor("mf_folga1"), Model.Folha.Valor("mf_folga2"), Model.Folha.Valor("mf_folga3"));
+    for (var i = 0; i < 3; i++) folgasVistas[$"mf_folga{i + 1}"] = espacosMf[i];
 }
 @section Head {
 <link rel="stylesheet" href="~/beta-adapter.css" asp-append-version="true">
@@ -33,6 +37,33 @@
     // («70/69,4» → «70/69.40»; Diogo, 26/10/2026). O resto do texto fica como está.
     private static string? Mostra(string? v) => DMO.Alpha.Core.Runtime.DmoNumberFormat.FolhaTexto(v);
 
+    // Os espaços das folgas, pela ordem (Diogo, 28/10/2026, com o desenho do molde): a folga, a
+    // tolerância e, só no MF, a folga da flecha (hollow mill). O CM tem o hollow mill de um lado só:
+    // «os espaços ficam 0.12 - 0.03, não tem o terceiro».
+    private static readonly (string Curto, string Nome)[] ZonasDasFolgas =
+        [("Folga", "Folga"), ("Tol.", "Tolerância"), ("Flecha", "Folga da flecha (hollow mill)")];
+
+    // Nos Calibres o «mm» vai para o título e sai do valor, para poupar espaço (Diogo, 28/10/2026:
+    // «nos calibres metemos os MM nos títulos da tabela»): «Inversão MF (mm)» e «75.20».
+    private static readonly System.Text.RegularExpressions.Regex Mm = new(@"(?<=\d)\s*mm\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+    private static (string Designacao, string? Valor) CalSemMm(string? designacao, string? valor)
+    {
+        var d = designacao ?? "";
+        var v = Mostra(valor);
+        if (v is null || !Mm.IsMatch(v)) return (d, v);
+        return (d.Contains("mm", StringComparison.OrdinalIgnoreCase) ? d : d + " (mm)", Mm.Replace(v, ""));
+    }
+
+    // «56.40 X 58.60»: um número, o «x» por baixo e o outro número por baixo dele (Diogo, 28/10/2026:
+    // «ficar número x, muda linha, número é confuso»).
+    private static readonly System.Text.RegularExpressions.Regex Vezes = new(@"^(?<a>\d+(?:[.,]\d+)?)\s*[xX×]\s*(?<b>\d+(?:[.,]\d+)?)$");
+
+    // A tolerância com um só sinal (Diogo, 28/10/2026: «as dimensões apresentam sinal +/- repetido»):
+    // «±0.05» e «+0.05» mostram-se «± 0.05»; «-0.05» e «+0.05/-0.02» ficam como estão.
+    private static string? Tolerancia(string? v) => Mostra(v)?.Trim() is not { Length: > 0 } t ? null
+        : t.StartsWith('-') || t.Contains('/') ? t
+        : "± " + t.TrimStart('±', '+', ' ');
+
     private static decimal? Numero(string? v) =>
         decimal.TryParse(v?.Replace(',', '.').Replace("%", "").Trim(), System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.InvariantCulture, out var d) ? d : null;
 }
@@ -42,7 +73,7 @@
     {
         var campo = JobOnFolhaCampos.Encontrar(chave)!;
         desenhados.Add(chave);
-        var valor = Model.Folha.Valor(chave);
+        var valor = folgasVistas.TryGetValue(chave, out var folgaVista) ? folgaVista : Model.Folha.Valor(chave);
         // O lote do AN é, por omissão, o da BQ; só muda se alguém o escrever à mão (Diogo, 26/10/2026).
         string? herdado = chave == "an_lote" && string.IsNullOrWhiteSpace(valor) ? Model.AnLoteDaBq : null;
         if (editar)
@@ -181,7 +212,7 @@
         var ficha = toolId is null || (!Model.PodeEditar && !Model.Capacidades.Contains(DMO.Alpha.Core.Admin.DmoCapabilities.Ferramentas)) ? null : $"/Ferramentas/Ficha?tool_id={Uri.EscapeDataString(toolId)}&voltar={Uri.EscapeDataString($"{Model.Request.Path}{Model.Request.QueryString}")}";
         <div class="jof-tool-slot" data-jof-tool-slot="@tipo">
           <button type="button" class="tool-head@(f is null ? " tool-empty" : null)" data-jof-tool="@tipo" data-jof-ficha="@ficha"
-                  title="@(editar ? "Um clique muda a ferramenta; duplo clique: a ficha" : ficha is null ? null : "Duplo clique: a ficha da ferramenta")"
+                  title="@(editar ? "Um clique muda a ferramenta; duplo clique: a ficha" : ficha is null ? null : "Abrir a ficha da ferramenta")"
                   aria-label="@nome @(f is null ? "por indicar" : $"{f.Reference} lote {FolhaModel.Lote(f.Lot)}")@(editar ? ": mudar a ferramenta" : "")">
             <span class="design-tool-heading"><span class="code">@tipo</span><span class="design-tool-name">@nome</span></span>
             @if (f is null)
@@ -201,15 +232,17 @@
           </button>
           @* Onde está pelo Armazém e o estado; sem registo, só um aviso com o link
              (Diogo 21/10, FER-E-03; veio da ficha antiga, nada se perde). *@
-          @* Todos os lotes usados (Diogo, 26/10/2026): o «Alterar lote» das
-             Boquilhas ou o Editar trocam o lote; os de antes ficam à vista. *@
-          @if (tipo == "BQ" && f is not null && Model.LotesBqAntes.Count > 0)
-          {
-            <p class="jof-onde" data-jof-lotes-antes>Antes nesta produção: lote @string.Join(", ", Model.LotesBqAntes.Select(FolhaModel.Lote))</p>
-          }
+          @* Os lotes de antes da BQ já não ficam à vista no cartão (Diogo, 28/10/2026: «remover das
+             boquilhas o antes desta produção»). *@
           @if (f?.OndeEsta is { } ondeEsta)
           {
-            <p class="jof-onde" data-dmo-onde-esta>@ondeEsta@(f.Estado is { } estado ? " · " + DMO.Alpha.Core.Armazem.ArmazemTextos.Estado(estado) : null)</p>
+            @* A posição e o estado a negrito; a posição leva ao Armazém da ferramenta, para dar
+               entrada ou saída (Diogo, 28/10/2026). *@
+            const string NaPosicao = "Armazém · posição ";
+            var armazem = DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.MovimentosDoArmazem(f.ToolId, "Armazém");
+            @* O estado primeiro, um espaço e a posição: «Reparado   4094» (Diogo, 28/10/2026: «Reparado, espaço e
+               posição do armazém»); fora do Armazém, o sítio por extenso («Reparação · Moldin»). *@
+            <p class="jof-onde" data-dmo-onde-esta title="@ondeEsta">@if (f.Estado is { } estado) {<b>@DMO.Alpha.Core.Armazem.ArmazemTextos.Estado(estado)</b><span class="jof-onde-espaco"> </span>}@if (ondeEsta.StartsWith(NaPosicao, StringComparison.Ordinal)) {if (armazem.PodeAbrir(Model.Capacidades)) {<a class="jof-onde-pos" href="@armazem.Href" title="@ondeEsta: dar entrada ou saída no Armazém"><b>@ondeEsta[NaPosicao.Length..]</b></a>} else {<b>@ondeEsta[NaPosicao.Length..]</b>}} else {@ondeEsta}</p>
           }
           @if (Model.MostrarAvisoArmazem && f?.AvisoArmazem is { } avisoArmazem)
           {
@@ -246,7 +279,10 @@
         var resto = tipo == "CM"
             ? new[] { ("Tipo", "cm_tipo"), ("Adaptador", "cm_adaptador"), ("Inversão", "cm_inversao"), ("Parafuso", "cm_parafuso"), ("3.ª Almofada", "cm_almofada3") }
             : new[] { ("Tipo", "mf_tipo"), ("Adaptador", "mf_adaptador"), ("Inversão", "mf_inversao"), ("Parafuso", "mf_parafuso") };
-        var folgas = new[] { p + "_folga1", p + "_folga2", p + "_folga3" };
+        // O terceiro espaço do CM só aparece se já tiver um valor escrito de antes.
+        var folgas = tipo == "MF" || Vazio(Model.Folha.Valor("cm_folga3")) is not null
+            ? new[] { p + "_folga1", p + "_folga2", p + "_folga3" }
+            : new[] { p + "_folga1", p + "_folga2" };
         <article class="card sec" data-jof-familia="@tipo" aria-label="@nome">
           @{ CabecaFerramenta(tipo, toolId, nome); }
           @{ Uso(p + "_utilizacao", f); }
@@ -272,20 +308,22 @@
                   curto = char.ToUpperInvariant(curto[0]) + curto[1..];
                   desenhados.Add(tol);
                   @* Um valor com vários números («54.02/52.02/…») ocupa a linha de baixo, inteiro. *@
-                  <div class="jof-dim@(Mostra(Model.Folha.Valor(valor))?.Length > 14 ? " longo" : null)"><dt>@curto</dt><dd><span class="jof-dim-valor">@{ Valor(valor, $"{tipo} {rotulo}"); }</span>@if (Mostra(Model.Folha.Valor(tol)) is { } tolerancia) {<span class="jof-tol"> ± @tolerancia</span>}</dd></div>
+                  <div class="jof-dim@(Mostra(Model.Folha.Valor(valor))?.Length > 14 ? " longo" : null)"><dt>@curto</dt><dd><span class="jof-dim-valor">@{ Valor(valor, $"{tipo} {rotulo}"); }</span>@if (Tolerancia(Model.Folha.Valor(tol)) is { } tolerancia) {<span class="jof-tol"> @tolerancia</span>}</dd></div>
                 }
               </dl>
             </div>
             <div class="folgas"><span>Folgas</span>
-              @if (folgas.All(fo => Vazio(Model.Folha.Valor(fo)) is null))
+              @if (folgas.All(fo => Vazio(folgasVistas.TryGetValue(fo, out var vista) ? vista : Model.Folha.Valor(fo)) is null))
               {
                 <span class="folga"><span class="v-empty">—</span></span>
               }
               else
               {
-                @foreach (var folga in folgas)
+                @* As zonas do desenho do molde (Diogo, 28/10/2026): a folga do vacuum vent, a tolerância e a da
+                   flecha (hollow mill), cada uma no seu espaço, com o nome por cima. *@
+                @foreach (var (folga, zona) in folgas.Zip(ZonasDasFolgas))
                 {
-                  <span class="folga">@{ Valor(folga); }</span>
+                  <span class="folga" title="@zona.Nome"><small>@zona.Curto</small>@{ Valor(folga); }</span>
                 }
               }
             </div>
@@ -305,7 +343,7 @@
                 else
                 {
                   desenhados.Add(tol);
-                  <tr><td>@rotulo</td><td>@{ Valor(valor, $"{tipo} {rotulo}"); }@if (Mostra(Model.Folha.Valor(tol)) is { } tolerancia) {<span class="jof-tol"> ± @tolerancia</span>}</td></tr>
+                  <tr><td>@rotulo</td><td>@{ Valor(valor, $"{tipo} {rotulo}"); }@if (Tolerancia(Model.Folha.Valor(tol)) is { } tolerancia) {<span class="jof-tol"> @tolerancia</span>}</td></tr>
                 }
               }
             </tbody></table></div>
@@ -446,7 +484,7 @@ else if (Model.JobOn is not { } jobOn)
       @* Haver sempre «← Voltar» (Diogo, 27/10/2026): como nas páginas de registo do
          controlo, volta à página de onde se veio (data-dmo-voltar); sem origem, ao Job On.
          As fichas das ferramentas abertas daqui não contam como origem. *@
-      <a class="dmo-voltar-texto" id="jofVoltar" href="/JobOn" data-dmo-voltar="folha" data-dmo-voltar-ignorar="/JobOn/Folha /Ferramentas/Ficha /Ferramentas/Historico"><span aria-hidden="true">←</span> Voltar</a>
+      <a class="dmo-voltar-texto" id="jofVoltar" href="/JobOn" data-dmo-voltar="folha" data-dmo-voltar-ignorar="/JobOn/Folha /Ferramentas/Ficha /Ferramentas/Historico">Voltar</a>
       <div class="page-head">
         <div><h1>Job On</h1></div>
       </div>
@@ -505,7 +543,7 @@ else
           @foreach (var e in Model.ProximasEntradas)
           {
             var sel = e.JobOnId == jobOn.JobOnId;
-            <a class="rail-item dmo-linha-cor mch-@e.Machine@(sel ? " selected" : null)" href="/JobOn/Folha?jobon_id=@e.JobOnId" aria-current="@(sel ? "true" : null)"><b>@e.Reference<span class="mch dmo-linha-cor mch-@e.Machine">@e.Machine</span></b><small>Produção @e.ProductionNumber@(e.InicioEm is { } ini ? $" · {ini:dd/MM}" : null)</small></a>
+            <a class="rail-item dmo-linha-cor mch-@e.Machine@(sel ? " selected" : null)" href="/JobOn/Folha?jobon_id=@e.JobOnId" aria-current="@(sel ? "true" : null)"><b>@e.Reference<span class="mch dmo-linha-cor mch-@e.Machine">@e.Machine</span></b><small>@e.ProductionNumber@(e.InicioEm is { } ini ? $" · {ini:dd/MM}" : null)</small></a>
           }
         </div>
       </aside>
@@ -537,7 +575,7 @@ else
     }
   <main class="jof2@(editar ? " editing" : null)" id="main">
     <div class="wrap">
-    <a class="dmo-voltar-texto" id="jofVoltar" href="/JobOn" data-dmo-voltar="folha" data-dmo-voltar-ignorar="/JobOn/Folha /Ferramentas/Ficha /Ferramentas/Historico"><span aria-hidden="true">←</span> Voltar</a>
+    <a class="dmo-voltar-texto" id="jofVoltar" href="/JobOn" data-dmo-voltar="folha" data-dmo-voltar-ignorar="/JobOn/Folha /Ferramentas/Ficha /Ferramentas/Historico">Voltar</a>
     <div class="page-head">
       <div class="facts" role="group" aria-label="Dados da produção">
         <div class="fact-col mach" title="Linha"><span class="sr-only">Linha</span><span class="fv">
@@ -814,6 +852,7 @@ else
                     <tbody>
                       @foreach (var l in linhas)
                       {
+                        var (designacaoVista, valorVisto) = CalSemMm(l.Designacao, l.Valor);
                         <tr>
                           <th scope="row">
                             @if (editar)
@@ -826,10 +865,10 @@ else
                             }
                             else
                             {
-                              @l.Designacao
+                              @designacaoVista
                             }
                           </th>
-                          <td>@if (editar) {<input class="f" id="@l.IdDe(JobOnFolhaCampoCal.Valor)" name="Cal[@l.Indice].Valor" value="@Mostra(l.Valor)" type="text" maxlength="@JobOnFolhaCampos.CalMaximo" autocomplete="off" aria-label="Componentes de @l.Nome" />} else {@(Mostra(l.Valor) ?? "—")}</td>
+                          <td>@if (editar) {<input class="f" id="@l.IdDe(JobOnFolhaCampoCal.Valor)" name="Cal[@l.Indice].Valor" value="@Mostra(l.Valor)" type="text" maxlength="@JobOnFolhaCampos.CalMaximo" autocomplete="off" aria-label="Componentes de @l.Nome" />} else if (valorVisto is not null && Vezes.Match(valorVisto) is { Success: true } vezes) {<span class="cal-vezes"><span>@vezes.Groups["a"].Value</span><span>x</span><span>@vezes.Groups["b"].Value</span></span>} else {@(valorVisto ?? "—")}</td>
                           <td>@if (editar) {<input class="f" id="@l.IdDe(JobOnFolhaCampoCal.QtdMaq)" name="Cal[@l.Indice].QtdMaq" value="@Mostra(l.QtdMaq)" type="text" maxlength="@JobOnFolhaCampos.CalMaximo" autocomplete="off" aria-label="QTD máq. de @l.Nome" />} else {@(Mostra(l.QtdMaq) ?? "—")}</td>
                         </tr>
                       }
@@ -958,6 +997,11 @@ else
       @if (Model.NovoMachineId is int linhaProcura)
       {
         <input type="hidden" name="machine_id" value="@linhaProcura" />
+      }
+      else if (Model.JobOn is { } jobOnProcura)
+      {
+        @* Uma referência sem Job On começa o Job On novo na linha deste (Diogo, 28/10/2026). *@
+        <input type="hidden" name="linha_de" value="@jobOnProcura.Machine" />
       }
       @if (Model.NovoInicio is { } inicioProcura)
       {

@@ -21,7 +21,7 @@ public sealed partial class DefinicoesPorModuloPageTests
 
         var ficha = $"/Ferramentas/Ficha?tool_id={toolId}";
         var comVoltar = WebUtility.HtmlDecode(await client.GetStringAsync($"/Armazem/Movimentos?ferramenta={toolId}&voltar={Uri.EscapeDataString(ficha)}"));
-        Assert.Contains($"id=\"armRegVoltar\" href=\"{ficha}\">← Voltar</a>", comVoltar, StringComparison.Ordinal);
+        Assert.Contains($"id=\"armRegVoltar\" href=\"{ficha}\">Voltar</a>", comVoltar, StringComparison.Ordinal);
 
         // Um endereço de fora não serve de volta.
         var fora = await client.GetStringAsync($"/Armazem/Movimentos?ferramenta={toolId}&voltar={Uri.EscapeDataString("https://exemplo.pt/")}");

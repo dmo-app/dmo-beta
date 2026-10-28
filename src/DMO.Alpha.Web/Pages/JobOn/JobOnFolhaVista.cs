@@ -147,7 +147,9 @@ public sealed class FolhaDoJobOnVista
     /// caracteres; com o <paramref name="fim"/> («Nenhum Job On foi criado.»).
     /// </summary>
     public string? MensagemTextoLongo(string fim) =>
-        ChaveRecusada is { } chave
+        ChaveRecusada is { } folga && JobOnFolhaRegras.EFolga(folga) && JobOnFolhaRegras.RotuloDaChave(folga) is { } rotuloFolga
+            ? $"«{rotuloFolga}» só leva um número: a folga no primeiro espaço, a tolerância no do meio e a folga da flecha no último. {fim}"
+        : ChaveRecusada is { } chave
         && JobOnFolhaRegras.RotuloDaChave(chave) is { } rotulo
         && JobOnFolhaRegras.MaximoDaChave(chave) is { } maximo
             ? $"«{rotulo}» tem mais de {maximo} caracteres. Encurte o texto e volte a guardar. {fim}"
