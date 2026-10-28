@@ -1467,7 +1467,9 @@ public partial class PegamentosPageTests : IClassFixture<CustomWebApplicationFac
             // computador (Diogo, 17/10/2026); o nome do ficheiro tem as duas.
             var pasta=Uri.UnescapeDataString(response.Headers.GetValues("X-Dmo-Pdf-Pasta").Single());
             Assert.Matches("^[^/]+/[^/]+$",pasta);
-            Assert.Contains(pasta.Replace('/','-'),response.Content.Headers.ContentDisposition!.FileName ?? response.Content.Headers.ContentDisposition.FileNameStar);
+            var referencia=pasta.Split('/')[0];
+            Assert.EndsWith(" "+referencia,pasta);
+            Assert.Contains(referencia+"-"+pasta.Split('/')[1].Split(' ')[0],response.Content.Headers.ContentDisposition!.FileName ?? response.Content.Headers.ContentDisposition.FileNameStar);
             var bytes=await response.Content.ReadAsByteArrayAsync();
             Assert.StartsWith("%PDF-",System.Text.Encoding.ASCII.GetString(bytes[..5]));
             Assert.Equal(controls,await db.Controlos.CountAsync());
