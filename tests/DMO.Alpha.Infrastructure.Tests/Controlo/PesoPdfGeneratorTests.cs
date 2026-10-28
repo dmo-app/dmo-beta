@@ -84,7 +84,8 @@ public sealed class PesoPdfGeneratorTests
 
         var text = PdfText.Of(bytes);
         Assert.Contains("Produção anterior 202601 · B2", text);
-        Assert.Contains("peso usado: 140.50 g", text);
+        Assert.Contains("140.50 g", text);
+        Assert.DoesNotContain("peso usado", text);
         Assert.DoesNotContain("SAP", text);
     }
 
