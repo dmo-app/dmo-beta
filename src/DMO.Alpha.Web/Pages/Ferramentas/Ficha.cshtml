@@ -231,6 +231,11 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
     {
       <p class="dmo-aviso warn" data-dmo-aviso>@avisoArmazem</p>
     }
+    @* A B2 sem Dupla nem Tripla é um aviso importante (Diogo, 28/10/2026); escolhe-se no Editar. *@
+    @if (tool.B2Modo is null && tool.Machines.Any(m => m.Code == "B2"))
+    {
+      <p class="dmo-aviso warn" data-dmo-aviso id="ferrAvisoB2">@DMO.Alpha.Core.Tools.Codificacao.AvisoSemModo("Esta ferramenta") Escolha a B2 no Editar.</p>
+    }
 
     @if (Model.SavedSection == FichaModel.SavedGeneral)
     {
@@ -552,7 +557,7 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
             Model.FactsFabricaOrigem(tool.FabricaOrigem),
             Model.FactsUso(Model.Utilizacao?.Ultima?.Percentagem),
             Model.Utilizacao?.Ultima is { } usoData ? DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(usoData.RegistadaEmUtc).ToString("dd/MM/yyyy", pt) : null,
-            Model.FactsAnQuantity(tool.AnQuantity), Model.Fabricas))" />
+            Model.FactsAnQuantity(tool.AnQuantity), Model.Fabricas, tool.B2Modo?.ToString()))" />
       </form>
 
     </section>

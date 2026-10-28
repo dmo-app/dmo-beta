@@ -21,4 +21,6 @@ public sealed record CreateTool(
     // Quem regista (fica no aviso da ferramenta existente se for repetida).
     string? RequestedBy = null,
     // A quantidade de AN do lote (só na BQ; Diogo, 28/10/2026). null = vazia.
-    int? AnQuantity = null);
+    int? AnQuantity = null,
+    // A B2 em que trabalha (Diogo, 28/10/2026); null = pelas outras linhas (C1 → Dupla, C3 → Tripla).
+    B2Modo? B2Modo = null);

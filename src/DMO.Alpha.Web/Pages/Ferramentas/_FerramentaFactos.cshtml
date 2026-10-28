@@ -27,6 +27,19 @@
       }
     </div>
   </div>
+  @* A B2 em dupla ou em tripla (Diogo, 28/10/2026): só conta com a B2 nas
+     linhas; sem escolha, a C1 dá Dupla e a C3 dá Tripla; senão fica o aviso. *@
+  @if (Model.Maquinas.Any(m => m.Code == "B2"))
+  {
+    <div class="dmo-field ferr-w-b2">
+      <label for="@(p)-b2">B2</label>
+      <select id="@(p)-b2" name="b2_modo" title="A B2 em que esta ferramenta trabalha: Dupla (com a C1) ou Tripla (com a C3)">
+        <option value="" selected="@(Model.B2Modo is null)">Sem escolha</option>
+        <option value="Dupla" selected="@(Model.B2Modo == "Dupla")">Dupla</option>
+        <option value="Tripla" selected="@(Model.B2Modo == "Tripla")">Tripla</option>
+      </select>
+    </div>
+  }
   @if (Model.Criar)
   {
     <div class="ferr-quantity-suggestion">

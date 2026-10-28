@@ -23,7 +23,7 @@ namespace DMO.Alpha.Web.Pages.Ferramentas;
 // ASP.NET ignora-os (aviso MVC1001) e o conteúdo ficava nos 4 MB.
 [RequestFormLimits(ValueLengthLimit = 16 * 1024 * 1024)]
 [RequestSizeLimit(20 * 1024 * 1024)]
-public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, IFerramentasUsoSap usoSap, IFerramentasFabricoSap fabricoSap, SapScripts sapScripts) : PageModel
+public sealed class DefinicoesModel(ICodificacaoFerramentas codificacao, IFerramentasUsoSap usoSap, IFerramentasFabricoSap fabricoSap, SapScripts sapScripts) : PageModel
 {
     /// <summary>A última lista do SAP lida (o cartão «Utilização pelo SAP»); nenhuma ainda.</summary>
     public UsoSapUltimaLeitura? UltimaLeituraSap { get; private set; }
@@ -160,17 +160,14 @@ public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, 
         _ => $"Fabrico lido do SAP: {outcome.Linhas} produções, {outcome.Novas} {(outcome.Novas == 1 ? "nova" : "novas")}."
     };
 
-    public IReadOnlyList<ToolLotQuantityDefault> ToolQuantities { get; private set; } = Array.Empty<ToolLotQuantityDefault>();
+    /// <summary>A tabela da codificação por linha (Diogo, 28/10/2026).</summary>
+    public CodificacaoTabela? Tabela { get; private set; }
+
+    /// <summary>Quantas ferramentas registadas o «Atualizar» muda agora.</summary>
+    public int PorAtualizar { get; private set; }
 
     /// <summary>O aviso depois de gravar: as quantidades ilegíveis ou negativas que ficaram de fora.</summary>
     public string? ToolQuantityWarning { get; private set; }
-
-    /// <summary>Quantos totais ainda estão por definir (máquina × tipo sem valor).</summary>
-    public int MissingCount => ToolQuantities.Count(q => q.Quantity is null);
-
-    public string MissingSummary => MissingCount == 0
-        ? "Todos os totais estão definidos."
-        : $"{MissingCount} de {ToolQuantities.Count} totais por definir.";
 
     /// <summary>GET: as definições vivem na página única /Definicoes (Diogo, 22/10/2026).</summary>
     public IActionResult OnGet() => Redirect(DefinicoesAcesso.Nova(Request, "ferramentas"));
@@ -185,37 +182,61 @@ public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, 
     /// <summary>TRUE depois de gravar sem avisos (PRG ?guardado=1).</summary>
     public bool Saved { get; private set; }
 
-    /// <summary>O quadro submetido, devolvido quando a gravação é recusada.</summary>
-    public IReadOnlyDictionary<string, string?>? ToolQuantityDraft { get; private set; }
-
     /// <summary>TRUE quando o aviso é uma recusa (nada foi gravado).</summary>
     public bool ToolQuantityRecusada { get; private set; }
 
     /// <summary>
-    /// POST: gravar o quadro dos totais com o botão «Guardar» (Diogo,
-    /// 17/10/2026: «botão pode ser apenas guardar»). Uma quantidade má não
-    /// recusa as outras (decisão do proprietário, 16/10/2026): as válidas
-    /// ficam gravadas e o aviso diz o que ficou de fora.
+    /// POST: gravar a tabela da codificação com o «Guardar» (os nomes técnicos
+    /// e as quantidades). Uma quantidade má não recusa as outras (decisão do
+    /// proprietário, 16/10/2026): as válidas ficam gravadas e o aviso diz o
+    /// que ficou de fora. Gravar não muda as ferramentas: isso é o «Atualizar».
     /// </summary>
     [DefinicaoGeral]
     public async Task<IActionResult> OnPostSaveToolLotQuantitiesAsync([FromForm] Dictionary<string, string?> quantities)
     {
-        var outcome = await toolLotQuantities.SaveAsync(quantities, HttpContext.RequestAborted);
-        if (outcome.Result == SaveToolLotQuantitiesResult.Success && outcome.Ignored.Count == 0)
+        var outcome = await codificacao.GuardarAsync(quantities, HttpContext.RequestAborted);
+        if (outcome.Resultado == GuardarCodificacaoResultado.Guardado && outcome.Ignoradas.Count == 0)
             return RedirectToPage("/Definicoes/Index", new { guardado = 1 });
 
-        if (outcome.Result == SaveToolLotQuantitiesResult.Success)
+        if (outcome.Resultado == GuardarCodificacaoResultado.Guardado)
         {
-            var ignored = string.Join(", ", outcome.Ignored.Select(i => $"{i.Type.ToString().ToUpperInvariant()} na {i.MachineCode} («{i.Submitted}»)"));
+            var ignored = string.Join(", ", outcome.Ignoradas.Select(i => $"{i.Tipo} na {i.Linha} («{i.Escrito}»)"));
             TempData[AvisoTempData] = $"Os outros totais foram guardados, exceto: {ignored}. Estes campos mantêm o valor anterior; use quantidades inteiras iguais ou superiores a 0.";
             return RedirectToPage("/Definicoes/Index");
         }
 
-        TempData[AvisoTempData] = "Uma das definições já não corresponde a uma máquina registada. Nenhuma definição foi alterada.";
+        TempData[AvisoTempData] = "Uma das definições já não corresponde à tabela. Nenhuma definição foi alterada.";
         TempData[RecusaTempData] = true;
         return RedirectToPage("/Definicoes/Index");
     }
 
+    /// <summary>POST: o seletor «B2 Dupla» / «B2 Tripla» da tabela (Diogo, 28/10/2026: «como nos Templates»).</summary>
+    [DefinicaoGeral]
+    public async Task<IActionResult> OnPostModoB2Async([FromForm] string? modo)
+    {
+        if (Codificacao.ModoDe(modo) is { } escolhido)
+            await codificacao.GuardarModoB2Async(escolhido, HttpContext.RequestAborted);
+        return RedirectToPage("/Definicoes/Index");
+    }
+
+    /// <summary>POST: o «Atualizar» aplica a tabela às ferramentas já registadas (Diogo, 28/10/2026).</summary>
+    [DefinicaoGeral]
+    public async Task<IActionResult> OnPostAtualizarCodificacaoAsync()
+    {
+        var mudaram = await codificacao.AtualizarAsync(HttpContext.RequestAborted);
+        TempData[AtualizadasTempData] = mudaram switch
+        {
+            0 => "Nenhuma ferramenta precisava de mudar.",
+            1 => "1 ferramenta atualizada.",
+            _ => $"{mudaram} ferramentas atualizadas."
+        };
+        return RedirectToPage("/Definicoes/Index");
+    }
+
+    /// <summary>A nota do «Atualizar».</summary>
+    public string? Atualizadas { get; private set; }
+
+    private const string AtualizadasTempData = "ferr-def-atualizadas";
     private const string AvisoTempData = "ferr-def-aviso";
     private const string RecusaTempData = "ferr-def-recusa";
 
@@ -227,7 +248,9 @@ public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, 
             ToolQuantityRecusada = TempData[RecusaTempData] is true;
         }
 
-        ToolQuantities = await toolLotQuantities.ListAsync(HttpContext.RequestAborted);
+        Atualizadas = TempData[AtualizadasTempData] as string;
+        Tabela = await codificacao.LerAsync(HttpContext.RequestAborted);
+        PorAtualizar = await codificacao.ContarAtualizarAsync(HttpContext.RequestAborted);
         UltimaLeituraSap = await usoSap.UltimaLeituraAsync(HttpContext.RequestAborted);
     }
 }

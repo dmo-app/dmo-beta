@@ -1,18 +1,23 @@
 @model DMO.Alpha.Web.Pages.Ferramentas.DefinicoesModel
+@using DMO.Alpha.Core.Tools
 @{
     var tipos = new[] { ("CM", "Contra-molde"), ("MF", "Molde final"), ("BQ", "Boquilha") };
+    var tabela = Model.Tabela;
 }
 <style>
 .ferr-def-page{display:flex;flex-direction:column;gap:14px}
 .ferr-def-card{padding:20px 22px;width:fit-content;max-width:100%}
 .ferr-def-card h3{margin:0;font-size:16px}
 .ferr-def-card .dmo-card-topo{margin-bottom:4px}
-.ferr-def-falta{margin:0 0 16px;font-size:13px;color:var(--dmo-muted)}
-.ferr-totais{display:grid;grid-template-columns:auto repeat(3,112px);gap:10px 14px;align-items:center;width:max-content;max-width:100%}
-.ferr-totais-tipo{display:flex;flex-direction:column;align-items:center;line-height:1.2}
-.ferr-totais-tipo strong{font-size:15px;color:var(--dmo-text)}
-.ferr-totais-tipo small{font-size:11.5px;color:var(--dmo-muted)}
-.ferr-totais-maquina{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--dmo-text);padding-right:18px}
+.ferr-def-card .dmo-card-topo h3{display:flex;align-items:center;gap:6px}
+.ferr-def-falta{margin:0 0 12px;font-size:13px;color:var(--dmo-muted)}
+.ferr-cod{display:grid;grid-template-columns:auto repeat(3,128px 56px) 56px;gap:8px 8px;align-items:center;width:max-content;max-width:100%;overflow-x:auto}
+.ferr-cod-tipo{grid-column:span 2;display:flex;flex-direction:column;align-items:center;line-height:1.2}
+.ferr-cod-tipo.ferr-cod-an{grid-column:span 1}
+.ferr-cod-tipo strong{font-size:15px;color:var(--dmo-text)}
+.ferr-cod-tipo small{font-size:11.5px;color:var(--dmo-muted)}
+.ferr-cod-sub{font-size:11.5px;color:var(--dmo-muted);text-align:center}
+.ferr-totais-maquina{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--dmo-text);padding-right:12px;white-space:nowrap}
 .ferr-totais-maquina::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--dmo-machine-color,var(--dmo-brand-400))}
 .ferr-totais-maquina.mch-B1{--dmo-machine-color:var(--dmo-machine-b1)}
 .ferr-totais-maquina.mch-B2{--dmo-machine-color:var(--dmo-machine-b2)}
@@ -20,51 +25,80 @@
 .ferr-totais-maquina.mch-C1{--dmo-machine-color:var(--dmo-machine-c1)}
 .ferr-totais-maquina.mch-C2{--dmo-machine-color:var(--dmo-machine-c2)}
 .ferr-totais-maquina.mch-C3{--dmo-machine-color:var(--dmo-machine-c3)}
-.ferr-totais input{box-sizing:border-box;width:112px;height:40px;padding:8px 10px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-card);color:var(--dmo-text);font:inherit;font-size:15px;text-align:center;font-variant-numeric:tabular-nums}
-.ferr-totais input:focus{border-color:var(--dmo-brand-600);outline:none;box-shadow:0 0 0 3px var(--dmo-focus-ring)}
-.ferr-totais input::placeholder{font-size:12.5px;color:var(--dmo-muted)}
-@@media(max-width:560px){.ferr-totais{grid-template-columns:auto repeat(3,minmax(64px,1fr));gap:8px;width:auto}.ferr-totais input{width:100%;padding:6px 4px}.ferr-totais input::placeholder{font-size:11px}}
+/* O seletor da B2 (Diogo, 28/10/2026: «como nos Templates»): o escolhido invertido, o hover só na letra. */
+.ferr-cod-modo{display:flex;align-items:center;gap:8px;height:34px;padding:0 10px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);font-size:15px;font-weight:700;color:var(--dmo-text);cursor:pointer;white-space:nowrap}
+.ferr-cod-modo input{position:absolute;opacity:0;pointer-events:none}
+.ferr-cod-modo:hover{color:var(--dmo-brand-600)}
+.ferr-cod-modo:has(input:checked){background:var(--dmo-text);color:var(--dmo-card);border-color:var(--dmo-text)}
+.ferr-cod-modo:has(input:focus-visible){box-shadow:0 0 0 3px var(--dmo-focus-ring)}
+.ferr-cod input[type=text],.ferr-cod input:not([type]){box-sizing:border-box;height:34px;padding:4px 6px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-card);color:var(--dmo-text);font:inherit;font-size:13.5px;font-variant-numeric:tabular-nums}
+.ferr-cod .ferr-cod-nome{width:128px}
+.ferr-cod .ferr-cod-qtd{width:56px;text-align:center}
+.ferr-cod input:focus{border-color:var(--dmo-brand-600);outline:none;box-shadow:0 0 0 3px var(--dmo-focus-ring)}
+.ferr-cod input::placeholder{font-size:11.5px;color:var(--dmo-muted)}
 </style>
   <section id="ferrDefTotais" class="dmo-card ferr-def-card" aria-labelledby="tool-quantities-title" data-dmo-regiao data-dmo-parcial>
     <div class="dmo-card-topo">
-      @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
-      <h3 id="tool-quantities-title" title="O total habitual de cada lote de CM, MF e BQ em cada máquina (por exemplo, um lote de BQ da B1 tem 120). Ao criar uma ferramenta, a quantidade vem preenchida com este total e pode ser alterada. Se as máquinas escolhidas tiverem totais diferentes, quem cria a ferramenta escolhe. Campo vazio: sem total. Guardar não altera ferramentas já registadas.">Total do lote por máquina</h3>
-      @if (Model.ToolQuantities.Count > 0)
+      @* A codificação dos moldes e acessórios por linha (Diogo, 28/10/2026); a bola de ajuda explica (o cartão «Ao criar ou associar» saiu). *@
+      <h3 id="tool-quantities-title">Codificação por linha <partial name="_DmoHelp" model="@("Para cada linha: o nome técnico de CM, MF e BQ (xxxx é a referência) e a quantidade do lote de CM, MF, BQ e AN. Ao criar uma ferramenta, a linha escolhida preenche o nome técnico e a quantidade; a quantidade do SAP, quando existe, manda. Na B2 escolha B2 Dupla ou B2 Tripla: no Job On da B2 só aparecem as ferramentas desse modo. «Guardar» grava a tabela; «Atualizar» aplica-a às ferramentas já registadas (nome técnico vazio ou vindo da tabela anterior, quantidades vazias).")" /></h3>
+      @if (tabela is not null)
       {
-        <div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" id="ferrDefGuardar" form="ferrDefTotaisForm">Guardar</button></div>
+        <div class="dmo-card-topo-acoes">
+          <button type="submit" class="dmo-button" id="ferrDefAtualizar" form="ferrDefAtualizarForm" title="Aplicar a tabela às ferramentas já registadas">Atualizar (@Model.PorAtualizar)</button>
+          <button type="submit" class="dmo-button" id="ferrDefGuardar" form="ferrDefTotaisForm">Guardar</button>
+        </div>
       }
     </div>
-    @if (Model.ToolQuantities.Count == 0)
+    @if (tabela is not null)
     {
-      <p>Ainda não há máquinas registadas.</p>
-    }
-    else
-    {
-      <p class="ferr-def-falta">@Model.MissingSummary</p>
+      <p class="ferr-def-falta">@(Model.PorAtualizar switch { 0 => "As ferramentas registadas estão de acordo com a tabela.", 1 => "1 ferramenta registada muda com «Atualizar».", var n => $"{n} ferramentas registadas mudam com «Atualizar»." })</p>
       @if (Model.Saved)
       {
-        <p data-dmo-toast="ok" role="status"><strong>Totais guardados.</strong></p>
+        <p data-dmo-toast="ok" role="status"><strong>Tabela guardada.</strong></p>
       }
+      @if (Model.Atualizadas is { } atualizadas)
+      {
+        <p data-dmo-toast="ok" role="status"><strong>@atualizadas</strong></p>
+      }
+      <form id="ferrDefModoB2Form" method="post" asp-page="/Ferramentas/Definicoes" asp-page-handler="ModoB2"></form>
+      <form id="ferrDefAtualizarForm" method="post" asp-page="/Ferramentas/Definicoes" asp-page-handler="AtualizarCodificacao"></form>
       <form id="ferrDefTotaisForm" method="post" asp-page="/Ferramentas/Definicoes" asp-page-handler="SaveToolLotQuantities">
-        <div class="ferr-totais" role="group" aria-label="Totais de lote por máquina">
+        <div class="ferr-cod" role="group" aria-label="Codificação por linha">
           <span></span>
           @foreach (var (sigla, nome) in tipos)
           {
-            <span class="ferr-totais-tipo"><strong>@sigla</strong><small>@nome</small></span>
+            <span class="ferr-cod-tipo"><strong>@sigla</strong><small>@nome</small></span>
           }
-          @foreach (var group in Model.ToolQuantities.GroupBy(d => d.MachineCode))
+          <span class="ferr-cod-tipo ferr-cod-an"><strong>AN</strong><small>Anel</small></span>
+          <span></span>
+          @foreach (var _ in tipos)
           {
-            <span class="ferr-totais-maquina mch-@group.Key">@group.Key</span>
-            @foreach (var (sigla, _) in tipos)
+            <span class="ferr-cod-sub">Nome técnico</span>
+            <span class="ferr-cod-sub">Qtd.</span>
+          }
+          <span class="ferr-cod-sub">Qtd.</span>
+          @foreach (var fila in tabela.Filas)
+          {
+            var linha = fila.Linha;
+            var sufixo = linha.Chave.Replace(":", "-");
+            if (linha.Modo is { } modo)
             {
-              var item = group.FirstOrDefault(i => i.Type.ToString().ToUpperInvariant() == sigla);
-              if (item is null)
+              <label class="ferr-cod-modo ferr-totais-maquina mch-B2" title="@linha.Nome: no Job On da B2 só aparecem as ferramentas deste modo">
+                <input type="radio" name="modo" value="@modo" form="ferrDefModoB2Form" data-dmo-autosubmit checked="@(tabela.ModoB2 == modo)" />@linha.Nome
+              </label>
+            }
+            else
+            {
+              <span class="ferr-totais-maquina mch-@linha.Maquina">@linha.Nome</span>
+            }
+            @foreach (var tipo in Codificacao.Tipos)
+            {
+              var celula = fila.Celula(tipo);
+              if (celula.TemPadrao)
               {
-                <span></span>
-                continue;
+                <input id="ferr-nome-@tipo-@sufixo" class="ferr-cod-nome" name="quantities[@Codificacao.ChavePadrao(tipo, linha)]" value="@celula.Padrao" autocomplete="off" spellcheck="false" aria-label="Nome técnico de @tipo na @linha.Nome" placeholder="Por definir" />
               }
-              var text = Model.ToolQuantityDraft is { } draft && draft.TryGetValue(item.SettingKey, out var submitted) ? submitted : item.Quantity?.ToString();
-              <input id="ferr-total-@sigla-@item.MachineCode" name="quantities[@item.SettingKey]" value="@text" inputmode="numeric" autocomplete="off" aria-label="Total do lote de @sigla na @item.MachineCode" placeholder="Por definir" />
+              <input id="ferr-total-@tipo-@sufixo" class="ferr-cod-qtd" name="quantities[@Codificacao.ChaveQuantidade(tipo, linha)]" value="@celula.Quantidade" inputmode="numeric" autocomplete="off" aria-label="Quantidade do lote de @tipo na @linha.Nome" placeholder="—" />
             }
           }
         </div>

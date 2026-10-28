@@ -4496,3 +4496,27 @@ Novos: 0 · mudaram: 3 · saíram: 0
 - mudou: `tests/visual/pasta_pdf_browser.py`
 
 Selo depois: `32dc4f2d6565160f`
+
+## A-0315 · 2026-10-28 · ok-do-diogo
+
+Porquê: Codificação por linha (DMO-578): a tabela das Definições das Ferramentas passa a codificação por linha (nomes técnicos editáveis, Qtd. CM/MF/BQ/AN, seletor B2 Dupla/Tripla, «Atualizar (N)»), a migração FerramentaB2Modo entra na lista e os testes novos garantem a folha da MG, o modo da B2, o criar/editar e o Job On. Procura da Reparação Programada (DMO-579): a Referência encontra pela referência toda e pelo nome técnico.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra9XbzqvdhTJocukrC3eQNhA, cmsg_01K75FTs9bQnbhhH7qttpgraCCgozAHgc15Raax5tq4XMg, cmsg_01K75FTs9bQnbhhH7qttpgraMyPMrUNJqfd5WoPEoSXomY, cmsg_01K75FTs9bQnbhhH7qttpgra8k8joixEkf2QtoBdbDNiqp, cmsg_01K75FTs9bQnbhhH7qttpgra9rGu8RYhnhF261Md4bRX3F
+Novos: 12 · mudaram: 3 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Programada/ReparacaoProgramadaTests.cs :: ReparacaoProgramadaTests.Procurar_PelaReferenciaToda_OuPeloNomeTecnico_EncontraACmEOMf`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoFerramentasTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoFerramentasTests.cs :: CodificacaoFerramentasTests.Atualizar_aplica_a_tabela_as_ferramentas_registadas`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoFerramentasTests.cs :: CodificacaoFerramentasTests.Guardar_muda_os_nomes_e_as_quantidades_e_deixa_de_fora_a_ma`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoFerramentasTests.cs :: CodificacaoFerramentasTests.O_modo_da_B2_poe_as_quantidades_desse_modo_na_B2`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoFerramentasTests.cs :: CodificacaoFerramentasTests.Sem_nada_gravado_a_tabela_e_a_folha_da_MG`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoFerramentasTests.cs :: CodificacaoFerramentasTests.Sugerir_pela_linha_e_pelo_modo_da_B2`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs :: CodificacaoNasFerramentasTests.Criar_poe_o_nome_tecnico_da_linha_e_o_modo_da_B2`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs :: CodificacaoNasFerramentasTests.Editar_muda_o_modo_da_B2`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs :: CodificacaoNasFerramentasTests.O_Job_On_da_B2_filtra_pelo_modo_escolhido`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_Codificacao_SeletorDaB2`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_TotalsGrid_SavesWithGuardar`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesTrocaTests.cs :: DefinicoesPorModuloPageTests.E10_FerramentasDefinicoes_QuadroNumaZona_OAvisoVaiParaOCanto`
+
+Selo depois: `cc3a3e5d878ee217`

@@ -460,7 +460,8 @@ public sealed class IndexModel : PageModel
         [FromForm(Name = "return")] string? returnUrl,
         [FromForm(Name = "quantity_manual")] string? quantityManual,
         [FromForm(Name = "lote_novo")] int? loteNovo = null,
-        [FromForm(Name = "uso_percentagem")] string? usoPercentagem = null)
+        [FromForm(Name = "uso_percentagem")] string? usoPercentagem = null,
+        [FromForm(Name = "b2_modo")] string? b2Modo = null)
     {
         // beta.63 (A11): a quantidade ilegível não recusa a ferramenta — grava
         // sem quantidade (sem a sugestão automática, que o operador quis
@@ -488,7 +489,8 @@ public sealed class IndexModel : PageModel
                 technicalName?.ToUpperInvariant(),
                 UseLotQuantityDefault: quantityManual != "1" && !unreadableQuantity,
                 RequestedBy: ActorName(User),
-                AnQuantity: parsedAn),
+                AnQuantity: parsedAn,
+                B2Modo: Codificacao.ModoDe(b2Modo)),
             HttpContext.RequestAborted);
 
         var technical = TechnicalFields.ToDictionary(field => field, field => Sanitize(Request.Form[field].ToString()));

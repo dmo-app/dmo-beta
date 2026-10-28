@@ -33,4 +33,6 @@ public sealed record ToolSheetReadModel(
     /// <summary>A fábrica de origem (ex.: MG); null = não indicada.</summary>
     string? FabricaOrigem = null,
     /// <summary>A quantidade de AN do lote (Tool.AnQuantity); null = vazia.</summary>
-    int? AnQuantity = null);
+    int? AnQuantity = null,
+    /// <summary>A B2 em que a ferramenta trabalha (Dupla/Tripla); null = sem escolha.</summary>
+    B2Modo? B2Modo = null);

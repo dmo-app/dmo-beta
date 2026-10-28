@@ -4,6 +4,7 @@ using DMO.Alpha.Core.Runtime;
 using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Infrastructure.Data;
 using DMO.Alpha.Infrastructure.Search;
+using DMO.Alpha.Infrastructure.Tools;
 using Microsoft.EntityFrameworkCore;
 
 namespace DMO.Alpha.Infrastructure.Programada;
@@ -35,7 +36,16 @@ public sealed class ReparacaoProgramadaServico(DmoDbContext db, ICurrentAccountC
 
         if (ReferenceMatch.Normalize(procura.Referencia) is { } referencia)
         {
-            query = query.Where(ReferenceMatch.Predicate<Tool>(t => t.Reference, referencia));
+            // Como o Pesquisar das Ferramentas (DMO-579, Diogo 28/10/2026: «não
+            // encontrou nenhuma a partir do campo onde se escreve»): a referência
+            // toda (1075C142) também encontra a CM/MF registada só com o modelo
+            // (1075), e contam a referência MF associada e o nome técnico.
+            var (modelo, _) = ToolCandidateQuery.SplitReference(referencia);
+            query = query.Where(ReferenceMatch.Predicate<Tool>(t => t.Reference, referencia)
+                .Or(t => t.AssociatedMfReference != null && t.AssociatedMfReference.ToUpper().StartsWith(referencia))
+                .Or(t => t.TechnicalName != null && t.TechnicalName.ToUpper().StartsWith(referencia))
+                .Or(t => modelo != null && (t.Reference.ToUpper() == modelo
+                    || (t.AssociatedMfReference != null && t.AssociatedMfReference.ToUpper() == modelo))));
         }
 
         if (!string.IsNullOrWhiteSpace(procura.Lote))
