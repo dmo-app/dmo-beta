@@ -8,9 +8,19 @@
 // recusar a gravação, o rascunho volta. Os campos que chegam no endereço (o
 // regresso de «Criar CM») ganham ao rascunho. Sem armazenamento (janela
 // privada, dados bloqueados) a folha funciona como antes.
+//
+// Relatório do dmo-Improvements de 28/10/2026 (S01, S02):
+// - O rascunho guarda a versão da produção com que foi escrito. Se outra
+//   pessoa gravou depois, o rascunho não entra sozinho: a folha mostra o que
+//   está gravado e pergunta «Usar o rascunho» ou «Descartar rascunho».
+// - O que se enviou fica neste browser (localStorage) até haver a certeza de
+//   que gravou: a folha gravada (data-jobon-gravado). Uma falha de rede ou um
+//   envio que não chegou deixa-o recuperável na próxima vez que a folha abre.
 (() => {
   const PREFIXO = 'dmo-jobon-rascunho:';
   const ENVIADO = 'dmo-jobon-enviado:';
+  // A folha nova (/JobOn/Folha) diz quando gravou; o formulário antigo não.
+  const CONFIRMA = 'input[name=voltar][value=folha]';
   // O rascunho é de quem o escreveu e dura um dia (vistoria ao frontend F3,
   // 27/10/2026): num computador partilhado, outro operador que abre a mesma
   // folha não recebe o que ficou por gravar de outra pessoa, nem um rascunho
@@ -43,9 +53,16 @@
   function init() {
     const form = document.getElementById('lightForm');
     const folha = form && form.getAttribute('data-jobon-rascunho');
-    // Sem folha aberta: um envio que esperava a resposta gravou (a folha fechou).
-    chavesDe('sessionStorage', ENVIADO).forEach(chave => {
-      if (!folha || chave !== ENVIADO + folha) apagar('sessionStorage', chave);
+    const gravou = !!document.querySelector('[data-jobon-gravado]');
+    // As cópias antigas, de antes de ficarem no localStorage, saem.
+    chavesDe('sessionStorage', ENVIADO).forEach(chave => apagar('sessionStorage', chave));
+    // Sem folha aberta: o envio gravou se a página o diz (a folha nova) ou,
+    // no formulário antigo, por a folha ter fechado. Sem essa certeza (uma
+    // falha de rede e depois outra página), a cópia fica para a próxima vez.
+    chavesDe('localStorage', ENVIADO).forEach(chave => {
+      if (folha && chave === ENVIADO + folha) return;
+      const copia = ler('localStorage', chave);
+      if (gravou || !copia || !copia.confirma) apagar('localStorage', chave);
     });
     if (!form || !folha) return;
     const chave = PREFIXO + folha;
@@ -58,9 +75,15 @@
       const quando = Date.parse(valor.guardado || '');
       return Number.isFinite(quando) && Date.now() - quando > VALIDADE_MS;
     }
-    chavesDe('localStorage', PREFIXO).forEach(outra => {
+    chavesDe('localStorage', PREFIXO).concat(chavesDe('localStorage', ENVIADO)).forEach(outra => {
       if (caducado(ler('localStorage', outra))) apagar('localStorage', outra);
     });
+    // A versão da produção com que a folha abriu (só no Editar).
+    const campoVersao = form.querySelector('input[name=versao]');
+    const versao = campoVersao ? campoVersao.value : null;
+    function copia(agora) {
+      return { guardado: new Date().toISOString(), dono, versao, campos: agora };
+    }
 
     function campos() { return Array.from(form.querySelectorAll(CAMPOS)); }
     function valor(campo) {
@@ -78,7 +101,7 @@
       if (a.length !== b.length) return false;
       return a.every((linha, i) => linha.n === b[i].n && linha.v === b[i].v);
     }
-    function aplicar(linhas, ignorar) {
+    function aplicar(linhas, ignorar, simular) {
       const porNome = {};
       linhas.forEach(linha => { (porNome[linha.n] = porNome[linha.n] || []).push(linha); });
       const vez = {};
@@ -89,6 +112,7 @@
         const linha = (porNome[campo.name] || [])[i];
         if (!linha || (ignorar && ignorar.has(campo.name)) || campo.readOnly || campo.disabled) return;
         if (valor(campo) === linha.v) return;
+        if (simular) { mudou = true; return; }
         if (campo.type === 'checkbox' || campo.type === 'radio') {
           campo.checked = linha.v === '1';
         } else if (campo.tagName === 'SELECT') {
@@ -112,19 +136,49 @@
     const inicial = fotografia();
     let enviado = false;
 
-    // Uma gravação que o servidor recusou: o que se enviou volta a ser rascunho.
-    const pendente = ler('sessionStorage', ENVIADO + folha);
-    apagar('sessionStorage', ENVIADO + folha);
-    if (pendente && document.querySelector('#lightSheet [data-dmo-toast="erro"]')) {
+    // Um envio sem confirmação de que gravou (o servidor recusou, a rede
+    // falhou, voltou-se atrás): o que se enviou volta a ser rascunho.
+    const pendente = ler('localStorage', ENVIADO + folha);
+    apagar('localStorage', ENVIADO + folha);
+    if (pendente && !gravou && Array.isArray(pendente.campos)) {
       escrever('localStorage', chave, pendente);
     }
 
     let nota = null;
     function tirarNota() { if (nota) { nota.remove(); nota = null; } }
+    function botao(id, texto, acao) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'dmo-button';
+      b.id = id;
+      b.textContent = texto;
+      b.addEventListener('click', acao);
+      return b;
+    }
     const rascunho = ler('localStorage', chave);
     if (rascunho && Array.isArray(rascunho.campos)) {
       const doEndereco = new Set(Array.from(new URLSearchParams(location.search).keys()));
-      if (aplicar(rascunho.campos, doEndereco)) {
+      // Outra pessoa gravou depois do rascunho: não entra sem se escolher.
+      const outraVersao = versao !== null && String(rascunho.versao ?? '') !== versao;
+      if (outraVersao && aplicar(rascunho.campos, doEndereco, true)) {
+        nota = document.createElement('div');
+        nota.className = 'jobon-aviso warn';
+        nota.id = 'jobonRascunhoNota';
+        nota.setAttribute('role', 'status');
+        nota.append('Há um rascunho desta folha neste browser, mas outra pessoa gravou esta produção depois. A folha mostra o que está gravado. ');
+        nota.append(botao('jobonRascunhoUsar', 'Usar o rascunho', () => {
+          tirarNota();
+          aplicar(rascunho.campos, doEndereco);
+          guardar();
+        }));
+        nota.append(botao('jobonRascunhoDescartar', 'Descartar rascunho', () => {
+          apagar('localStorage', chave);
+          tirarNota();
+        }));
+        form.parentNode.insertBefore(nota, form);
+      } else if (outraVersao) {
+        apagar('localStorage', chave);
+      } else if (aplicar(rascunho.campos, doEndereco)) {
         nota = document.createElement('div');
         nota.className = 'jobon-aviso info';
         nota.id = 'jobonRascunhoNota';
@@ -134,17 +188,11 @@
           if (rascunho.guardado) quando = ' (' + new Date(rascunho.guardado).toLocaleString('pt-PT', { dateStyle: 'short', timeStyle: 'short' }) + ')';
         } catch (e) { quando = ''; }
         nota.append('Rascunho recuperado' + quando + ': esta folha tem alterações por gravar que estavam neste browser. ');
-        const descartar = document.createElement('button');
-        descartar.type = 'button';
-        descartar.className = 'dmo-button';
-        descartar.id = 'jobonRascunhoDescartar';
-        descartar.textContent = 'Descartar rascunho';
-        descartar.addEventListener('click', () => {
+        nota.append(botao('jobonRascunhoDescartar', 'Descartar rascunho', () => {
           apagar('localStorage', chave);
           aplicar(inicial, null);
           tirarNota();
-        });
-        nota.append(descartar);
+        }));
         form.parentNode.insertBefore(nota, form);
       } else {
         // O rascunho já é o que a folha mostra.
@@ -156,16 +204,17 @@
       if (enviado) return;
       const agora = fotografia();
       if (igual(agora, inicial)) { apagar('localStorage', chave); return; }
-      escrever('localStorage', chave, { guardado: new Date().toISOString(), dono, campos: agora });
+      escrever('localStorage', chave, copia(agora));
     }
     form.addEventListener('input', guardar);
     form.addEventListener('change', guardar);
 
     form.addEventListener('submit', () => {
-      // O envio leva os dados; se o servidor recusar, voltam (ver pendente).
+      // O envio leva os dados; até se saber que gravou, ficam neste browser
+      // (ver pendente).
       const agora = fotografia();
       enviado = true;
-      escrever('sessionStorage', ENVIADO + folha, { guardado: new Date().toISOString(), dono, campos: agora });
+      escrever('localStorage', ENVIADO + folha, Object.assign(copia(agora), { confirma: !!form.querySelector(CONFIRMA) }));
       apagar('localStorage', chave);
       tirarNota();
     });

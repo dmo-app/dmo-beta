@@ -8,11 +8,13 @@ Desde a 0.2.0-beta.4, o deploy aplica as migrações sozinho: o comando de pré-
 
 À mão:
 
-`dotnet ef database update -p src/DMO.Alpha.Infrastructure -s src/DMO.Alpha.Web` cria todas as tabelas, da `Baseline` até à última migração (`20261020015832_ControloAreaIdentificacao`).
+`dotnet ef database update -p src/DMO.Alpha.Infrastructure -s src/DMO.Alpha.Web` cria todas as tabelas, da `Baseline` até à última migração da pasta `src/DMO.Alpha.Infrastructure/Migrations` (a 28/10/2026, `20261027125325_SapFabricoSoCadencia`). É este o caminho para atualizar uma base de qualquer versão: o `efbundle` só aplica as migrações que faltam.
 
-## Base que já estava na 0.2.0-beta.2
+## Base que já estava na 0.2.0-beta.2 (histórico)
 
-Correr [`atualizar-de-0.2.0-beta.2.sql`](atualizar-de-0.2.0-beta.2.sql). É o SQL das migrações 3 a 20, igual ao que foi aplicado no DEV da DMO-BETA-DEV antes de cada merge. Cada bloco só acrescenta (as atualizações que tem preenchem colunas novas) e pode correr-se mais de uma vez. No fim, `__EFMigrationsHistory` tem 20 linhas.
+Só para uma base que tenha parado na 0.2.0-beta.2. Correr [`atualizar-de-0.2.0-beta.2.sql`](atualizar-de-0.2.0-beta.2.sql). É o SQL das migrações 3 a 20, igual ao que foi aplicado no DEV da DMO-BETA-DEV antes de cada merge. Cada bloco só acrescenta (as atualizações que tem preenchem colunas novas) e pode correr-se mais de uma vez. No fim, `__EFMigrationsHistory` tem 20 linhas. Este SQL não leva a base até à versão atual: depois dele, aplicar as migrações que faltam como acima (`efbundle` ou `dotnet ef database update`).
+
+A migração `SapFabricoSoCadencia` apaga onze colunas SAP de propósito. Voltar a uma imagem anterior não repõe esses dados: antes de atualizar, fazer sempre o `pg_dump`.
 
 ## Acesso do utilizador da app
 

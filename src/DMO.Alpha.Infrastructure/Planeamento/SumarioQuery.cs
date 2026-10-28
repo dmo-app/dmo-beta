@@ -30,6 +30,53 @@ public sealed class SumarioQuery(DmoDbContext db, IControloRevisaoQuery revisao)
         IReadOnlyCollection<SumarioTipo> tipos,
         CancellationToken cancellationToken = default)
     {
+        // NENHUM DIA FICA DE FORA (relatório do dmo-Improvements de
+        // 28/10/2026, S07): cada consulta lê no máximo MaxPorTipo linhas; um
+        // tipo que chega ao limite no período volta a ler-se em duas metades,
+        // até ao dia. Antes, 500 produções a começar no dia 1 escondiam as do
+        // dia 24, na lista e no calendário. Os criados e os por ver saem da
+        // mesma consulta e partem-se juntos.
+        var items = new List<SumarioItem>();
+        foreach (var familia in tipos.Distinct().GroupBy(Familia))
+        {
+            items.AddRange(await CompletoAsync(from, toExclusive, familia.ToArray(), cancellationToken));
+        }
+
+        return items
+            .OrderByDescending(i => i.Dia)
+            .ThenBy(i => i.Tipo)
+            .ThenByDescending(i => i.QuandoUtc)
+            .ToList();
+    }
+
+    private static SumarioTipo Familia(SumarioTipo tipo) =>
+        tipo == SumarioTipo.JobOnPorVer ? SumarioTipo.JobOnCriado : tipo;
+
+    private async Task<IReadOnlyList<SumarioItem>> CompletoAsync(
+        DateOnly from,
+        DateOnly toExclusive,
+        IReadOnlyCollection<SumarioTipo> tipos,
+        CancellationToken cancellationToken)
+    {
+        var items = await UmaLeituraAsync(from, toExclusive, tipos, cancellationToken);
+        var dias = toExclusive.DayNumber - from.DayNumber;
+        if (items.Count < MaxPorTipo || dias <= 1)
+        {
+            return items;
+        }
+
+        var meio = from.AddDays(dias / 2);
+        return [
+            .. await CompletoAsync(from, meio, tipos, cancellationToken),
+            .. await CompletoAsync(meio, toExclusive, tipos, cancellationToken)];
+    }
+
+    private async Task<IReadOnlyList<SumarioItem>> UmaLeituraAsync(
+        DateOnly from,
+        DateOnly toExclusive,
+        IReadOnlyCollection<SumarioTipo> tipos,
+        CancellationToken cancellationToken)
+    {
         var fromUtc = Utc(from);
         var toUtc = Utc(toExclusive);
         var items = new List<SumarioItem>();

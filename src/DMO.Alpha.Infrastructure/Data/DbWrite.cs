@@ -43,4 +43,20 @@ public static class DbWrite
         await db.Database.ExecuteSqlInterpolatedAsync(
             $"SELECT pg_advisory_xact_lock(hashtext({name}))", cancellationToken);
     }
+
+    /// <summary>
+    /// O mesmo trinco, partilhado: vários pedidos com o partilhado correm ao
+    /// mesmo tempo, mas esperam por quem tem o <see cref="LockAsync"/> do
+    /// mesmo nome (e este espera por eles). Sem base relacional não faz nada.
+    /// </summary>
+    public static async Task LockSharedAsync(DbContext db, string name, CancellationToken cancellationToken)
+    {
+        if (!db.Database.IsRelational())
+        {
+            return;
+        }
+
+        await db.Database.ExecuteSqlInterpolatedAsync(
+            $"SELECT pg_advisory_xact_lock_shared(hashtext({name}))", cancellationToken);
+    }
 }
