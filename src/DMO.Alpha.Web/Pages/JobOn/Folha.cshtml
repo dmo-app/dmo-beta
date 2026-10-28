@@ -505,7 +505,7 @@ else
           @foreach (var e in Model.ProximasEntradas)
           {
             var sel = e.JobOnId == jobOn.JobOnId;
-            <a class="rail-item dmo-linha-cor mch-@e.Machine@(sel ? " selected" : null)" href="/JobOn/Folha?jobon_id=@e.JobOnId" aria-current="@(sel ? "true" : null)"><b>@e.Reference<span class="mch dmo-linha-cor mch-@e.Machine">@e.Machine</span></b><small>Produção @e.ProductionNumber@(e.InicioEm is { } ini ? $" · {ini:dd/MM}" : null)</small></a>
+            <a class="rail-item dmo-linha-cor mch-@e.Machine@(sel ? " selected" : null)" href="/JobOn/Folha?jobon_id=@e.JobOnId" aria-current="@(sel ? "true" : null)"><b>@e.Reference<span class="mch dmo-linha-cor mch-@e.Machine">@e.Machine</span></b><small>@e.ProductionNumber@(e.InicioEm is { } ini ? $" · {ini:dd/MM}" : null)</small></a>
           }
         </div>
       </aside>
