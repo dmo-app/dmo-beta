@@ -124,7 +124,7 @@
 
   /* Novo Peso: os números com a largura de um número. */
   html body main.peso-page form.peso-form-grid:is(#pesoCreate,#pesoCreateForControlo){display:flex;flex-wrap:wrap;gap:8px 24px;align-items:end}
-  html body main.peso-page form.peso-form-grid:is(#pesoCreate,#pesoCreateForControlo)>.dmo-field{flex:0 0 200px}
+  html body main.peso-page form.peso-form-grid:is(#pesoCreate,#pesoCreateForControlo)>.dmo-field{flex:0 0 auto}
   /* As densidades ao lado dos campos, na mesma linha, sem o espaço vazio à direita. */
   html body main.peso-page form.peso-form-grid:is(#pesoCreate,#pesoCreateForControlo)>.peso-form-grid.wide{flex:1 1 380px;margin-top:0!important}
   html body main.peso-page form.peso-form-grid:is(#pesoCreate,#pesoCreateForControlo)>.peso-form-grid.wide>.peso-fact{flex:1 1 auto}
