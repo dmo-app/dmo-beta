@@ -645,7 +645,10 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
                     <td><strong>@(deltaGarrafas is { } dg ? (dg >= 0 ? "+" : "−") + Math.Abs(dg).ToString("#,0", pecasHist) : "—")</strong></td>
                     @* Um clique no % uso abre a Utilização por produção (Diogo, 27/10/2026:
                        «qualquer % uso de uma ferramenta abre um slide com esse historial»). *@
-                    <td>@if (prod.DeltaUtilizacao is { } delta) {<button type="button" class="ferr-utilizacao-abrir" aria-label="Utilização por produção" data-dmo-dialog="ferrProducoes"><strong>@((delta >= 0 ? "+" : "") + DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(delta) + " %")</strong></button>} else {<strong>—</strong>}</td>
+                    @* Sem as leituras antes e depois, o «≈» da janela da utilização (a parte
+                       do % de hoje pelo que a produção fez), como lá (Diogo, 28/10/2026:
+                       «as nossas consultas ao SAP não estão a funcionar bem»: aqui ficava «—»). *@
+                    <td>@if (prod.DeltaUtilizacao is { } delta) {<button type="button" class="ferr-utilizacao-abrir" aria-label="Utilização por produção" data-dmo-dialog="ferrProducoes"><strong>@((delta >= 0 ? "+" : "") + DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(delta) + " %")</strong></button>} else if (historico.DeltaPeloProduzido(prod, Model.Utilizacao?.Ultima?.Percentagem) is { } estimado) {<button type="button" class="ferr-utilizacao-abrir" aria-label="Utilização por produção" data-dmo-dialog="ferrProducoes"><strong>@("≈ +" + DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(estimado) + " %")</strong></button>} else {<strong>—</strong>}</td>
                     <td>
                       @if (peso is null)
                       {

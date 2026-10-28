@@ -4100,3 +4100,21 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_JobOnNoPainel_TituloLarguraEFolha`
 
 Selo depois: `1ecbaa53f6ccc384`
+
+## A-0255 · 2026-10-28 · ok-do-diogo
+
+Porquê: DMO-525: a cadência do SAP passa a média e moda por produção, como o peso. O teste da cadência no Job On passa a exigir o nome «Cadência usada», a moda com a média no título e, sem SAP dessa produção, a da produção anterior marcada «ant.»; sem nenhuma, «—» como antes. Testes novos: média e moda, a produção anterior, a cadência de cada produção no Histórico de produções e o «≈» do % uso no Histórico.
+Referência: «sim» do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraDtxDo1jmQDo6x9jiTc2Ubd (cartão cmsg_01K75FTs9bQnbhhH7qttpgraKVHfGf2ThnhN8rTRanYkpz)
+Novos: 8 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaPorProducaoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaPorProducaoTests.cs :: FabricoSapCadenciaPorProducaoTests.AMediaPesaOsDias_EAModaEADasOrdensComMaisDias`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaPorProducaoTests.cs :: FabricoSapCadenciaPorProducaoTests.CadaProducaoDaFerramenta_TemASuaCadencia`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaPorProducaoTests.cs :: FabricoSapCadenciaPorProducaoTests.OJobOnSemCadencia_FicaComADaProducaoAnteriorDaMesmaReferencia`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.CadenciaPorProducao.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.CadenciaPorProducao.cs :: DefinicoesPorModuloPageTests.OHistorico_MostraACadenciaDeCadaProducao_EAJanelaComMediaModaEDelta`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoUsoEstimado.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoUsoEstimado.cs :: DefinicoesPorModuloPageTests.OHistorico_SemLeiturasAVolta_EstimaOUsoPeloProduzido`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CadenciaSap.cs :: JobOnPageTests.Folha_MostraACadenciaDoSap_DaOrdemComMaisDias`
+
+Selo depois: `a1268015bd9a1579`
