@@ -258,7 +258,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
         <div><span>Último movimento</span>
           <strong data-dmo-onde>@(s.NoArmazem
               ? $"Armazém · posição {s.Posicao}"
-              : ArmazemTextos.Localizacao(s.Localizacao, s.LocalizacaoReparador))</strong></div>
+              : ArmazemTextos.Localizacao(s.Localizacao, s.LocalizacaoPormenor))</strong></div>
         @{ var desde = s.NoArmazem ? s.NaPosicaoDesdeUtc : s.LocalizacaoDesdeUtc; }
         @if (desde is { } d)
         {

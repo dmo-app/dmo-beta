@@ -64,6 +64,7 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
         var localizacoes = await db.FerramentaLocalizacoes.AsNoTracking()
             .Where(l => ids.Contains(l.ToolId))
             .ToDictionaryAsync(l => l.ToolId, cancellationToken);
+        var pormenores = await LocalizacaoPormenor.PorFerramentaAsync(db, localizacoes.Values, cancellationToken);
         var estados = (await db.FerramentaEstados.AsNoTracking()
                 .Where(e => ids.Contains(e.ToolId))
                 .Select(e => new { e.Id, e.ToolId, e.Estado })
@@ -78,7 +79,7 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
             var ondeEsta = noArmazem
                 ? $"Armazém · posição {posicao.Codigo}"
                 : localizacoes.TryGetValue(t.ToolId, out var l)
-                    ? ArmazemTextos.Localizacao(l.Localizacao, l.ReparadorNome)
+                    ? ArmazemTextos.Localizacao(l.Localizacao, pormenores[t.ToolId])
                     : ArmazemTextos.SemRegisto;
             return new ArmazemProcuraItem(t.ToolId, t.Type, t.Reference, t.Lot, ondeEsta, noArmazem,
                 estados.TryGetValue(t.ToolId, out var estado) ? estado : null,
@@ -181,7 +182,7 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
             posicao?.Codigo,
             posicao?.DesdeUtc,
             localizacao?.Localizacao ?? FerramentaLocalizacaoTipo.Fabrico,
-            localizacao?.ReparadorNome,
+            await LocalizacaoPormenor.DeAsync(db, localizacao, cancellationToken),
             localizacao?.DesdeUtc,
             estado?.Estado,
             estado?.RegistadoEmUtc,

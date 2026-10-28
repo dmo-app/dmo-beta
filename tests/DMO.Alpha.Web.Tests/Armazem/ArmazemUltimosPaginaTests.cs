@@ -273,7 +273,7 @@ public sealed class ArmazemUltimosPaginaTests : IClassFixture<CustomWebApplicati
         Assert.Contains("Armazém · posição 0042", Texto(Elemento(ficha, "id=\"ferrLocalizacao\"")));
         Assert.Contains($"href=\"/Armazem/Movimentos?ferramenta={Cm}\"", Elemento(ficha, "id=\"ferrLocalizacao\""));
         Assert.Contains("Reparado", Texto(Elemento(ficha, "id=\"ferrEstadoArmazem\"")));
-        Assert.Contains("A reparar · LE", Texto(Elemento(fichaBq, "id=\"ferrLocalizacao\"")));
+        Assert.Contains("Reparação · LE", Texto(Elemento(fichaBq, "id=\"ferrLocalizacao\"")));
         Assert.Contains($"href=\"/Armazem/Ultimos?ferramenta={Cm}\"", ficha);
         Assert.DoesNotContain("/Armazem/Historico", ficha);
         // A posição e o estado a todos (Diogo, 22/10/2026); o link só a quem tem o Armazém.
