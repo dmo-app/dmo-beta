@@ -329,6 +329,9 @@ public interface IFerramentasUsoSap
 
     Task<IReadOnlyList<string>> CodigosAsync(CancellationToken cancellationToken = default);
 
+    /// <summary>Os códigos de TODAS as ferramentas com nome técnico e lote («Pedir todas», Diogo 28/10/2026), com ou sem o lembrete aberto.</summary>
+    Task<IReadOnlyList<string>> TodosOsCodigosAsync(CancellationToken cancellationToken = default);
+
     Task<UsoSapUltimaLeitura?> UltimaLeituraAsync(CancellationToken cancellationToken = default);
 
     Task<FerramentaUtilizacaoAtual> DaFerramentaAsync(string toolId, CancellationToken cancellationToken = default);

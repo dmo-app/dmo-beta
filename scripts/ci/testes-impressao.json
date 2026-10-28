@@ -1,5 +1,5 @@
 {
-  "selo": "5eefa47a0c3d0f90",
+  "selo": "b294547c9bd8db2b",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1565,6 +1565,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.OsCodigos_SaoSoOsDasFerramentasComOLembreteAberto": "cee923b7d05581f9",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.OsNumerosDoSap_EmFormatoPortugues": "a30d30389c7631b8",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.Pedir_AbreUmLembreteSoUmaVez": "3fbb7378191f2d27",
+    "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.TodosOsCodigos_SaoOsDeTodasAsFerramentasComNomeTecnico": "d00d9cf90582c0a8",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.UmFicheiroQueNaoEALista_NaoGravaNada": "d89c470b95cc11b2",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.UmFicheiroQueNaoEALista_NaoTemCabecalho": "400c99660ea937fc",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: Sessao.OPercentManual_GravaUmaLeituraEFechaOLembrete_IgualNaoGrava": "d606542d3d7c80f6",
@@ -2250,6 +2251,7 @@
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: (resto do ficheiro)": "7d02e1550e06aa92",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.AListaDoSap_GravaOUsoQueAFichaDaFerramentaMostra": "ae2598cc450b39bc",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.OsCodigosAPedirAoSap_SaoOsPedidosNaFicha": "d41a5dddfd99f5cf",
+    "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.PedirTodas_DaOsCodigosDeTodasAsFerramentasComNomeTecnico": "e994c7cee5c55a16",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.SemOModuloFerramentas_ALeituraNaoGravaNada": "bc9148b89aaa0500",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.UmFicheiroQueNaoEALista_DizQueNadaFoiGravado": "c465d160e25ebae1",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: (resto do ficheiro)": "bacae70c55fb549f",

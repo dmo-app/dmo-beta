@@ -4110,3 +4110,13 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoComArtigo.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraOArtigoDeCadaProducao`
 
 Selo depois: `5eefa47a0c3d0f90`
+
+## A-0302 · 2026-10-28 · teste-novo
+
+Porquê: DMO-566: «Pedir todas» no cartão da utilização pela produção (Diogo 28/10 15:06, cmsg_01K75FTs9bQnbhhH7qttpgraAYEMmVcB2Jaecjupd3Mkdh)
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.TodosOsCodigos_SaoOsDeTodasAsFerramentasComNomeTecnico`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.PedirTodas_DaOsCodigosDeTodasAsFerramentasComNomeTecnico`
+
+Selo depois: `b294547c9bd8db2b`

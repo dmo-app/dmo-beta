@@ -4,7 +4,8 @@
 // ficheiro mais recente da pasta e, se for mais novo do que o último lido,
 // vai para o servidor, que o lê e grava a utilização de cada ferramenta. Na
 // pasta fica também o dmo-codigos.txt com os códigos a pedir ao SAP (nome
-// técnico + lote das ferramentas à espera da utilização), que o script usa.
+// técnico + lote das ferramentas à espera da utilização, ou de todas com o
+// «Pedir todas» ligado), que o script usa.
 // O relatório de fabrico do SAP (o que cada produção fez) vem pela mesma
 // pasta: vão para o servidor todos os ficheiros mais novos do que o último
 // lido, do mais antigo para o mais novo, e o servidor reconhece cada um. O
@@ -74,6 +75,31 @@
     });
   }
 
+  // «Pedir todas» fica guardado neste browser, ao lado da pasta.
+  async function pedirTodas() {
+    const base = await abrirBase();
+    return new Promise((resolve, reject) => {
+      const pedido = base.transaction(LOJA, "readonly").objectStore(LOJA).get("todas");
+      pedido.onsuccess = () => resolve(pedido.result === true);
+      pedido.onerror = () => reject(pedido.error);
+    });
+  }
+
+  async function guardarTodas(todas) {
+    const base = await abrirBase();
+    return new Promise((resolve, reject) => {
+      const transacao = base.transaction(LOJA, "readwrite");
+      transacao.objectStore(LOJA).put(todas, "todas");
+      transacao.oncomplete = () => resolve();
+      transacao.onerror = () => reject(transacao.error);
+    });
+  }
+
+  function mostrarTodas(todas) {
+    const botao = cartao ? cartao.querySelector("[data-ferr-sap-todas]") : null;
+    if (botao) botao.textContent = todas ? "Pedir só as à espera" : "Pedir todas";
+  }
+
   async function esquecerPasta() {
     const base = await abrirBase();
     return new Promise((resolve, reject) => {
@@ -96,7 +122,8 @@
   }
 
   async function infoServidor() {
-    const resposta = await fetch(URL_SAP, { credentials: "same-origin", headers: { Accept: "application/json" } });
+    const todas = suportado && (await pedirTodas());
+    const resposta = await fetch(URL_SAP + (todas ? "&todas=true" : ""), { credentials: "same-origin", headers: { Accept: "application/json" } });
     if (!resposta.ok) throw new Error("O servidor não respondeu (" + resposta.status + ").");
     return resposta.json();
   }
@@ -233,8 +260,27 @@
     mensagem("ok", codigos.length + (codigos.length === 1 ? " código copiado." : " códigos copiados.") + " No SAP, cole-os no Equipment Code com «Carregar da área de transferência».");
   }
 
+  // Ligar ou desligar o «Pedir todas» e escrever logo o dmo-codigos.txt.
+  async function alternarTodas() {
+    const todas = !(await pedirTodas());
+    await guardarTodas(todas);
+    mostrarTodas(todas);
+    const pasta = await pastaGuardada();
+    let total = null;
+    if (pasta && (await permissao(pasta, true))) {
+      const codigos = (await infoServidor()).codigos || [];
+      await escreverCodigos(pasta, codigos);
+      total = codigos.length;
+    }
+    const escritos = total === null ? "" : " (" + total + (total === 1 ? " código" : " códigos") + " no dmo-codigos.txt)";
+    mensagem("ok", (todas
+      ? "A próxima leitura do SAP traz o uso de todas as ferramentas com nome técnico"
+      : "A próxima leitura do SAP traz só as ferramentas à espera da utilização") + escritos + ".");
+  }
+
   // Ao abrir: sem pedir nada ao utilizador, só se o browser já deu acesso.
   async function aoAbrir() {
+    if (cartao) mostrarTodas(await pedirTodas());
     const pasta = await pastaGuardada();
     if (!pasta) return;
     mostrarRemover(true);
@@ -250,12 +296,14 @@
     const ler = cartao.querySelector("[data-ferr-sap-ler]");
     const copiar = cartao.querySelector("[data-ferr-sap-codigos]");
     const apagar = cartao.querySelector("[data-ferr-sap-apagar]");
+    const todas = cartao.querySelector("[data-ferr-sap-todas]");
     const remover = cartao.querySelector("[data-ferr-sap-remover]");
     copiar.addEventListener("click", () => copiarCodigos().catch(falhou));
     if (!suportado) {
       ligar.disabled = true;
       ler.disabled = true;
       apagar.disabled = true;
+      todas.disabled = true;
       mostrarEstado("este browser não liga pastas (use o Chrome ou o Edge); o «Copiar códigos» funciona na mesma");
       return;
     }
@@ -265,6 +313,7 @@
     }));
     ler.addEventListener("click", () => lerComPedido(true).catch(falhou));
     apagar.addEventListener("click", () => apagarLidos().catch(falhou));
+    todas.addEventListener("click", () => alternarTodas().catch(falhou));
     remover.addEventListener("click", () => esquecerPasta().then(() => {
       mostrarRemover(false);
       mostrarEstado("Nenhuma pasta ligada");

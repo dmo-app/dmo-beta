@@ -32,11 +32,14 @@ public sealed class DefinicoesModel(IToolLotQuantitySettings toolLotQuantities, 
     /// GET (o ficheiro ferramentas-sap.js): os códigos a pedir ao SAP (o nome
     /// técnico e o lote de cada ferramenta) e a data do último ficheiro lido
     /// (a lista da utilização ou o relatório de fabrico), para não ler duas
-    /// vezes o mesmo.
+    /// vezes o mesmo. Com <paramref name="todas"/> («Pedir todas» ligado neste
+    /// computador), os códigos de todas as ferramentas com nome técnico.
     /// </summary>
-    public async Task<IActionResult> OnGetUsoSapAsync()
+    public async Task<IActionResult> OnGetUsoSapAsync(bool todas = false)
     {
-        var codigos = await usoSap.CodigosAsync(HttpContext.RequestAborted);
+        var codigos = todas
+            ? await usoSap.TodosOsCodigosAsync(HttpContext.RequestAborted)
+            : await usoSap.CodigosAsync(HttpContext.RequestAborted);
         var ultima = await usoSap.UltimaLeituraAsync(HttpContext.RequestAborted);
         var fabrico = await fabricoSap.UltimoFicheiroAsync(HttpContext.RequestAborted);
         var ultimoFicheiro = new[] { ultima?.FicheiroModificadoEmUtc, fabrico }.Max();
