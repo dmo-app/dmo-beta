@@ -42,11 +42,11 @@ trabalhar sempre no ramo do próprio PR.
 
 ## Testes e CI
 
-O CI é **local**, na máquina do agente, com a base PostgreSQL num contentor **Docker** descartável.
-O passo a passo e o script estão no [dmo-ci](https://github.com/dmo-app/dmo-ci):
-`bash scripts/correr-ci.sh <nº do PR>` (traz o PR, junta a `integracao`, arranca a base e corre
-`scripts/ci/ci-local.sh`). Só vale **«CI local: OK»** na última linha; «INCOMPLETO» não vale.
-O GitHub Actions não substitui o CI local.
+O CI é **local**, na máquina do agente, e corre **todo dentro de um contentor Linux** (Docker), com a
+base PostgreSQL descartável noutro contentor. O passo a passo está no
+[dmo-ci](https://github.com/dmo-app/dmo-ci): `docker compose run --rm ci` sobre o ramo do PR.
+Não correr o `ci-local.sh` diretamente no Windows (o vstest falha lá). Só vale **«CI local: OK»**;
+«INCOMPLETO», testes abortados ou grupos com 0 testes não valem. O GitHub Actions não substitui o CI local.
 
 ## O que se pode corrigir
 
