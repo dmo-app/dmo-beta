@@ -460,6 +460,10 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
           <div class="ferr-nome-tecnico-decode">
             @(decoded.Family == "desconhecido" ? null : decoded.Family)@(decoded.InferredType is { } inferred ? $" · tipo inferido {tokenOf(inferred)}" : null)@(decoded.InferredReference is { } inferredRef ? $" · referência {inferredRef}" : null)@(decoded.Dimension is { } dimension ? $" · {dimension}" : null)@(decoded.Process is { } process ? $" · {process}" : null)@(decoded.Ventilation is { } ventilation ? $" · ventilação {ventilation}" : null)
           </div>
+          @if (TechnicalNameParser.Aviso(tool.Type, technicalName) is { } avisoNome)
+          {
+            <p class="ferr-aviso warn" id="ferrNomeTecnicoAviso" role="status">@avisoNome</p>
+          }
         </div>
       }
     </section>

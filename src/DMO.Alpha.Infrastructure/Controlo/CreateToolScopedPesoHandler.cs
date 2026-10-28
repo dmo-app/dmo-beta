@@ -260,14 +260,20 @@ public sealed class CreateToolScopedPesoHandler : ICreateToolScopedPesoHandler
             ? await _db.Controlos
                 .AsNoTracking()
                 .Where(c => c.Id == controloDoTampao)
-                .Select(c => new { c.JobOn.TampaoDiametroMm, c.JobOn.CaloteMm })
+                .Select(c => new
+                {
+                    c.JobOn.TampaoDiametroMm,
+                    c.JobOn.CaloteMm,
+                    Folha = _db.JobOnFolhas.Where(f => f.JobOnId == c.JobOnId).Select(f => new { f.TpDiametroPs, f.TpBaciaPs }).FirstOrDefault()
+                })
                 .FirstOrDefaultAsync(cancellationToken)
             : null;
 
         var peso = new Peso
         {
-            TampaoDiametroMm = tampaoJobOn?.TampaoDiametroMm ?? cmTechnical?.TpDiametroMm,
-            TampaoCaloteMm = tampaoJobOn?.CaloteMm ?? cmTechnical?.TpSagittaMm,
+            // Sem o Tampão gravado no Job On, o da folha (TampaoDaFolha).
+            TampaoDiametroMm = TampaoDaFolha.Diametro(tampaoJobOn?.TampaoDiametroMm, tampaoJobOn?.Folha?.TpDiametroPs) ?? cmTechnical?.TpDiametroMm,
+            TampaoCaloteMm = TampaoDaFolha.Calote(tampaoJobOn?.CaloteMm, tampaoJobOn?.Folha?.TpBaciaPs) ?? cmTechnical?.TpSagittaMm,
             CmToolId = command.CmToolId,
             BqToolId = command.BqToolId,
             Process = storedProcess,

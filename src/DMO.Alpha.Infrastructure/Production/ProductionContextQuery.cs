@@ -1,4 +1,5 @@
 using DMO.Alpha.Core.Production;
+using DMO.Alpha.Infrastructure.Controlo;
 using DMO.Alpha.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -50,8 +51,10 @@ public sealed class ProductionContextQuery : IProductionContextQuery
             bq != null ? bq.ToolId : null,
             j.InicioEm,
             j.FimEm,
-            j.CaloteMm,
+            // O Tampão: o gravado no Job On, senão o da folha (um Job On
+            // importado só tem a folha; TampaoDaFolha, 28/10/2026).
+            TampaoDaFolha.Calote(j.CaloteMm, _db.JobOnFolhas.Where(f => f.JobOnId == j.Id).Select(f => f.TpBaciaPs).FirstOrDefault()),
             EF.Property<uint>(j, DmoDbContext.RowVersion),
-            j.TampaoDiametroMm,
+            TampaoDaFolha.Diametro(j.TampaoDiametroMm, _db.JobOnFolhas.Where(f => f.JobOnId == j.Id).Select(f => f.TpDiametroPs).FirstOrDefault()),
             j.Experiencia);
 }

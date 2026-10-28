@@ -97,6 +97,7 @@ public sealed class PesoCompararQuery : IPesoCompararQuery
                 p.TampaoCaloteMm,
                 JobOnDiametro = p.Controlo == null ? null : p.Controlo.JobOn.TampaoDiametroMm,
                 JobOnCalote = p.Controlo == null ? null : p.Controlo.JobOn.CaloteMm,
+                FolhaTampao = p.Controlo == null ? null : _db.JobOnFolhas.Where(f => f.JobOnId == p.Controlo.JobOnId).Select(f => new { f.TpDiametroPs, f.TpBaciaPs }).FirstOrDefault(),
                 FichaDiametro = _db.ToolTechnicalContexts.Where(t => t.ToolId == p.CmToolId).Select(t => t.TpDiametroMm).FirstOrDefault(),
                 FichaCalote = _db.ToolTechnicalContexts.Where(t => t.ToolId == p.CmToolId).Select(t => t.TpSagittaMm).FirstOrDefault()
             })
@@ -142,8 +143,9 @@ public sealed class PesoCompararQuery : IPesoCompararQuery
         foreach (var p in escolhidos)
         {
             var lido = await _pesoQuery.FindPesoAsync(p.Id, cancellationToken);
-            var diametro = p.TampaoDiametroMm ?? p.JobOnDiametro ?? p.FichaDiametro;
-            var calote = p.TampaoCaloteMm ?? p.JobOnCalote ?? p.FichaCalote;
+            // Sem o Tampão gravado no Job On, o da folha (TampaoDaFolha).
+            var diametro = p.TampaoDiametroMm ?? TampaoDaFolha.Diametro(p.JobOnDiametro, p.FolhaTampao?.TpDiametroPs) ?? p.FichaDiametro;
+            var calote = p.TampaoCaloteMm ?? TampaoDaFolha.Calote(p.JobOnCalote, p.FolhaTampao?.TpBaciaPs) ?? p.FichaCalote;
             linhas.Add(new PesoCompararLinha(
                 p.Id,
                 p.CmToolId,
