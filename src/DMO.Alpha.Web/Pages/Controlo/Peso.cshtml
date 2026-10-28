@@ -1133,6 +1133,25 @@
     @if (Model.ComparacaoDePesoId is not null)
     {
       <p class="card-note" data-peso-so-comparacao>Peso só para comparação: não fica associado a nenhum Job On.</p>
+      @* As duas opções do «Criar» (Diogo, 28/10/2026: «uma opção para
+         associar a um Job On, ter as duas»): sem Job On, com as ferramentas
+         abaixo, ou num Job On anterior da referência, que abre o Peso dessa
+         produção com as ferramentas dela. *@
+      @if (Model.ComparacaoJobOnOpcoes.Count > 0)
+      {
+        <form method="post" asp-page="/Controlo/Peso" asp-page-handler="AbrirJobOn" class="peso-inline-form" data-peso-comparacao-jobon data-dmo-nativo>
+          <div class="dmo-field">
+            <label for="comparacaoJobOn">Ou num Job On anterior</label>
+            <select id="comparacaoJobOn" name="jobon_id">
+              @foreach (var opcao in Model.ComparacaoJobOnOpcoes)
+              {
+                <option value="@opcao.JobOnId">@opcao.ProductionNumber · @opcao.Machine</option>
+              }
+            </select>
+          </div>
+          <button type="submit" class="dmo-button">Abrir</button>
+        </form>
+      }
     }
     <form method="get" asp-page="/Controlo/Peso" class="dmo-filter-bar">
       @if (Model.ComparacaoDePesoId is { } comparacaoDeFerramentas)

@@ -885,6 +885,13 @@ public sealed class PesoModel : PageModel
     public int? ComparacaoDePesoId { get; private set; }
 
     /// <summary>
+    /// No «Criar» do Controlo anterior, os Job Ons anteriores da referência
+    /// do Peso a comparar (Diogo, 28/10/2026: «uma opção para associar a um
+    /// Job On, ter as duas»): escolher um abre o Peso dessa produção.
+    /// </summary>
+    public IReadOnlyList<PesoProducaoAnteriorOpcao> ComparacaoJobOnOpcoes { get; private set; } = Array.Empty<PesoProducaoAnteriorOpcao>();
+
+    /// <summary>
     /// Num Peso só para comparação, o endereço do Peso que ele compara, com a
     /// comparação escolhida; null nos outros.
     /// </summary>
@@ -1444,6 +1451,10 @@ public sealed class PesoModel : PageModel
         RequestedCmToolId = Sanitize(cmToolId);
         RequestedBqToolId = Sanitize(bqToolId);
         ComparacaoDePesoId = comparacaoDe;
+        if (comparacaoDe is int pesoAComparar)
+        {
+            ComparacaoJobOnOpcoes = await ProducaoAnteriorQuery.ListOpcoesDoPesoAsync(pesoAComparar, HttpContext.RequestAborted);
+        }
 
         if (!string.IsNullOrWhiteSpace(cmToolId))
         {

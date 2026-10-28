@@ -4121,3 +4121,14 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_TampaoSoNaFolhaDoJobOn_LeODaFolha`
 
 Selo depois: `bcd425becb1b4772`
+
+## A-0301 · 2026-10-28 · teste-novo
+
+Porquê: O «Criar» do Controlo anterior tem as duas opções: sem Job On ou num Job On anterior da referência.
+Referência: DMO-565
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.AssociarJobOn.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.AssociarJobOn.cs :: PesoFolhaProducaoAnteriorPageTests.CriarControloAnterior_SemJobOnOuNumJobOnAnterior`
+
+Selo depois: `b74471494e7c4121`
