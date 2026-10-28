@@ -4149,3 +4149,21 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Procura_EmDoisCampos_AReferenciaEncheODropdownDasProducoes`
 
 Selo depois: `46c4e9cd976b4215`
+
+## A-0292 · 2026-10-28 · ok-do-diogo
+
+Porquê: Folha do Job On (Diogo, 28/10/2026): tolerância com um só sinal; folgas com um número por espaço (MF folga · tol. · flecha, CM só folga · tol.) e o Editar recusa dois números numa folga; a BQ sem «Antes nesta produção» (o teste dos lotes usados passa a exigir que não aparece); posição e estado do Armazém a negrito, a posição abre o Armazém (o teste do Armazém no cartão passa a exigir o negrito). Pedidos do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraXsQAqwXMvdwzxEBtZXVi8x, cmsg_01K75FTs9bQnbhhH7qttpgraKrQi7JHehQiEg7H86U68T1, cmsg_01K75FTs9bQnbhhH7qttpgraVoYdoBPQWZ26Vyr5f5nUSn, cmsg_01K75FTs9bQnbhhH7qttpgraVgPCefiS4NQsiePhNhB2HE
+Referência: DMO-557
+Novos: 7 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolgasRecusaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolgasRecusaTests.cs :: JobOnFolgasRecusaTests.DoisNumerosNumaFolga_ERecusada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolgasTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolgasTests.cs :: JobOnFolgasTests.UmNumeroPorEspaco`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolgasDimensoes.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolgasDimensoes.cs :: JobOnPageTests.Editar_DoisNumerosNumaFolga_ERecusado`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolgasDimensoes.cs :: JobOnPageTests.Folha_ToleranciaComUmSoSinal_EFolgasUmNumeroPorEspaco`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_OndeEstaNoArmazem_EAvisoSemRegisto`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.LotesUsados.cs :: JobOnPageTests.Folha_DepoisDeAlterarOLoteDaBq_MostraOAtualEOsDeAntes`
+
+Selo depois: `9639e32da4f53b65`

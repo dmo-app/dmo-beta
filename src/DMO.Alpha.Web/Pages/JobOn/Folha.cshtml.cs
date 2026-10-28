@@ -46,7 +46,6 @@ public sealed class FolhaModel(
     IJobOnPaginaQuery jobOnPagina,
     IConfiguration configuration,
     DMO.Alpha.Core.Tools.IFerramentasUsoSap usoSap,
-    IAlterarLoteBq alterarLote,
     IFolhaDaFerramenta folhaDaFerramenta,
     DMO.Alpha.Core.Tools.IFerramentasFabricoSap fabricoSap) : PageModel
 {
@@ -75,12 +74,6 @@ public sealed class FolhaModel(
             campos = dados.Campos.Select(c => new { id = JobOnFolhaCampos.IdDe(c.Key), valor = c.Value ?? string.Empty })
         });
     }
-
-    /// <summary>Os lotes da BQ usados nesta produção, do primeiro ao atual (vazio sem BQ).</summary>
-    public IReadOnlyList<string> LotesBqUsados { get; private set; } = [];
-
-    /// <summary>Os lotes que a BQ teve antes do atual, para a cabeça da BQ («antes 165»).</summary>
-    public IReadOnlyList<string> LotesBqAntes => LotesBqUsados.Count > 1 ? LotesBqUsados.Take(LotesBqUsados.Count - 1).Where(l => l != LotesBqUsados[^1]).Distinct().ToList() : [];
 
     /// <summary>O aviso «não está registada no Armazém» (o mesmo interruptor do Planeamento, Dmo:Avisos:ArmazemSemRegisto).</summary>
     public bool MostrarAvisoArmazem { get; } = configuration.GetValue(IndexModel.AvisoArmazemChave, false);
@@ -526,7 +519,6 @@ public sealed class FolhaModel(
                 Usos = await usoSap.UltimasPercentagensAsync(ids, ct);
                 Folha = Folha.ComLoteFfDoMf(Fact(aberto.MfToolId)?.Lot);
             }
-            LotesBqUsados = await alterarLote.LotesUsadosAsync(aberto.JobOnId, ct);
             CadenciaSap = await fabricoSap.CadenciaDoJobOnAsync(aberto.JobOnId, ct);
             if (Editar)
             {

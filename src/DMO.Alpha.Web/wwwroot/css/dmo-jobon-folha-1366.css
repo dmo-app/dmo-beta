@@ -294,7 +294,10 @@ html:root body .jof2.jof2.jof2:not(.editing) .jof-dim.longo .jof-tol{flex:none;f
 html:root body .jof2.jof2.jof2:not(.editing) .folgas{display:flex;flex-wrap:nowrap;align-items:baseline;gap:0;padding:6px 0 0;border-top:1px solid var(--dmo-border)}
 html:root body .jof2.jof2.jof2:not(.editing) .folgas>span:first-child{margin:0 12px 0 0}
 html:root body .jof2.jof2.jof2:not(.editing) .folga{min-width:0;padding:0;border:0;border-radius:0;background:none;font-size:13.5px;font-weight:700;text-align:left}
-html:root body .jof2.jof2.jof2:not(.editing) .folga+.folga::before{content:"·";margin:0 7px;font-weight:500;color:var(--dmo-muted)}
+/* Folgas: um número por espaço, com o nome do espaço por cima (Diogo, 28/10/2026) */
+html:root body .jof2.jof2.jof2:not(.editing) .folgas{display:grid;grid-template-columns:auto repeat(3,minmax(0,1fr));column-gap:8px;align-items:end}
+html:root body .jof2.jof2.jof2:not(.editing) .folga{display:flex;flex-direction:column;white-space:nowrap}
+html:root body .jof2.jof2.jof2:not(.editing) .folga>small{font-size:10.5px;font-weight:500;color:var(--dmo-muted);line-height:1.2}
 
 /* ---- as Notas no ver: a caixa cresce até ocupar o espaço livre do cartão (mínimo três linhas inteiras de 18px com texto, uma vazia);
    só quando o texto não cabe desliza por dentro, e o jobon-folha.js corta a altura numa linha inteira. ---- */
@@ -532,3 +535,11 @@ html body .jof2 .jof-tool-slot>.tool-head>.hv{white-space:nowrap}
   html:root body .jof2.jof2.jof2:not(.editing) .cal-card table.calv :is(th,td){align-items:center}
   html:root body .jof2.jof2.jof2:not(.editing) .cal-card table.calv :is(th,td):first-child{justify-content:center !important;text-align:center !important}
 }
+/* Armazém no cartão: a posição e o estado a negrito; a posição abre o Armazém (Diogo, 28/10/2026) */
+html:root body .jof2 .jof-onde b{font-weight:700;color:var(--dmo-text)}
+html:root body .jof2 .jof-onde a.jof-onde-pos{color:inherit;text-decoration:none}
+html:root body .jof2 .jof-onde a.jof-onde-pos:hover{text-decoration:underline}
+/* CM, MF e BQ: com o rato por cima, um retângulo de fundo um pouco mais claro diz que se pode
+   abrir (duplo clique, a ficha) ou, no Editar, trocar a ferramenta (Diogo, 28/10/2026) */
+html:root body .jof2.jof2.jof2 .tool-head[data-jof-ficha]:is(:hover,:focus-visible),
+html:root body .jof2.editing.editing.editing .tool-head:is(:hover,:focus-visible){background:var(--dmo-row-hover) !important;box-shadow:0 0 0 4px var(--dmo-row-hover) !important;border-radius:4px}
