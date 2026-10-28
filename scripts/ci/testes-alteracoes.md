@@ -4101,9 +4101,9 @@ Novos: 0 · mudaram: 1 · saíram: 0
 
 Selo depois: `1ecbaa53f6ccc384`
 
-## A-0254 · 2026-10-28 · ok-do-diogo
+## A-0256 · 2026-10-28 · ok-do-diogo
 
-Porquê: PDF do Peso sem duplicados (DMO-523): o peso usado da produção anterior já está no cartão; sai a repetição no rodapé.
+Porquê: PDF do Peso sem duplicados (DMO-526): o peso usado da produção anterior já está no cartão; sai a repetição no rodapé.
 Referência: Diogo 28/10: «folha do peso tem muitos duplicados ter atenção aos duplicados» cmsg_01K75FTs9bQnbhhH7qttpgraKQa9WN4maaHqZRbPbFJPru, «produção anterior peso usado na produção anterior» cmsg_01K75FTs9bQnbhhH7qttpgraEwsGP3Fay6kibY8Ft1Vpub
 Novos: 0 · mudaram: 1 · saíram: 0
 
