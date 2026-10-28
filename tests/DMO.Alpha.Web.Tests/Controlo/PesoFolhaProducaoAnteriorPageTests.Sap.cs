@@ -49,7 +49,7 @@ public partial class PesoFolhaProducaoAnteriorPageTests
         var texto = System.Text.RegularExpressions.Regex.Replace(sap, "<[^>]+>|\\s+", m => m.Value.StartsWith('<') ? "" : " ");
         // Uma tabela: os títulos numa linha e os valores por baixo (Diogo,
         // 28/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraPN7CxcF7Rzwfmmd7mHxLcm).
-        Assert.Contains("<tr><th>Peso da produção</th><th>Média</th><th>Diferença para a média</th><th>Moda</th><th>Diferença para a moda</th></tr>", sap, StringComparison.Ordinal);
+        Assert.Contains("<tr><th>Peso da produção</th><th>Média</th><th>Moda</th></tr>", sap, StringComparison.Ordinal);
         Assert.Contains("Fim 24/04/2026 · 18 dias", texto, StringComparison.Ordinal);
         // Nenhum texto à vista diz «SAP» (o aviso sem dados está escondido; tiram-se as etiquetas e os atributos).
         var visivel = System.Text.RegularExpressions.Regex.Replace(sap[..sap.IndexOf("data-sap-sem", StringComparison.Ordinal)], "<[^>]+>", " ");
@@ -57,8 +57,8 @@ public partial class PesoFolhaProducaoAnteriorPageTests
         // A média e a moda, a moda com os dias em que esse peso se usou (Diogo,
         // 28/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraVoNvoQBUPf4cwx9jYiHvPJ e
         // cmsg_01K75FTs9bQnbhhH7qttpgraTaRYMDqbdFc2okYBHmExZW).
-        Assert.Contains("<td data-sap-com><strong><span data-sap-valor=\"media\">181.67</span> g</strong></td>", sap, StringComparison.Ordinal);
-        Assert.Contains("<td data-sap-com><strong><span data-sap-valor=\"moda\">181</span> g</strong> · <span data-sap-valor=\"moda-dias\">12</span> de <span data-sap-valor=\"dias\">18</span> dias</td>", sap, StringComparison.Ordinal);
+        Assert.Contains("<td><strong><span data-sap-valor=\"media\">181.67</span> g</strong></td>", sap, StringComparison.Ordinal);
+        Assert.Contains("<td><strong><span data-sap-valor=\"moda\">181</span> g</strong> · <span data-sap-valor=\"moda-dias\">12</span> de <span data-sap-valor=\"dias\">18</span> dias</td>", sap, StringComparison.Ordinal);
         // A média e a moda ficam as duas à vista, cada uma com a diferença do
         // peso deste controlo, sem janela e sem «Hoje» (Diogo, 27/10/2026,
         // cmsg_01K75FTs9bQnbhhH7qttpgra64wN7wJBwgW1MPgAeTBaS9).
@@ -84,12 +84,12 @@ public partial class PesoFolhaProducaoAnteriorPageTests
 
         var sap = ZonaSap(await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}"));
 
-        Assert.Contains("<td colspan=\"4\" data-sap-sem>Ainda não há o peso desta produção.", sap, StringComparison.Ordinal);
+        Assert.Contains("<td colspan=\"3\">Ainda não há o peso desta produção.", sap, StringComparison.Ordinal);
         // «Ler a pasta» é um botão e diz «produção», nunca «SAP» (Diogo, 23/10/2026).
         // A pasta da produção está em Definições › Este computador (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP).
         Assert.Contains("<a class=\"dmo-button\" href=\"/Definicoes?secao=computador\">Ler a pasta da produção</a>", sap, StringComparison.Ordinal);
         Assert.DoesNotContain("Ler a pasta do SAP", sap, StringComparison.Ordinal);
-        Assert.Contains("<td data-sap-com hidden=\"hidden\"><strong><span data-sap-valor=\"media\">", sap, StringComparison.Ordinal);
+        Assert.Contains("<tr data-sap-com hidden=\"hidden\">", sap, StringComparison.Ordinal);
     }
     /// <summary>
     /// O Resumo usa as duas (Diogo, 28/10/2026,

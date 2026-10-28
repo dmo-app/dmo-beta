@@ -4254,4 +4254,4 @@ Novos: 1 · mudaram: 10 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_PesoIlegivel_RecusaComEcho_ENaoGuarda`
 - mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_PropoeAMaisRecente_GuardaOPesoDoSap_EMostraODelta`
 
-Selo depois: `199e9eecb6dd4ec7`
+Selo depois: `bf5ce13f3eb09894`

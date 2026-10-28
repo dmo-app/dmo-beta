@@ -1996,20 +1996,28 @@
              e começarmos a usar os dois»; «quantidade de vezes que esse peso
              é usado»). *@
           @{ var semSap = sapDaEscolhida is null ? "hidden" : null; }
+          @* O início e o fim da produção escolhida por cima da tabela (Diogo, 27/10/2026);
+             na coluna da direita (.221) a média e a moda são as colunas, e o peso e a
+             diferença as linhas, para caber sem deslizar. *@
+          <p class="peso-hint peso-sap-periodo"><span data-producao-anterior-periodo>Início <span data-inicio>@(escolhida?.InicioEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span> · Fim <span data-fim>@(escolhida?.FimEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span></span><span data-sap-com hidden="@semSap"> · <span data-sap-valor="dias">@sapDaEscolhida?.Dias</span> dias</span></p>
           <div class="dmo-table-wrap peso-sap-tabela">
             <table class="dmo-table">
               <thead>
-                <tr><th>Peso da produção</th><th>Média</th><th>Diferença para a média</th><th>Moda</th><th>Diferença para a moda</th></tr>
+                <tr><th>Peso da produção</th><th>Média</th><th>Moda</th></tr>
               </thead>
               <tbody>
-                <tr>
-                  @* O início e o fim da produção escolhida no cartão do peso dela (Diogo, 27/10/2026). *@
-                  <td><span data-producao-anterior-periodo>Início <span data-inicio>@(escolhida?.InicioEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span> · Fim <span data-fim>@(escolhida?.FimEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span></span><span data-sap-com hidden="@semSap"> · <span data-sap-valor="dias">@sapDaEscolhida?.Dias</span> dias</span></td>
-                  <td data-sap-com hidden="@semSap"><strong><span data-sap-valor="media">@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.MediaGramas))</span> g</strong></td>
-                  <td data-sap-com hidden="@semSap" data-sap-delta="media">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.MediaGramas))</td>
-                  <td data-sap-com hidden="@semSap"><strong><span data-sap-valor="moda">@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.ModaGramas))</span> g</strong> · <span data-sap-valor="moda-dias">@sapDaEscolhida?.ModaDias</span> de <span data-sap-valor="dias">@sapDaEscolhida?.Dias</span> dias</td>
-                  <td data-sap-com hidden="@semSap" data-sap-delta="moda">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.ModaGramas))</td>
-                  <td colspan="4" data-sap-sem hidden="@(sapDaEscolhida is null ? null : "hidden")">Ainda não há o peso desta produção. <a class="dmo-button" href="/Definicoes?secao=computador">Ler a pasta da produção</a></td>
+                <tr data-sap-com hidden="@semSap">
+                  <th scope="row">Peso</th>
+                  <td><strong><span data-sap-valor="media">@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.MediaGramas))</span> g</strong></td>
+                  <td><strong><span data-sap-valor="moda">@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.ModaGramas))</span> g</strong> · <span data-sap-valor="moda-dias">@sapDaEscolhida?.ModaDias</span> de <span data-sap-valor="dias">@sapDaEscolhida?.Dias</span> dias</td>
+                </tr>
+                <tr data-sap-com hidden="@semSap">
+                  <th scope="row">Diferença</th>
+                  <td data-sap-delta="media">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.MediaGramas))</td>
+                  <td data-sap-delta="moda">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.ModaGramas))</td>
+                </tr>
+                <tr data-sap-sem hidden="@(sapDaEscolhida is null ? null : "hidden")">
+                  <td colspan="3">Ainda não há o peso desta produção. <a class="dmo-button" href="/Definicoes?secao=computador">Ler a pasta da produção</a></td>
                 </tr>
               </tbody>
             </table>
