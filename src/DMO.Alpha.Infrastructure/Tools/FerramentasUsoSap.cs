@@ -112,6 +112,24 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
     public Task<IReadOnlyList<string>> TodosOsCodigosAsync(CancellationToken cancellationToken = default) =>
         CodigosDeAsync(db.Tools.Where(t => t.ToolId != ToolRegistryConstants.RemovedToolId), cancellationToken);
 
+    public Task<IReadOnlyList<string>> CodigosDaReferenciaAsync(string referencia, ToolType? tipo, CancellationToken cancellationToken = default)
+    {
+        var texto = (referencia ?? string.Empty).Trim().ToUpperInvariant();
+        if (texto.Length == 0)
+        {
+            return Task.FromResult<IReadOnlyList<string>>([]);
+        }
+
+        var ferramentas = db.Tools.Where(t => t.ToolId != ToolRegistryConstants.RemovedToolId
+            && (t.Reference.ToUpper().Contains(texto) || (t.AssociatedMfReference != null && t.AssociatedMfReference.ToUpper().Contains(texto))));
+        if (tipo is { } t1)
+        {
+            ferramentas = ferramentas.Where(t => t.Type == t1);
+        }
+
+        return CodigosDeAsync(ferramentas, cancellationToken);
+    }
+
     private static async Task<IReadOnlyList<string>> CodigosDeAsync(IQueryable<Tool> ferramentasPedidas, CancellationToken cancellationToken)
     {
         var ferramentas = await ferramentasPedidas.AsNoTracking()

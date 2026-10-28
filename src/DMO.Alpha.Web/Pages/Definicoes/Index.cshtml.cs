@@ -226,7 +226,11 @@ public sealed class IndexModel(
         {
             App = Ligar(app);
             await App.CarregarAsync(Q("app"), Q("email"), Q("pinapp"));
-            AdminSub = "app";
+            AdminSub = Q("sub") == "sap" ? "sap" : "app";
+            if (AdminSub == "sap")
+            {
+                await App.CarregarSapAsync(Q("sap"));
+            }
             separadores.Add(("admin", "Admin", "admin"));
         }
         Separadores = separadores;

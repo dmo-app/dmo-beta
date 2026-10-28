@@ -14,12 +14,14 @@
     <div class="dmo-card-topo">
       <h3 id="ferr-sap-title">Utilização pela produção</h3>
       <div class="dmo-card-topo-acoes">
-        @* Só «Ler pasta» à vista; o resto dentro de «Opções», como no Excel das Boquilhas (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraHPADVWa4FvWFsfvbAFqbcy). *@
-        <button type="button" class="dmo-button" id="ferrSapLer" data-ferr-sap-ler>Ler pasta</button>
+        @* UM SÓ BOTÃO (Diogo, 28/10/2026: «um actualizar deve ir tudo ao sap e meter nas ferramentas, não devo ter de andar a correr vários scripts»):
+           «Atualizar do SAP» escreve os scripts na pasta, abre o SAP e grava tudo quando acaba. «Ligar pasta» e «Ler pasta» saíram das Opções:
+           a pasta liga-se no Admin › Definições › SAP ou no primeiro «Atualizar do SAP». *@
+        <button type="button" class="dmo-button" id="ferrSapAtualizar" data-ferr-sap-atualizar>Atualizar do SAP</button>
         <details class="dmo-options" data-dmo-tab-menu data-ferr-sap-opcoes>
           <summary class="dmo-button" aria-label="Opções da utilização pela produção"><span class="dmo-caret" aria-hidden="true"></span>Opções</summary>
           <div class="dmo-options-list">
-            <button type="button" class="dmo-options-item" id="ferrSapPasta" data-ferr-sap-pasta disabled="@cadeado">Ligar pasta</button>
+            <button type="button" class="dmo-options-item" id="ferrSapInstalar" data-ferr-sap-instalar>Instalar neste PC</button>
             <button type="button" class="dmo-options-item" id="ferrSapCodigos" data-ferr-sap-codigos disabled="@cadeado">Copiar códigos</button>
             @* «Pedir todas» (Diogo, 28/10/2026: «pq eu nao tenho um botao para fazer update a todas»): o dmo-codigos.txt passa a levar todas as ferramentas com nome técnico, neste computador, até se carregar outra vez. *@
             <button type="button" class="dmo-options-item" id="ferrSapTodas" data-ferr-sap-todas disabled="@cadeado">Pedir todas</button>
@@ -31,7 +33,42 @@
       </div>
     </div>
     @Html.AntiForgeryToken()
+    @* As três maneiras de ler (Diogo, 28/10/2026 15:35): como nas definições; por data (Início e Fim, ou Desde, só mês e ano); por referência, com o tipo. *@
+    <dialog id="ferrSapJanela" class="dmo-dialog" aria-labelledby="ferr-sap-janela-titulo" data-ferr-sap-janela>
+      <h3 id="ferr-sap-janela-titulo">Atualizar do SAP</h3>
+      <div class="rp-modo" role="group" aria-label="O que ler">
+        <button type="button" class="dmo-button rp-modo-ativo" data-ferr-sap-modo="normal" aria-pressed="true">Como nas definições</button>
+        <button type="button" class="dmo-button" data-ferr-sap-modo="data" aria-pressed="false">Por data</button>
+        <button type="button" class="dmo-button" data-ferr-sap-modo="ref" aria-pressed="false">Por referência</button>
+      </div>
+      <p class="ferr-sap-modo-texto" data-ferr-sap-parte="normal">As produções dos últimos dias e a % uso de todas as ferramentas (Admin › Definições › SAP).</p>
+      <div class="ferr-sap-modo-campos" data-ferr-sap-parte="data" hidden>
+        <div class="rp-modo" role="group" aria-label="Datas">
+          <button type="button" class="dmo-button rp-modo-ativo" data-ferr-sap-datas="entre" aria-pressed="true">Início e Fim</button>
+          <button type="button" class="dmo-button" data-ferr-sap-datas="desde" aria-pressed="false">Desde</button>
+        </div>
+        <label>Início <input type="month" class="dmo-input" data-ferr-sap-inicio /></label>
+        <label data-ferr-sap-fim-campo>Fim <input type="month" class="dmo-input" data-ferr-sap-fim /></label>
+        <p class="ferr-sap-modo-texto">Só as produções destes meses.</p>
+      </div>
+      <div class="ferr-sap-modo-campos" data-ferr-sap-parte="ref" hidden>
+        <label>Referência <input type="text" class="dmo-input" maxlength="40" size="12" autocomplete="off" data-ferr-sap-referencia /></label>
+        <label>Tipo <select class="dmo-input" data-ferr-sap-tipo><option value="">Todos</option><option value="cm">CM</option><option value="mf">MF</option><option value="bq">BQ</option></select></label>
+        <p class="ferr-sap-modo-texto">Só a % uso das ferramentas desta referência.</p>
+      </div>
+      <div class="dmo-dialog-actions">
+        <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+        <button type="button" class="dmo-button" data-ferr-sap-correr>Atualizar</button>
+      </div>
+    </dialog>
     <p class="ctl-def-computador"><strong>Neste computador:</strong> <span id="ferrSapPastaEstado" data-ferr-sap-estado role="status">Nenhuma pasta ligada</span>@if (Model.UltimaLeituraSap is { } ultima)
       {<span id="ferrSapUltima"> · última leitura @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(ultima.LidoEmUtc).ToString("dd/MM/yyyy HH:mm", System.Globalization.CultureInfo.InvariantCulture)@(ultima.Ficheiro is { } nomeFicheiro ? $" (ficheiro {nomeFicheiro})" : "")</span>}</p>
   </section>
+<style>
+#ferrSapJanela .rp-modo{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+#ferrSapJanela .ferr-sap-modo-campos{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+#ferrSapJanela .ferr-sap-modo-campos label{display:flex;flex-direction:column;gap:4px;font-size:12.5px}
+#ferrSapJanela .ferr-sap-modo-campos .rp-modo{flex-basis:100%;margin:0}
+#ferrSapJanela .ferr-sap-modo-texto{flex-basis:100%;margin:6px 0 14px;color:var(--dmo-muted);font-size:12.5px}
+</style>
 <script src="~/js/ferramentas-sap.js" asp-append-version="true"></script>

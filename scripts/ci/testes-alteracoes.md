@@ -4140,3 +4140,17 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoPeloArmazem.cs :: DefinicoesPorModuloPageTests.AJanelaDaUtilizacao_MostraOsJobOnDaLinhaEnquantoAFerramentaLaEsteve`
 
 Selo depois: `a601a6cde9889707`
+
+## A-0303 · 2026-10-28 · ok-do-diogo
+
+Porquê: O cartão do SAP passa a ter um só botão «Atualizar do SAP»; «Ligar pasta» e «Ler pasta» saem das Opções; a ajuda fala do INSTALAR.cmd em vez do AGENDAR_18H.cmd
+Referência: Diogo 28/10/2026 thread SAP: «com isto tiramos o associar pasta e ler das opções»
+Novos: 2 · mudaram: 3 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OAdmin_MudaOSap_EOsScriptsDaPastaLevamAsDefinicoes`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.AtualizarPorReferencia_DaOsCodigosDessaReferenciaEDoTipo`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.AsPastas_SaoGerais_SoAsAcoesFicamParaTodos`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AjudaSap.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_OCartaoDoSapTemApagarLidos_EAAjudaExplica`
+
+Selo depois: `db33f5febd5dc75d`

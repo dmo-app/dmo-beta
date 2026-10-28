@@ -105,6 +105,31 @@ public sealed partial class DefinicoesPorModuloPageTests
     }
 
     [Fact]
+    public async Task AtualizarPorReferencia_DaOsCodigosDessaReferenciaEDoTipo()
+    {
+        var nome = "MRF" + Guid.NewGuid().ToString("N")[..6].ToUpperInvariant() + "MPNNX";
+        var referencia = "R" + Guid.NewGuid().ToString("N")[..7].ToUpperInvariant();
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            db.Tools.Add(new Tool { ToolId = "T" + Guid.NewGuid().ToString("N")[..10], Type = ToolType.Cm, Reference = referencia, Lot = "2", TechnicalName = nome });
+            db.Tools.Add(new Tool { ToolId = "T" + Guid.NewGuid().ToString("N")[..10], Type = ToolType.Bq, Reference = referencia, Lot = "7", TechnicalName = nome });
+            db.SaveChanges();
+        }
+
+        var client = await LoginOperatorAsync("7190", DmoCapabilities.Ferramentas);
+        async Task<List<string?>> Codigos(string tipo)
+        {
+            using var json = JsonDocument.Parse(await (await client.GetAsync($"{FerramentasPath}?handler=CodigosSap&referencia={referencia.ToLowerInvariant()}&tipo={tipo}")).Content.ReadAsStringAsync());
+            return json.RootElement.GetProperty("codigos").EnumerateArray().Select(c => c.GetString()).ToList();
+        }
+
+        Assert.Equal([nome + "02", nome + "07"], await Codigos(""));
+        Assert.Equal([nome + "07"], await Codigos("bq"));
+        Assert.Empty(await Codigos("mf"));
+    }
+
+    [Fact]
     public async Task PedirTodas_DaOsCodigosDeTodasAsFerramentasComNomeTecnico()
     {
         var nome = "MUS" + Guid.NewGuid().ToString("N")[..6].ToUpperInvariant() + "MPPSX";

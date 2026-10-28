@@ -332,6 +332,13 @@ public interface IFerramentasUsoSap
     /// <summary>Os códigos de TODAS as ferramentas com nome técnico e lote («Pedir todas», Diogo 28/10/2026), com ou sem o lembrete aberto.</summary>
     Task<IReadOnlyList<string>> TodosOsCodigosAsync(CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Os códigos das ferramentas de uma referência (a canónica ou a MF
+    /// associada; parte dela chega), só de um tipo quando <paramref name="tipo"/>
+    /// vem: o «Atualizar do SAP» por referência (Diogo, 28/10/2026).
+    /// </summary>
+    Task<IReadOnlyList<string>> CodigosDaReferenciaAsync(string referencia, ToolType? tipo, CancellationToken cancellationToken = default);
+
     Task<UsoSapUltimaLeitura?> UltimaLeituraAsync(CancellationToken cancellationToken = default);
 
     Task<FerramentaUtilizacaoAtual> DaFerramentaAsync(string toolId, CancellationToken cancellationToken = default);

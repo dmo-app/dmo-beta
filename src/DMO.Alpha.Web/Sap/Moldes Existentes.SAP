@@ -1,0 +1,10 @@
+[System]
+Name=BAS
+Client=100
+[User]
+Name={{UTILIZADOR}}
+Language=P
+[Function]
+Command=ZPPG
+Title=Moldes Existentes
+Type=Transaction
