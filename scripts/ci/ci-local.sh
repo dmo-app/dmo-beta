@@ -293,6 +293,21 @@ else
 fi
 
 echo
+echo "== Browser no cabeçalho com nome comprido"
+echo "   A folha do Job On a 1290×646, 1366×768 e 1024×646, com um nome e um título compridos: a conta fica na fila dos módulos e a página não desliza."
+if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then
+  echo "   não corrido (CI_SEM_BROWSER=1)"
+  summary+=("--      Browser no cabeçalho com nome comprido (CI_SEM_BROWSER=1)")
+elif python3 tests/visual/cabecalho_nome_comprido_browser.py "$ui" >"$logs/ui-cabecalho.log" 2>&1; then
+  echo "   passaram"
+  summary+=("OK      Browser no cabeçalho com nome comprido")
+else
+  tail -30 "$logs/ui-cabecalho.log"
+  summary+=("FALHOU  Browser no cabeçalho com nome comprido")
+  failed=1
+fi
+
+echo
 echo "== Browser na pasta dos PDFs"
 echo "   A pasta dos PDFs no Chromium: sem pasta, com pasta (referência/produção), deixar de usar e duplo clique."
 if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then

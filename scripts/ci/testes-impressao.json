@@ -1,7 +1,7 @@
 {
-  "selo": "32dc4f2d6565160f",
+  "selo": "dade22a4dce263dd",
   "unidades": {
-    "scripts/ci/ci-local.sh": "3d8429df92b67bad",
+    "scripts/ci/ci-local.sh": "295dbede3915e589",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
     "scripts/ci/guarda-testes.py": "5b1b5836ee0813fa",
     "scripts/ci/testes.md": "022484bbe94c4c69",
@@ -3302,6 +3302,7 @@
     "tests/visual/README.md": "e945d763593851fe",
     "tests/visual/ajuda_junto_browser.py": "c7efa17e70a52222",
     "tests/visual/boquilhas_catalog_browser.py": "c9534c908a21179c",
+    "tests/visual/cabecalho_nome_comprido_browser.py": "623ebd9d59c44ca0",
     "tests/visual/calendario_parcial_browser.py": "e8db227590a44c8f",
     "tests/visual/definicoes_parcial_browser.py": "415309e3edd73d36",
     "tests/visual/design-review.cjs :: (resto do ficheiro)": "ce3f707087ab604a",

@@ -4496,3 +4496,13 @@ Novos: 0 · mudaram: 3 · saíram: 0
 - mudou: `tests/visual/pasta_pdf_browser.py`
 
 Selo depois: `32dc4f2d6565160f`
+
+## A-0318 · 2026-10-28 · contagem-lista
+
+Porquê: C02 da auditoria do Codex de 28/10/2026 (DMO-581): teste de browser novo tests/visual/cabecalho_nome_comprido_browser.py, que garante que com um nome e um título compridos a conta fica na fila dos módulos e a folha do Job On a 1290×646 não desliza; no ci-local.sh só se acrescenta o passo que o corre.
+Novos: 1 · mudaram: 1 · saíram: 0
+
+- novo: `tests/visual/cabecalho_nome_comprido_browser.py`
+- mudou: `scripts/ci/ci-local.sh`
+
+Selo depois: `dade22a4dce263dd`
