@@ -52,4 +52,27 @@ public sealed record ToolCandidateFilter(
     string? ReferenciaTotal = null,
     // Job On picker, nothing typed: only the related tools (used with the chosen ones, used in
     // this total reference, or linked to this line). Typing shows all again.
-    bool SoRelacionadas = false);
+    bool SoRelacionadas = false,
+    // Ferramentas page: the current state (the last one registered; Diogo, 28/10/2026).
+    DMO.Alpha.Core.Armazem.FerramentaEstadoTipo? Estado = null,
+    // Ferramentas page: where the tool is now (see ToolCandidateLocal).
+    ToolCandidateLocal? Local = null,
+    // Ferramentas page: the start of the owner plant («Fábrica de origem»), case-insensitive.
+    string? FabricaOrigem = null);
+
+/// <summary>
+/// Onde a ferramenta está, para o filtro «Localização» do Ferramentas (Diogo,
+/// 28/10/2026): numa posição do Armazém, ou senão a localização dos movimentos;
+/// sem movimentos é Fabrico. Com <see cref="Reparador"/>, só as que estão a
+/// reparar nesse reparador.
+/// </summary>
+public sealed record ToolCandidateLocal(ToolCandidateLocalTipo Tipo, string? Reparador = null);
+
+public enum ToolCandidateLocalTipo
+{
+    Armazem = 1,
+    Fabrico = 2,
+    Reparacao = 3,
+    Sucata = 4,
+    Emprestado = 5
+}

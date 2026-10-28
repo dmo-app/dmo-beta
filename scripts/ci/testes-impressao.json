@@ -1,5 +1,5 @@
 {
-  "selo": "1ecbaa53f6ccc384",
+  "selo": "2192538d1e48c104",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1573,6 +1573,10 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserTests.cs :: (resto do ficheiro)": "b7a273c0413e0ccb",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserTests.cs :: TechnicalNameParserTests.Accessory_ReadsTheReferenceFromTheGrammar": "9ee584a157d8241b",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserTests.cs :: TechnicalNameParserTests.Mold_KeepsTheModelAndType": "ec06e1da361b7110",
+    "tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateEstadoLocalTests.cs :: (resto do ficheiro)": "67f35a887b627704",
+    "tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateEstadoLocalTests.cs :: ToolCandidateEstadoLocalTests.Estado_e_o_ultimo_registado": "259d3425be70a774",
+    "tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateEstadoLocalTests.cs :: ToolCandidateEstadoLocalTests.Fabrica_de_origem_sem_maiusculas_e_antes_da_paginacao": "a7ebadd7dbe55fdc",
+    "tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateEstadoLocalTests.cs :: ToolCandidateEstadoLocalTests.Localizacao_armazem_primeiro_e_sem_movimentos_e_fabrico": "6d982e7c2857a4fc",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: (resto do ficheiro)": "90026c9350b5ea49",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.FindCandidatesAsync_BlankFilterDimensions_AreTreatedAsNotApplied_NotAsInexactMatches": "12f780f72e408ea2",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateQueryTests.cs :: ToolCandidateQueryTests.FindCandidatesAsync_DummyRemovedLine_IsNeverACandidate": "3657ba2b63821a48",

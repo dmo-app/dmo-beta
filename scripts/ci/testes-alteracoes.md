@@ -4100,3 +4100,15 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_JobOnNoPainel_TituloLarguraEFolha`
 
 Selo depois: `1ecbaa53f6ccc384`
+
+## A-0259 · 2026-10-28 · teste-novo
+
+Porquê: Testes novos dos filtros Estado, Localização e Fábrica de origem do Ferramentas (DMO-529)
+Novos: 4 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateEstadoLocalTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateEstadoLocalTests.cs :: ToolCandidateEstadoLocalTests.Estado_e_o_ultimo_registado`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateEstadoLocalTests.cs :: ToolCandidateEstadoLocalTests.Fabrica_de_origem_sem_maiusculas_e_antes_da_paginacao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateEstadoLocalTests.cs :: ToolCandidateEstadoLocalTests.Localizacao_armazem_primeiro_e_sem_movimentos_e_fabrico`
+
+Selo depois: `2192538d1e48c104`

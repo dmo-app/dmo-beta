@@ -85,6 +85,41 @@
           }
         </select>
       </div>
+      @* Estado, Localização e, no fim por ser raro, a Fábrica de origem (Diogo,
+         28/10/2026). Na Localização, a Reparação abre-se por cada reparador das
+         Definições. *@
+      <div class="dmo-field ferr-w-estado">
+        <label for="ferr-estado">Estado</label>
+        <select id="ferr-estado" name="estado" data-dmo-autosubmit>
+          <option value="">Todos</option>
+          @foreach (var estado in DMO.Alpha.Web.Pages.Ferramentas.IndexModel.Estados)
+          {
+            <option value="@estado.Valor" selected="@(Model.RequestedEstado == estado.Valor)">@estado.Texto</option>
+          }
+        </select>
+      </div>
+      <div class="dmo-field ferr-w-local">
+        <label for="ferr-local">Localização</label>
+        <select id="ferr-local" name="local" data-dmo-autosubmit>
+          <option value="">Todas</option>
+          @foreach (var local in DMO.Alpha.Web.Pages.Ferramentas.IndexModel.Locais)
+          {
+            <option value="@local.Valor" selected="@(Model.RequestedLocal == local.Valor)">@local.Texto</option>
+            @if (local.Valor == "reparacao")
+            {
+              foreach (var reparador in Model.Reparadores)
+              {
+                var valor = DMO.Alpha.Web.Pages.Ferramentas.IndexModel.LocalReparador(reparador);
+                <option value="@valor" selected="@(Model.RequestedLocal == valor)">Reparação · @reparador</option>
+              }
+            }
+          }
+        </select>
+      </div>
+      <div class="dmo-field ferr-w-fabrica">
+        <label for="ferr-fabrica" title="Fábrica de origem (a dona da ferramenta)">Fábrica</label>
+        <input id="ferr-fabrica" name="fabrica" data-dmo-maiusculas autocapitalize="characters" maxlength="32" value="@Model.RequestedFabrica" placeholder="MG" />
+      </div>
       <div class="ferr-filter-actions">
         <a class="dmo-button" data-dmo-completa href="@Url.Page("/Ferramentas/Index", new { @return = Model.ReturnTemplate, por_pagina = Model.PageSize })">Limpar filtros</a>
         <a class="dmo-button" id="ferrCriarFerramenta" data-dmo-completa href="@Url.Page("/Ferramentas/Index", new { criar = 1, @return = Model.ReturnTemplate })">Criar ferramenta</a>

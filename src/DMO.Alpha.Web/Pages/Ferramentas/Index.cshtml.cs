@@ -1,5 +1,6 @@
 using DMO.Alpha.Web.Authorization;
 using DMO.Alpha.Core.Admin;
+using DMO.Alpha.Core.Armazem;
 using DMO.Alpha.Core.Production;
 using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Web.Presentation;
@@ -53,6 +54,11 @@ public sealed class IndexModel : PageModel
     };
 
     private readonly IFerramentasUsoSap _usoSap;
+    private readonly DMO.Alpha.Core.Programada.IReparacaoProgramada _reparacao;
+    private readonly DMO.Alpha.Core.Boquilhas.IBqRepairerQuery _bqReparadores;
+
+    /// <summary>Os reparadores das Definições, um por opção na «Localização» (Diogo, 28/10/2026).</summary>
+    public IReadOnlyList<string> Reparadores { get; private set; } = Array.Empty<string>();
 
     /// <summary>O % uso da última leitura das ferramentas desta página (para a cor do uso cheio).</summary>
     public IReadOnlyDictionary<string, decimal> Usos { get; private set; } = new Dictionary<string, decimal>();
@@ -86,8 +92,12 @@ public sealed class IndexModel : PageModel
         IEditToolTechnicalValuesHandler editTechnical,
         DMO.Alpha.Core.Armazem.IArmazemLotesNovos lotesNovos,
         IFerramentasUsoSap usoSap,
-        IJobOnToolFactsQuery factos)
+        IJobOnToolFactsQuery factos,
+        DMO.Alpha.Core.Programada.IReparacaoProgramada reparacao,
+        DMO.Alpha.Core.Boquilhas.IBqRepairerQuery bqReparadores)
     {
+        _reparacao = reparacao;
+        _bqReparadores = bqReparadores;
         _factos = factos;
         _usoSap = usoSap;
         _lotesNovos = lotesNovos;
@@ -109,6 +119,7 @@ public sealed class IndexModel : PageModel
     {
         type = RequestedTypeToken, reference = RequestedReference ?? RequestedMfReference, lot = RequestedLot,
         machine_id = RequestedMachineId,
+        estado = RequestedEstado, local = RequestedLocal, fabrica = RequestedFabrica,
         pagina = pageNumber, por_pagina = PageSize, @return = ReturnTemplate
     });
 
@@ -130,6 +141,45 @@ public sealed class IndexModel : PageModel
     /// <summary>O nome técnico (o código do desenho) submetido, preservado por PRG.</summary>
     public string? RequestedTechnicalName { get; private set; }
     public int? RequestedMachineId { get; private set; }
+    public string? RequestedEstado { get; private set; }
+    public string? RequestedLocal { get; private set; }
+    public string? RequestedFabrica { get; private set; }
+
+    /// <summary>Os estados do filtro, pela ordem do Diogo (28/10/2026: «reparado por reparar novo»).</summary>
+    public static readonly IReadOnlyList<(string Valor, string Texto, FerramentaEstadoTipo Estado)> Estados =
+    [
+        ("reparado", "Reparado", FerramentaEstadoTipo.Reparado),
+        ("por_reparar", "Por reparar", FerramentaEstadoTipo.PorReparar),
+        ("novo", "Novo", FerramentaEstadoTipo.Novo)
+    ];
+
+    /// <summary>As localizações do filtro; a Reparação abre-se por reparador logo a seguir.</summary>
+    public static readonly IReadOnlyList<(string Valor, string Texto, ToolCandidateLocalTipo Tipo)> Locais =
+    [
+        ("armazem", "Armazém", ToolCandidateLocalTipo.Armazem),
+        ("fabrico", "Fabrico", ToolCandidateLocalTipo.Fabrico),
+        ("reparacao", "Reparação", ToolCandidateLocalTipo.Reparacao),
+        ("sucata", "Sucata", ToolCandidateLocalTipo.Sucata),
+        ("emprestado", "Empréstimo", ToolCandidateLocalTipo.Emprestado)
+    ];
+
+    /// <summary>O valor da opção de um reparador («reparacao:Nome»).</summary>
+    public static string LocalReparador(string nome) => "reparacao:" + nome;
+
+    private static ToolCandidateLocal? LocalPara(string? valor)
+    {
+        if (string.IsNullOrWhiteSpace(valor)) return null;
+        if (valor.StartsWith("reparacao:", StringComparison.Ordinal))
+        {
+            var nome = valor["reparacao:".Length..].Trim();
+            return nome.Length == 0 ? new ToolCandidateLocal(ToolCandidateLocalTipo.Reparacao) : new ToolCandidateLocal(ToolCandidateLocalTipo.Reparacao, nome);
+        }
+        foreach (var local in Locais)
+        {
+            if (local.Valor == valor) return new ToolCandidateLocal(local.Tipo);
+        }
+        return null;
+    }
 
     /// <summary>Um valor técnico do registo devolvido por uma recusa (PRG); vazio quando não há.</summary>
     public string RequestedTechnical(string field) => Request.Query[field].ToString().Trim();
@@ -197,6 +247,9 @@ public sealed class IndexModel : PageModel
         [FromQuery(Name = "lot")] string? lot,
         [FromQuery(Name = "mf_reference")] string? mfReference,
         [FromQuery(Name = "machine_id")] int? machineId,
+        [FromQuery(Name = "estado")] string? estado,
+        [FromQuery(Name = "local")] string? local,
+        [FromQuery(Name = "fabrica")] string? fabrica,
         [FromQuery(Name = "return")] string? returnUrl,
         [FromQuery(Name = "create_refusal")] string? createRefusal,
         [FromQuery(Name = "existing_tool_id")] string? existingToolId,
@@ -237,9 +290,18 @@ public sealed class IndexModel : PageModel
         DeletedNote = deleted == "1";
 
         RequestedTechnicalName = Sanitize(technicalName);
-        await LoadCandidatesAsync(type, reference, lot, mfReference, machineId, pageNumber, pageSize);
+        await LoadCandidatesAsync(type, reference, lot, mfReference, machineId, estado, local, fabrica, pageNumber, pageSize);
 
         Machines = await _machineListQuery.ListAsync(HttpContext.RequestAborted);
+        if (!ShowCreate)
+        {
+            Reparadores = (await _reparacao.ReparadoresAsync(HttpContext.RequestAborted)).Select(r => r.Nome)
+                .Concat((await _bqReparadores.ListAsync(HttpContext.RequestAborted)).Select(r => r.Name))
+                .Where(n => !string.IsNullOrWhiteSpace(n)).Select(n => n.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(n => n, StringComparer.CurrentCultureIgnoreCase)
+                .ToList();
+        }
 
         // Template de return do fluxo contextual: validação LOCAL-ONLY —
         // começa por "/" e não por "//" (nenhum destino externo). O template
@@ -257,18 +319,21 @@ public sealed class IndexModel : PageModel
         [FromQuery(Name = "lot")] string? lot,
         [FromQuery(Name = "mf_reference")] string? mfReference,
         [FromQuery(Name = "machine_id")] int? machineId,
+        [FromQuery(Name = "estado")] string? estado,
+        [FromQuery(Name = "local")] string? local,
+        [FromQuery(Name = "fabrica")] string? fabrica,
         [FromQuery(Name = "return")] string? returnUrl,
         [FromQuery(Name = "pagina")] int? pageNumber,
         [FromQuery(Name = "por_pagina")] int? pageSize)
     {
-        await LoadCandidatesAsync(type, reference, lot, mfReference, machineId, pageNumber, pageSize);
+        await LoadCandidatesAsync(type, reference, lot, mfReference, machineId, estado, local, fabrica, pageNumber, pageSize);
         ReturnTemplate = IsSafeLocalReturnTemplate(returnUrl) ? returnUrl : null;
         Response.Headers["X-Dmo-Region"] = "ferrResultados";
         return Partial("_FerramentasResultados", this);
     }
 
     private async Task LoadCandidatesAsync(string? type, string? reference, string? lot,
-        string? mfReference, int? machineId, int? pageNumber, int? pageSize)
+        string? mfReference, int? machineId, string? estado, string? local, string? fabrica, int? pageNumber, int? pageSize)
     {
         // Filtros: dimensões fechadas e explícitas, cada uma apenas REDUZ os
         // candidatos (a seleção é sempre humana explícita sobre o tool_id).
@@ -277,6 +342,11 @@ public sealed class IndexModel : PageModel
         RequestedLot = Sanitize(lot);
         RequestedMfReference = Sanitize(mfReference);
         RequestedMachineId = machineId;
+        var estadoEscolhido = Estados.FirstOrDefault(e => e.Valor == estado);
+        RequestedEstado = estadoEscolhido.Valor;
+        var localEscolhido = LocalPara(local);
+        RequestedLocal = localEscolhido is null ? null : local;
+        RequestedFabrica = Sanitize(fabrica)?.ToUpperInvariant();
 
         // UM SÓ CAMPO «Referência» (Diogo, 17/10/2026: «campos de filtro
         // duplicados referência»): procura a referência da ferramenta OU a
@@ -288,7 +358,10 @@ public sealed class IndexModel : PageModel
             Type: RequestedTypeToken is null ? null : TypeFor(RequestedTypeToken),
             Lot: RequestedLot,
             MachineId: RequestedMachineId,
-            ReferenceContains: searchReference);
+            ReferenceContains: searchReference,
+            Estado: estadoEscolhido.Valor is null ? null : estadoEscolhido.Estado,
+            Local: localEscolhido,
+            FabricaOrigem: RequestedFabrica);
 
         // A lista só aparece no separador Ver, e só depois de procurar
         // (Diogo, 17/10/2026: «não deve existir lista até procurar, evitar
@@ -296,7 +369,10 @@ public sealed class IndexModel : PageModel
         // O tipo e a máquina só reduzem: a lista aparece quando se começa a
         // escrever a referência ou o lote (Diogo, 18/10/2026: escolher BQ
         // carregava as BQ todas).
-        Searched = searchReference is not null || RequestedLot is not null;
+        // O Estado, a Localização e a Fábrica de origem também mostram a lista
+        // (Diogo, 28/10/2026): são filtros que já deixam poucas.
+        Searched = searchReference is not null || RequestedLot is not null
+            || RequestedEstado is not null || RequestedLocal is not null || RequestedFabrica is not null;
         if (!ShowCreate && Searched)
         {
             var page = await _candidateQuery.FindPageAsync(filter, pageNumber ?? 1, pageSize ?? 10, HttpContext.RequestAborted);
