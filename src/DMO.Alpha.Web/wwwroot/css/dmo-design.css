@@ -135,7 +135,8 @@ html body .peso-live-strip {border-left-width:1px;border-left-color:var(--dmo-bo
 html body :is(.revisao-detail h3.revisao-section,.resumo-linked h4.revisao-folha) {border-left:0;background:none;padding-left:0}
 html body .dmo-table thead th {background:var(--dmo-subtle);text-transform:none;letter-spacing:0;font-weight:600;color:var(--dmo-muted)}
 html body .dmo-table tbody tr {background:var(--dmo-card)}
-html body .dmo-table tbody tr:hover {background:var(--dmo-brand-050)}
+/* Hover só nas linhas que abrem alguma coisa (Diogo, 28/10/2026: «não deve existir hover se não abre nada»). */
+html body .dmo-table tbody tr:is([data-dmo-row],[data-dmo-open],[data-dmo-ficha],[data-hist-linha],[data-dmo-candidata],[onclick]):hover {background:var(--dmo-brand-050)}
 html body .beta-production-rail {background:var(--dmo-card);color:var(--dmo-text);border-right:1px solid var(--dmo-border);padding:20px 14px;box-shadow:none}
 html body .beta-production-rail-head :is(strong,a) {color:var(--dmo-text)}
 html body .beta-production-rail-head span {color:var(--dmo-muted)}

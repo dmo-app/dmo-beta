@@ -383,3 +383,13 @@ html body main:is(.arm-page,:has(#armMovimentos)) table th{font-size:12px;line-h
   /* O cartão «Fora, em reparação» chega ao fundo, mas a sua tabela só tem a altura das linhas. */
   html body main:has(#armMovimentos) #armRepFora>.dmo-table-wrap{flex:0 1 auto}
 }
+
+/* Definições › A minha conta: os módulos como os dados de cima (Nome, Email, Número), sem caixa nem hover (Diogo, 28/10/2026: «alinhar título com módulos», «não deve existir hover se não abre nada», «dar um toque no design»):
+   o rótulo pequeno e cinzento em cima, o acesso por baixo, a começar na mesma linha que «Nome». */
+html body main.def-page .dmo-table-wrap:has(>.def-conta-modulos):not(#_){border:0;border-radius:0;background:none;box-shadow:none;margin-top:16px;overflow:visible}
+html body main.def-page .def-conta-modulos:not(#_){border-collapse:collapse;background:none}
+html body main.def-page .def-conta-modulos:not(#_) :is(thead th,tbody td,tbody tr){background:none;border:0}
+html body main.def-page .def-conta-modulos:not(#_) :is(th,td){padding:0 32px 0 0;text-align:left;white-space:nowrap}
+html body main.def-page .def-conta-modulos:not(#_) thead th{padding-bottom:4px;font-size:12px;font-weight:500;color:var(--dmo-muted)}
+html body main.def-page .def-conta-modulos:not(#_) tbody td{font-size:15px;font-weight:600;color:var(--dmo-text)}
+html body main.def-page .def-conta-modulos:not(#_) tbody tr:hover{background:none}
