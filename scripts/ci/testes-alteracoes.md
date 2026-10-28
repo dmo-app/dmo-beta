@@ -4139,7 +4139,7 @@ Novos: 0 · mudaram: 1 · saíram: 0
 
 Selo depois: `fd8a7571dbcd50e2`
 
-## A-0262 · 2026-10-28 · ok-do-diogo
+## A-0293 · 2026-10-28 · ok-do-diogo
 
 Porquê: Nas Opções da ficha os textos passam a «Duplicar» e «Eliminar» (Diogo: «já sabemos que é a ferramenta»); o teste verifica os textos novos.
 Referência: cmsg_01K75FTs9bQnbhhH7qttpgra78HhrtqAE3oZqT6prTaNap, cmsg_01K75FTs9bQnbhhH7qttpgraNrCcjWyRm9mYUMQiUFy3br
