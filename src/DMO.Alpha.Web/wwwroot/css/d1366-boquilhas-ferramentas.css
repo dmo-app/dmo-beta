@@ -324,7 +324,7 @@ html.dmo-bloqueado body form[method="post"] :is(.ferr-checks,.bq-movement-types,
 html body .beta-bq-layout{--bq-topo:95px}
 @media (min-width:1100px){
   html body .beta-bq-layout{min-height:0}
-  html body .beta-bq-layout>.main{box-sizing:border-box;height:calc(100vh - var(--bq-topo));min-height:560px}
+  html body .beta-bq-layout>.main{box-sizing:border-box;height:calc(100vh - var(--bq-topo));min-height:520px}
   html body .beta-bq-layout>.main>section.view{height:100%;min-height:0}
 
   /* Cartões de lista: cabeçalho e paginação fixos, a tabela desliza. */

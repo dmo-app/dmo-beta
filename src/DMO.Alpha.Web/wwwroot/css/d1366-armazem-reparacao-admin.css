@@ -332,6 +332,10 @@ html body #riLinhasRail .beta-production-lines :is(button,.dmo-rail-link):is(.dm
   html body main.arm-page #armLog>.dmo-card-topo{flex:none;min-height:0;margin:0 0 8px}
   html body main.arm-page #armLog>.dmo-table-wrap{flex:0 1 auto;min-height:0}
   html body main.arm-page #armLog>.dmo-list-pager{flex:none;margin-top:8px!important}
+  /* Ecrã de 646 px com uma ferramenta aberta (28/10/2026): a paginação passa para o canto do
+     título, para a tabela ficar com as linhas à vista em vez de espremida. */
+  html body main.arm-page #armRegisto>#armLog{position:relative}
+  html body main.arm-page #armLog>.dmo-list-pager{position:absolute;top:8px;right:20px;margin:0!important}
   html body main.arm-page #armLog>p{margin:0}
   /* A procura sem ferramenta aberta: a lista do que se encontrou desliza (não empurra o cartão). */
   html body main.arm-page #armProcuraLista .dmo-table-wrap{max-height:max(150px,calc(100vh - 560px))}
