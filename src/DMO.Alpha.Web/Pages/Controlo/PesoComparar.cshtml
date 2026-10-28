@@ -20,7 +20,7 @@
 }
 <main class="dmo-workspace peso-comparar-pagina" aria-labelledby="pesoCompararTitulo">
   @* No painel lateral o «← Voltar» não aparece: o painel tem o seu «Fechar». *@
-  <a class="dmo-voltar-texto" href="@Model.VoltarHref"><span aria-hidden="true">←</span> Voltar</a>
+  <a class="dmo-voltar-texto" href="@Model.VoltarHref">Voltar</a>
 <section class="dmo-card peso-comparar" aria-labelledby="pesoCompararTitulo">
   <form method="get" action="/Controlo/PesoComparar" id="pesoCompararForm">
     @if (cms.PesoBaseId is int pesoBase)

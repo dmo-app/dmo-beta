@@ -48,7 +48,8 @@ public partial class BoquilhasRegistoPageTests
 
         Assert.Equal(0, await CountTracesAsync());
         // O mesmo estado de antes: a produção, sem movimentos, o form do movimento.
-        Assert.Contains("Registo — BQ RGT951 · Lote 5", html);
+        Assert.Contains("<h3>Produção</h3>", html);
+        Assert.Contains("RGT951 · Lote 5", html);
         // Os cartões do registo (Diogo, 17/10/2026): referência, BQ e lote,
         // produção e datas; sem «Máquinas compatíveis» no cabeçalho.
         Assert.Matches("<a class=\"dmo-fact dmo-fact-link\" href=\"/JobOn\\?jobon_id=\\d+#lightFicha\" title=\"Abrir o Job On desta produção\"><span>Referência</span><strong>ZQREF-51</strong></a>", html);

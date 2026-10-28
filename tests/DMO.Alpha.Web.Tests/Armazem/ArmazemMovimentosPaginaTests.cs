@@ -169,7 +169,7 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
         Assert.Matches("<a href=\"/Armazem/Movimentos\"[^>]*aria-current=\"page\">Registo</a>", pagina);
         var linha = Elemento(pagina, $"data-dmo-ferramenta=\"{Cm}\"");
         Assert.Contains("CM 5447T173", linha);
-        Assert.Contains("Fabrico", linha);
+        Assert.Contains("Sem registo", linha);
         Assert.Contains($"/Armazem/Movimentos?ferramenta={Cm}", linha);
         Assert.Contains($"data-dmo-ferramenta=\"{Bq}\"", lista);
         Assert.DoesNotContain($"data-dmo-ferramenta=\"{Cm}\"", lista);

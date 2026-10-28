@@ -46,7 +46,6 @@ public sealed class FolhaModel(
     IJobOnPaginaQuery jobOnPagina,
     IConfiguration configuration,
     DMO.Alpha.Core.Tools.IFerramentasUsoSap usoSap,
-    IAlterarLoteBq alterarLote,
     IFolhaDaFerramenta folhaDaFerramenta,
     DMO.Alpha.Core.Tools.IFerramentasFabricoSap fabricoSap) : PageModel
 {
@@ -75,12 +74,6 @@ public sealed class FolhaModel(
             campos = dados.Campos.Select(c => new { id = JobOnFolhaCampos.IdDe(c.Key), valor = c.Value ?? string.Empty })
         });
     }
-
-    /// <summary>Os lotes da BQ usados nesta produção, do primeiro ao atual (vazio sem BQ).</summary>
-    public IReadOnlyList<string> LotesBqUsados { get; private set; } = [];
-
-    /// <summary>Os lotes que a BQ teve antes do atual, para a cabeça da BQ («antes 165»).</summary>
-    public IReadOnlyList<string> LotesBqAntes => LotesBqUsados.Count > 1 ? LotesBqUsados.Take(LotesBqUsados.Count - 1).Where(l => l != LotesBqUsados[^1]).Distinct().ToList() : [];
 
     /// <summary>O aviso «não está registada no Armazém» (o mesmo interruptor do Planeamento, Dmo:Avisos:ArmazemSemRegisto).</summary>
     public bool MostrarAvisoArmazem { get; } = configuration.GetValue(IndexModel.AvisoArmazemChave, false);
@@ -243,6 +236,22 @@ public sealed class FolhaModel(
     public JobOnToolFacts? Fact(string? toolId) => toolId is null ? null : Facts.FirstOrDefault(f => f.ToolId == toolId);
 
     /// <summary>
+    /// A ferramenta cujo nome técnico diz as gotas: a CM, senão o MF (Diogo,
+    /// 28/10/2026: «ver se o jobon já tem em consideração nome técnico para
+    /// mudar gota e meter número correto»); null quando nenhum nome diz.
+    /// </summary>
+    public JobOnToolFacts? FerramentaDaGota =>
+        JobOn is null ? null : new[] { Fact(JobOn.CmToolId), Fact(JobOn.MfToolId) }.FirstOrDefault(f => f?.Gotas is not null);
+
+    /// <summary>A Gota da produção: a do nome técnico; sem ela, a escrita na folha (<c>cab_gota</c>).</summary>
+    public string? Gota =>
+        FerramentaDaGota?.Gotas?.ToString(System.Globalization.CultureInfo.InvariantCulture)
+        ?? (Folha.Valor("cab_gota") is { } escrita && !string.IsNullOrWhiteSpace(escrita) ? escrita : null);
+
+    /// <summary>De onde vem a Gota quando vem do nome técnico («Do nome técnico da CM: M107595MPPSX»).</summary>
+    public string? GotaOrigem => FerramentaDaGota is { } f ? $"Do nome técnico {(f.Type == "MF" ? "do MF" : "da CM")}: {f.NomeTecnico}" : null;
+
+    /// <summary>
     /// A referência total da produção: a referência do MF seguida da da BQ
     /// (5810 + T188 = 5810T188). Sem MF ou sem BQ, a gravada.
     /// </summary>
@@ -291,7 +300,8 @@ public sealed class FolhaModel(
         [FromQuery(Name = "removida")] string? removida = null,
         [FromQuery(Name = "etapa")] string? etapa = null,
         [FromQuery(Name = "producao")] string? producao = null,
-        [FromQuery(Name = "tipo")] string? tipo = null)
+        [FromQuery(Name = "tipo")] string? tipo = null,
+        [FromQuery(Name = "linha_de")] string? linhaDe = null)
     {
         VistaAlteracoes = vista == "alteracoes";
         AlteracaoRemovida = removida == "1";
@@ -397,6 +407,19 @@ public sealed class FolhaModel(
             {
                 var ultima = dela.OrderByDescending(p => p.ProductionNumber, StringComparer.Ordinal).First();
                 return Redirect($"/JobOn/Folha?jobon_id={ultima.JobOnId}{NovoDestino}");
+            }
+            // UMA REFERÊNCIA SEM JOB ON (Diogo, 28/10/2026: «estava no jobon da C3, queria iniciar
+            // um jobon para essa linha, meti a referência que vai entrar e disse que não existia»):
+            // quem cria abre logo o Job On novo dela, na linha de onde veio (a do Planeamento ou a
+            // do Job On que estava a ver), como no Criar. Quem só vê fica com o aviso.
+            if (PodeEditar)
+            {
+                var linhaNova = machineId ?? (linhaDe?.Trim() is { Length: > 0 } codigo
+                    ? (await machineList.ListAsync(ct)).FirstOrDefault(m => string.Equals(m.Code, codigo, StringComparison.OrdinalIgnoreCase))?.MachineId
+                    : null);
+                return Redirect($"/JobOn/Folha?novo=1&etapa=criar&referencia={Uri.EscapeDataString(procurada.ToUpperInvariant())}"
+                    + (linhaNova is int l ? $"&machine_id={l}" : "")
+                    + ((NovoInicio ?? DiaPlaneamento) is { } diaNovo ? $"&inicio_em={diaNovo:yyyy-MM-dd}" : ""));
             }
             ReferenciaSemProducoes = true;
         }
@@ -512,7 +535,6 @@ public sealed class FolhaModel(
                 Usos = await usoSap.UltimasPercentagensAsync(ids, ct);
                 Folha = Folha.ComLoteFfDoMf(Fact(aberto.MfToolId)?.Lot);
             }
-            LotesBqUsados = await alterarLote.LotesUsadosAsync(aberto.JobOnId, ct);
             CadenciaSap = await fabricoSap.CadenciaDoJobOnAsync(aberto.JobOnId, ct);
             if (Editar)
             {

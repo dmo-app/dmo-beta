@@ -185,6 +185,45 @@
     }
   }, true);
 
+  /* ---------- clicar fora só fecha (Diogo, 28/10/2026) ----------
+   * «Ao clicar fora para fechar estou a abrir outras sem querer»: com um menu
+   * ou uma lista aberta (Opções, Funções, Exportar, a ajuda «?», a lista das
+   * produções, a Informação técnica da folha), um clique fora só a fecha. Esse
+   * clique não chega ao que está por baixo, e o duplo clique que o segue também
+   * não. As janelas e os painéis já são modais: o que está por baixo nunca recebe. */
+  var ABERTOS = [
+    "details[data-dmo-tab-menu][open]", "details.dmo-options[open]", "details.menu[open]",
+    "details.tp-support[open]", ".sec > details.more[open]", ".dmo-help.dmo-help-aberta",
+    ".prod-drop > .prod-list:not([hidden])"
+  ].join(",");
+  function fecharAberto(el) {
+    if (el.matches(".dmo-help")) { el.classList.remove("dmo-help-aberta"); return; }
+    if (el.matches(".prod-list")) {
+      el.hidden = true;
+      var botao = el.parentElement && el.parentElement.querySelector("[aria-expanded]");
+      if (botao) botao.setAttribute("aria-expanded", "false");
+      return;
+    }
+    el.removeAttribute("open");
+  }
+  var engolidoEm = 0;
+  window.addEventListener("click", function (event) {
+    if (event.button !== 0 || !(event.target instanceof Element)) return;
+    var abertos = Array.prototype.filter.call(document.querySelectorAll(ABERTOS), function (el) {
+      // A lista das produções conta como aberta junto com o seu botão.
+      var zona = el.matches(".prod-list") ? el.parentElement : el;
+      return !zona.contains(event.target);
+    });
+    if (!abertos.length) return;
+    abertos.forEach(fecharAberto);
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    engolidoEm = Date.now();
+  }, true);
+  window.addEventListener("dblclick", function (event) {
+    if (Date.now() - engolidoEm < 700) { event.preventDefault(); event.stopImmediatePropagation(); }
+  }, true);
+
   /* ---------- separador com dropdown (barra de funções) ---------- */
   // O <details> abre e fecha sozinho; aqui fecha-se ao clicar fora ou com Esc.
   document.addEventListener("click", function (event) {
