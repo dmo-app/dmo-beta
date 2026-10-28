@@ -108,7 +108,10 @@ public sealed class ArmazemMovimento
     /// <summary>O reparador com que a ferramenta volta na Entrada (o da última Saída, editável); o nome, congelado.</summary>
     public string? EntradaReparadorNome { get; set; }
 
-    /// <summary>A fábrica de destino de uma Saída para Emprestado (opcional).</summary>
+    /// <summary>
+    /// A fábrica da BA (a sigla) de uma Saída para Emprestado, ou de onde a
+    /// ferramenta volta na Entrada (Diogo, 28/10/2026). Opcional.
+    /// </summary>
     public string? FabricaDestino { get; set; }
 
     public string? Observacoes { get; set; }

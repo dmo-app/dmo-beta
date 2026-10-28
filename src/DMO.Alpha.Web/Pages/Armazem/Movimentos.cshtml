@@ -39,6 +39,7 @@
 .arm-linha{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:0 0 12px}
 .arm-linha .dmo-field{margin:0}
 html body .arm-linha .dmo-field input.arm-curto{width:12ch}
+html body .arm-linha .dmo-field select.arm-fab{width:76px}
 html body .arm-linha .dmo-field input.arm-pos{width:7ch;font-variant-numeric:tabular-nums}
 .arm-entrada-linha{margin:0 0 8px}
 .arm-entrada-linha .dmo-button{align-self:end}
@@ -356,6 +357,25 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
                 </datalist>
               </div>
             }
+            @* Volta de um Empréstimo: a fábrica da BA de onde vem, a última e pequena,
+               a da Saída (senão MG). Diogo, 28/10/2026. *@
+            @if (Model.Fabricas.Count > 0 && (s.Localizacao == FerramentaLocalizacaoTipo.Emprestado || (recusaEntrada && Model.Fabrica is not null)))
+            {
+              var fabricaEntrada = recusaEntrada ? Model.Fabrica : s.VindaFabrica ?? Model.FabricaPorOmissao;
+              <div class="dmo-field">
+                <label for="armEntFabrica">Fábrica</label>
+                <select id="armEntFabrica" name="fabrica" class="arm-fab">
+                  @if (fabricaEntrada is not null && Model.Fabricas.All(f => f.Sigla != fabricaEntrada))
+                  {
+                    <option value="@fabricaEntrada" selected>@fabricaEntrada</option>
+                  }
+                  @foreach (var f in Model.Fabricas)
+                  {
+                    <option value="@f.Sigla" title="@f.Nome" selected="@(fabricaEntrada == f.Sigla)">@f.Sigla</option>
+                  }
+                </select>
+              </div>
+            }
           }
           else
           {
@@ -399,8 +419,23 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
             @if (Model.Destino == ArmazemDestino.Emprestado)
             {
               <div class="dmo-field">
+                @* A fábrica da BA, pequena, só a sigla, por omissão MG (Diogo, 28/10/2026).
+                   Sem fábricas nas Definições, fica o texto livre de antes. *@
                 <label for="armSaiFabrica">Fábrica</label>
-                <input id="armSaiFabrica" name="fabrica" class="arm-curto" maxlength="@ArmazemMovimento.FabricaMaxLength" autocomplete="off" value="@(recusaSaida ? Model.Fabrica : null)" placeholder="Ex.: LE" />
+                @if (Model.Fabricas.Count > 0)
+                {
+                  var fabricaSaida = recusaSaida ? Model.Fabrica : Model.FabricaPorOmissao;
+                  <select id="armSaiFabrica" name="fabrica" class="arm-fab">
+                    @foreach (var f in Model.Fabricas)
+                    {
+                      <option value="@f.Sigla" title="@f.Nome" selected="@(fabricaSaida == f.Sigla)">@f.Sigla</option>
+                    }
+                  </select>
+                }
+                else
+                {
+                  <input id="armSaiFabrica" name="fabrica" class="arm-curto" maxlength="@ArmazemMovimento.FabricaMaxLength" autocomplete="off" value="@(recusaSaida ? Model.Fabrica : null)" placeholder="Ex.: LE" />
+                }
               </div>
             }
             @if (Model.Destino == ArmazemDestino.Sucata)

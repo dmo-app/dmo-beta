@@ -82,6 +82,9 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
 
     public DbSet<Reparador> Reparadores => Set<Reparador>();
 
+    // As fábricas da BA (sigla e nome), para o Empréstimo e a Fábrica de origem.
+    public DbSet<FabricaBa> FabricasBa => Set<FabricaBa>();
+
     // A Reparação Programada (separador das Ferramentas): as listas por reparador e as ferramentas de cada uma.
     public DbSet<DMO.Alpha.Core.Programada.ReparacaoProgramadaLista> ReparacaoProgramadaListas => Set<DMO.Alpha.Core.Programada.ReparacaoProgramadaLista>();
 
@@ -641,6 +644,15 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.Property(p => p.Codigo).HasMaxLength(ArmazemPosicao.CodigoMaxLength).IsRequired();
             entity.HasIndex(p => p.Codigo).IsUnique();
             entity.Property(p => p.CriadaPor).HasMaxLength(254);
+        });
+
+        modelBuilder.Entity<FabricaBa>(entity =>
+        {
+            entity.ToTable("FabricasBa");
+            entity.HasKey(f => f.Id);
+            entity.Property(f => f.Sigla).HasMaxLength(FabricaBa.SiglaLength).IsRequired();
+            entity.Property(f => f.Nome).HasMaxLength(FabricaBa.NomeMaxLength).IsRequired();
+            entity.HasIndex(f => f.Sigla).IsUnique();
         });
 
         modelBuilder.Entity<Reparador>(entity =>

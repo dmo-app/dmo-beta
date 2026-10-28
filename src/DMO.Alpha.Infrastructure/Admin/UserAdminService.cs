@@ -300,44 +300,18 @@ public sealed class UserAdminService : IUserAdminService
         // entrega do ADMIN (mostrado UMA vez; USERS.md §5).
         var temporaryPassword = TemporaryPasswordMinter.Mint();
 
-        // O provider re-establisha a credencial: a anterior deixa de
-        // valer e a mudança para a password privada volta a ser
-        // obrigatória no login seguinte. Recusas tipadas do provider
-        // NÃO tocam o estado do User. A partir daqui o pedido acaba mesmo
-        // que o browser saia: cortado a meio, a palavra-passe já mudava no
-        // provider, a sessão antiga continuava e ninguém via o PIN (deep
-        // sweep, 18/10/2026).
-        var reset = await _provisioningProvider.ResetAsync(user.ProviderUserId, temporaryPassword, CancellationToken.None);
-        string? createdProviderId = null;
-        if (reset.Status == UserProvisioningResetStatus.IdentityNotFound)
-        {
-            // Recover the existing DMO user, not a second application account.
-            // Sem email não há como recriar a identidade aqui.
-            var email = TrimToNull(user.Email);
-            if (email is null)
-                return new ResetUserAccessOutcome(ResetUserAccessResult.IdentityNotFound);
-
-            var created = await _provisioningProvider.CreateAsync(email, temporaryPassword, CancellationToken.None);
-            if (created.Status != UserProvisioningCreateStatus.Success
-                || string.IsNullOrWhiteSpace(created.ProviderUserId))
-            {
-                return new ResetUserAccessOutcome(created.Status == UserProvisioningCreateStatus.EmailExists
-                    ? ResetUserAccessResult.EmailAlreadyInUse
-                    : ResetUserAccessResult.ProviderFailure);
-            }
-            createdProviderId = created.ProviderUserId;
-        }
-        else if (reset.Status != UserProvisioningResetStatus.Success)
-        {
-            return new ResetUserAccessOutcome(ResetUserAccessResult.ProviderFailure);
-        }
-
-        var previousProviderId = user.ProviderUserId;
+        // PRIMEIRO A APP, DEPOIS O PROVIDER (issue #1 do dmo-Improvements e
+        // relatório de backend de 28/10/2026, BE12; «sim» do Diogo, cartão
+        // cmsg_01K75FTs9bQnbhhH7qttpgraXb8tBQWVyJXk8hiyb37wF1). As sessões
+        // abertas antes do reset deixam de valer, também depois de o User
+        // escolher a nova palavra-passe, e a mudança para a password privada
+        // volta a ser obrigatória: isto grava-se ANTES de mudar a credencial.
+        // Antes era ao contrário e uma gravação falhada depois do provider
+        // deixava a palavra-passe mudada, a sessão antiga aberta e ninguém
+        // via o PIN. Se a gravação falha, o provider não é chamado.
         var previousRequiresChange = user.RequiresPasswordChange;
-        user.ProviderUserId = createdProviderId ?? previousProviderId;
+        var previousSessionVersion = user.SessionVersion;
         user.RequiresPasswordChange = true;
-        // As sessões abertas antes do reset deixam de valer, também depois
-        // de o User escolher a nova palavra-passe.
         user.SessionVersion++;
         try
         {
@@ -345,14 +319,61 @@ public sealed class UserAdminService : IUserAdminService
         }
         catch
         {
-            user.ProviderUserId = previousProviderId;
             user.RequiresPasswordChange = previousRequiresChange;
-            user.SessionVersion--;
-            // Compensate only the identity just created by this recovery.
-            // Never delete an existing identity on an ordinary reset failure.
-            if (createdProviderId is not null)
-                await _provisioningProvider.DeleteAsync(createdProviderId, CancellationToken.None);
+            user.SessionVersion = previousSessionVersion;
             throw;
+        }
+
+        // O provider re-establisha a credencial: a anterior deixa de valer.
+        // Uma recusa tipada do provider diz que nada mudou lá: o User volta
+        // ao que estava. Uma falha sem resposta (exceção) pode ter mudado a
+        // credencial: fica a sessão fechada e a mudança obrigatória, e o
+        // ADMIN repõe outra vez. A partir daqui o pedido acaba mesmo que o
+        // browser saia (deep sweep, 18/10/2026).
+        async Task<ResetUserAccessOutcome> RecusaAsync(ResetUserAccessResult result)
+        {
+            user.RequiresPasswordChange = previousRequiresChange;
+            user.SessionVersion = previousSessionVersion;
+            await _dbContext.SaveChangesAsync(CancellationToken.None);
+            return new ResetUserAccessOutcome(result);
+        }
+
+        var reset = await _provisioningProvider.ResetAsync(user.ProviderUserId, temporaryPassword, CancellationToken.None);
+        if (reset.Status == UserProvisioningResetStatus.IdentityNotFound)
+        {
+            // Recover the existing DMO user, not a second application account.
+            // Sem email não há como recriar a identidade aqui.
+            var email = TrimToNull(user.Email);
+            if (email is null)
+                return await RecusaAsync(ResetUserAccessResult.IdentityNotFound);
+
+            var created = await _provisioningProvider.CreateAsync(email, temporaryPassword, CancellationToken.None);
+            if (created.Status != UserProvisioningCreateStatus.Success
+                || string.IsNullOrWhiteSpace(created.ProviderUserId))
+            {
+                return await RecusaAsync(created.Status == UserProvisioningCreateStatus.EmailExists
+                    ? ResetUserAccessResult.EmailAlreadyInUse
+                    : ResetUserAccessResult.ProviderFailure);
+            }
+
+            var previousProviderId = user.ProviderUserId;
+            user.ProviderUserId = created.ProviderUserId;
+            try
+            {
+                await _dbContext.SaveChangesAsync(CancellationToken.None);
+            }
+            catch
+            {
+                user.ProviderUserId = previousProviderId;
+                // Compensate only the identity just created by this recovery.
+                // Never delete an existing identity on an ordinary reset failure.
+                await _provisioningProvider.DeleteAsync(created.ProviderUserId, CancellationToken.None);
+                throw;
+            }
+        }
+        else if (reset.Status != UserProvisioningResetStatus.Success)
+        {
+            return await RecusaAsync(ResetUserAccessResult.ProviderFailure);
         }
 
         return new ResetUserAccessOutcome(

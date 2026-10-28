@@ -79,7 +79,8 @@ with sync_playwright() as playwright:
                              right: card.right - acoes.right, overflow: form.scrollWidth - form.clientWidth };
                 }''')
                 # «Por página» é opção da página, junto da paginação (Diogo, 23/10/2026).
-                assert linha['n'] == 6, linha
+                # Estado, Localização e Fábrica entram na mesma linha (Diogo, 28/10/2026).
+                assert linha['n'] == 9, linha
                 assert max(linha['bottoms']) - min(linha['bottoms']) <= 2, f'Os filtros e os botões não estão na mesma linha: {linha}'
                 assert linha['largest'] <= 200, f'Um campo ocupa demasiado: {linha}'
                 assert linha['right'] <= 40 and linha['overflow'] <= 0, linha

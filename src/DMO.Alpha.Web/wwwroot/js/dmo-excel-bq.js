@@ -23,6 +23,9 @@
   var base = (script && script.getAttribute("data-bq-excel-url")) || "/Boquilhas/Definicoes";
   var supported = typeof window.showOpenFilePicker === "function" && typeof window.showDirectoryPicker === "function" && "indexedDB" in window;
   var aEscrever = null;
+  // Um registo que chega enquanto se escreve fica pedido para a seguir
+  // (relatório do dmo-Improvements de 28/10/2026, S03).
+  var outraVez = null;
   var avisouFalha = false;
 
   function toast(message, kind) {
@@ -90,13 +93,30 @@
       .catch(function () { return null; });
   }
 
+  // Um separador de cada vez escreve o Excel, da leitura do livro até gravar
+  // (S04): sem isto, dois separadores liam o mesmo livro e a resposta mais
+  // antiga podia gravar por cima da mais nova. Sem Web Locks fica como antes.
+  function umDeCadaVez(trabalho) {
+    var locks = typeof navigator !== "undefined" && navigator.locks;
+    if (locks && typeof locks.request === "function") return locks.request("dmo-excel-bq", trabalho);
+    return trabalho();
+  }
+
   // manual: o clique em «Atualizar» ou na escolha do ficheiro (pode pedir a
   // licença de escrita e escreve mesmo com a versão igual).
   // atualizar: o botão «Atualizar» (Diogo, 22/10/2026): o servidor escreve
   // hoje e recua a partir de ontem, um dia de cada vez, até a um dia igual.
   function escrever(manual, atualizar) {
-    if (aEscrever) return aEscrever;
-    aEscrever = load().then(function (ligado) {
+    if (aEscrever) {
+      outraVez = {
+        manual: !!(manual || (outraVez && outraVez.manual)),
+        atualizar: !!(atualizar || (outraVez && outraVez.atualizar))
+      };
+      return aEscrever;
+    }
+    // Dentro do trinco, o estado lê-se de novo: outro separador pode ter
+    // acabado de escrever.
+    aEscrever = umDeCadaVez(function () { return load().then(function (ligado) {
       if (!ligado || !ligado.handle) return null;
       return permission(ligado.handle, manual).then(function (ok) {
         if (!ok) {
@@ -154,13 +174,21 @@
           });
         });
       });
-    }).catch(function () {
+    }); }).catch(function () {
       if (manual || !avisouFalha) {
         avisouFalha = true;
         toast("Não foi possível gravar o Excel das Boquilhas. Se estiver aberto, feche-o e use «Atualizar» nas Definições das Boquilhas.", "erro");
       }
       return null;
-    }).then(function (r) { aEscrever = null; return r; }, function () { aEscrever = null; return null; });
+    }).then(function (r) { return r; }, function () { return null; }).then(function (r) {
+      aEscrever = null;
+      if (!outraVez) return r;
+      // Chegou um registo durante a escrita: volta a ver a versão e escreve
+      // o que faltar.
+      var pedido = outraVez;
+      outraVez = null;
+      return escrever(pedido.manual, pedido.atualizar).then(function (r2) { return r2 || r; });
+    });
     return aEscrever;
   }
 

@@ -29,6 +29,7 @@ public sealed class MigrationFoundationTests
         "OperacoesRegistadas",
         "ArmazemPosicoes",
         "Reparadores",
+        "FabricasBa",
         "ArmazemMovimentos",
         "ArmazemLotesNovos",
         "ReparacaoProgramadaListas",
@@ -86,7 +87,7 @@ public sealed class MigrationFoundationTests
     ];
 
     // As tabelas criadas depois da Baseline, cada uma pela sua migração.
-    private static readonly HashSet<string> BaselineTables = [.. ModelTables.Except(["ControloDecisoes", "ControloAreaStateHistorico", "EmailListas", "EmailModelos", "EmailEnvios", "PesoComparacaoCmDecisoes", "PegamentosMeasurementHistorico", "PesoMeasurementHistorico", "OperacoesRegistadas", "ArmazemPosicoes", "Reparadores", "ArmazemMovimentos", "ArmazemLotesNovos", "ReparacaoProgramadaListas", "ReparacaoProgramadaItens", "UserSettings", "ArmazemOcupacoes", "FerramentaLocalizacoes", "FerramentaEstados", "FerramentaUtilizacoes", "FerramentaLembretesUtilizacao", "JobOnFolhas", "JobOnFolhaCalLinhas", "SapFabricos", "ReparacoesInternas", "ReparacoesInternasRasto", "LocalCredentials"])];
+    private static readonly HashSet<string> BaselineTables = [.. ModelTables.Except(["ControloDecisoes", "ControloAreaStateHistorico", "EmailListas", "EmailModelos", "EmailEnvios", "PesoComparacaoCmDecisoes", "PegamentosMeasurementHistorico", "PesoMeasurementHistorico", "OperacoesRegistadas", "ArmazemPosicoes", "Reparadores", "FabricasBa", "ArmazemMovimentos", "ArmazemLotesNovos", "ReparacaoProgramadaListas", "ReparacaoProgramadaItens", "UserSettings", "ArmazemOcupacoes", "FerramentaLocalizacoes", "FerramentaEstados", "FerramentaUtilizacoes", "FerramentaLembretesUtilizacao", "JobOnFolhas", "JobOnFolhaCalLinhas", "SapFabricos", "ReparacoesInternas", "ReparacoesInternasRasto", "LocalCredentials"])];
 
     private static DmoDbContext CreateNpgsqlContext()
     {
@@ -142,7 +143,7 @@ public sealed class MigrationFoundationTests
                 "20261026101136_JobOnExperiencia", "20261026154757_ReparacaoInternaTrabalho", "20261026164500_JobOnFolhaAnLote",
                 "20261027030704_OperacoesRegistadasImpressao",
                 "20261027050241_ToolsReferenciaMaiusculas", "20261027111956_PesoMeasurementHistorico", "20261027121559_SapFabricoColunasZfmd", "20261027125325_SapFabricoSoCadencia",
-                "20261028092856_AnDasBoquilhas" },
+                "20261028091807_FabricasBa", "20261028092856_AnDasBoquilhas" },
             keys);
     }
 
