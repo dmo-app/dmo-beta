@@ -611,3 +611,10 @@ html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-row-button{flex:0
   html body main.peso-page:has(>section[data-peso-live]) .dmo-table-wrap{overflow:auto}
   html body main.peso-page:has(>section[data-peso-live]) .dmo-table-wrap>.dmo-table thead th{position:sticky;top:-4px;z-index:2}
 }
+
+/* Resumo › faixa por baixo da Produção selecionada (Diogo, 28/10/2026: «fica mau alinhado» e «aumentar a font das datas início e fim»):
+   sem a margem de 20 px dentro da caixa, «Aprovação» começa à mesma distância da borda que Início e Fim; as datas com a letra do «Por aprovar» (18 px). */
+@media screen{
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-cabecalho>.resumo-window-grid.resumo-context-grid:not(#_){margin-left:0;margin-right:0}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-context-grid>.resumo-mini-card:not(.resumo-approval)>strong:not(#_){font-size:18px}
+}
