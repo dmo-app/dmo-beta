@@ -4190,3 +4190,16 @@ Novos: 1 · mudaram: 1 · saíram: 1
 - saiu: `tests/ShellProof/jobon-folha.test.cjs :: Bloqueada: um clique não faz nada; o duplo clique leva à ficha`
 
 Selo depois: `0f714b35b5fd7df3`
+
+## A-0295 · 2026-10-28 · ok-do-diogo
+
+Porquê: Diogo 28/10 14:54-14:55 (cmsg_01K75FTs9bQnbhhH7qttpgraN8reRcbxZwyA2NZDx8YcZG, cmsg_01K75FTs9bQnbhhH7qttpgraX1A34EDwGZauiatJpzMRCM): «recomer corredor de nao sei das quantas … deixar Tolerancia 0.20» / «+/- 0.20 mas tirar os comentarios todo». Os testes pedem «Tolerância» e «± 0.20» em vez de «nominal ± 0.20 mm» e dos textos «congelada…».
+Referência: DMO-563
+Novos: 0 · mudaram: 4 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.Folhas.cs :: PegamentosPageTests.CmChanged_PageIsReadyForANewSheet_TheFirstReadingStartsIt_AndThePageSaysSo`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.Folhas.cs :: PegamentosPageTests.SingleSheet_PageLooksAsBefore_NoSheetsCard`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.ToleranciaDasDefinicoes.cs :: PegamentosPageTests.FolhaSemMedicoes_MostraAToleranciaDasDefinicoes_EAPrimeiraMedicaoCongelaA`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.GetFolha_ControloId_ShowsInheritedContext_GargaloMissing_MfAlwaysInherited`
+
+Selo depois: `931a9ce77f2c77bd`
