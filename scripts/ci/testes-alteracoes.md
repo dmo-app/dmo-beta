@@ -4118,7 +4118,7 @@ Novos: 0 · mudaram: 8 · saíram: 0
 
 Selo depois: `d859e6b4b665092d`
 
-## A-0263 · 2026-10-28 · ok-do-diogo
+## A-0268 · 2026-10-28 · ok-do-diogo
 
 Porquê: Rótulo «Nome técnico (produção)» passa a «Nome técnico (SAP)», pedido do Diogo (DMO-523)
 Referência: Diogo 28/10 10:41 «removee producao nome tecnico meter SAP» (cmsg_01K75FTs9bQnbhhH7qttpgraL8tPtNgyoZrN2cZWqfG68d)
