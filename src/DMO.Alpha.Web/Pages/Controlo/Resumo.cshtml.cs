@@ -57,6 +57,7 @@ public sealed class ResumoModel : PageModel
     private readonly IControloRevisaoQuery _revisaoQuery;
     private readonly DMO.Alpha.Infrastructure.Tools.ToolEtiquetas _etiquetas;
     private readonly PesoProducaoAnteriorQuery _producaoAnteriorQuery;
+    private readonly DMO.Alpha.Core.Tools.IFerramentasFabricoSap _fabricoSap;
 
     public ResumoModel(
         IResumoProductionQuery resumoProductions,
@@ -77,8 +78,10 @@ public sealed class ResumoModel : PageModel
         DMO.Alpha.Infrastructure.Tools.ToolMcaliperLinks mcaliper,
         IControloRevisaoQuery revisaoQuery,
         DMO.Alpha.Infrastructure.Tools.ToolEtiquetas etiquetas,
-        PesoProducaoAnteriorQuery producaoAnteriorQuery)
+        PesoProducaoAnteriorQuery producaoAnteriorQuery,
+        DMO.Alpha.Core.Tools.IFerramentasFabricoSap fabricoSap)
     {
+        _fabricoSap = fabricoSap;
         _revisaoQuery = revisaoQuery;
         _etiquetas = etiquetas;
         _producaoAnteriorQuery = producaoAnteriorQuery;
@@ -156,6 +159,12 @@ public sealed class ResumoModel : PageModel
 
     /// <summary>A produção anterior guardada no Peso (peso da produção anterior); null sem ela.</summary>
     public PesoProducaoAnteriorReadModel? ProducaoAnterior { get; private set; }
+
+    /// <summary>
+    /// A média e a moda do peso da produção anterior guardada (Diogo,
+    /// 28/10/2026: «começarmos a usar os dois»); null sem o peso dela.
+    /// </summary>
+    public DMO.Alpha.Core.Tools.PesoSapResumo? ProducaoAnteriorPeso { get; private set; }
 
     /// <summary>
     /// Todos os Pesos da produção, pela ordem de gravação: um por CM+BQ
@@ -557,6 +566,10 @@ public sealed class ResumoModel : PageModel
         {
             ControloAnterior = await _revisaoQuery.FindPreviousWithPesoAsync(production.JobOnId, ct);
             ProducaoAnterior = await _producaoAnteriorQuery.FindAsync(pesoLigado.PesoId, ct);
+            if (ProducaoAnterior is { JobOnId: int anteriorJobOnId })
+            {
+                ProducaoAnteriorPeso = (await _fabricoSap.PesoDosJobOnsAsync([anteriorJobOnId], ct)).GetValueOrDefault(anteriorJobOnId);
+            }
         }
         if (!HasCurrentPeso && production.CmToolId is not null)
         {

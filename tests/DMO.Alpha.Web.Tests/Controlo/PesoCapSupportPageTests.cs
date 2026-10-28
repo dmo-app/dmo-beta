@@ -286,6 +286,34 @@ public class PesoCapSupportPageTests : IClassFixture<CustomWebApplicationFactory
     }
 
     [Fact]
+    public async Task ProductionMode_TampaoSoNaFolhaDoJobOn_LeODaFolha()
+    {
+        // Um Job On importado tem o Tampão só na folha (Diogo, 28/10/2026,
+        // cmsg_01K75FTs9bQnbhhH7qttpgra7BVGbdHJFKtQowMdq1CL6g: «diz para
+        // completar … se for ao Job On já lá está»): o «Diâmetro» e a
+        // «Bacia PS» da folha valem quando o Job On não os tem gravados.
+        var controloId = await SeedProducaoComPesoAsync(caloteMm: null, comTp: false);
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            var jobOnId = db.Controlos.Single(c => c.Id == controloId).JobOnId;
+            db.JobOnFolhas.Add(new JobOnFolha { JobOnId = jobOnId, TpDiametroPs = "26,05", TpBaciaPs = "3" });
+            await db.SaveChangesAsync();
+        }
+        SeedUser("4249", "Peso Operador", "provider-cap-folha", "PesoCapF1!");
+        using var client = await LoginClientAsync("4249", "PesoCapF1!");
+
+        var html = await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}");
+
+        Assert.DoesNotContain("Referência por completar", html);
+        Assert.Contains("D 26.05 · h 3 · Job On", html);
+
+        var cap = await client.GetAsync($"{PagePath}?handler=CapSupport&controlo_id={controloId}");
+        using var json = JsonDocument.Parse(await cap.Content.ReadAsStringAsync());
+        Assert.True(json.RootElement.GetProperty("temReferencia").GetBoolean());
+    }
+
+    [Fact]
     public async Task ProductionMode_SemTP_ReferenciaPorCompletarEPesoIntacto()
     {
         // A CM sem TP: o apoio mostra «Referência por completar» e a

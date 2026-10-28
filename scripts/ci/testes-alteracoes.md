@@ -4237,6 +4237,58 @@ Novos: 8 · mudaram: 1 · saíram: 0
 
 Selo depois: `f0420e29cb4dc503`
 
+## A-0258 · 2026-10-28 · teste-novo
+
+Porquê: O Novo Peso mostra a temperatura escrita e a densidade da água dela.
+Referência: DMO-528
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoDensidadeAgua.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoDensidadeAgua.cs :: ControloCapabilitiesCutHPageTests.NovoPeso_MostraATemperaturaEADensidadeDaAgua`
+
+Selo depois: `e3c2fdbe5805a823`
+
+## A-0300 · 2026-10-28 · teste-novo
+
+Porquê: O Peso lê o Diâmetro e a Calote do Tampão da folha do Job On quando o Job On não os tem gravados (Job On importado).
+Referência: DMO-564
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_TampaoSoNaFolhaDoJobOn_LeODaFolha`
+
+Selo depois: `10c7afebdc0b9b62`
+
+## A-0301 · 2026-10-28 · teste-novo
+
+Porquê: O «Criar» do Controlo anterior tem as duas opções: sem Job On ou num Job On anterior da referência.
+Referência: DMO-565
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.AssociarJobOn.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.AssociarJobOn.cs :: PesoFolhaProducaoAnteriorPageTests.CriarControloAnterior_SemJobOnOuNumJobOnAnterior`
+
+Selo depois: `0699590f0e13f023`
+
+## A-0266 · 2026-10-28 · ok-do-diogo
+
+Porquê: Produção anterior passa a ser uma tabela (títulos numa linha, valores por baixo) com a Média e a Moda (com «X de Y dias»), cada uma com a sua diferença, e deixa de ter o peso escrito à mão; Resumo e PDF usam as duas. Os testes antigos deixam de procurar a caixa «Peso usado» e o campo anterior_peso, e o resumo SAP passa a ter os dias da moda.
+Referência: DMO-534; ok do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraVoNvoQBUPf4cwx9jYiHvPJ, cmsg_01K75FTs9bQnbhhH7qttpgraTaRYMDqbdFc2okYBHmExZW e cmsg_01K75FTs9bQnbhhH7qttpgraPN7CxcF7Rzwfmmd7mHxLcm
+Novos: 1 · mudaram: 10 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.Resumo_ProducaoAnteriorComAMediaEAModa`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.OPesoDoSap_EAMediaPelosDiasEAModaOPesoComMaisDias`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.OPesoDosJobOns_VemDasOrdensDaMesmaReferenciaMaquinaEDatas`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.OsDiasDeCadaOrdem_SaoOsQueFicamDentroDoJobOn_EAModaEmpatadaEAMaisRecente`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_MostraAMediaPelosDiasEAModaDoSap_EOCampoVemComAMedia`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_SemOrdensDoSap_DizQueOSapAindaNaoDeuOPeso`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_TrocaParcial_ForaDasZonasNadaMuda_EOsFormulariosLevamAComparacao`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_AsUltimas5_EAGuardadaForaDelasFicaEscolhida`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_PesoIlegivel_RecusaComEcho_ENaoGuarda`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_PropoeAMaisRecente_GuardaOPesoDoSap_EMostraODelta`
+
+Selo depois: `d5028b5b0339c195`
+
 ## A-0305 · 2026-10-28 · contagem-lista
 
 Porquê: «Voltar» passo a passo pelo caminho feito no separador (DMO-569): ficheiro novo voltar-caminho.test.cjs e a sua entrada na lista do test:js
@@ -4251,4 +4303,4 @@ Novos: 6 · mudaram: 1 · saíram: 0
 - novo: `tests/ShellProof/voltar-caminho.test.cjs :: três páginas seguidas: o Voltar recua uma de cada vez até à primeira`
 - mudou: `tests/ShellProof/package.json`
 
-Selo depois: `c6f31dbfcb406f92`
+Selo depois: `32e0c8d65fb26f43`
