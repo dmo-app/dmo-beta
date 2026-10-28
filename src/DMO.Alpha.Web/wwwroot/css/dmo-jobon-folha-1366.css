@@ -240,17 +240,19 @@ html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row .ref-search{border:0 !important;width:auto !important;min-width:0 !important}
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row .ref-search input#jofReferencia:focus{border-color:var(--dmo-border) !important;background:var(--dmo-card) !important}
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row :is(.prod-drop,.prod-trigger){box-sizing:border-box !important;height:34px !important;min-height:0 !important;width:auto !important;min-width:0 !important;border-color:transparent !important;background:transparent !important;box-shadow:none !important;font-size:17px !important;font-weight:500 !important;color:var(--dmo-text)}
+/* A produção na mesma linha de base da referência (Diogo, 28/10/2026: «temos a referência desalinhada com a produção»): a referência tem 22 px e a produção 17 px, centradas na caixa de 34 px; o pé das letras ficava 3 px acima. */
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row .prod-trigger{padding-top:6px !important;padding-bottom:0 !important}
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row .prod-drop{border:0 !important}
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row .prod-trigger:is(:focus-visible,[aria-expanded="true"]){border-color:var(--dmo-border) !important;background:var(--dmo-card) !important}
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .fact-col.mach .mch[data-jof-linha]{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;height:30px;min-width:44px;padding:0 12px;border-radius:var(--r-control);background:var(--dmo-machine-color,var(--dmo-brand-600)) !important;color:#fff !important;font-size:16px;font-weight:800;line-height:1}
 html:root[data-theme="dark"] body .jof2.jof2.jof2.jof2:not(.editing) .page-head .fact-col.mach .mch[data-jof-linha]{color:var(--dmo-page) !important}
-/* botões: todos da mesma altura e do mesmo estilo, à direita (Linhas, Imprimir, Duplicar, Opções, Editar) */
+/* botões: todos da mesma altura e do mesmo estilo, à direita (Linhas, Imprimir, Duplicar, Editar, Opções: as Opções em último, Diogo 28/10/2026) */
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head :is(.rail-toggle,.head-acoes>.btn,.head-acoes>.menu){order:11;margin:0 0 0 8px;height:var(--dmo-control-height);flex:none}
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head :is(.rail-toggle,.head-acoes>.btn.btn)[data-jof-rail-abrir]{order:10;margin-left:auto}
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .head-acoes>[data-jof-imprimir]{order:11}
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .head-acoes>[data-jof-duplicar]{order:12}
-html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .head-acoes>.menu{order:13}
-html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .head-acoes>[data-jof-editar]{order:14}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .head-acoes>.menu{order:15}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .head-acoes>[data-jof-editar]{order:13}
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .head-acoes>.btn:not([data-jof-imprimir]):not([data-jof-duplicar]):not([data-jof-editar]){order:14}
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .head-acoes>.menu>summary.btn{height:var(--dmo-control-height);margin:0}
 /* faixa */
@@ -292,7 +294,10 @@ html:root body .jof2.jof2.jof2:not(.editing) .jof-dim.longo .jof-tol{flex:none;f
 html:root body .jof2.jof2.jof2:not(.editing) .folgas{display:flex;flex-wrap:nowrap;align-items:baseline;gap:0;padding:6px 0 0;border-top:1px solid var(--dmo-border)}
 html:root body .jof2.jof2.jof2:not(.editing) .folgas>span:first-child{margin:0 12px 0 0}
 html:root body .jof2.jof2.jof2:not(.editing) .folga{min-width:0;padding:0;border:0;border-radius:0;background:none;font-size:13.5px;font-weight:700;text-align:left}
-html:root body .jof2.jof2.jof2:not(.editing) .folga+.folga::before{content:"·";margin:0 7px;font-weight:500;color:var(--dmo-muted)}
+/* Folgas: um número por espaço, com o nome do espaço por cima (Diogo, 28/10/2026) */
+html:root body .jof2.jof2.jof2:not(.editing) .folgas{display:grid;grid-template-columns:auto repeat(3,minmax(0,1fr));column-gap:8px;align-items:end}
+html:root body .jof2.jof2.jof2:not(.editing) .folga{display:flex;flex-direction:column;white-space:nowrap}
+html:root body .jof2.jof2.jof2:not(.editing) .folga>small{font-size:10.5px;font-weight:500;color:var(--dmo-muted);line-height:1.2}
 
 /* ---- as Notas no ver: a caixa cresce até ocupar o espaço livre do cartão (mínimo três linhas inteiras de 18px com texto, uma vazia);
    só quando o texto não cabe desliza por dentro, e o jobon-folha.js corta a altura numa linha inteira. ---- */
@@ -497,3 +502,65 @@ html:root body main.jof-painel .jof-painel-notas h2{margin:0 0 6px;font-size:14p
 html:root body main.jof-painel .jof-painel-notas p{margin:0;line-height:18px;white-space:pre-line}
 html:root body main.jof-painel .sr-only{position:absolute!important;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 html:root body main.jof-painel .jof-painel-id .mch{padding:2px 10px;border-radius:6px;background:var(--dmo-machine-color,var(--dmo-brand-600));color:#fff;font-weight:700;font-size:14px}
+
+/* Folha do Job On (Diogo, 28/10/2026: «alinhar a % uso entre os cards e o resto
+   fica por baixo»): a Utilização fica à mesma altura em todos os cartões das
+   ferramentas; onde está (Armazém/Fabrico/Sem registo) passa para debaixo dela.
+   A referência e o lote numa só linha, para o cabeçalho ter sempre a mesma altura. */
+html body .jof2 :is(.card.sec,.sec):has(>.jof-tool-slot+.use)>.jof-tool-slot{display:contents}
+html body .jof2 :is(.card.sec,.sec):has(>.jof-tool-slot+.use)>.jof-tool-slot>.tool-head{order:1}
+html body .jof2 :is(.card.sec,.sec):has(>.jof-tool-slot+.use)>.use{order:2}
+html body .jof2 :is(.card.sec,.sec):has(>.jof-tool-slot+.use)>.jof-tool-slot>.jof-onde{order:3;margin:2px 0 0}
+html body .jof2 :is(.card.sec,.sec):has(>.jof-tool-slot+.use)>:not(.jof-tool-slot,.use){order:4}
+html body .jof2 .jof-tool-slot>.tool-head{column-gap:10px}
+html body .jof2 .jof-tool-slot>.tool-head>.hv{white-space:nowrap}
+
+/* Editar do Job On numa janela estreita (Diogo, 28/10/2026: «os CAL têm bug
+   visual», «muito espaço desnecessário nos calibres»): cada coluna tem a largura
+   do seu campo, sem espaço vazio no meio, e os valores leem-se inteiros. */
+@media (max-width:1099px){
+  html:root body .jof2.editing.editing.editing table.calv{width:auto;max-width:100%;table-layout:auto}
+  html:root body .jof2.editing.editing.editing table.calv :is(th,td){width:auto !important;padding-left:3px !important;padding-right:3px !important}
+  html:root body .jof2.editing.editing.editing table.calv tbody th input.f{width:11em !important;min-width:0}
+  html:root body .jof2.editing.editing.editing table.calv td input.f{width:9em !important;min-width:0;box-sizing:border-box}
+}
+
+/* Calibres na folha (Diogo, 28/10/2026: «centrar medida e retirar o espaço em
+   branco por baixo»): a tabela deitada enche o cartão (as linhas dos valores
+   crescem) e a coluna dos títulos (Medida, Componentes, QTD máq.) fica ao centro. */
+@media (min-width:1100px){
+  html:root body .jof2.jof2.jof2:not(.editing) .cal-card>.table-wrap{display:flex;flex-direction:column}
+  html:root body .jof2.jof2.jof2:not(.editing) .cal-card table.calv{flex:1 1 auto;height:100%;grid-template-rows:auto 1fr 1fr !important;align-content:stretch}
+  html:root body .jof2.jof2.jof2:not(.editing) .cal-card table.calv :is(thead,tbody,tr){display:contents}
+  html:root body .jof2.jof2.jof2:not(.editing) .cal-card table.calv :is(th,td){align-items:center}
+  html:root body .jof2.jof2.jof2:not(.editing) .cal-card table.calv :is(th,td):first-child{justify-content:center !important;text-align:center !important}
+}
+/* Armazém no cartão: a posição e o estado a negrito; a posição abre o Armazém (Diogo, 28/10/2026) */
+html:root body .jof2 .jof-onde b{font-weight:700;color:var(--dmo-text)}
+html:root body .jof2 .jof-onde a.jof-onde-pos{color:inherit;text-decoration:none}
+html:root body .jof2 .jof-onde a.jof-onde-pos:hover{text-decoration:underline}
+/* CM, MF e BQ: com o rato por cima, um retângulo de fundo um pouco mais claro diz que se pode
+   abrir (duplo clique, a ficha) ou, no Editar, trocar a ferramenta (Diogo, 28/10/2026) */
+html:root body .jof2.jof2.jof2 .tool-head[data-jof-ficha]:is(:hover,:focus-visible),
+html:root body .jof2.editing.editing.editing .tool-head:is(:hover,:focus-visible){background:var(--dmo-row-hover) !important;box-shadow:0 0 0 4px var(--dmo-row-hover) !important;border-radius:4px}
+/* Calibres: «56.40 x 58.60» em três linhas, número / x / número (Diogo, 28/10/2026) */
+html:root body .jof2 .calv .cal-vezes{display:inline-flex;flex-direction:column;align-items:center;line-height:1.15}
+html:root body .jof2 .calv .cal-vezes>span:nth-child(2){font-weight:500;color:var(--dmo-muted)}
+/* A «Informação técnica» abre por baixo e empurra o resto; a folha cresce e a página desliza (Diogo, 28/10/2026:
+   «não limitar a página, o minimizar deve ir para baixo e não tapar o resto da informação da peça»). No Editar
+   continua a janela por cima, mais larga do que o cartão, para as caixas das medidas caberem. */
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .sec>details.more[open]>.more-body:not(#_){position:static;inset:auto;width:auto;max-height:none;overflow:visible;margin:4px 0 0;padding:6px 0 0;border:0;border-top:1px solid var(--dmo-border);border-radius:0;background:none;box-shadow:none}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .sec:has(>details.more[open]):not(#_){z-index:auto}
+html:root body main.jof2.jof2.jof2:not(.editing):has(.sec>details.more[open]):not(#_){height:auto}
+html:root body main.jof2.jof2.jof2:not(.editing):has(.sec>details.more[open])>.wrap>.sheet:not(#_){flex:none;overflow:visible}
+html:root body main.jof2.jof2.jof2:not(.editing):has(.sec>details.more[open]) .sheet-main>.zones:not(#_){flex:none}
+html:root body main.jof2.jof2.jof2:not(.editing):has(.sec>details.more[open]) .sheet>.side:not(#_){contain:none}
+/* Mais espaço entre as linhas dos cartões (Diogo, 28/10/2026: «temos informação colada»). */
+html:root body .jof2.jof2.jof2.jof2.jof2:not(.editing) .zones article.card.sec,
+html:root body .jof2.jof2.jof2.jof2.jof2:not(.editing) .zones .card.pair .sec{gap:6px}
+/* CS: a Referência e os Furos separados (Diogo, 28/10/2026: «CS referência e aberto e fechado colado»). */
+html:root body .jof2.jof2.jof2.jof2.jof2 [data-jof-familia="CS"]>.sec-head:not(#_){height:auto;flex:none;row-gap:6px}
+html:root body .jof2 .jof-onde .jof-onde-espaco{display:inline-block;width:1.5em}
+/* Com a Informação técnica aberta, a linha da grelha cresce: as notas dos outros cartões ficam do tamanho do texto e não esticam. */
+html:root body main.jof2.jof2.jof2:not(.editing) .zones:has(.sec>details.more[open]) .sec:not(:has(>details.more[open]))>.note-box.note-view:not(.is-ampliada):not(#_){flex:none !important}
+html:root body main.jof2.jof2.jof2:not(.editing) .zones:has(.sec>details.more[open]) .sec:not(:has(>details.more[open]))>.note-box.note-view:not(.is-ampliada)>p:not(#_){flex:none !important}

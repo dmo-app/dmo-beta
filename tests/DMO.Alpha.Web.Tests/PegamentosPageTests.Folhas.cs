@@ -78,7 +78,7 @@ public partial class PegamentosPageTests
 
         Assert.Contains("<div id=\"pegFolhas\" class=\"dmo-zona\" data-dmo-regiao>", html);
         Assert.DoesNotContain("Folhas desta produção", html);
-        Assert.Contains("congelada no registo desta produção", html);
+        Assert.Contains("<span>Tolerância</span>", html);
     }
 
     [Fact]
@@ -117,7 +117,7 @@ public partial class PegamentosPageTests
         Assert.Contains("Ferramentas atuais · aberta", folhas);
         Assert.Contains("1 · 1 fora", folhas);
         Assert.Contains(" · Lote 4<", Section(html, "data-peg-component=\"CM\""));
-        Assert.Contains("congelada nesta folha", html);
+        Assert.Contains("<span>Tolerância</span>", html);
 
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();

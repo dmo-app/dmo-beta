@@ -20,10 +20,10 @@ public sealed record ProductionContextReadModel(
     DateOnly? InicioEm = null,
     /// <summary>O dia em que sai de máquina; null = até aviso.</summary>
     DateOnly? FimEm = null,
-    /// <summary>A CALOTE DESTA PRODUÇÃO (mm) — o campo j-calote da ficha do dmo-html: null = a referência da Tool manda (o apoio TP/calote do Peso usa-a automaticamente — a B1). Aditivo por posição: os consumidores existentes só leem os campos que lhes dizem respeito.</summary>
+    /// <summary>A CALOTE DESTA PRODUÇÃO (mm) — o campo j-calote da ficha do dmo-html: sem ela no Job On, a «Bacia PS» da folha; null = a referência da Tool manda (o apoio TP/calote do Peso usa-a automaticamente — a B1). Aditivo por posição: os consumidores existentes só leem os campos que lhes dizem respeito.</summary>
     decimal? CaloteMm = null,
     /// <summary>A versão gravada do Job On (vai escondida na folha de edição; ver UpdateJobOn.ExpectedVersion).</summary>
     uint Version = 0,
-    /// <summary>O diâmetro D (mm) do tampão desta produção (Diogo, 23/10/2026); null = não registado.</summary>
+    /// <summary>O diâmetro D (mm) do tampão desta produção (Diogo, 23/10/2026); sem ele no Job On, o «Diâmetro» da folha; null = não registado.</summary>
     decimal? TampaoDiametroMm = null,
     bool Experiencia = false);

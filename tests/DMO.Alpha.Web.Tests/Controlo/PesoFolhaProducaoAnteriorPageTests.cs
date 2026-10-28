@@ -361,8 +361,6 @@ public partial class PesoFolhaProducaoAnteriorPageTests : IClassFixture<CustomWe
         // O apoio TP aberto pelo «Calcular» fica: a resposta seguinte não traz cap_h.
         Assert.Matches("<div class=\"dmo-zona\" data-dmo-fica>\\s*<details class=\"tp-support\"[^>]*open=\"open\"", calculada);
 
-        // A recusa do SAP volta com o echo no campo, no bloco que fica.
-        Assert.Contains("value=\"3o5\"", PesoZonas.Zona(recusada, "pesoAnterior"));
 
         // A comparação vai na zona dos campos escondidos do SAP, dentro do bloco que fica.
         var anterior = PesoZonas.Zona(comparada, "pesoAnterior");
@@ -539,26 +537,24 @@ public partial class PesoFolhaProducaoAnteriorPageTests : IClassFixture<CustomWe
             ("peso_id", pesoId.ToString()),
             ("controlo_id", controloId.ToString()),
             ("anterior", anteriorJobOnId.ToString()),
-            ("anterior_peso", "181"),
             ("__RequestVerificationToken", token)));
         Assert.Equal(HttpStatusCode.Redirect, save.StatusCode);
 
+        // Guarda-se só a produção: o peso escrito à mão saiu (Diogo,
+        // 28/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraVoNvoQBUPf4cwx9jYiHvPJ);
+        // contam a média e a moda dela.
         using (var scope = _factory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
             var peso = db.Pesos.Single(p => p.Id == pesoId);
             Assert.Equal(anteriorJobOnId, db.Controlos.Single(c => c.Id == peso.ProducaoAnteriorControloId).JobOnId);
-            Assert.Equal(181m, peso.ProducaoAnteriorPesoGramas);
+            Assert.Null(peso.ProducaoAnteriorPesoGramas);
         }
 
-        // O delta: peso médio atual 177.31 g − 181 g = −3.69 g (−2.04 %), com o sinal «−».
         var after = await GetPageHtmlAsync(client, save.Headers.Location!.ToString());
         Assert.Contains("Produção anterior guardada.", after);
-        Assert.Contains("data-producao-anterior-delta", after);
-        Assert.Contains("Peso usado — 202604 · B1</span><strong>181 g</strong>", after);
-        Assert.Contains("&#x2212;3.69 g", after);
-        Assert.Contains("&#x2212;2.04 %", after);
-        Assert.Contains("value=\"181\"", after);
+        Assert.DoesNotContain("Peso usado", after);
+        Assert.DoesNotContain("name=\"anterior_peso\"", after);
 
         // O PDF sai com a produção anterior (gerado em memória, descarregado).
         using var pdf = await client.PostAsync($"{PagePath}?handler=GeneratePdf", HtmlFormHelpers.BuildFormPost(
@@ -656,7 +652,6 @@ public partial class PesoFolhaProducaoAnteriorPageTests : IClassFixture<CustomWe
         Assert.Equal(6, System.Text.RegularExpressions.Regex.Matches(select, "<option ").Count);
         Assert.Single(System.Text.RegularExpressions.Regex.Matches(select, "selected=\"selected\""));
         Assert.Contains("Início <span data-inicio>02/03/2026</span> · Fim <span data-fim>20/03/2026</span>", html);
-        Assert.Contains("value=\"181\"", html);
     }
 
     [Fact]
@@ -705,7 +700,6 @@ public partial class PesoFolhaProducaoAnteriorPageTests : IClassFixture<CustomWe
 
         var html = await GetPageHtmlAsync(client, save.Headers.Location!.ToString());
         Assert.Contains("O peso da produção anterior tem de ser um número maior que 0. Nada foi guardado.", html);
-        Assert.Contains("value=\"18l\"", html);
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
         Assert.Null(db.Pesos.Single(p => p.Id == pesoId).ProducaoAnteriorPesoGramas);

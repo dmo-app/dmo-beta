@@ -67,6 +67,7 @@ public sealed class JobOnToolFactsQuery : IJobOnToolFactsQuery
                 t.Reference,
                 t.Lot,
                 t.BqAccountedQuantity,
+                t.TechnicalName,
                 Process = tc != null ? tc.Process : null,
                 VolumePuncaoCm3 = tc != null ? tc.VolumePuncaoCm3 : null,
                 VolumeMarisaCm3 = tc != null ? tc.VolumeMarisaCm3 : null,
@@ -191,7 +192,7 @@ public sealed class JobOnToolFactsQuery : IJobOnToolFactsQuery
                 ? $"Armazém · posição {posicao}"
                 : localizacoes.TryGetValue(tool.ToolId, out var localizacao)
                     ? DMO.Alpha.Core.Armazem.ArmazemTextos.Localizacao(localizacao.Localizacao, localizacao.ReparadorNome)
-                    : registada ? "Fabrico" : null;
+                    : registada ? "Fabrico" : DMO.Alpha.Core.Armazem.ArmazemTextos.SemRegisto;
             var avisoArmazem = (registada, temEstado) switch
             {
                 (false, false) => $"{nome} não está registada no Armazém e não tem estado.",
@@ -221,6 +222,7 @@ public sealed class JobOnToolFactsQuery : IJobOnToolFactsQuery
             {
                 UsosParalelos = usosDaTool ?? new List<JobOnToolUsoParalelo>(),
                 OndeEsta = ondeEsta,
+                NomeTecnico = tool.TechnicalName,
                 Estado = temEstado ? estado : null,
                 Utilizacao = utilizacoes.TryGetValue(tool.ToolId, out var utilizacao) ? utilizacao : null,
                 AvisoArmazem = avisoArmazem

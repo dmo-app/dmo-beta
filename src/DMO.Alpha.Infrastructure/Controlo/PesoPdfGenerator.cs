@@ -165,9 +165,22 @@ public sealed class PesoPdfGenerator
                 content.Item().PaddingTop(8).Row(row =>
                 {
                     row.Spacing(7);
-                    // A produção anterior: o peso usado nela (SAP, escrito à mão)
-                    // quando indicado; senão o segundo Peso escolhido, se houver.
-                    if (input.ProducaoAnterior is { PesoGramas: { } pesoSap } anterior)
+                    // A produção anterior: a média e a moda do peso dela (Diogo,
+                    // 28/10/2026: «começarmos a usar os dois»); sem ele, o peso
+                    // escrito à mão de antes; senão o segundo Peso escolhido.
+                    var atual = input.Averages?.AverageGlassWeightGrams;
+                    if (input.ProducaoAnterior is { } anteriorComPeso && input.PesoProducaoSap is { } pesoProducao)
+                    {
+                        var titulo = "Produção anterior" + (anteriorComPeso.ProductionNumber is { } np ? " · " + np : "");
+                        var deltaMedia = PesoCalculation.NominalDeviation(atual, pesoProducao.MediaGramas);
+                        var deltaModa = PesoCalculation.NominalDeviation(atual, pesoProducao.ModaGramas);
+                        PairedCard(row.RelativeItem(), titulo, Fmt(pesoProducao.MediaGramas) + " g",
+                            SignedOrDash(deltaMedia.Grams) + " g", SignedOrDash(deltaMedia.Percent) + " %", "Média");
+                        PairedCard(row.RelativeItem(), titulo, Fmt(pesoProducao.ModaGramas) + " g",
+                            SignedOrDash(deltaModa.Grams) + " g", SignedOrDash(deltaModa.Percent) + " %",
+                            "Moda · " + pesoProducao.ModaDias + " de " + pesoProducao.Dias + " dias");
+                    }
+                    else if (input.ProducaoAnterior is { PesoGramas: { } pesoSap } anterior)
                     {
                         var delta = anterior.Delta(input.Averages?.AverageGlassWeightGrams);
                         PairedCard(row.RelativeItem(), "Produção anterior" + (anterior.ProductionNumber is { } n ? " · " + n : ""),
@@ -220,7 +233,7 @@ public sealed class PesoPdfGenerator
             if (caption.Length > 0) c.Item().PaddingTop(4).Text(caption).FontSize(7).FontColor(Muted);
         });
 
-    private static void PairedCard(IContainer container, string label, string weight, string difference, string percent) =>
+    private static void PairedCard(IContainer container, string label, string weight, string difference, string percent, string? weightLabel = null) =>
         container.Element(c => Box(c)).Padding(9).Column(c =>
         {
             c.Item().Text(label).FontSize(7).FontColor(Muted);
@@ -263,7 +276,7 @@ public sealed class PesoPdfGenerator
                 " · início: " + (anterior.InicioEm?.ToString("d", Pt) ?? "—") +
                 " · fim: " + (anterior.FimEm?.ToString("d", Pt) ?? "—") +
                 (input.PesoProducaoSap is { } producao
-                    ? " · peso da produção: média " + Fmt(producao.MediaGramas) + " g · moda " + Fmt(producao.ModaGramas) + " g"
+                    ? " · peso da produção: média " + Fmt(producao.MediaGramas) + " g · moda " + Fmt(producao.ModaGramas) + " g (" + producao.ModaDias + " de " + producao.Dias + " dias)"
                     : "")).FontSize(7).FontColor(Muted);
         }
         // A decisão do Peso (sweep de 19/10/2026, C-3): aprovado, não aprovado
