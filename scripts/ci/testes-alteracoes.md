@@ -4128,3 +4128,14 @@ Novos: 0 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Ficha_Editar_LinhasCompativeis_InformacaoOpcionalComFabricaDeOrigem`
 
 Selo depois: `44e498ae87db9050`
+
+## A-0269 · 2026-10-28 · teste-novo
+
+Porquê: DMO-536: referência sem Job On abre o Job On novo na linha de onde se veio
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReferenciaNova.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReferenciaNova.cs :: JobOnPageTests.Folha_ReferenciaSemJobOn_AbreOJobOnNovoNaLinhaDeOndeVeio`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReferenciaNova.cs :: JobOnPageTests.Folha_ReferenciaSemJobOn_QuemSoVe_FicaComOAviso`
+
+Selo depois: `f36070a927fa88b7`
