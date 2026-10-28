@@ -53,6 +53,9 @@ public sealed record JobOnToolFacts(
     /// <summary>O último estado registado no Armazém; null sem estado.</summary>
     public DMO.Alpha.Core.Armazem.FerramentaEstadoTipo? Estado { get; init; }
 
+    /// <summary>Ferramenta da B2 sem B2 Dupla nem B2 Tripla escolhida (aviso importante; Diogo, 28/10/2026); null nos outros casos.</summary>
+    public string? AvisoB2 { get; init; }
+
     /// <summary>O % de uso da última leitura (Diogo, 21/10/2026: «no Job On também mostrar o % uso»); null sem leitura.</summary>
     public decimal? Utilizacao { get; init; }
 

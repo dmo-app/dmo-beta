@@ -1466,7 +1466,7 @@
   // (deep sweep, 18/10/2026).
   // Uma caixa de marcar também aplica ao marcar (o «Só por associar» da
   // Consulta da Reparação Interna).
-  const AUTOSUBMIT = ":is(select,input[type=date],input[type=month],input[type=checkbox])[data-dmo-autosubmit]";
+  const AUTOSUBMIT = ":is(select,input[type=date],input[type=month],input[type=checkbox],input[type=radio])[data-dmo-autosubmit]";
   let teclaEm = null;
   function aplicarEscolha(campo) {
     campo.removeAttribute("data-dmo-por-aplicar");

@@ -29,10 +29,13 @@ public sealed class CreateToolHandler : ICreateToolHandler
 
     private readonly IToolLotQuantitySettings _lotQuantities;
 
-    public CreateToolHandler(DmoDbContext db, IToolLotQuantitySettings lotQuantities)
+    private readonly ICodificacaoFerramentas? _codificacao;
+
+    public CreateToolHandler(DmoDbContext db, IToolLotQuantitySettings lotQuantities, ICodificacaoFerramentas? codificacao = null)
     {
         _db = db;
         _lotQuantities = lotQuantities;
+        _codificacao = codificacao;
     }
 
     // GET-OR-CREATE ao mesmo tempo (duplo envio): o segundo pedido não via a
@@ -151,8 +154,20 @@ public sealed class CreateToolHandler : ICreateToolHandler
         //    BQ; a UI oferece-o apenas para BQ — o handler não é polícia
         //    de formato, registo truthful).
         var quantity = command.BqAccountedQuantity;
+        // A CODIFICAÇÃO POR LINHA (Diogo, 28/10/2026): a linha escolhida dá o
+        // nome técnico (quando não foi escrito), a Qtd. do lote e a de AN; na
+        // B2 conta o modo da ferramenta (ou C1 → Dupla, C3 → Tripla).
+        var maquinas = machineIds.Count == 0 ? new List<string>()
+            : await _db.Machines.AsNoTracking().Where(m => machineIds.Contains(m.Id)).Select(m => m.Code).ToListAsync(cancellationToken);
+        var b2Modo = maquinas.Contains("B2") ? command.B2Modo ?? Codificacao.ModoPelasLinhas(maquinas) : null;
+        var sugestao = _codificacao is null ? null
+            : await _codificacao.SugerirAsync(type, reference, machineIds, b2Modo, cancellationToken);
+        // A Qtd. continua a do total por máquina (máquinas com totais
+        // diferentes ficam por escolher); só a B2 sozinha usa a do seu modo.
         if (quantity is null && command.UseLotQuantityDefault)
-            quantity = (await _lotQuantities.SuggestAsync(type, machineIds, cancellationToken)).Quantity;
+            quantity = (sugestao?.Linha.Maquina == "B2" ? sugestao.Quantidade : null)
+                ?? (await _lotQuantities.SuggestAsync(type, machineIds, cancellationToken)).Quantity;
+        var anQuantity = command.AnQuantity ?? (command.UseLotQuantityDefault ? sugestao?.QuantidadeAn : null);
 
         var tool = new Tool
         {
@@ -163,10 +178,11 @@ public sealed class CreateToolHandler : ICreateToolHandler
             AssociatedMfReference = associatedMfReference,
             BqAccountedQuantity = quantity,
             // Os AN do lote só existem na BQ (Diogo, 28/10/2026).
-            AnQuantity = type == ToolType.Bq ? command.AnQuantity : null,
+            AnQuantity = type == ToolType.Bq ? anQuantity : null,
             // O nome técnico (o código do desenho do SAP) guardado como o
             // operador escreveu — o decode é PROPOSTA na ficha.
-            TechnicalName = TrimToNull(command.TechnicalName),
+            TechnicalName = TrimToNull(command.TechnicalName) ?? sugestao?.NomeTecnico,
+            B2Modo = b2Modo,
             RegisteredAtUtc = DateTime.UtcNow
         };
         _db.Tools.Add(tool);
