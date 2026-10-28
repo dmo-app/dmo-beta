@@ -541,11 +541,6 @@ html body main.peg-page :is(.peg-folha,.peg-folha-leituras){min-width:0}
   html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-leitura-row{grid-template-columns:72px 112px auto;align-items:end}
   /* O seletor nativo escondido (1 px) não estica o cartão mais baixo. */
   html body main.peso-page form#cmpForm .dmo-suggest-native{overflow:hidden;top:0;bottom:auto}
-
-  /* Peso · registo: «Peso usado — …» e «Diferença para a anterior» numa linha. */
-  html body main.peso-page .peso-resumo[data-producao-anterior-delta]{width:fit-content;max-width:100%}
-  html body main.peso-page .peso-resumo[data-producao-anterior-delta]>.peso-fact{flex:0 0 auto}
-  html body main.peso-page .peso-resumo[data-producao-anterior-delta]>.peso-fact>span{white-space:nowrap}
 }
 
 /* Comparação aberta pelo Resumo: a produção fixa é texto, na altura dos

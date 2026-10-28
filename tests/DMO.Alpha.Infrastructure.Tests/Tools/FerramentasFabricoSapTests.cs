@@ -248,12 +248,12 @@ public sealed class FerramentasFabricoSapTests
     [Fact]
     public void OPesoDoSap_EAMediaPelosDiasEAModaOPesoComMaisDias()
     {
-        // 132 g em 14 + 6 dias, 131 g em 8 (a ordem sem peso, dentro do Job On, não conta): média (132 × 20 + 131 × 8) / 28; moda 132.
+        // 132 g em 14 + 6 dias, 131 g em 8 (a ordem sem peso, dentro do Job On, não conta): média (132 × 20 + 131 × 8) / 28; moda 132, usada 20 dos 28 dias.
         var resumo = FabricoSapPeso.Resumo(
             [Ordem("2025-01-21", "2025-02-04", 132m), Ordem("2025-02-04", "2025-02-12", 131m), Ordem("2025-02-12", "2025-02-18", 132m), Ordem("2025-02-14", "2025-02-18", null)],
             new DateOnly(2025, 1, 21), new DateOnly(2025, 2, 18));
 
-        Assert.Equal(new PesoSapResumo(131.71m, 132m, 28, 3), resumo);
+        Assert.Equal(new PesoSapResumo(131.71m, 132m, 28, 3, ModaDias: 20), resumo);
     }
 
     [Fact]
@@ -264,7 +264,7 @@ public sealed class FerramentasFabricoSapTests
             [Ordem("2025-01-21", "2025-02-04", 132m), Ordem("2025-02-04", "2025-02-14", 130m)],
             new DateOnly(2025, 1, 25), new DateOnly(2025, 2, 14));
 
-        Assert.Equal(new PesoSapResumo(131m, 130m, 20, 2), resumo);
+        Assert.Equal(new PesoSapResumo(131m, 130m, 20, 2, ModaDias: 10), resumo);
         Assert.Null(FabricoSapPeso.Resumo([Ordem("2025-01-21", "2025-02-04", null)], new DateOnly(2025, 1, 21), null));
     }
 
@@ -276,9 +276,9 @@ public sealed class FerramentasFabricoSapTests
 
         var pesos = await Servico(db).PesoDosJobOnsAsync([1, 3, 4, 5]);
 
-        Assert.Equal(new PesoSapResumo(132m, 132m, 14, 1), pesos[1]);
+        Assert.Equal(new PesoSapResumo(132m, 132m, 14, 1, ModaDias: 14), pesos[1]);
         // 202505 (C3, 29/09 a 07/10): a ordem de 131 g, 8 dias.
-        Assert.Equal(new PesoSapResumo(131m, 131m, 8, 1), pesos[5]);
+        Assert.Equal(new PesoSapResumo(131m, 131m, 8, 1, ModaDias: 8), pesos[5]);
         // Na B1 e sem datas: sem peso.
         Assert.False(pesos.ContainsKey(3));
         Assert.False(pesos.ContainsKey(4));
