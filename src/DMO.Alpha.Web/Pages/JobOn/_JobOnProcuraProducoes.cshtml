@@ -13,12 +13,14 @@
   @* COM PRODUÇÕES, O DROPDOWN DESTACA-SE (Diogo, 19/10/2026: «campo de
      escrever não aparece nada consoante o que escrevemos»; «preferível drop
      down, uma lista vai consumir muito espaço»): muda de cor e diz
-     «Escolher produção», para se ver que há o que escolher. *@
+     «Escolher produção», para se ver que há o que escolher. Vem já com a
+     última escolhida (Diogo, 28/10/2026: «selecionar, deixar a última no
+     dropdown»); escolhê-la não abre nada, abre-se pelo Planeamento. *@
   <select id="lightProcuraProducoes" class="jobon-procura-com-resultados" aria-label="Últimas produções de @procura.Referencia" data-dmo-ir>
-    <option value="" selected>Escolher produção</option>
+    <option value="">Escolher produção</option>
     @foreach (var linha in procura.Linhas)
     {
-      <option value="@linha.Abrir" data-id="@linha.Item.JobOnId">@linha.Item.ProductionNumber @linha.Item.Machine</option>
+      <option value="@linha.Abrir" data-id="@linha.Item.JobOnId" selected="@(linha == procura.Linhas[0])">@linha.Item.ProductionNumber @linha.Item.Machine</option>
     }
   </select>
 }

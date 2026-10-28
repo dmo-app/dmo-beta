@@ -205,12 +205,12 @@ else
           <nav class="dmo-list-pager ri-pager" aria-label="Paginação da linha @codigo">
             @if (Model.Log.PageNumber > 1)
             {
-              <a class="dmo-button dmo-arrow" href="@Url.Page("/ReparacaoInterna/Index", new { maquina = codigo, producao = p?.JobOnId, tipo = RiTextos.Valor(c.Tipo), dia, pagina = Model.Log.PageNumber - 1 })" aria-label="Página anterior">←</a>
+              <a class="dmo-button dmo-arrow" href="@Url.Page("/ReparacaoInterna/Index", new { maquina = codigo, producao = p?.JobOnId, tipo = RiTextos.Valor(c.Tipo), dia, pagina = Model.Log.PageNumber - 1 })" aria-label="Página anterior">Anterior</a>
             }
             <span role="status">@Model.Log.PageNumber de @Model.Log.TotalPages</span>
             @if (Model.Log.PageNumber < Model.Log.TotalPages)
             {
-              <a class="dmo-button dmo-arrow" href="@Url.Page("/ReparacaoInterna/Index", new { maquina = codigo, producao = p?.JobOnId, tipo = RiTextos.Valor(c.Tipo), dia, pagina = Model.Log.PageNumber + 1 })" aria-label="Página seguinte">→</a>
+              <a class="dmo-button dmo-arrow" href="@Url.Page("/ReparacaoInterna/Index", new { maquina = codigo, producao = p?.JobOnId, tipo = RiTextos.Valor(c.Tipo), dia, pagina = Model.Log.PageNumber + 1 })" aria-label="Página seguinte">Seguinte</a>
             }
           </nav>
         }

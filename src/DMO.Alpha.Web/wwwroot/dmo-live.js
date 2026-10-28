@@ -185,6 +185,45 @@
     }
   }, true);
 
+  /* ---------- clicar fora só fecha (Diogo, 28/10/2026) ----------
+   * «Ao clicar fora para fechar estou a abrir outras sem querer»: com um menu
+   * ou uma lista aberta (Opções, Funções, Exportar, a ajuda «?», a lista das
+   * produções, a Informação técnica da folha), um clique fora só a fecha. Esse
+   * clique não chega ao que está por baixo, e o duplo clique que o segue também
+   * não. As janelas e os painéis já são modais: o que está por baixo nunca recebe. */
+  var ABERTOS = [
+    "details[data-dmo-tab-menu][open]", "details.dmo-options[open]", "details.menu[open]",
+    "details.tp-support[open]", ".sec > details.more[open]", ".dmo-help.dmo-help-aberta",
+    ".prod-drop > .prod-list:not([hidden])"
+  ].join(",");
+  function fecharAberto(el) {
+    if (el.matches(".dmo-help")) { el.classList.remove("dmo-help-aberta"); return; }
+    if (el.matches(".prod-list")) {
+      el.hidden = true;
+      var botao = el.parentElement && el.parentElement.querySelector("[aria-expanded]");
+      if (botao) botao.setAttribute("aria-expanded", "false");
+      return;
+    }
+    el.removeAttribute("open");
+  }
+  var engolidoEm = 0;
+  window.addEventListener("click", function (event) {
+    if (event.button !== 0 || !(event.target instanceof Element)) return;
+    var abertos = Array.prototype.filter.call(document.querySelectorAll(ABERTOS), function (el) {
+      // A lista das produções conta como aberta junto com o seu botão.
+      var zona = el.matches(".prod-list") ? el.parentElement : el;
+      return !zona.contains(event.target);
+    });
+    if (!abertos.length) return;
+    abertos.forEach(fecharAberto);
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    engolidoEm = Date.now();
+  }, true);
+  window.addEventListener("dblclick", function (event) {
+    if (Date.now() - engolidoEm < 700) { event.preventDefault(); event.stopImmediatePropagation(); }
+  }, true);
+
   /* ---------- separador com dropdown (barra de funções) ---------- */
   // O <details> abre e fecha sozinho; aqui fecha-se ao clicar fora ou com Esc.
   document.addEventListener("click", function (event) {
@@ -265,31 +304,72 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { montarToasts(); });
   else montarToasts();
 
-  /* ---------- O VOLTAR (Diogo, 26/10/2026: «o voltar quando entramos numa página a partir de outra não volta à página anterior») ----------
-   * Um link [data-dmo-voltar="<chave>"] volta à página de onde se veio, com os
-   * filtros que lá estavam. A origem é a página anterior do mesmo site
-   * (document.referrer) e fica guardada no separador (sessionStorage) por
-   * página + chave: guardar ou abrir uma página filha (data-dmo-voltar-ignorar)
-   * e voltar não a perde. Sem origem conhecida, o link fica como o servidor o
-   * escreveu (a lista do módulo). */
-  function montarVoltar() {
-    var links = document.querySelectorAll("a[data-dmo-voltar]");
-    if (links.length === 0) return;
-    var aqui = global.location.pathname.toLowerCase();
-    var anterior = null;
-    try { anterior = document.referrer ? new URL(document.referrer) : null; } catch (e) { anterior = null; }
-    Array.prototype.forEach.call(links, function (link) {
-      var chave = "dmo-voltar:" + aqui + ":" + link.getAttribute("data-dmo-voltar");
-      var ignorar = (link.getAttribute("data-dmo-voltar-ignorar") || "").toLowerCase().split(/\s+/).filter(Boolean).concat([aqui, "/login", "/"]);
-      var origem = null;
-      if (anterior && anterior.origin === global.location.origin && ignorar.indexOf(anterior.pathname.toLowerCase()) < 0) {
-        origem = anterior.pathname + anterior.search;
+  /* ---------- O VOLTAR (Diogo, 26/10/2026: «o voltar quando entramos numa página a partir de outra não volta à página anterior»;
+   * 28/10/2026: «voltar sempre às páginas anteriores independentemente de ser 1 ou mais páginas que navegamos») ----------
+   * O «← Voltar» ([data-dmo-voltar] e o .dmo-voltar-texto do canto esquerdo)
+   * anda para trás no caminho que se fez neste separador, um passo de cada
+   * vez, como o «voltar» do browser: A → B → C, o Voltar de C vai a B e o de
+   * B vai a A. O caminho fica no separador (sessionStorage): cada página
+   * junta-se ao fim; chegar a uma página que já está no caminho (pelo Voltar,
+   * pelo «voltar» do browser ou por um link) corta o que vinha depois dela.
+   * A mesma página com outros filtros ou depois de guardar substitui-se a si
+   * mesma (volta-se com os filtros do último momento). A primeira página do
+   * separador começa o caminho pela página anterior do mesmo site
+   * (document.referrer). As páginas dentro do painel deslizante não entram:
+   * o painel fecha-se com o «Fechar» e o Voltar da página continua igual.
+   * Sem página anterior, o link fica como o servidor o escreveu. */
+  var CAMINHO = "dmo-voltar:caminho";
+  var CAMINHO_MAX = 40;
+  function dentroDoPainel(url) {
+    if (url.searchParams.has("painel")) return true;
+    try { return global.self !== global.top; } catch (e) { return true; }
+  }
+  function caminhoDe(endereco) {
+    var u = new URL(endereco, global.location.href);
+    return u.pathname.toLowerCase();
+  }
+  function lerCaminho() {
+    try {
+      var lido = JSON.parse(global.sessionStorage.getItem(CAMINHO) || "[]");
+      return Array.isArray(lido) ? lido.filter(function (x) { return typeof x === "string"; }) : [];
+    } catch (e) { return null; }
+  }
+  function acertarCaminho() {
+    var aqui = new URL(global.location.href);
+    if (dentroDoPainel(aqui)) return null;
+    var caminho = lerCaminho();
+    if (caminho === null) return null;
+    var onde = aqui.pathname.toLowerCase();
+    // Entrar de novo (login) começa um caminho novo.
+    if (onde === "/login") {
+      try { global.sessionStorage.removeItem(CAMINHO); } catch (e) { /* nada a limpar */ }
+      return null;
+    }
+    var i = caminho.map(caminhoDe).lastIndexOf(onde);
+    if (i >= 0) {
+      caminho = caminho.slice(0, i);
+    } else {
+      var anterior = null;
+      try { anterior = document.referrer ? new URL(document.referrer) : null; } catch (e) { anterior = null; }
+      if (anterior && anterior.origin === aqui.origin && !anterior.searchParams.has("painel")
+        && ["/login", onde].indexOf(anterior.pathname.toLowerCase()) < 0) {
+        var j = caminho.map(caminhoDe).lastIndexOf(anterior.pathname.toLowerCase());
+        if (j >= 0) caminho = caminho.slice(0, j);
+        caminho.push(anterior.pathname + anterior.search);
       }
-      try {
-        if (origem) global.sessionStorage.setItem(chave, origem);
-        else origem = global.sessionStorage.getItem(chave);
-      } catch (e) { /* sem sessionStorage: fica o link do servidor */ }
-      if (!origem) return;
+    }
+    caminho.push(aqui.pathname + aqui.search);
+    if (caminho.length > CAMINHO_MAX) caminho = caminho.slice(caminho.length - CAMINHO_MAX);
+    try { global.sessionStorage.setItem(CAMINHO, JSON.stringify(caminho)); } catch (e) { /* sem sessionStorage: fica o link do servidor */ }
+    return caminho;
+  }
+  function montarVoltar() {
+    var caminho = acertarCaminho();
+    var links = document.querySelectorAll("a[data-dmo-voltar], a.dmo-voltar-texto");
+    if (links.length === 0 || !caminho) return;
+    var origem = caminho.length > 1 ? caminho[caminho.length - 2] : null;
+    if (!origem || caminhoDe(origem) === "/login") return;
+    Array.prototype.forEach.call(links, function (link) {
       link.setAttribute("href", origem);
       var texto = link.getAttribute("data-dmo-voltar-texto");
       if (texto) link.textContent = texto;
@@ -297,8 +377,11 @@
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", montarVoltar);
   else montarVoltar();
-  // Uma zona trocada sem recarregar pode trazer o link de novo como o servidor o escreveu.
+  // Uma zona trocada sem recarregar pode trazer o link de novo como o servidor o
+  // escreveu e mudar os filtros do endereço.
   document.addEventListener("dmo:troca", montarVoltar);
+  // O «voltar» do browser pode mostrar a página guardada sem a correr de novo.
+  global.addEventListener("pageshow", function (event) { if (event.persisted) montarVoltar(); });
 
   global.DMOLive = {
     toast: toast,
