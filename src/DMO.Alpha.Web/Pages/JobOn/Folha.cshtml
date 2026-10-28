@@ -650,11 +650,14 @@ else
           </div>
         }
         @* A cadência vem do SAP, não se escreve (Diogo, 27/10/2026: «cadência para meter no Job On»); no Editar
-           não aparece, para a faixa dos campos caber numa linha no ecrã do trabalho (~1290 px). *@
+           não aparece, para a faixa dos campos caber numa linha no ecrã do trabalho (~1290 px).
+           «Cadência usada» (Diogo, 28/10/2026): a moda do SAP desta produção, depois de feita, com a
+           média no título; sem ela, a da produção anterior, marcada «ant.». *@
         @if (!editar)
         {
+          var cadencia = Model.CadenciaSap;
           <div class="fact-col">
-            <span class="fl">Cadência</span><span class="fv"><strong title="Do SAP (relatório de produções)">@(Model.CadenciaSap?.ToString() ?? "—")</strong></span>
+            <span class="fl">Cadência usada</span><span class="fv"><strong title="@(cadencia is null ? "Do SAP (relatório de produções)" : $"Do SAP{(cadencia.DaAnterior ? $", produção anterior {cadencia.AnteriorProducao}" : null)}: moda {cadencia.Resumo.Moda} · média {DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(cadencia.Resumo.Media)}")">@(cadencia?.Resumo.Moda.ToString() ?? "—")</strong>@if (cadencia is { DaAnterior: true }) {<span class="unit">ant.</span>}</span>
           </div>
         }
         </div>

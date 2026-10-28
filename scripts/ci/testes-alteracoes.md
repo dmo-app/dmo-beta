@@ -4219,6 +4219,24 @@ Novos: 6 · mudaram: 0 · saíram: 0
 
 Selo depois: `3f4d1d2b421330dd`
 
+## A-0255 · 2026-10-28 · ok-do-diogo
+
+Porquê: DMO-525: a cadência do SAP passa a média e moda por produção, como o peso. O teste da cadência no Job On passa a exigir o nome «Cadência usada», a moda com a média no título e, sem SAP dessa produção, a da produção anterior marcada «ant.»; sem nenhuma, «—» como antes. Testes novos: média e moda, a produção anterior, a cadência de cada produção no Histórico de produções e o «≈» do % uso no Histórico.
+Referência: «sim» do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraDtxDo1jmQDo6x9jiTc2Ubd (cartão cmsg_01K75FTs9bQnbhhH7qttpgraKVHfGf2ThnhN8rTRanYkpz)
+Novos: 8 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaPorProducaoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaPorProducaoTests.cs :: FabricoSapCadenciaPorProducaoTests.AMediaPesaOsDias_EAModaEADasOrdensComMaisDias`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaPorProducaoTests.cs :: FabricoSapCadenciaPorProducaoTests.CadaProducaoDaFerramenta_TemASuaCadencia`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaPorProducaoTests.cs :: FabricoSapCadenciaPorProducaoTests.OJobOnSemCadencia_FicaComADaProducaoAnteriorDaMesmaReferencia`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.CadenciaPorProducao.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.CadenciaPorProducao.cs :: DefinicoesPorModuloPageTests.OHistorico_MostraACadenciaDeCadaProducao_EAJanelaComMediaModaEDelta`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoUsoEstimado.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoUsoEstimado.cs :: DefinicoesPorModuloPageTests.OHistorico_SemLeiturasAVolta_EstimaOUsoPeloProduzido`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CadenciaSap.cs :: JobOnPageTests.Folha_MostraACadenciaDoSap_DaOrdemComMaisDias`
+
+Selo depois: `f0420e29cb4dc503`
+
 ## A-0258 · 2026-10-28 · teste-novo
 
 Porquê: O Novo Peso mostra a temperatura escrita e a densidade da água dela.
@@ -4228,7 +4246,7 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoDensidadeAgua.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoDensidadeAgua.cs :: ControloCapabilitiesCutHPageTests.NovoPeso_MostraATemperaturaEADensidadeDaAgua`
 
-Selo depois: `6834de598083409f`
+Selo depois: `e3c2fdbe5805a823`
 
 ## A-0300 · 2026-10-28 · teste-novo
 
@@ -4238,7 +4256,7 @@ Novos: 1 · mudaram: 0 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_TampaoSoNaFolhaDoJobOn_LeODaFolha`
 
-Selo depois: `96ca104a4b7933dd`
+Selo depois: `10c7afebdc0b9b62`
 
 ## A-0301 · 2026-10-28 · teste-novo
 
@@ -4249,7 +4267,7 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.AssociarJobOn.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.AssociarJobOn.cs :: PesoFolhaProducaoAnteriorPageTests.CriarControloAnterior_SemJobOnOuNumJobOnAnterior`
 
-Selo depois: `f564acfd068845b9`
+Selo depois: `0699590f0e13f023`
 
 ## A-0266 · 2026-10-28 · ok-do-diogo
 
@@ -4269,4 +4287,4 @@ Novos: 1 · mudaram: 10 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_PesoIlegivel_RecusaComEcho_ENaoGuarda`
 - mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_PropoeAMaisRecente_GuardaOPesoDoSap_EMostraODelta`
 
-Selo depois: `bf0b7286a961e2e1`
+Selo depois: `d5028b5b0339c195`

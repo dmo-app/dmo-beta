@@ -619,7 +619,7 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
       var pecasHist = System.Globalization.CultureInfo.GetCultureInfo("pt-PT");
       <section class="dmo-card ferr-card dmo-card-dobravel" aria-labelledby="ferr-historico-title" id="ferrHistoricoProducoes" data-dmo-fica>
         <details>
-        <summary class="dmo-card-topo"><h3 id="ferr-historico-title" title="Os Job On em que esta ferramenta esteve, do mais recente para o mais antigo. Garrafas = produção bruta; Δ garrafas = contra a produção anterior; % = quanto o uso subiu nela. Um clique no peso médio abre o peso de todas as produções: a média, a moda e o Δ contra a anterior. O total soma as garrafas e mostra a % de hoje."><span class="dmo-caret" aria-hidden="true"></span>Histórico de produções</h3></summary>
+        <summary class="dmo-card-topo"><h3 id="ferr-historico-title" title="Os Job On em que esta ferramenta esteve, do mais recente para o mais antigo. Garrafas = produção bruta; Δ garrafas = contra a produção anterior; % = quanto o uso subiu nela. Um clique no peso médio abre o peso de todas as produções: a média, a moda e o Δ contra a anterior. A cadência é a moda do SAP em cada produção; um clique abre a média, a moda e o Δ de todas. O total soma as garrafas e mostra a % de hoje."><span class="dmo-caret" aria-hidden="true"></span>Histórico de produções</h3></summary>
         @if (historico.Pagina.TotalCount == 0)
         {
           <p class="ferr-nota">Esta ferramenta ainda não esteve em nenhum Job On.</p>
@@ -628,7 +628,7 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
         {
           <div class="dmo-table-wrap">
             <table class="dmo-table" data-dmo-list="Histórico de produções">
-              <thead><tr><th>Produção</th><th>Datas</th><th>Garrafas (bruto)</th><th>Δ garrafas</th><th>% uso</th><th>Peso médio</th></tr></thead>
+              <thead><tr><th>Produção</th><th>Datas</th><th>Garrafas (bruto)</th><th>Δ garrafas</th><th>% uso</th><th>Peso médio</th><th title="A cadência do SAP em cada produção (a moda: a das ordens com mais dias)">Cadência</th></tr></thead>
               <tbody>
                 @{ var itensHist = historico.Pagina.Items.ToList(); }
                 @for (var i = 0; i < itensHist.Count; i++)
@@ -645,7 +645,10 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
                     <td><strong>@(deltaGarrafas is { } dg ? (dg >= 0 ? "+" : "−") + Math.Abs(dg).ToString("#,0", pecasHist) : "—")</strong></td>
                     @* Um clique no % uso abre a Utilização por produção (Diogo, 27/10/2026:
                        «qualquer % uso de uma ferramenta abre um slide com esse historial»). *@
-                    <td>@if (prod.DeltaUtilizacao is { } delta) {<button type="button" class="ferr-utilizacao-abrir" aria-label="Utilização por produção" data-dmo-dialog="ferrProducoes"><strong>@((delta >= 0 ? "+" : "") + DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(delta) + " %")</strong></button>} else {<strong>—</strong>}</td>
+                    @* Sem as leituras antes e depois, o «≈» da janela da utilização (a parte
+                       do % de hoje pelo que a produção fez), como lá (Diogo, 28/10/2026:
+                       «as nossas consultas ao SAP não estão a funcionar bem»: aqui ficava «—»). *@
+                    <td>@if (prod.DeltaUtilizacao is { } delta) {<button type="button" class="ferr-utilizacao-abrir" aria-label="Utilização por produção" data-dmo-dialog="ferrProducoes"><strong>@((delta >= 0 ? "+" : "") + DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(delta) + " %")</strong></button>} else if (historico.DeltaPeloProduzido(prod, Model.Utilizacao?.Ultima?.Percentagem) is { } estimado) {<button type="button" class="ferr-utilizacao-abrir" aria-label="Utilização por produção" data-dmo-dialog="ferrProducoes"><strong>@("≈ +" + DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(estimado) + " %")</strong></button>} else {<strong>—</strong>}</td>
                     <td>
                       @if (peso is null)
                       {
@@ -660,6 +663,19 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
                         <button type="button" class="ferr-utilizacao-abrir ferr-peso-abrir" aria-label="Peso por produção (@prod.Producao)" data-dmo-dialog="ferrPeso@(prod.JobOnId)">@(DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(peso.MediaGramas)) g</button>
                       }
                     </td>
+                    @* A cadência usada em cada produção (Diogo, 28/10/2026: «uma versão como
+                       a do peso [...] média e moda, mas mostrar o que foi usado em cada
+                       produção»): a moda; um clique abre a janela da cadência. *@
+                    <td>
+                      @if (prod.Cadencia is { } cad)
+                      {
+                        <button type="button" class="ferr-utilizacao-abrir ferr-peso-abrir" aria-label="Cadência por produção (@prod.Producao)" data-dmo-dialog="ferrCadencia@(prod.JobOnId)">@cad.Moda</button>
+                      }
+                      else
+                      {
+                        @("—")
+                      }
+                    </td>
                   </tr>
                 }
               </tbody>
@@ -669,6 +685,7 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
                   <td><strong>@(historico.TotalBruta?.ToString("#,0", pecasHist) ?? "—")</strong></td>
                   <td></td>
                   <td>@if (Model.Utilizacao?.Ultima is { } atualHist) {<button type="button" class="ferr-utilizacao-abrir" aria-label="Utilização por produção" data-dmo-dialog="ferrProducoes"><strong>@(DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(atualHist.Percentagem) + " %")</strong></button>} else {<strong>—</strong>}</td>
+                  <td></td>
                   <td></td>
                 </tr>
               </tfoot>
@@ -745,6 +762,63 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
                     janela.querySelector('[data-ferr-peso-lugar]').appendChild(tabela);
                     tabela.hidden = false;
                     janela.querySelector('[data-ferr-peso-fechar]').focus();
+                  }).observe(janela, { attributes: true, attributeFilter: ['open'] });
+                });
+              })();
+            </script>
+          }
+          @* A JANELA DA CADÊNCIA (Diogo, 28/10/2026), como a do peso: em cima, a
+             cadência dessa produção (média pesada pelos dias, moda e Δ da moda
+             contra a produção anterior); por baixo, a tabela de todas. *@
+          @{
+          CadenciaSapResumo? CadenciaDe(int i) => i < itensHistJanela.Count ? itensHistJanela[i].Cadencia : null;
+          string DeltaCadencia(CadenciaSapResumo? atual, CadenciaSapResumo? anterior) =>
+              atual is null || anterior is null ? "—" : (atual.Moda - anterior.Moda >= 0 ? "+" : "−") + Math.Abs(atual.Moda - anterior.Moda);
+          }
+          @if (itensHistJanela.Any(p => p.Cadencia is not null))
+          {
+            <div class="dmo-table-wrap ferr-producoes-lista" id="ferrCadenciaTabela" hidden>
+              <table class="dmo-table" data-dmo-list="Cadência por produção">
+                <thead><tr><th>Produção</th><th>Média</th><th>Moda</th><th>Δ anterior</th></tr></thead>
+                <tbody>
+                  @for (var i = 0; i < itensHistJanela.Count; i++)
+                  {
+                    var prod = itensHistJanela[i];
+                    var cad = CadenciaDe(i);
+                    <tr data-dmo-row data-id="@prod.JobOnId" data-dmo-open="@Url.Page("/JobOn/Index", new { jobon_id = prod.JobOnId })"
+                        aria-label="Produção @prod.Producao — um clique abre a ficha do Job On">
+                      <td><a class="ferr-armazem-link" href="@Url.Page("/JobOn/Index", new { jobon_id = prod.JobOnId })"><strong>@prod.Producao</strong></a> <small class="ferr-producao-maquina">@prod.Maquina</small></td>
+                      <td>@(cad is null ? "—" : DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(cad.Media))</td>
+                      <td>@(cad is null ? "—" : cad.Moda.ToString(System.Globalization.CultureInfo.InvariantCulture))</td>
+                      <td>@DeltaCadencia(cad, CadenciaDe(i + 1))</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            @for (var i = 0; i < itensHistJanela.Count; i++)
+            {
+              var prod = itensHistJanela[i];
+              if (CadenciaDe(i) is not { } cad) { continue; }
+              <dialog id="ferrCadencia@(prod.JobOnId)" class="dmo-dialog ferr-producoes-janela ferr-cadencia-janela" aria-labelledby="ferrCadenciaTitulo@(prod.JobOnId)">
+                <h3 id="ferrCadenciaTitulo@(prod.JobOnId)" title="A cadência do relatório de produções do SAP em cada Job On: a média pesada pelos dias e a moda (a das ordens com mais dias). O Δ é a moda contra a da produção anterior. Um clique na produção abre a ficha do Job On.">Cadência por produção</h3>
+                <p class="ferr-nota">Produção <strong>@prod.Producao</strong> · Média <strong>@DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(cad.Media)</strong> · Moda <strong>@cad.Moda</strong> · Δ anterior <strong>@DeltaCadencia(cad, CadenciaDe(i + 1))</strong></p>
+                <div data-ferr-cadencia-lugar></div>
+                <div class="dmo-dialog-actions">
+                  <button type="button" class="dmo-button" data-dmo-dialog-close data-ferr-cadencia-fechar>Fechar</button>
+                </div>
+              </dialog>
+            }
+            <script>
+              (function () {
+                var tabela = document.getElementById('ferrCadenciaTabela');
+                if (!tabela || !window.MutationObserver) { return; }
+                document.querySelectorAll('dialog.ferr-cadencia-janela').forEach(function (janela) {
+                  new MutationObserver(function () {
+                    if (!janela.open) { return; }
+                    janela.querySelector('[data-ferr-cadencia-lugar]').appendChild(tabela);
+                    tabela.hidden = false;
+                    janela.querySelector('[data-ferr-cadencia-fechar]').focus();
                   }).observe(janela, { attributes: true, attributeFilter: ['open'] });
                 });
               })();
