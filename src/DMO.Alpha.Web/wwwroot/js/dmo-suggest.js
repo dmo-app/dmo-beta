@@ -140,9 +140,31 @@
         li.setAttribute("role", "option");
         li.textContent = item.label;
         if (item.selected) li.setAttribute("aria-selected", "true");
+        // Com item.ficha, o triângulo à frente abre a ficha no painel ao lado, sem escolher
+        // nem sair da página (Diogo, 28/10/2026: no Editar do Job On, «à frente de cada
+        // ferramenta … abre sliding window da ferramenta»).
+        var ficha = null;
+        if (item.ficha) {
+          var texto = document.createElement("span");
+          texto.className = "dmo-suggest-texto";
+          texto.textContent = item.label;
+          ficha = document.createElement("a");
+          ficha.className = "dmo-suggest-ficha";
+          ficha.href = item.ficha;
+          ficha.title = "Abrir a ficha";
+          ficha.setAttribute("aria-label", "Abrir a ficha de " + item.label);
+          ficha.innerHTML = '<span class="dmo-caret" aria-hidden="true"></span>';
+          ficha.addEventListener("click", function (event) { event.preventDefault(); });
+          li.replaceChildren(texto, ficha);
+        }
         // mousedown (antes do blur): a escolha acontece antes de o campo fechar a lista.
         li.addEventListener("mousedown", function (event) {
           event.preventDefault();
+          if (ficha && ficha.contains(event.target)) {
+            close();
+            if (!(window.DmoSupport && window.DmoSupport.tryOpen(item.ficha, ficha))) window.open(item.ficha, "_blank");
+            return;
+          }
           onPick(item);
           close();
         });
