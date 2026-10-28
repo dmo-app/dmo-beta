@@ -155,7 +155,9 @@ public static class UsoSapExportacao
     public static bool Numero(string? texto, out decimal valor)
     {
         valor = 0;
-        var bruto = texto?.Trim().Replace(" ", "", StringComparison.Ordinal);
+        // Os espaços (também os inquebráveis) e o «%» pegado ao número saem.
+        var bruto = texto?.Trim().Replace(" ", "", StringComparison.Ordinal).Replace("\u00A0", "", StringComparison.Ordinal)
+            .Replace("\u202F", "", StringComparison.Ordinal).TrimEnd('%');
         // Um só ponto com uma ou duas casas a seguir (90.2) é a vírgula das
         // décimas noutro formato: os milhares têm sempre três algarismos.
         var limpo = bruto is not null && !bruto.Contains(',') && Regex.IsMatch(bruto, @"^\d+\.\d{1,2}$")

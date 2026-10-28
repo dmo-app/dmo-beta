@@ -4590,3 +4590,14 @@ Novos: 9 · mudaram: 3 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/PaginasSemSessaoTests.cs :: PaginasSemSessaoTests.SemSessao_SoAbremAsPaginasPublicas`
 
 Selo depois: `22d7c7aa100fe569`
+
+## A-0323 · 2026-10-28 · teste-novo
+
+Porquê: A % do SAP com «%» ou espaços inquebráveis lê-se; o CSV do script traz o consumo e a vida prevista (revisão do script pedida pelo Diogo).
+Referência: PR #290
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.OCsvDoScript_TrazOConsumoEAVidaPrevista`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.OsNumerosComPercentagemOuEspacosEstranhos_LeemSe`
+
+Selo depois: `b53737140df2c16e`
