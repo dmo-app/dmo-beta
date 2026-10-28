@@ -4103,10 +4103,10 @@ Selo depois: `1ecbaa53f6ccc384`
 
 ## A-0280 · 2026-10-28 · teste-novo
 
-Porquê: DMO-545: teste novo do Histórico de produções com o artigo de cada produção e a lista das referências
+Porquê: DMO-545: teste novo do Histórico de produções: artigo de cada produção, lista das referências e «em curso»
 Novos: 2 · mudaram: 0 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoComArtigo.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoComArtigo.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraOArtigoDeCadaProducao`
 
-Selo depois: `8ccdfa0462c6c69e`
+Selo depois: `5eefa47a0c3d0f90`

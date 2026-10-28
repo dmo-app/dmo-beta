@@ -22,6 +22,15 @@ public sealed partial class DefinicoesPorModuloPageTests
         {
             var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
             db.SapFabricos.Add(new SapFabrico { Material = referencia + "BRA", Linha = maquina, InicioEm = new DateOnly(2025, 1, 21), FimEm = new DateOnly(2025, 2, 4), ProducaoBruta = 1_000_000, LidoEmUtc = DateTime.UtcNow });
+            // A produção que está na máquina hoje, com o fim previsto.
+            var hoje = DateOnly.FromDateTime(DMO.Alpha.Core.Runtime.DmoBusinessTime.Now);
+            var agora = new JobOn
+            {
+                Reference = referencia, ProductionNumber = "209905", Machine = db.Machines.First(m => m.Code == maquina),
+                InicioEm = hoje.AddDays(-1), FimEm = hoje.AddDays(6)
+            };
+            db.JobOns.Add(agora);
+            db.CmContexts.Add(new CmContext { JobOn = agora, ToolId = toolId });
             db.SaveChanges();
         }
 
@@ -30,6 +39,9 @@ public sealed partial class DefinicoesPorModuloPageTests
 
         Assert.Contains($"<small class=\"ferr-producao-maquina\">{referencia} · {maquina}</small>", historico, StringComparison.Ordinal);
         // E a lista de todas as referências em que trabalhou, com as produções de cada uma.
-        Assert.Contains($"Referência: {referencia} (1)", ZonaUsoSap(historico, "ferrHistoricoReferencias"), StringComparison.Ordinal);
+        Assert.Contains($"Referência: {referencia} (2)", ZonaUsoSap(historico, "ferrHistoricoReferencias"), StringComparison.Ordinal);
+        // «em curso» na que está na máquina hoje, não nas que já acabaram.
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(historico, " · em curso"));
+        Assert.Contains("209905", historico, StringComparison.Ordinal);
     }
 }

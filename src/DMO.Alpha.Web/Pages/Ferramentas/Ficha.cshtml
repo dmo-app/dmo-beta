@@ -629,6 +629,7 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
           @* Todas as referências em que a ferramenta trabalhou, não só a do
              Job On de agora (Diogo, 28/10/2026: «a tool_id tem de mostrar
              todas as referências que trabalhou e não apenas um Job On»). *@
+          var hojeHist = DateOnly.FromDateTime(DMO.Alpha.Core.Runtime.DmoBusinessTime.Now);
           var referenciasHist = historico.Pagina.Items
               .GroupBy(p => p.Referencia.ToUpperInvariant())
               .Select(g => (Referencia: g.First().Referencia, Producoes: g.Count()))
@@ -651,7 +652,9 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
                     <td><a class="ferr-armazem-link" href="@Url.Page("/JobOn/Index", new { jobon_id = prod.JobOnId })"><strong>@prod.Producao</strong></a> @* O artigo de cada produção: a mesma ferramenta
                        serve vários artigos e o nº de produção repete-se entre eles
                        (Diogo, 28/10/2026: «produção não faz sentido»). *@<small class="ferr-producao-maquina">@prod.Referencia · @prod.Maquina</small></td>
-                    <td>@(prod.InicioEm?.ToString("dd/MM/yyyy") ?? "—") a @(prod.FimEm?.ToString("dd/MM/yyyy") ?? "em curso")</td>
+                    @* «em curso» também na produção que está na máquina hoje, com o fim
+                       previsto (Diogo, 28/10/2026: «o que está em curso é o 202605»). *@
+                    <td>@(prod.InicioEm?.ToString("dd/MM/yyyy") ?? "—") a @(prod.FimEm?.ToString("dd/MM/yyyy") ?? "em curso")@(prod.FimEm is { } fimHist && prod.InicioEm <= hojeHist && fimHist >= hojeHist ? " · em curso" : null)</td>
                     <td><strong>@(prod.ProducaoBruta?.ToString("#,0", pecasHist) ?? "—")</strong></td>
                     <td><strong>@(deltaGarrafas is { } dg ? (dg >= 0 ? "+" : "−") + Math.Abs(dg).ToString("#,0", pecasHist) : "—")</strong></td>
                     @* Um clique no % uso abre a Utilização por produção (Diogo, 27/10/2026:
