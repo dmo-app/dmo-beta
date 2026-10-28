@@ -18,7 +18,6 @@
         <div class="bq-sem-jobon-topo">
           <h3 id="bqSemJobOnTitulo">Registar sem Job On</h3>
           <button type="button" class="dmo-dialog-fechar" data-dmo-dialog-close aria-label="Fechar">×</button>
-          <button type="submit" class="dmo-button">Registar</button>
         </div>
         @if (recusa)
         {
@@ -39,20 +38,6 @@
               }
             </select>
           </div>
-        </div>
-        <fieldset class="bq-movement-types bq-sem-jobon-tipos">
-          <legend class="visually-hidden">Movimento</legend>
-          <label><input type="radio" name="movement_type" value="saida" checked required /><span>Saída</span></label>
-          <label><input type="radio" name="movement_type" value="entrada" /><span>Entrada</span></label>
-          <label><input type="radio" name="movement_type" value="entrada_sem_reparacao" /><span>Entrada sem reparação</span></label>
-        </fieldset>
-        @* Numa só linha e com campos do tamanho do que levam (Diogo, 28/10/2026:
-           «AN BQ são duas letras», «Linha a mesma coisa»): a Linha, a Peça, a
-           Quantidade, a Data e a Hora. A Peça (BQ por defeito, ou AN): a
-           quantidade é dessa peça; um movimento de AN não leva BQ. A data e a
-           hora em dois campos, como no Registo; o bq-registo.js junta-os no
-           occurred_at, que é o que vai ao servidor. *@
-        <div class="bq-sem-jobon-linha">
           <div class="dmo-field bq-sem-jobon-curto">
             <label for="bqSemJobOnLinha">Linha</label>
             <select id="bqSemJobOnLinha" name="movement_machine_id" required>
@@ -70,6 +55,22 @@
               <option value="an">AN</option>
             </select>
           </div>
+        </div>
+        @* Campos do tamanho do que levam (Diogo, 28/10/2026: «AN BQ são duas
+           letras», «Linha a mesma coisa»). A Linha e a Peça ficam em cima, ao pé
+           da procura da BQ; em baixo, como no Registo da página (Diogo,
+           28/10/2026): «Registar» antes da Saída, o movimento, a
+           Quantidade (da Peça escolhida; um movimento de AN não leva BQ), a Data
+           e a Hora em dois campos, como no Registo; o bq-registo.js junta-os no
+           occurred_at, que é o que vai ao servidor. *@
+        <div class="bq-sem-jobon-linha">
+          <button type="submit" class="dmo-button bq-sem-jobon-registar">Registar</button>
+          <fieldset class="bq-movement-types bq-sem-jobon-tipos">
+            <legend class="visually-hidden">Movimento</legend>
+            <label><input type="radio" name="movement_type" value="saida" checked required /><span>Saída</span></label>
+            <label><input type="radio" name="movement_type" value="entrada" /><span>Entrada</span></label>
+            <label><input type="radio" name="movement_type" value="entrada_sem_reparacao" /><span>Entrada sem reparação</span></label>
+          </fieldset>
           <div class="dmo-field bq-sem-jobon-qtd">
             <label for="bqSemJobOnQtd">Quantidade</label>
             <input id="bqSemJobOnQtd" name="quantity" type="number" lang="en" min="1" required placeholder="Ex.: 1" />
