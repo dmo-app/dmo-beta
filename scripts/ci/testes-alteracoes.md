@@ -4219,10 +4219,10 @@ Novos: 6 · mudaram: 0 · saíram: 0
 
 Selo depois: `3f4d1d2b421330dd`
 
-## A-0297 · 2026-10-28 · contagem-lista
+## A-0305 · 2026-10-28 · contagem-lista
 
-Porquê: «Voltar» passo a passo pelo caminho feito no separador (DMO-564): ficheiro novo voltar-caminho.test.cjs e a sua entrada na lista do test:js
-Referência: DMO-564
+Porquê: «Voltar» passo a passo pelo caminho feito no separador (DMO-569): ficheiro novo voltar-caminho.test.cjs e a sua entrada na lista do test:js
+Referência: DMO-569
 Novos: 6 · mudaram: 1 · saíram: 0
 
 - novo: `tests/ShellProof/voltar-caminho.test.cjs :: (resto do ficheiro)`
