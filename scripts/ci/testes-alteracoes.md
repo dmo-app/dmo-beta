@@ -4143,3 +4143,16 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.TrincoDoPeso.cs :: PostgresMigrationIntegrationTests.LeituraDoPeso_EsperaPeloTrincoDoCorrigirEApagar`
 
 Selo depois: `5569a4926689fa9d`
+
+## A-0282 · 2026-10-28 · teste-novo
+
+Porquê: testes novos do repor acesso: primeiro a app, depois o provider (issue #1 do dmo-Improvements, BE12; «sim» do Diogo no cartão cmsg_01K75FTs9bQnbhhH7qttpgraXb8tBQWVyJXk8hiyb37wF1). Nenhum teste antigo mudou.
+Novos: 5 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/ReporAcessoPrimeiroAAppTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/ReporAcessoPrimeiroAAppTests.cs :: ReporAcessoPrimeiroAAppTests.AGravacaoNaAppFalha_APalavraPasseNaoMudaNoProvider`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/ReporAcessoPrimeiroAAppTests.cs :: ReporAcessoPrimeiroAAppTests.OProviderNaoResponde_ASessaoAntigaJaCaiuEAMudancaEObrigatoria`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/ReporAcessoPrimeiroAAppTests.cs :: ReporAcessoPrimeiroAAppTests.OProviderRecusa_OUtilizadorFicaComoEstava`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/ReporAcessoPrimeiroAAppTests.cs :: ReporAcessoPrimeiroAAppTests.ReporComSucesso_FechaAsSessoesEDevolveOPin`
+
+Selo depois: `511aaea61fb51d2b`

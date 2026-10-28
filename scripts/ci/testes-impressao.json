@@ -1,5 +1,5 @@
 {
-  "selo": "5569a4926689fa9d",
+  "selo": "511aaea61fb51d2b",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -24,6 +24,11 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Admin/AdminEmailSettingsTests.cs :: AdminEmailSettingsTests.TryClaim_EmptyField_ClaimsIt": "0bd8048584e0a5ad",
     "tests/DMO.Alpha.Infrastructure.Tests/Admin/AdminEmailSettingsTests.cs :: AdminEmailSettingsTests.TryClaim_FieldAlreadySet_NeverReplacesIt": "3a99dbe2e863592f",
     "tests/DMO.Alpha.Infrastructure.Tests/Admin/AdminEmailSettingsTests.cs :: AdminEmailSettingsTests.TryClaim_InvalidEmail_ClaimsNothing": "7be98c0e8e0f3e22",
+    "tests/DMO.Alpha.Infrastructure.Tests/Admin/ReporAcessoPrimeiroAAppTests.cs :: (resto do ficheiro)": "27d394f9f5616421",
+    "tests/DMO.Alpha.Infrastructure.Tests/Admin/ReporAcessoPrimeiroAAppTests.cs :: ReporAcessoPrimeiroAAppTests.AGravacaoNaAppFalha_APalavraPasseNaoMudaNoProvider": "6c9dcc2958a3c988",
+    "tests/DMO.Alpha.Infrastructure.Tests/Admin/ReporAcessoPrimeiroAAppTests.cs :: ReporAcessoPrimeiroAAppTests.OProviderNaoResponde_ASessaoAntigaJaCaiuEAMudancaEObrigatoria": "aa04b973278993c8",
+    "tests/DMO.Alpha.Infrastructure.Tests/Admin/ReporAcessoPrimeiroAAppTests.cs :: ReporAcessoPrimeiroAAppTests.OProviderRecusa_OUtilizadorFicaComoEstava": "10a56048bfd38715",
+    "tests/DMO.Alpha.Infrastructure.Tests/Admin/ReporAcessoPrimeiroAAppTests.cs :: ReporAcessoPrimeiroAAppTests.ReporComSucesso_FechaAsSessoesEDevolveOPin": "41bd368a1d31bf2c",
     "tests/DMO.Alpha.Infrastructure.Tests/Admin/TemplateAdminServiceTests.cs :: (resto do ficheiro)": "6708d62fcbc58d25",
     "tests/DMO.Alpha.Infrastructure.Tests/Admin/TemplateAdminServiceTests.cs :: TemplateAdminServiceTests.CreateAndEditTemplate_BothControlos_AreSaved": "bfd25bc1bad813cb",
     "tests/DMO.Alpha.Infrastructure.Tests/Admin/TemplateAdminServiceTests.cs :: TemplateAdminServiceTests.CreateTemplate_InvariantViolations_AreTypedRefusals": "fe7075517e0b4e86",
