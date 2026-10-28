@@ -104,6 +104,48 @@ public sealed partial class DefinicoesPorModuloPageTests
         Assert.DoesNotContain(outro + "04", codigos);
     }
 
+    [Fact]
+    public async Task AtualizarPorReferencia_DaOsCodigosDessaReferenciaEDoTipo()
+    {
+        var nome = "MRF" + Guid.NewGuid().ToString("N")[..6].ToUpperInvariant() + "MPNNX";
+        var referencia = "R" + Guid.NewGuid().ToString("N")[..7].ToUpperInvariant();
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            db.Tools.Add(new Tool { ToolId = "T" + Guid.NewGuid().ToString("N")[..10], Type = ToolType.Cm, Reference = referencia, Lot = "2", TechnicalName = nome });
+            db.Tools.Add(new Tool { ToolId = "T" + Guid.NewGuid().ToString("N")[..10], Type = ToolType.Bq, Reference = referencia, Lot = "7", TechnicalName = nome });
+            db.SaveChanges();
+        }
+
+        var client = await LoginOperatorAsync("7190", DmoCapabilities.Ferramentas);
+        async Task<List<string?>> Codigos(string tipo)
+        {
+            using var json = JsonDocument.Parse(await (await client.GetAsync($"{FerramentasPath}?handler=CodigosSap&referencia={referencia.ToLowerInvariant()}&tipo={tipo}")).Content.ReadAsStringAsync());
+            return json.RootElement.GetProperty("codigos").EnumerateArray().Select(c => c.GetString()).ToList();
+        }
+
+        Assert.Equal([nome + "02", nome + "07"], await Codigos(""));
+        Assert.Equal([nome + "07"], await Codigos("bq"));
+        Assert.Empty(await Codigos("mf"));
+    }
+
+    [Fact]
+    public async Task PedirTodas_DaOsCodigosDeTodasAsFerramentasComNomeTecnico()
+    {
+        var nome = "MUS" + Guid.NewGuid().ToString("N")[..6].ToUpperInvariant() + "MPPSX";
+        SeedToolComNomeTecnico(nome, "5");
+        var client = await LoginOperatorAsync("7189", DmoCapabilities.Ferramentas);
+
+        var definicoes = await client.GetStringAsync("/Definicoes");
+        var inicio = definicoes.IndexOf("id=\"ferrDefSap\"", StringComparison.Ordinal);
+        Assert.True(inicio >= 0, "Falta o cartão do SAP.");
+        Assert.Contains(">Pedir todas</button>", definicoes[inicio..definicoes.IndexOf("</section>", inicio, StringComparison.Ordinal)], StringComparison.Ordinal);
+        using var so = JsonDocument.Parse(await (await client.GetAsync($"{FerramentasPath}?handler=UsoSap")).Content.ReadAsStringAsync());
+        using var todas = JsonDocument.Parse(await (await client.GetAsync($"{FerramentasPath}?handler=UsoSap&todas=true")).Content.ReadAsStringAsync());
+        Assert.DoesNotContain(nome + "05", so.RootElement.GetProperty("codigos").EnumerateArray().Select(c => c.GetString()));
+        Assert.Contains(nome + "05", todas.RootElement.GetProperty("codigos").EnumerateArray().Select(c => c.GetString()));
+    }
+
     // O elemento com este id, até ao seu fecho (a ordem dos atributos não conta).
     private static string ZonaUsoSap(string html, string id)
     {

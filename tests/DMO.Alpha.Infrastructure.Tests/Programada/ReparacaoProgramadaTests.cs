@@ -145,7 +145,7 @@ public sealed class ReparacaoProgramadaTests
         var depoisDaSaida = (await Programada(db).ListaAsync(listaId))!.Linhas.Single(l => l.ToolId == "cm-5447-3");
         Assert.True(depoisDaSaida.Saiu);
         Assert.False(depoisDaSaida.Entrou);
-        Assert.Equal("A reparar · Moldin", depoisDaSaida.OndeEsta);
+        Assert.Equal("Reparação · Moldin", depoisDaSaida.OndeEsta);
         Assert.Equal(FerramentaEstadoTipo.PorReparar, depoisDaSaida.Estado);
 
         var entradaReparado = await Armazem(db).EntradaAsync(new PedidoDeEntrada(Guid.NewGuid(), "cm-5447-3", "4152", ArmazemOrigem.JaEstava, FerramentaEstadoTipo.Reparado, null, null));

@@ -62,10 +62,11 @@ public sealed class ControloDocumentPathsTests
     public void ProductionRelativeFolder_IsReferenceThenProduction_SafeForWindowsShares()
     {
         // A pasta escolhida no computador recebe <referência>/<produção>
-        // (Diogo, 17/10/2026); os caracteres que o Windows recusa viram «_».
-        Assert.Equal("5447T173/202601", ControloDocumentPaths.GetProductionRelativeFolder("5447T173", "202601"));
-        Assert.Equal("A_B_C_/2026_01", ControloDocumentPaths.GetProductionRelativeFolder("A:B*C?", "2026|01"));
+        // (Diogo, 17/10/2026), e a da produção leva também a referência
+        // (Diogo, 28/10/2026); os caracteres que o Windows recusa viram «_».
+        Assert.Equal("5447T173/202601 5447T173", ControloDocumentPaths.GetProductionRelativeFolder("5447T173", "202601"));
+        Assert.Equal("A_B_C_/2026_01 A_B_C_", ControloDocumentPaths.GetProductionRelativeFolder("A:B*C?", "2026|01"));
         Assert.Equal("sem-referencia/sem-producao", ControloDocumentPaths.GetProductionRelativeFolder("", " "));
-        Assert.Equal("5447T173/Sem Job On", ControloDocumentPaths.GetProductionRelativeFolder("5447T173", "Sem Job On"));
+        Assert.Equal("5447T173/Sem Job On 5447T173", ControloDocumentPaths.GetProductionRelativeFolder("5447T173", "Sem Job On"));
     }
 }

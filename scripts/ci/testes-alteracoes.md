@@ -4419,12 +4419,91 @@ Novos: 41 · mudaram: 11 · saíram: 2
 
 Selo depois: `fe7959d2a3a9a1df`
 
+## A-0303 · 2026-10-28 · ok-do-diogo
+
+Porquê: Lote 0.3.0-beta.229: #274 o SAP dentro da app (DMO-567, antes A-0303, com o #271: histórico com artigo e referências DMO-545 e «Pedir todas» DMO-566) e o aviso do nome técnico (DMO-575, antes A-0311). Asserções do cartão e da ajuda do SAP atualizadas para o botão novo «Atualizar do SAP».
+Referência: ver os PR #271 e #274
+Novos: 15 · mudaram: 3 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.TodosOsCodigos_SaoOsDeTodasAsFerramentasComNomeTecnico`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserAvisoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserAvisoTests.cs :: TechnicalNameParserAvisoTests.UmNomeForaDaRegra_Avisa`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserAvisoTests.cs :: TechnicalNameParserAvisoTests.UmNomeQueBate_NaoTemAviso`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserAvisoTests.cs :: TechnicalNameParserAvisoTests.UmaBqComONomeDeUmMolde_Avisa`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserAvisoTests.cs :: TechnicalNameParserAvisoTests.UmaCmComONomeDeUmMf_Avisa`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OAdmin_MudaOSap_EOsScriptsDaPastaLevamAsDefinicoes`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoComArtigo.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoComArtigo.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraOArtigoDeCadaProducao`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.AtualizarPorReferencia_DaOsCodigosDessaReferenciaEDoTipo`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.PedirTodas_DaOsCodigosDeTodasAsFerramentasComNomeTecnico`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoPeloArmazem.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoPeloArmazem.cs :: DefinicoesPorModuloPageTests.AJanelaDaUtilizacao_MostraOsJobOnDaLinhaEnquantoAFerramentaLaEsteve`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoReferencia.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoReferencia.cs :: DefinicoesPorModuloPageTests.AJanelaDaUtilizacao_MostraAReferenciaDeCadaProducao`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.AsPastas_SaoGerais_SoAsAcoesFicamParaTodos`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AjudaSap.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_OCartaoDoSapTemApagarLidos_EAAjudaExplica`
+
+Selo depois: `a55afb73749c0cc3`
+
+## A-0290 · 2026-10-28 · ok-do-diogo
+
+Porquê: A localização passa de «A reparar · X» para «Reparação · X» e mostra a fábrica no empréstimo; sem registo no Armazém, a ficha e o Armazém dizem «Sem registo» em vez de «Fabrico» (DMO-555, #279): as verificações antigas esperam o texto novo.
+Referência: Diogo 28/10 12:27 «perfeito, Sim» (cmsg_01K75FTs9bQnbhhH7qttpgra3qMJmaLMKN6qABzkRXLprv)
+Novos: 2 · mudaram: 8 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMovimentosTests.cs :: ArmazemMovimentosTests.Localizacao_EmprestadaDizAFabricaEscolhidaNaSaida`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.SemRegistoNoArmazem_AFichaDizSemRegisto_ENaoFabrico`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMovimentosTests.cs :: ArmazemMovimentosTests.Procurar_DizOndeEstaCadaFerramenta`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs :: ArmazemProximosTests.CadaFerramenta_OndeEstaEOQueFalta`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs :: ArmazemProximosTests.ForaDoArmazemEDoFabrico_NaoDisponivel`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnToolFactsArmazemTests.cs :: JobOnToolFactsArmazemTests.OndeEstaOEstadoEOAviso`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Programada/ReparacaoProgramadaTests.cs :: ReparacaoProgramadaTests.SaidaEEntrada_AtualizamALista_EALinhaQueEntrouMostraDiaPosicaoENome`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Saida_ODestinoEscolheOsCamposEDepoisAEntradaPropoe`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.AFicha_MostraALocalizacaoEOsMovimentos_SoAQuemTemOArmazem`
+- mudou: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.ArmazemEntrada_DeFerramentaNaLista_SugereReparado_AvisaAoMudar_EALinhaFicaCinza`
+
+Selo depois: `a913e7297f49e5fe`
+
+## A-0314 · 2026-10-28 · ok-do-diogo
+
+Porquê: A janela Utilização conta também as saídas do Armazém (DMO-571, #271): mais uma leitura por ferramenta, o teste das consultas passa de n*4 para n*5; os resultados continuam iguais.
+Referência: Diogo 28/10 «Sim, muda o teste» (cmsg_01K75FTs9bQnbhhH7qttpgraWAyxNzW7qWufbX2ZnbyHFg)
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoricoLote.cs :: PostgresMigrationIntegrationTests.HistoricoFerramentas_ProducoesEmLote_IguaisAUmaAUma_ComConsultasFixas`
+
+Selo depois: `c2acdce52a1c5ddb`
+
+## A-0312 · 2026-10-28 · ok-do-diogo
+
+Porquê: O Histórico em lote também lê os movimentos do Armazém, como a ficha (DMO-571, #274 d742aa9): mais uma consulta fixa (6→7, 12→13), além da 5.ª por ferramenta; os resultados continuam iguais.
+Referência: Diogo 28/10 «Sim, muda o teste» (cmsg_01K75FTs9bQnbhhH7qttpgraWAyxNzW7qWufbX2ZnbyHFg)
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoricoLote.cs :: PostgresMigrationIntegrationTests.HistoricoFerramentas_ProducoesEmLote_IguaisAUmaAUma_ComConsultasFixas`
+
+Selo depois: `65a93dc61611553b`
+
+## A-0257 · 2026-10-28 · ok-do-diogo
+
+Porquê: Pasta dos PDFs (DMO-527, #281): a subpasta da produção passa a «<produção> <referência>»; os testes da pasta pedem o formato novo.
+Referência: Diogo 28/10: cmsg_01K75FTs9bQnbhhH7qttpgraMP6JULLoLAQaT7A1nRgtsh e formato «202601 1075C142» cmsg_01K75FTs9bQnbhhH7qttpgraHgZ7AWc5LyZZPeje9cH7jP
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloDocumentPathsTests.cs :: ControloDocumentPathsTests.ProductionRelativeFolder_IsReferenceThenProduction_SafeForWindowsShares`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.PdfDownloads_UsePersistedModels_AllComponents_AndDoNotWriteDatabaseOrServerFiles`
+- mudou: `tests/visual/pasta_pdf_browser.py`
+
+Selo depois: `32dc4f2d6565160f`
+
 ## A-0315 · 2026-10-28 · ok-do-diogo
 
-Porquê: Codificação por linha (DMO-578): a tabela das Definições das Ferramentas passa a ser a codificação por linha (título, «Atualizar (N)» ao lado do «Guardar», «Tabela guardada.», classe dos campos), a migração FerramentaB2Modo entra na lista; testes novos garantem a tabela da folha da MG, os nomes editáveis, o modo da B2, o nome técnico e as quantidades ao criar, o modo no Editar, o filtro da B2 no Job On, o «Atualizar» e o seletor da B2 na página
-Referência: cmsg_01K75FTs9bQnbhhH7qttpgra9XbzqvdhTJocukrC3eQNhA, cmsg_01K75FTs9bQnbhhH7qttpgraCCgozAHgc15Raax5tq4XMg, cmsg_01K75FTs9bQnbhhH7qttpgraMyPMrUNJqfd5WoPEoSXomY, cmsg_01K75FTs9bQnbhhH7qttpgra8k8joixEkf2QtoBdbDNiqp
-Novos: 11 · mudaram: 3 · saíram: 0
+Porquê: Codificação por linha (DMO-578): a tabela das Definições das Ferramentas passa a codificação por linha (nomes técnicos editáveis, Qtd. CM/MF/BQ/AN, seletor B2 Dupla/Tripla, «Atualizar (N)»), a migração FerramentaB2Modo entra na lista e os testes novos garantem a folha da MG, o modo da B2, o criar/editar e o Job On. Procura da Reparação Programada (DMO-579): a Referência encontra pela referência toda e pelo nome técnico.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra9XbzqvdhTJocukrC3eQNhA, cmsg_01K75FTs9bQnbhhH7qttpgraCCgozAHgc15Raax5tq4XMg, cmsg_01K75FTs9bQnbhhH7qttpgraMyPMrUNJqfd5WoPEoSXomY, cmsg_01K75FTs9bQnbhhH7qttpgra8k8joixEkf2QtoBdbDNiqp, cmsg_01K75FTs9bQnbhhH7qttpgra9rGu8RYhnhF261Md4bRX3F
+Novos: 12 · mudaram: 3 · saíram: 0
 
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Programada/ReparacaoProgramadaTests.cs :: ReparacaoProgramadaTests.Procurar_PelaReferenciaToda_OuPeloNomeTecnico_EncontraACmEOMf`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoFerramentasTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoFerramentasTests.cs :: CodificacaoFerramentasTests.Atualizar_aplica_a_tabela_as_ferramentas_registadas`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoFerramentasTests.cs :: CodificacaoFerramentasTests.Guardar_muda_os_nomes_e_as_quantidades_e_deixa_de_fora_a_ma`
@@ -4440,14 +4519,4 @@ Novos: 11 · mudaram: 3 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_TotalsGrid_SavesWithGuardar`
 - mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesTrocaTests.cs :: DefinicoesPorModuloPageTests.E10_FerramentasDefinicoes_QuadroNumaZona_OAvisoVaiParaOCanto`
 
-Selo depois: `cb67701a48861103`
-
-## A-0316 · 2026-10-28 · teste-novo
-
-Porquê: DMO-579: a Referência da Reparação Programada encontra pela referência toda e pelo nome técnico
-Referência: Diogo cmsg_01K75FTs9bQnbhhH7qttpgra9rGu8RYhnhF261Md4bRX3F
-Novos: 1 · mudaram: 0 · saíram: 0
-
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Programada/ReparacaoProgramadaTests.cs :: ReparacaoProgramadaTests.Procurar_PelaReferenciaToda_OuPeloNomeTecnico_EncontraACmEOMf`
-
-Selo depois: `927860f7b33cbbd0`
+Selo depois: `cc3a3e5d878ee217`

@@ -1,4 +1,6 @@
 using DMO.Alpha.Core.Admin;
+using DMO.Alpha.Core.Tools;
+using DMO.Alpha.Web.Services;
 using DMO.Alpha.Web.Pages.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -16,8 +18,81 @@ namespace DMO.Alpha.Web.Pages.Admin.Definicoes;
 /// </summary>
 public class IndexModel(
     IAdminEmailSettings adminEmailSettings,
-    IPinDasDefinicoes pinDasDefinicoes) : PageModel
+    IPinDasDefinicoes pinDasDefinicoes,
+    ISapDefinicoes sapDefinicoes) : PageModel
 {
+    /// <summary>O SAP nas Definições do ADMIN (Diogo, 28/10/2026: «nas definições do admin cria uma página SAP»).</summary>
+    public SapDefinicoesDados? Sap { get; private set; }
+
+    public IReadOnlyList<SapLeituraFeita> SapLeituras { get; private set; } = [];
+
+    /// <summary>O texto de cada script (o mudado no Admin ou o da app) e se foi mudado.</summary>
+    public IReadOnlyList<(string Nome, string Texto, bool Mudado)> SapScriptsTextos { get; private set; } = [];
+
+    public string? SapResult { get; private set; }
+
+    public bool SapSucceeded => SapResult is "ok" or "ok-script" or "ok-repor";
+
+    public string SapResultMessage => SapResult switch
+    {
+        "ok" => "Definições do SAP guardadas. Os scripts da pasta mudam no próximo «Atualizar do SAP».",
+        "ok-script" => "Script guardado.",
+        "ok-repor" => "Script reposto como o da app.",
+        nameof(SapGravacao.UtilizadorInvalido) => "O utilizador do SAP não pode ficar vazio nem levar aspas.",
+        nameof(SapGravacao.SenhaInvalida) => $"A senha tem no máximo {SapDefinicoesRegras.SenhaMaxima} letras.",
+        nameof(SapGravacao.HoraInvalida) => "A hora é de 0 a 23.",
+        nameof(SapGravacao.DiasInvalidos) => $"Os dias são de {SapDefinicoesRegras.DiasMinimo} a {SapDefinicoesRegras.DiasMaximo}.",
+        nameof(SapGravacao.ScriptDesconhecido) => "Esse script não existe.",
+        nameof(SapGravacao.ScriptGrande) => "O script é grande demais.",
+        _ => string.Empty
+    };
+
+    /// <summary>Carrega o Admin › SAP (?sap=…).</summary>
+    public async Task CarregarSapAsync(string? resultado)
+    {
+        SapResult = resultado;
+        Sap = await sapDefinicoes.LerAsync(HttpContext.RequestAborted);
+        SapLeituras = await sapDefinicoes.LeiturasAsync(20, HttpContext.RequestAborted);
+        var textos = new List<(string, string, bool)>();
+        foreach (var nome in SapScriptsRegras.Nomes)
+        {
+            var editado = await sapDefinicoes.ScriptEditadoAsync(nome, HttpContext.RequestAborted);
+            textos.Add((nome, editado ?? SapScripts.Original(nome), editado is not null));
+        }
+
+        SapScriptsTextos = textos;
+    }
+
+    /// <summary>POST: o utilizador, a senha (vazia mantém), a hora da leitura diária e os dias de produções.</summary>
+    public async Task<IActionResult> OnPostSaveSapAsync(
+        [FromForm(Name = "sap_utilizador")] string? utilizador,
+        [FromForm(Name = "sap_senha")] string? senha,
+        [FromForm(Name = "sap_hora")] int hora,
+        [FromForm(Name = "sap_dias")] int dias)
+    {
+        var resultado = await sapDefinicoes.GravarAsync(utilizador, senha, hora, dias, HttpContext.RequestAborted);
+        return VoltarSap(resultado == SapGravacao.Gravado ? "ok" : resultado.ToString());
+    }
+
+    /// <summary>POST: o texto de um script mudado à mão; «Repor» volta ao da app.</summary>
+    public async Task<IActionResult> OnPostSaveSapScriptAsync(
+        [FromForm(Name = "sap_script")] string? nome,
+        [FromForm(Name = "sap_texto")] string? texto,
+        [FromForm(Name = "sap_repor")] string? repor)
+    {
+        var reposto = !string.IsNullOrEmpty(repor);
+        if (!reposto && texto is not null && SapScriptsRegras.Conhecido(nome) && texto.Replace("\r\n", "\n") == SapScripts.Original(nome!))
+        {
+            reposto = true;
+        }
+
+        var resultado = await sapDefinicoes.GravarScriptAsync(nome ?? string.Empty, reposto ? null : texto, HttpContext.RequestAborted);
+        return VoltarSap(resultado != SapGravacao.Gravado ? resultado.ToString() : reposto ? "ok-repor" : "ok-script");
+    }
+
+    private RedirectToPageResult VoltarSap(string resultado) =>
+        RedirectToPage("/Definicoes/Index", null, new RouteValueDictionary { ["secao"] = "admin", ["sub"] = "sap", ["sap"] = resultado }, null);
+
     /// <summary>TRUE quando o PIN das Definições já foi criado.</summary>
     public bool TemPin { get; private set; }
 

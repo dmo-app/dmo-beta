@@ -6,6 +6,8 @@
   <ItemGroup>
     <EmbeddedResource Include="ReleaseNotes.json" />
     <Content Remove="ReleaseNotes.json" />
+    <!-- Os scripts do SAP: a app escreve-os na pasta ligada (Admin > SAP). -->
+    <EmbeddedResource Include="Sap\*" LogicalName="Sap.%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>

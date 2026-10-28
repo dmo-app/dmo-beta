@@ -314,6 +314,7 @@ public sealed class ReparacaoProgramadaServico(DmoDbContext db, ICurrentAccountC
         var localizacoes = await db.FerramentaLocalizacoes.AsNoTracking()
             .Where(l => ids.Contains(l.ToolId))
             .ToDictionaryAsync(l => l.ToolId, cancellationToken);
+        var pormenores = await DMO.Alpha.Infrastructure.Armazem.LocalizacaoPormenor.PorFerramentaAsync(db, localizacoes.Values, cancellationToken);
         var estados = (await db.FerramentaEstados.AsNoTracking()
                 .Where(e => ids.Contains(e.ToolId))
                 .Select(e => new { e.Id, e.ToolId, e.Estado })
@@ -339,7 +340,7 @@ public sealed class ReparacaoProgramadaServico(DmoDbContext db, ICurrentAccountC
             var onde = posicao is not null
                 ? $"Armazém · posição {posicao}"
                 : localizacoes.TryGetValue(id, out var l)
-                    ? ArmazemTextos.Localizacao(l.Localizacao, l.ReparadorNome)
+                    ? ArmazemTextos.Localizacao(l.Localizacao, pormenores[id])
                     : ArmazemTextos.SemRegisto;
             return new Factos(usos.GetValueOrDefault(id), linhas.GetValueOrDefault(id), posicao, onde,
                 estados.TryGetValue(id, out var e) ? e : null);

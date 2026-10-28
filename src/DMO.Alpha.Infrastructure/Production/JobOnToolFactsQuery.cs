@@ -135,6 +135,7 @@ public sealed class JobOnToolFactsQuery : IJobOnToolFactsQuery
         var localizacoes = await _db.FerramentaLocalizacoes.AsNoTracking()
             .Where(l => ids.Contains(l.ToolId))
             .ToDictionaryAsync(l => l.ToolId, cancellationToken);
+        var pormenores = await DMO.Alpha.Infrastructure.Armazem.LocalizacaoPormenor.PorFerramentaAsync(_db, localizacoes.Values, cancellationToken);
         var registadas = (await _db.ArmazemMovimentos.AsNoTracking()
                 .Where(m => ids.Contains(m.ToolId))
                 .Select(m => m.ToolId)
@@ -192,7 +193,7 @@ public sealed class JobOnToolFactsQuery : IJobOnToolFactsQuery
             string? ondeEsta = posicoes.TryGetValue(tool.ToolId, out var posicao)
                 ? $"Armazém · posição {posicao}"
                 : localizacoes.TryGetValue(tool.ToolId, out var localizacao)
-                    ? DMO.Alpha.Core.Armazem.ArmazemTextos.Localizacao(localizacao.Localizacao, localizacao.ReparadorNome)
+                    ? DMO.Alpha.Core.Armazem.ArmazemTextos.Localizacao(localizacao.Localizacao, pormenores[tool.ToolId])
                     : registada ? "Fabrico" : DMO.Alpha.Core.Armazem.ArmazemTextos.SemRegisto;
             var avisoArmazem = (registada, temEstado) switch
             {
