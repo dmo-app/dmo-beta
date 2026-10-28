@@ -388,9 +388,19 @@
                    backfill dos ~2 meses de registos passados escreve a
                    data/hora real (o Owner 2026-10-14). Sem ids na folha:
                    o trace_id canónico segue no input hidden. *@
+                @* A data e a hora em dois campos: muitas vezes só se muda a hora (Diogo, 28/10/2026).
+                   O campo junto (occurred_at) continua a ser o que vai ao servidor; o bq-registo.js junta os dois. *@
                 <div class="field dmo-field bq-line-date">
+                  <label for="occurredAtDia">Data</label>
+                  <input id="occurredAtDia" type="date" data-bq-dia="occurredAt" value="@((Model.MovementFormOccurredAt).Split('T')[0])" required />
+                </div>
+                <div class="field dmo-field bq-line-hora">
+                  <label for="occurredAtHora">Hora</label>
+                  <input id="occurredAtHora" type="time" data-bq-hora="occurredAt" value="@((Model.MovementFormOccurredAt).Split('T').ElementAtOrDefault(1))" required />
+                </div>
+                <div class="bq-data-hora-junta" hidden>
                   <label for="occurredAt">Data e hora reais</label>
-                  <input id="occurredAt" name="occurred_at" type="datetime-local" value="@Model.MovementFormOccurredAt" required />
+                  <input id="occurredAt" name="occurred_at" type="datetime-local" value="@Model.MovementFormOccurredAt" />
                 </div>
               </div>
             </form>
@@ -580,9 +590,19 @@
                       <label for="editQuantity">Quantidade</label>
                       <input id="editQuantity" name="quantity" type="number" lang="en" min="1" required value="@editing.Quantity" />
                     </div>
+                    @* A data e a hora em dois campos: muitas vezes só se muda a hora (Diogo, 28/10/2026).
+                       O campo junto (occurred_at) continua a ser o que vai ao servidor; o bq-registo.js junta os dois. *@
                     <div class="field dmo-field bq-line-date">
+                      <label for="editOccurredAtDia">Data</label>
+                      <input id="editOccurredAtDia" type="date" data-bq-dia="editOccurredAt" value="@((Model.EditingMovementOccurredAt).Split('T')[0])" required />
+                    </div>
+                    <div class="field dmo-field bq-line-hora">
+                      <label for="editOccurredAtHora">Hora</label>
+                      <input id="editOccurredAtHora" type="time" data-bq-hora="editOccurredAt" value="@((Model.EditingMovementOccurredAt).Split('T').ElementAtOrDefault(1))" required />
+                    </div>
+                    <div class="bq-data-hora-junta" hidden>
                       <label for="editOccurredAt">Data e hora reais</label>
-                      <input id="editOccurredAt" name="occurred_at" type="datetime-local" value="@Model.EditingMovementOccurredAt" required />
+                      <input id="editOccurredAt" name="occurred_at" type="datetime-local" value="@Model.EditingMovementOccurredAt" />
                     </div>
                   </div>
                 </form>
