@@ -26,6 +26,11 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
             .Where(t => t.TechnicalName != null && t.TechnicalName != "" && t.ToolId != ToolRegistryConstants.RemovedToolId)
             .Select(t => new { t.ToolId, t.TechnicalName, t.Lot })
             .ToListAsync(cancellationToken);
+        // O código que o script procurou liga a linha à ferramenta (a tabela
+        // dos códigos de procura e o «Código SAP», DMO-585); sem ele, o nome
+        // técnico + lote como sempre.
+        var porProcura = (await CodigosPorFerramentaAsync(db.Tools.Where(t => t.ToolId != ToolRegistryConstants.RemovedToolId), cancellationToken))
+            .ToLookup(c => c.Codigo, c => c.ToolId, StringComparer.Ordinal);
         var agora = DateTime.UtcNow;
         var autor = Autor();
         var nome = ficheiro is { Length: > 0 } f ? f[..Math.Min(f.Length, FerramentaUtilizacao.FicheiroMaxLength)] : null;
@@ -35,14 +40,19 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
         var aLer = new List<(UsoSapLinha Linha, string ToolId)>();
         foreach (var linha in leitura.Linhas)
         {
-            var daLinha = ferramentas.Where(t => UsoSapCodigo.Corresponde(linha.CodigoEquipamento, t.TechnicalName, t.Lot)).ToList();
+            var daLinha = ferramentas.Where(t => UsoSapCodigo.Corresponde(linha.CodigoEquipamento, t.TechnicalName, t.Lot)).Select(t => t.ToolId).ToList();
+            if (daLinha.Count == 0)
+            {
+                daLinha = porProcura[linha.Procura ?? linha.CodigoEquipamento].Concat(porProcura[linha.CodigoEquipamento]).Distinct(StringComparer.Ordinal).ToList();
+            }
+
             if (daLinha.Count == 0)
             {
                 semFerramenta.Add(linha.CodigoEquipamento);
                 continue;
             }
 
-            aLer.AddRange(daLinha.Where(t => vistas.Add(t.ToolId)).Select(t => (linha, t.ToolId)));
+            aLer.AddRange(daLinha.Where(id => vistas.Add(id)).Select(id => (linha, id)));
         }
 
         // Os lembretes abertos e a última percentagem de todas as ferramentas
@@ -130,17 +140,34 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
         return CodigosDeAsync(ferramentas, cancellationToken);
     }
 
-    private static async Task<IReadOnlyList<string>> CodigosDeAsync(IQueryable<Tool> ferramentasPedidas, CancellationToken cancellationToken)
-    {
-        var ferramentas = await ferramentasPedidas.AsNoTracking()
-            .Where(t => t.TechnicalName != null && t.TechnicalName != "")
-            .Select(t => new { t.TechnicalName, t.Lot })
-            .ToListAsync(cancellationToken);
-        return ferramentas
-            .Select(t => UsoSapCodigo.Da(t.TechnicalName, t.Lot))
-            .OfType<string>()
+    private async Task<IReadOnlyList<string>> CodigosDeAsync(IQueryable<Tool> ferramentasPedidas, CancellationToken cancellationToken) =>
+        (await CodigosPorFerramentaAsync(ferramentasPedidas, cancellationToken))
+            .Select(c => c.Codigo)
             .Distinct(StringComparer.Ordinal)
             .Order(StringComparer.Ordinal)
+            .ToList();
+
+    // O código de cada ferramenta pela tabela dos códigos de procura do
+    // Admin › SAP (DMO-585) e pelo «Código SAP» escrito na ferramenta.
+    private async Task<List<(string ToolId, string Codigo)>> CodigosPorFerramentaAsync(IQueryable<Tool> ferramentasPedidas, CancellationToken cancellationToken)
+    {
+        var regras = await SapProcuraRegras.LerDeAsync(db, cancellationToken);
+        var ferramentas = await ferramentasPedidas.AsNoTracking()
+            .Select(t => new { t.ToolId, t.Type, t.TechnicalName, t.Reference, t.Lot, t.SapCodigo })
+            .ToListAsync(cancellationToken);
+        var comLinhas = regras.Any(r => r.Linha.Length > 0);
+        var ids = ferramentas.Select(f => f.ToolId).ToList();
+        var linhas = comLinhas
+            ? (await db.ToolMachineLinks.AsNoTracking()
+                .Where(l => ids.Contains(l.ToolId))
+                .Select(l => new { l.ToolId, l.Machine.Code })
+                .ToListAsync(cancellationToken))
+                .ToLookup(l => l.ToolId, l => l.Code)
+            : null;
+        return ferramentas
+            .Select(f => (f.ToolId, Codigo: SapProcura.Codigo(regras, f.Type, linhas?[f.ToolId] ?? [], f.SapCodigo, f.TechnicalName, f.Reference, f.Lot)))
+            .Where(c => c.Codigo is not null)
+            .Select(c => (c.ToolId, c.Codigo!))
             .ToList();
     }
 
