@@ -4100,3 +4100,13 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_JobOnNoPainel_TituloLarguraEFolha`
 
 Selo depois: `1ecbaa53f6ccc384`
+
+## A-0280 · 2026-10-28 · teste-novo
+
+Porquê: DMO-545: teste novo do Histórico de produções com o artigo e a % estimada
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoComArtigo.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoComArtigo.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraOArtigoEAPercentagemEstimada`
+
+Selo depois: `b7f364766785160b`
