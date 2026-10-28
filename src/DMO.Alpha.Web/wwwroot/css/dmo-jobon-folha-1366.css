@@ -521,3 +521,14 @@ html body .jof2 .jof-tool-slot>.tool-head>.hv{white-space:nowrap}
   html:root body .jof2.editing.editing.editing table.calv tbody th input.f{width:11em !important;min-width:0}
   html:root body .jof2.editing.editing.editing table.calv td input.f{width:9em !important;min-width:0;box-sizing:border-box}
 }
+
+/* Calibres na folha (Diogo, 28/10/2026: «centrar medida e retirar o espaço em
+   branco por baixo»): a tabela deitada enche o cartão (as linhas dos valores
+   crescem) e a coluna dos títulos (Medida, Componentes, QTD máq.) fica ao centro. */
+@media (min-width:1100px){
+  html:root body .jof2.jof2.jof2:not(.editing) .cal-card>.table-wrap{display:flex;flex-direction:column}
+  html:root body .jof2.jof2.jof2:not(.editing) .cal-card table.calv{flex:1 1 auto;height:100%;grid-template-rows:auto 1fr 1fr !important;align-content:stretch}
+  html:root body .jof2.jof2.jof2:not(.editing) .cal-card table.calv :is(thead,tbody,tr){display:contents}
+  html:root body .jof2.jof2.jof2:not(.editing) .cal-card table.calv :is(th,td){align-items:center}
+  html:root body .jof2.jof2.jof2:not(.editing) .cal-card table.calv :is(th,td):first-child{justify-content:center !important;text-align:center !important}
+}
