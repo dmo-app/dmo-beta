@@ -1,5 +1,5 @@
 {
-  "selo": "1ecbaa53f6ccc384",
+  "selo": "694119edc0b504f9",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1570,6 +1570,9 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: Sessao.OPercentManual_GravaUmaLeituraEFechaOLembrete_IgualNaoGrava": "d606542d3d7c80f6",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: Sessao.PorAtualizar_SaoOsLembretesAbertos_OsMaisAntigosPrimeiro": "b8a4a9643f1e3963",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/RegistosAntigos.cs :: (resto do ficheiro)": "971facc40e45b3c5",
+    "tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserGotasTests.cs :: (resto do ficheiro)": "e705788fa5647303",
+    "tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserGotasTests.cs :: TechnicalNameParserGotasTests.Molde_DizAsGotasPelaDimensao": "42e1679934eaa5fc",
+    "tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserGotasTests.cs :: TechnicalNameParserGotasTests.SemNomeAcessorioOuOutraDimensao_NaoDiz": "fda27941c404532b",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserTests.cs :: (resto do ficheiro)": "b7a273c0413e0ccb",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserTests.cs :: TechnicalNameParserTests.Accessory_ReadsTheReferenceFromTheGrammar": "9ee584a157d8241b",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserTests.cs :: TechnicalNameParserTests.Mold_KeepsTheModelAndType": "ec06e1da361b7110",
@@ -2508,6 +2511,9 @@
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_SaemAsQuatroFolhasComoAsDaFabrica": "c1cd5093f20aa901",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_SoVer_NaoRecebeAsFolhas": "af1a39a2c6d7c0d2",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolhasImprimir.cs :: JobOnPageTests.Folha_Imprimir_TemOMenuEAsFolhasComOsDadosDoJobOn": "5ac559fd00a2589f",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.GotaNomeTecnico.cs :: (resto do ficheiro)": "0c818eceb303f651",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.GotaNomeTecnico.cs :: JobOnPageTests.Folha_GotaVemDoNomeTecnicoDaCm_PorCimaDaEscrita": "7bdc1e7e5f4d8ad0",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.GotaNomeTecnico.cs :: JobOnPageTests.Folha_SemNomeNaCm_GotaDoMf_ESemNenhum_AEscrita": "002439fbe19259fd",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.ImprimirPretoBranco.cs :: (resto do ficheiro)": "1cc489d30eff51b2",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.ImprimirPretoBranco.cs :: JobOnPageTests.Folha_ImprimirPretoBranco_CsAbertosFechados_TampaoDiametroXCalote_EPaginas": "9467e8ba9cc998e9",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.LoteFf.cs :: (resto do ficheiro)": "c27b7b56c41f0aa4",
