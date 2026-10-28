@@ -1585,7 +1585,8 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
             var mf = html.IndexOf("data-jof-familia=\"MF\"", StringComparison.Ordinal);
             // A posição (que abre o Armazém) e o estado a negrito (Diogo, 28/10/2026).
             // Sem a gestão do Armazém a posição não é link.
-            var onde = html.IndexOf("Armazém · posição <b>1033</b> · <b>Reparado</b>", StringComparison.Ordinal);
+            // O estado primeiro, um espaço e a posição (Diogo, 28/10/2026: «Reparado, espaço e posição do armazém»).
+            var onde = html.IndexOf("<p class=\"jof-onde\" data-dmo-onde-esta title=\"Armazém · posição 1033\"><b>Reparado</b><span class=\"jof-onde-espaco\"> </span><b>1033</b></p>", StringComparison.Ordinal);
             var aviso = html.IndexOf("MF 5810 / lote 1 não está registada no Armazém e não tem estado.", StringComparison.Ordinal);
 
             // Na CM, compacto, junto da ferramenta; o aviso da MF na MF, com o link.

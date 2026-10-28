@@ -4178,3 +4178,15 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CalMm.cs :: JobOnPageTests.Folha_CalibresComMm_OMmVaiParaOTitulo`
 
 Selo depois: `3c8bedd55fb52a4f`
+
+## A-0294 · 2026-10-28 · ok-do-diogo
+
+Porquê: Folha do Job On (Diogo, 28/10/2026): um clique na CM, MF ou BQ abre a ficha (cmsg_01K75FTs9bQnbhhH7qttpgra8GmmFF8a9FLWUhv4j7vS7F; o teste «bloqueada: um clique não faz nada» passa a «um clique leva à ficha»); a linha do Armazém com o estado primeiro e só a posição, «Reparado 4094» (cmsg_01K75FTs9bQnbhhH7qttpgra5n2GjpqGpVYF5m8QHge882, cmsg_01K75FTs9bQnbhhH7qttpgraLZ41oDX4qovbS7Gq9ksQWZ)
+Referência: DMO-562
+Novos: 1 · mudaram: 1 · saíram: 1
+
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: Bloqueada: um clique leva à ficha`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_OndeEstaNoArmazem_EAvisoSemRegisto`
+- saiu: `tests/ShellProof/jobon-folha.test.cjs :: Bloqueada: um clique não faz nada; o duplo clique leva à ficha`
+
+Selo depois: `0f714b35b5fd7df3`

@@ -52,12 +52,14 @@
       }
 
       botao.addEventListener('click', () => {
-        if (!editar) return;
+        // Fora do Editar, um clique abre a ficha (Diogo, 28/10/2026: «abrir ferramenta com 1 clique em vez de 2»).
+        if (!editar) { abrirFicha(); return; }
         // Um clique muda; o segundo clique logo a seguir é o duplo clique (abre a ficha).
         if (espera) return;
         espera = setTimeout(() => { espera = null; mudar(); }, ESPERA_CLIQUE);
       });
       botao.addEventListener('dblclick', () => {
+        if (!editar) return;
         if (espera) { clearTimeout(espera); espera = null; }
         abrirFicha();
       });

@@ -1,5 +1,5 @@
 {
-  "selo": "3c8bedd55fb52a4f",
+  "selo": "0f714b35b5fd7df3",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2438,7 +2438,7 @@
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_AcoesEFactos_AoUsoDoHtml": "3fb24b27a84d6be0",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_AbremAFichaDaFerramenta_SemAvisoDeDadosEmFalta": "4e1dfcd0b3972cb9",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_MostramOUsoDaUltimaLeitura": "35d2c881f4043ad7",
-    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_OndeEstaNoArmazem_EAvisoSemRegisto": "f616db3d425f2761",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_OndeEstaNoArmazem_EAvisoSemRegisto": "61b6f42002f0836f",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_SemColocacaoManualNemRetirarDoPlaneamento": "44e764f9c30fe84e",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.FimAntesDoInicio_NaEdicao_GravaEAvisa": "789f34b146d1017c",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.FimNoDiaDoInicioOuDepoisNaCriacao_GravaEFicaNoJobOnSemAviso": "849aca7c4353cce1",
@@ -2992,7 +2992,7 @@
     "tests/ShellProof/jobon-dados-ferramentas.test.cjs :: a resposta tardia de uma escolha anterior não apaga o aviso da escolha atual": "c3b8356616543afe",
     "tests/ShellProof/jobon-dados-ferramentas.test.cjs :: sem resposta ou com erro do servidor, saem os dados e os avisos da escolha anterior e a mesma escolha volta a ser pedida": "2452527d18ca22d9",
     "tests/ShellProof/jobon-folha.test.cjs :: (resto do ficheiro)": "b504418ad405d30b",
-    "tests/ShellProof/jobon-folha.test.cjs :: Bloqueada: um clique não faz nada; o duplo clique leva à ficha": "d7b3d94c136d3f51",
+    "tests/ShellProof/jobon-folha.test.cjs :: Bloqueada: um clique leva à ficha": "6664bf56aaa45dca",
     "tests/ShellProof/jobon-folha.test.cjs :: CS furos no Editar: um dígito de abertos e outro de fechados vão para o campo como «Abertos 4 / Fechados 2»": "5fc52b4cb0c4ad40",
     "tests/ShellProof/jobon-folha.test.cjs :: Editar: a procura da BQ leva a CM e a MF escolhidas, e a lista mostra a linha e o filtro": "d8ba74b923ec4448",
     "tests/ShellProof/jobon-folha.test.cjs :: Editar: escolher outra ferramenta muda o cartão e a ficha do duplo clique": "8250ed902596293c",
