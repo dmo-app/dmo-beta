@@ -101,7 +101,7 @@ else
 @* As áreas em cartões (Diogo, 20/10/2026): o estado, a ferramenta, o link
    do mcaliper e as notas, que abrem numa janela para ler ou escrever.
    Gravar é do Controlo Criar (a página do Resumo); quem só aprova vê. *@
-<h3 class="revisao-section" id="resumoControloAreas" title="@(Model.TemControloCriar ? "Escolher OK ou NOK grava logo. Clique nas notas para as abrir ou escrever. O link do mcaliper copia-se com um clique." : "Clique nas notas para as abrir. O link do mcaliper copia-se com um clique.")">Ferramentas e OK / NOK</h3>
+<h3 class="revisao-section" id="resumoControloAreas" title="@(Model.TemControloCriar ? "Escolher OK ou NOK grava logo. Clique nas notas para as abrir ou escrever. Cole o link do mcaliper no campo; «Medições» abre-o." : "Clique nas notas para as abrir. «Medições» abre o mcaliper.")">Ferramentas e OK / NOK</h3>
 @if (Model.McaliperRefused)
 {
   <div data-dmo-toast="erro" class="resumo-aviso" role="alert">O link do mcaliper não foi guardado: tem de ser um endereço completo, começado por http:// ou https://.</div>
@@ -113,7 +113,6 @@ else
     var link = Model.McaliperLinks.GetValueOrDefault(area.Area);
     var temMcaliper = DMO.Alpha.Web.Pages.Controlo.ResumoModel.HasMcaliper(area.Area);
     var notasId = $"resumo-controlo-notas-{area.Area}";
-    var linkId = $"resumo-controlo-mcaliper-{area.Area}";
     var historicoId = $"resumo-controlo-historico-{area.Area}";
     <div class="resumo-area @(area.Status switch { "OK" => "ok", "NOK" => "nok", _ => null })" data-revisao-area="@area.Area">
       <span>@area.Area</span>
@@ -187,37 +186,29 @@ else
       </dialog>
       @if (temMcaliper)
       {
-        @* O link do mcaliper nunca fica escrito no ecrã: copia-se. *@
-        @if (link is not null)
-        {
-          <button type="button" class="resumo-area-link set" data-dmo-copiar="@link" aria-label="Copiar o link do mcaliper da @area.Area">
-            <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6.5 9.5l3-3M7 4.5l1.2-1.2a2.6 2.6 0 013.7 3.7L10.7 8.2M9 11.5l-1.2 1.2a2.6 2.6 0 01-3.7-3.7L5.3 7.8" /></svg>
-            Copiar link do mcaliper
-          </button>
-        }
-        @if (Model.TemControloCriar)
-        {
-          <button type="button" class="resumo-area-link" data-dmo-dialog="@linkId">
-            @(link is null ? "Associar link do mcaliper" : "Mudar o link")
-          </button>
-          <dialog id="@linkId" class="dmo-dialog" aria-labelledby="@(linkId)-title">
-            <form method="post" asp-page="/Controlo/Resumo" asp-page-handler="Mcaliper">
-              <h3 id="@(linkId)-title">Link do mcaliper · @area.Area</h3>
+        @* O LINK DO MCALIPER (Diogo, 28/10/2026: «basta meter um campo para
+           colar o link e no controlo.ver em vez de ver um link aparece
+           Medições, abre o mcaliper»): o Controlo Criar cola-o num campo que
+           grava ao sair; todos têm «Medições», que abre o mcaliper. DMO-524. *@
+        <div class="resumo-area-mcaliper" data-resumo-mcaliper="@area.Area">
+          @if (Model.TemControloCriar)
+          {
+            <form method="post" asp-page="/Controlo/Resumo" asp-page-handler="Mcaliper" class="resumo-area-mcaliper-form">
               <input type="hidden" name="jobon_id" value="@production.JobOnId" />
               <input type="hidden" name="area" value="@area.Area" />
               <input type="hidden" name="voltar" value="@DMO.Alpha.Web.Pages.Controlo.ResumoModel.ResumoDoControlo" />
-              <input type="url" name="url" value="@link" maxlength="@DMO.Alpha.Core.Tools.ToolTechnicalContext.McaliperUrlMaxLength" placeholder="https://… (vazio retira o link)" aria-label="Link do mcaliper @area.Area" autofocus />
-              <div class="dmo-dialog-actions">
-                <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
-                <button type="submit" class="dmo-button">Guardar</button>
-              </div>
+              <input type="url" class="dmo-valor" data-dmo-valor name="url" value="@link" maxlength="@DMO.Alpha.Core.Tools.ToolTechnicalContext.McaliperUrlMaxLength" placeholder="Colar o link do mcaliper" aria-label="Link do mcaliper @area.Area" autocomplete="off" />
             </form>
-          </dialog>
-        }
-        else if (link is null)
-        {
-          <small class="resumo-area-by">Sem link do mcaliper</small>
-        }
+          }
+          @if (link is not null)
+          {
+            <a class="resumo-area-link set" href="@link" target="_blank" rel="noopener noreferrer" data-resumo-mcaliper-abrir="@area.Area">Medições</a>
+          }
+          else if (!Model.TemControloCriar)
+          {
+            <small class="resumo-area-by">Sem link do mcaliper</small>
+          }
+        </div>
       }
       @if (area.Status is not null && area.UpdatedAtUtc is { } em)
       {

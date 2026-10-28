@@ -611,6 +611,18 @@ public sealed class ResumoModel : PageModel
         };
         var saved = toolId is not null
             && await _mcaliper.SetAsync(toolId, url, HttpContext.RequestAborted);
+        // O campo da linha do Resumo grava ao sair (data-dmo-valor, DMO-524):
+        // o pedido JSON recebe { ok, valor, aviso }.
+        if (Request.Headers.Accept.Any(a => a?.Contains("application/json", StringComparison.OrdinalIgnoreCase) == true))
+        {
+            var valor = DMO.Alpha.Infrastructure.Tools.ToolMcaliperLinks.Normalize(url, out _) ?? string.Empty;
+            return new JsonResult(new
+            {
+                ok = saved,
+                valor = saved ? valor : null,
+                aviso = saved ? null : "O link do mcaliper não foi guardado: tem de ser um endereço completo, começado por http:// ou https://.",
+            });
+        }
         if (voltar == ResumoDoControlo)
             return Redirect(ResumoDoControloUrl(canonicalJobOnId, mcaliperRecusado: !saved));
         return RedirectToPage("/Controlo/Resumo", null,
