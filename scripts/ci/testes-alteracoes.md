@@ -4391,3 +4391,12 @@ Novos: 5 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserAvisoTests.cs :: TechnicalNameParserAvisoTests.UmaCmComONomeDeUmMf_Avisa`
 
 Selo depois: `00e5a890f757a540`
+
+## A-0312 · 2026-10-28 · contagem-lista
+
+Porquê: DMO-571: a ficha e o Histórico leem também os movimentos do Armazém; a conta de consultas passa de 4 para 5 por ferramenta, de 6 para 7 no lote e de 12 para 13 na procura
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoricoLote.cs :: PostgresMigrationIntegrationTests.HistoricoFerramentas_ProducoesEmLote_IguaisAUmaAUma_ComConsultasFixas`
+
+Selo depois: `0813ee60eb9f4079`

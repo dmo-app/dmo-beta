@@ -199,33 +199,42 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
     /// dentro desse tempo, de qualquer artigo. O Job On do próprio movimento
     /// também conta.
     /// </summary>
-    private async Task<IReadOnlyList<int>> JobOnsPeloArmazemAsync(string toolId, CancellationToken cancellationToken)
+    private async Task<IReadOnlyList<int>> JobOnsPeloArmazemAsync(string toolId, CancellationToken cancellationToken) =>
+        (await JobOnsPeloArmazemAsync([toolId], cancellationToken)).Select(r => r.JobOnId).ToList();
+
+    // O mesmo para várias ferramentas (o Histórico): uma leitura dos
+    // movimentos e, só com Saídas para uma Linha, uma dos Job On.
+    private async Task<IReadOnlyList<(string ToolId, int JobOnId)>> JobOnsPeloArmazemAsync(IReadOnlyCollection<string> toolIds, CancellationToken cancellationToken)
     {
         var movimentos = await db.ArmazemMovimentos.AsNoTracking()
-            .Where(m => m.ToolId == toolId)
+            .Where(m => toolIds.Contains(m.ToolId))
             .OrderBy(m => m.OcorridoEmUtc).ThenBy(m => m.Id)
-            .Select(m => new { m.Tipo, m.Destino, m.MachineId, m.JobOnId, m.OcorridoEmUtc })
+            .Select(m => new { m.ToolId, m.Tipo, m.Destino, m.MachineId, m.JobOnId, m.OcorridoEmUtc })
             .ToListAsync(cancellationToken);
-        var ids = new List<int>();
-        var periodos = new List<(int Maquina, DateOnly De, DateOnly? Ate)>();
-        for (var i = 0; i < movimentos.Count; i++)
+        var ids = new List<(string, int)>();
+        var periodos = new List<(string ToolId, int Maquina, DateOnly De, DateOnly? Ate)>();
+        foreach (var daFerramenta in movimentos.GroupBy(m => m.ToolId))
         {
-            var m = movimentos[i];
-            if (m.Tipo != Core.Armazem.ArmazemMovimentoTipo.Saida || m.Destino != Core.Armazem.ArmazemDestino.Producao)
+            var lista = daFerramenta.ToList();
+            for (var i = 0; i < lista.Count; i++)
             {
-                continue;
-            }
+                var m = lista[i];
+                if (m.Tipo != Core.Armazem.ArmazemMovimentoTipo.Saida || m.Destino != Core.Armazem.ArmazemDestino.Producao)
+                {
+                    continue;
+                }
 
-            if (m.JobOnId is { } jobOnId)
-            {
-                ids.Add(jobOnId);
-            }
+                if (m.JobOnId is { } jobOnId)
+                {
+                    ids.Add((m.ToolId, jobOnId));
+                }
 
-            if (m.MachineId is { } maquina)
-            {
-                var de = DateOnly.FromDateTime(DmoBusinessTime.ToLocal(m.OcorridoEmUtc));
-                DateOnly? ate = i + 1 < movimentos.Count ? DateOnly.FromDateTime(DmoBusinessTime.ToLocal(movimentos[i + 1].OcorridoEmUtc)) : null;
-                periodos.Add((maquina, de, ate));
+                if (m.MachineId is { } maquina)
+                {
+                    var de = DateOnly.FromDateTime(DmoBusinessTime.ToLocal(m.OcorridoEmUtc));
+                    DateOnly? ate = i + 1 < lista.Count ? DateOnly.FromDateTime(DmoBusinessTime.ToLocal(lista[i + 1].OcorridoEmUtc)) : null;
+                    periodos.Add((m.ToolId, maquina, de, ate));
+                }
             }
         }
 
@@ -237,11 +246,14 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
                 .Where(j => maquinas.Contains(j.MachineId) && j.InicioEm != null && (j.FimEm == null || j.FimEm >= desde))
                 .Select(j => new { j.Id, j.MachineId, j.InicioEm, j.FimEm })
                 .ToListAsync(cancellationToken);
-            ids.AddRange(candidatos
-                .Where(j => periodos.Any(p => p.Maquina == j.MachineId
-                    && (p.Ate is not { } ate || j.InicioEm!.Value <= ate)
-                    && (j.FimEm ?? DateOnly.MaxValue) >= p.De))
-                .Select(j => j.Id));
+            foreach (var p in periodos)
+            {
+                ids.AddRange(candidatos
+                    .Where(j => p.Maquina == j.MachineId
+                        && (p.Ate is not { } ate || j.InicioEm!.Value <= ate)
+                        && (j.FimEm ?? DateOnly.MaxValue) >= p.De)
+                    .Select(j => (p.ToolId, j.Id)));
+            }
         }
 
         return ids;
@@ -267,6 +279,8 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
             .Concat(await db.BqContexts.Where(c => toolIds.Contains(c.ToolId)).Select(c => new { c.ToolId, JobOnId = c.JobOnId ?? c.ReplacedJobOnId }).ToListAsync(cancellationToken))
             .Where(c => c.JobOnId.HasValue)
             .Select(c => (c.ToolId, JobOnId: c.JobOnId!.Value))
+            // E os da Linha para onde saiu do Armazém, como na ficha (DMO-571).
+            .Concat(await JobOnsPeloArmazemAsync(toolIds, cancellationToken))
             .Distinct()
             .ToList();
         if (relacoes.Count == 0)
