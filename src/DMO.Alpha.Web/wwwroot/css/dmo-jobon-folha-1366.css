@@ -513,11 +513,11 @@ html body .jof2 .jof-tool-slot>.tool-head{column-gap:10px}
 html body .jof2 .jof-tool-slot>.tool-head>.hv{white-space:nowrap}
 
 /* Editar do Job On numa janela estreita (Diogo, 28/10/2026: «os CAL têm bug
-   visual»): a coluna da Medida ficava com o espaço todo e os valores cortados.
-   A tabela ocupa o cartão em colunas fixas e cada campo enche a sua coluna. */
+   visual», «muito espaço desnecessário nos calibres»): cada coluna tem a largura
+   do seu campo, sem espaço vazio no meio, e os valores leem-se inteiros. */
 @media (max-width:1099px){
-  html:root body .jof2.editing.editing.editing table.calv{width:100%;max-width:100%;table-layout:fixed}
-  html:root body .jof2.editing.editing.editing table.calv :is(th,td):first-child{width:44%}
-  html:root body .jof2.editing.editing.editing table.calv :is(th,td){padding-left:4px !important;padding-right:4px !important;overflow:hidden;text-overflow:ellipsis}
-  html:root body .jof2.editing.editing.editing table.calv input.f{width:100%;min-width:0;box-sizing:border-box}
+  html:root body .jof2.editing.editing.editing table.calv{width:auto;max-width:100%;table-layout:auto}
+  html:root body .jof2.editing.editing.editing table.calv :is(th,td){width:auto !important;padding-left:3px !important;padding-right:3px !important}
+  html:root body .jof2.editing.editing.editing table.calv tbody th input.f{width:11em !important;min-width:0}
+  html:root body .jof2.editing.editing.editing table.calv td input.f{width:9em !important;min-width:0;box-sizing:border-box}
 }
