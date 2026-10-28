@@ -294,7 +294,10 @@ html:root body .jof2.jof2.jof2:not(.editing) .jof-dim.longo .jof-tol{flex:none;f
 html:root body .jof2.jof2.jof2:not(.editing) .folgas{display:flex;flex-wrap:nowrap;align-items:baseline;gap:0;padding:6px 0 0;border-top:1px solid var(--dmo-border)}
 html:root body .jof2.jof2.jof2:not(.editing) .folgas>span:first-child{margin:0 12px 0 0}
 html:root body .jof2.jof2.jof2:not(.editing) .folga{min-width:0;padding:0;border:0;border-radius:0;background:none;font-size:13.5px;font-weight:700;text-align:left}
-html:root body .jof2.jof2.jof2:not(.editing) .folga+.folga::before{content:"·";margin:0 7px;font-weight:500;color:var(--dmo-muted)}
+/* Folgas: um número por espaço, com o nome do espaço por cima (Diogo, 28/10/2026) */
+html:root body .jof2.jof2.jof2:not(.editing) .folgas{display:grid;grid-template-columns:auto repeat(3,minmax(0,1fr));column-gap:8px;align-items:end}
+html:root body .jof2.jof2.jof2:not(.editing) .folga{display:flex;flex-direction:column;white-space:nowrap}
+html:root body .jof2.jof2.jof2:not(.editing) .folga>small{font-size:10.5px;font-weight:500;color:var(--dmo-muted);line-height:1.2}
 
 /* ---- as Notas no ver: a caixa cresce até ocupar o espaço livre do cartão (mínimo três linhas inteiras de 18px com texto, uma vazia);
    só quando o texto não cabe desliza por dentro, e o jobon-folha.js corta a altura numa linha inteira. ---- */
@@ -511,3 +514,35 @@ html body .jof2 :is(.card.sec,.sec):has(>.jof-tool-slot+.use)>.jof-tool-slot>.jo
 html body .jof2 :is(.card.sec,.sec):has(>.jof-tool-slot+.use)>:not(.jof-tool-slot,.use){order:4}
 html body .jof2 .jof-tool-slot>.tool-head{column-gap:10px}
 html body .jof2 .jof-tool-slot>.tool-head>.hv{white-space:nowrap}
+
+/* Editar do Job On numa janela estreita (Diogo, 28/10/2026: «os CAL têm bug
+   visual», «muito espaço desnecessário nos calibres»): cada coluna tem a largura
+   do seu campo, sem espaço vazio no meio, e os valores leem-se inteiros. */
+@media (max-width:1099px){
+  html:root body .jof2.editing.editing.editing table.calv{width:auto;max-width:100%;table-layout:auto}
+  html:root body .jof2.editing.editing.editing table.calv :is(th,td){width:auto !important;padding-left:3px !important;padding-right:3px !important}
+  html:root body .jof2.editing.editing.editing table.calv tbody th input.f{width:11em !important;min-width:0}
+  html:root body .jof2.editing.editing.editing table.calv td input.f{width:9em !important;min-width:0;box-sizing:border-box}
+}
+
+/* Calibres na folha (Diogo, 28/10/2026: «centrar medida e retirar o espaço em
+   branco por baixo»): a tabela deitada enche o cartão (as linhas dos valores
+   crescem) e a coluna dos títulos (Medida, Componentes, QTD máq.) fica ao centro. */
+@media (min-width:1100px){
+  html:root body .jof2.jof2.jof2:not(.editing) .cal-card>.table-wrap{display:flex;flex-direction:column}
+  html:root body .jof2.jof2.jof2:not(.editing) .cal-card table.calv{flex:1 1 auto;height:100%;grid-template-rows:auto 1fr 1fr !important;align-content:stretch}
+  html:root body .jof2.jof2.jof2:not(.editing) .cal-card table.calv :is(thead,tbody,tr){display:contents}
+  html:root body .jof2.jof2.jof2:not(.editing) .cal-card table.calv :is(th,td){align-items:center}
+  html:root body .jof2.jof2.jof2:not(.editing) .cal-card table.calv :is(th,td):first-child{justify-content:center !important;text-align:center !important}
+}
+/* Armazém no cartão: a posição e o estado a negrito; a posição abre o Armazém (Diogo, 28/10/2026) */
+html:root body .jof2 .jof-onde b{font-weight:700;color:var(--dmo-text)}
+html:root body .jof2 .jof-onde a.jof-onde-pos{color:inherit;text-decoration:none}
+html:root body .jof2 .jof-onde a.jof-onde-pos:hover{text-decoration:underline}
+/* CM, MF e BQ: com o rato por cima, um retângulo de fundo um pouco mais claro diz que se pode
+   abrir (duplo clique, a ficha) ou, no Editar, trocar a ferramenta (Diogo, 28/10/2026) */
+html:root body .jof2.jof2.jof2 .tool-head[data-jof-ficha]:is(:hover,:focus-visible),
+html:root body .jof2.editing.editing.editing .tool-head:is(:hover,:focus-visible){background:var(--dmo-row-hover) !important;box-shadow:0 0 0 4px var(--dmo-row-hover) !important;border-radius:4px}
+/* Calibres: «56.40 x 58.60» em três linhas, número / x / número (Diogo, 28/10/2026) */
+html:root body .jof2 .calv .cal-vezes{display:inline-flex;flex-direction:column;align-items:center;line-height:1.15}
+html:root body .jof2 .calv .cal-vezes>span:nth-child(2){font-weight:500;color:var(--dmo-muted)}
