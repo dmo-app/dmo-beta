@@ -1,5 +1,5 @@
 {
-  "selo": "1ecbaa53f6ccc384",
+  "selo": "621ced96c40528e5",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -3007,7 +3007,7 @@
     "tests/ShellProof/jobon-tool-picker.test.cjs :: «Criar BQ» abre o registo das Ferramentas com a máquina da folha no momento do clique": "2747f0dc6012fecf",
     "tests/ShellProof/jobon-tool-picker.test.cjs :: «Mostrar todas as ferramentas» só pede o catálogo inteiro quando está marcado": "61d6174d62480996",
     "tests/ShellProof/package-lock.json": "8cabd09c7635d204",
-    "tests/ShellProof/package.json": "76c86cea5982635b",
+    "tests/ShellProof/package.json": "80a7d21ffc764e2f",
     "tests/ShellProof/painel-estrutura.test.cjs :: (resto do ficheiro)": "c525db31e3b4284e",
     "tests/ShellProof/painel-estrutura.test.cjs :: Painel com confirmar: com o formulário mudado pede antes de fechar": "26cb1a6df8546b40",
     "tests/ShellProof/painel-estrutura.test.cjs :: Painel: Escape fecha (o «cancel» do <dialog>) e DmoPainel abre por código": "ee6286395287853c",
@@ -3176,6 +3176,12 @@
     "tests/ShellProof/vistoria-frontend.test.cjs :: F3: o rascunho de outra pessoa não aparece e sai do browser": "bfd43132d0af51e5",
     "tests/ShellProof/vistoria-frontend.test.cjs :: F3: o rascunho de quem abre a folha volta": "0a0e45c65ab3e498",
     "tests/ShellProof/vistoria-frontend.test.cjs :: F3: um rascunho com mais de um dia não volta; um de 23 h volta": "6b6d97b9dd98d642",
+    "tests/ShellProof/voltar-caminho.test.cjs :: (resto do ficheiro)": "e2529dcfcea8001e",
+    "tests/ShellProof/voltar-caminho.test.cjs :: a mesma página com outros filtros ou depois de guardar não é um passo": "836b7fa6eaed2848",
+    "tests/ShellProof/voltar-caminho.test.cjs :: a primeira página do separador usa a página anterior do site; o login começa de novo": "4edd15e94110e992",
+    "tests/ShellProof/voltar-caminho.test.cjs :: as folhas do controlo também contam uma a uma": "76c8178b3bede101",
+    "tests/ShellProof/voltar-caminho.test.cjs :: as páginas abertas no painel deslizante não entram no caminho": "d31cddad904cd040",
+    "tests/ShellProof/voltar-caminho.test.cjs :: três páginas seguidas: o Voltar recua uma de cada vez até à primeira": "d173942904c4f240",
     "tests/ShellProof/voltar.test.cjs :: (resto do ficheiro)": "1c4fa477430381eb",
     "tests/ShellProof/voltar.test.cjs :: depois de guardar (vindo da própria ficha) ou do Histórico, a origem mantém-se": "a6ee5269003fb615",
     "tests/ShellProof/voltar.test.cjs :: sem origem do mesmo site, fica o link do servidor": "6edabad40cafbf7a",

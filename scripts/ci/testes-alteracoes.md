@@ -4100,3 +4100,19 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_JobOnNoPainel_TituloLarguraEFolha`
 
 Selo depois: `1ecbaa53f6ccc384`
+
+## A-0292 · 2026-10-28 · contagem-lista
+
+Porquê: «Voltar» passo a passo pelo caminho feito no separador (DMO-557): ficheiro novo voltar-caminho.test.cjs e a sua entrada na lista do test:js
+Referência: DMO-557
+Novos: 6 · mudaram: 1 · saíram: 0
+
+- novo: `tests/ShellProof/voltar-caminho.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/voltar-caminho.test.cjs :: a mesma página com outros filtros ou depois de guardar não é um passo`
+- novo: `tests/ShellProof/voltar-caminho.test.cjs :: a primeira página do separador usa a página anterior do site; o login começa de novo`
+- novo: `tests/ShellProof/voltar-caminho.test.cjs :: as folhas do controlo também contam uma a uma`
+- novo: `tests/ShellProof/voltar-caminho.test.cjs :: as páginas abertas no painel deslizante não entram no caminho`
+- novo: `tests/ShellProof/voltar-caminho.test.cjs :: três páginas seguidas: o Voltar recua uma de cada vez até à primeira`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `621ced96c40528e5`
