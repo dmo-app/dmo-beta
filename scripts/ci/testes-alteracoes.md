@@ -4441,3 +4441,13 @@ Novos: 11 · mudaram: 3 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesTrocaTests.cs :: DefinicoesPorModuloPageTests.E10_FerramentasDefinicoes_QuadroNumaZona_OAvisoVaiParaOCanto`
 
 Selo depois: `cb67701a48861103`
+
+## A-0316 · 2026-10-28 · teste-novo
+
+Porquê: DMO-579: a Referência da Reparação Programada encontra pela referência toda e pelo nome técnico
+Referência: Diogo cmsg_01K75FTs9bQnbhhH7qttpgra9rGu8RYhnhF261Md4bRX3F
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Programada/ReparacaoProgramadaTests.cs :: ReparacaoProgramadaTests.Procurar_PelaReferenciaToda_OuPeloNomeTecnico_EncontraACmEOMf`
+
+Selo depois: `927860f7b33cbbd0`

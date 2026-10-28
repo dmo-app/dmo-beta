@@ -78,6 +78,27 @@ public sealed class ReparacaoProgramadaTests
         Assert.Single(await Programada(db).ProcurarAsync(new ProgramadaProcura(Linha: "B1")));
     }
 
+    /// <summary>
+    /// Garante (DMO-579): a Referência escrita encontra como no Pesquisar das
+    /// Ferramentas: a referência toda (5447T173) encontra a CM/MF registada só
+    /// com o modelo (5447), e o nome técnico também encontra.
+    /// </summary>
+    [Fact]
+    public async Task Procurar_PelaReferenciaToda_OuPeloNomeTecnico_EncontraACmEOMf()
+    {
+        using var db = CreateContext();
+        var cm = db.Tools.Single(t => t.ToolId == "cm-5809-1");
+        cm.TechnicalName = "M580995MPNNX";
+        db.SaveChanges();
+        db.ChangeTracker.Clear();
+
+        var toda = await Programada(db).ProcurarAsync(new ProgramadaProcura(Referencia: "5447t173"));
+        Assert.Equal(["cm-5447-3", "mf-5447-3"], toda.Select(c => c.ToolId).Order());
+        var tecnico = await Programada(db).ProcurarAsync(new ProgramadaProcura(Referencia: "M5809"));
+        Assert.Equal("cm-5809-1", Assert.Single(tecnico).ToolId);
+        Assert.Empty(await Programada(db).ProcurarAsync(new ProgramadaProcura(Referencia: "9999T173")));
+    }
+
     [Fact]
     public async Task Associar_CriaListaDoReparador_ComOQueSeViaDaFerramenta_EAcrescentaAUmaAtiva()
     {
