@@ -29,5 +29,7 @@ public sealed partial class DefinicoesPorModuloPageTests
         var historico = WebUtility.HtmlDecode(ZonaUsoSap(await (await client.GetAsync($"/Ferramentas/Ficha?tool_id={toolId}")).Content.ReadAsStringAsync(), "ferrHistoricoProducoes"));
 
         Assert.Contains($"<small class=\"ferr-producao-maquina\">{referencia} · {maquina}</small>", historico, StringComparison.Ordinal);
+        // E a lista de todas as referências em que trabalhou, com as produções de cada uma.
+        Assert.Contains($"Referência: {referencia} (1)", ZonaUsoSap(historico, "ferrHistoricoReferencias"), StringComparison.Ordinal);
     }
 }
