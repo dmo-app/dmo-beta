@@ -4355,3 +4355,22 @@ Novos: 25 · mudaram: 5 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `6c1ef279e6a499af`
+
+## A-0290 · 2026-10-28 · ok-do-diogo
+
+Porquê: A localização passa de «A reparar · X» para «Reparação · X» e mostra a fábrica no empréstimo; sem registo no Armazém, a ficha e o Armazém dizem «Sem registo» em vez de «Fabrico» (DMO-555): as verificações antigas esperam o texto novo.
+Referência: Diogo 28/10 12:27 «perfeito, Sim» (cmsg_01K75FTs9bQnbhhH7qttpgra3qMJmaLMKN6qABzkRXLprv); 13:40 (cmsg_01K75FTs9bQnbhhH7qttpgra6oKj6QeudkgCPD7EpkMFFu)
+Novos: 2 · mudaram: 8 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMovimentosTests.cs :: ArmazemMovimentosTests.Localizacao_EmprestadaDizAFabricaEscolhidaNaSaida`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.SemRegistoNoArmazem_AFichaDizSemRegisto_ENaoFabrico`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMovimentosTests.cs :: ArmazemMovimentosTests.Procurar_DizOndeEstaCadaFerramenta`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs :: ArmazemProximosTests.CadaFerramenta_OndeEstaEOQueFalta`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemProximosTests.cs :: ArmazemProximosTests.ForaDoArmazemEDoFabrico_NaoDisponivel`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnToolFactsArmazemTests.cs :: JobOnToolFactsArmazemTests.OndeEstaOEstadoEOAviso`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Programada/ReparacaoProgramadaTests.cs :: ReparacaoProgramadaTests.SaidaEEntrada_AtualizamALista_EALinhaQueEntrouMostraDiaPosicaoENome`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Saida_ODestinoEscolheOsCamposEDepoisAEntradaPropoe`
+- mudou: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.AFicha_MostraALocalizacaoEOsMovimentos_SoAQuemTemOArmazem`
+- mudou: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.ArmazemEntrada_DeFerramentaNaLista_SugereReparado_AvisaAoMudar_EALinhaFicaCinza`
+
+Selo depois: `a991abf3e61919c8`
