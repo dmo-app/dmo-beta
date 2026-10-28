@@ -471,7 +471,7 @@
       }
       else
       {
-        <p class="peso-hint" style="margin-top:10px">@(Model.ProducaoFixa ? "Esta produção ainda não tem Peso guardado." : "Escolha uma produção com um Peso guardado.")</p>
+        <p class="peso-hint" style="margin-top:10px">@(Model.ProducaoFixa ? "Esta produção ainda não tem Peso guardado." : "Escolha uma produção com um Peso guardado.")@if (Model.ProducaoFixa && Model.ProducaoSelecionadaJobOnId is int semPesoId) {<partial name="_DmoAvisoLink" model="@DmoAvisoLink.PesoDaProducao(semPesoId)" />}</p>
       }
 
       @* A BASE CM a CM (o Diogo, 16/10: «peso e volume dos CM que foram

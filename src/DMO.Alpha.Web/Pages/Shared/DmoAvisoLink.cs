@@ -79,6 +79,10 @@ public sealed record DmoAvisoLink(string Texto, string Href, string? Modulo = nu
     public static DmoAvisoLink FolhaEditar(int jobOnId, string texto) =>
         new(texto, $"/JobOn/Folha?jobon_id={jobOnId}&editar=1", DmoCapabilities.JobOnCreate);
 
+    /// <summary>O Peso de uma produção (abre a folha do controlo dela, onde se regista o Peso; Diogo, 28/10/2026).</summary>
+    public static DmoAvisoLink PesoDaProducao(int jobOnId, string texto = "Registar o Peso") =>
+        new(texto, $"/Controlo/Peso?jobon_id={jobOnId}", DmoCapabilities.ControloCreate);
+
     /// <summary>A Revisão do Controlo de uma produção, onde se aprova ou se volta a decidir.</summary>
     public static DmoAvisoLink Revisao(int jobOnId, string texto = "Rever na Revisão") =>
         new(texto, $"/Controlo/Approve?jobon_id={jobOnId}", DmoCapabilities.ControloApprove);
