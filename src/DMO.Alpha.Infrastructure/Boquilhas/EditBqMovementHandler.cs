@@ -46,7 +46,15 @@ public sealed class EditBqMovementHandler : IEditBqMovementHandler
             return new EditBqMovementOutcome(EditBqMovementResult.UnknownMovementType);
         }
 
-        if (command.Quantity < 1)
+        if (command.ChangesAn && command.AnQuantity < 0)
+        {
+            return new EditBqMovementOutcome(EditBqMovementResult.InvalidAnQuantity);
+        }
+
+        // Um movimento só de AN (Diogo, 28/10/2026: «Registar sem Job On» com
+        // a peça AN) tem 0 BQ; sem AN, as BQ continuam a ser pelo menos 1.
+        var anDepois = command.ChangesAn ? command.AnQuantity : movement.AnQuantity;
+        if (command.Quantity < 0 || (command.Quantity == 0 && anDepois is not > 0))
         {
             return new EditBqMovementOutcome(EditBqMovementResult.InvalidQuantity);
         }
@@ -75,9 +83,16 @@ public sealed class EditBqMovementHandler : IEditBqMovementHandler
 
         movement.Type = BqMovementTypeTokens.FromStorage(command.MovementType);
         movement.Quantity = command.Quantity;
+        if (command.ChangesAn)
+        {
+            movement.AnQuantity = command.AnQuantity is > 0 ? command.AnQuantity : null;
+        }
+
         movement.CorrectedByNameFrozen = BqActorName.Freeze(command.CorrectedBy);
         movement.CorrectedAtUtc = now.UtcDateTime;
-        BqDiscrepancyFold.Apply(traceMovements);
+        // A conta é da BQ em todas as produções (Diogo, 28/10/2026); só se gravam os deste registo.
+        var registo = await _db.BqRepairTraces.AsNoTracking().FirstAsync(t => t.Id == command.BqRepairTraceId, cancellationToken);
+        BqDiscrepancyFold.Apply(traceMovements.Concat(await BqDiscrepancyFold.DosOutrosRegistosAsync(_db, registo, cancellationToken)));
         await _db.SaveChangesAsync(cancellationToken);
         if (transaction is not null)
         {

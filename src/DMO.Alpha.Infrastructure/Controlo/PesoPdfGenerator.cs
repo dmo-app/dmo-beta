@@ -139,28 +139,27 @@ public sealed class PesoPdfGenerator
                             t.Span(Avg(input.Averages?.AverageGlassWeightGrams)).FontSize(40).SemiBold();
                             t.Span(" g").FontSize(20).SemiBold();
                         });
-                        c.Item().PaddingTop(7).Text("Resultado das leituras deste controlo").FontSize(8).FontColor(DmoPdfPalette.Muted);
                     });
-                    row.RelativeItem().Column(c =>
+                    // O controlo anterior num só cartão, com a diferença ao lado
+                    // (Diogo, 28/10/2026: sem rótulos repetidos um por cima do outro).
+                    row.RelativeItem().Element(x => Box(x)).Padding(12).MinHeight(102).Column(card =>
                     {
-                        c.Spacing(7);
-                        c.Item().Element(x => Box(x, DmoPdfPalette.Soft)).Padding(9).MinHeight(42).Column(card =>
+                        card.Item().Text("Controlo anterior").FontSize(10).SemiBold();
+                        if (input.Comparison?.HistoricalAverages is { } previous)
                         {
-                            card.Item().Text("Controlo anterior").FontSize(9).FontColor(Muted);
-                            card.Item().PaddingTop(4).Text(input.Comparison?.HistoricalAverages is { } previous
-                                ? Fmt(previous.AverageGlassWeightGrams) + " g" : "Sem comparação").FontSize(input.Comparison is null ? 10 : 19).SemiBold();
-                        });
-                        c.Item().Element(x => Box(x, DmoPdfPalette.Tint, DmoPdfPalette.Line)).Padding(9).MinHeight(42).Column(card =>
-                        {
-                            card.Item().Text("Diferença face ao controlo anterior").FontSize(8).FontColor(Ink);
-                            card.Item().PaddingTop(5).Text(t =>
+                            card.Item().PaddingTop(12).Text(t =>
                             {
-                                t.Span(input.Comparison?.Deltas.GlassWeightDifferenceGrams is { } d
-                                    ? Signed(d) + " g" : "Diferença indisponível").FontSize(input.Comparison is null ? 10 : 19).SemiBold().FontColor(DmoPdfPalette.Ink);
-                                if (input.Comparison?.Deltas.GlassWeightVariationPercent is { } variation)
-                                    t.Span(" · " + Signed(variation) + " %").FontSize(11).FontColor(Muted);
+                                t.Span(Fmt(previous.AverageGlassWeightGrams) + " g").FontSize(22).SemiBold();
+                                if (input.Comparison.Deltas.GlassWeightDifferenceGrams is { } d)
+                                    t.Span("   " + Signed(d) + " g").FontSize(14).SemiBold();
+                                if (input.Comparison.Deltas.GlassWeightVariationPercent is { } variation)
+                                    t.Span(" · " + Signed(variation) + " %").FontSize(10).FontColor(Muted);
                             });
-                        });
+                        }
+                        else
+                        {
+                            card.Item().PaddingTop(12).Text("Sem comparação").FontSize(12).FontColor(Muted);
+                        }
                     });
                 });
                 content.Item().PaddingTop(8).Row(row =>
@@ -206,7 +205,6 @@ public sealed class PesoPdfGenerator
                 // as duas juntas»): a massa de água, o volume e o peso de cada
                 // CM, ao lado da CM anterior e dos deltas, e a média no fim.
                 SectionTitle(content.Item().PaddingTop(13), input.Comparison is null ? "Leituras por CM" : "Leituras por CM e comparação com o controlo anterior");
-                content.Item().PaddingTop(4).Text("Volume em cm³, grandeza distinta do peso.").FontSize(8).FontColor(Muted);
                 content.Item().PaddingTop(6).Element(c => Box(c)).Element(c => ComposeWeightTable(c, input, input.Comparison));
                 ComposeTechnicalContext(content.Item().PaddingTop(13), input);
             });
@@ -232,29 +230,18 @@ public sealed class PesoPdfGenerator
         {
             c.Item().Text(label).FontSize(7).FontColor(Muted);
             c.Item().PaddingTop(5).Text(value).FontSize(value.Length > 17 ? 11 : 15).SemiBold();
-            c.Item().PaddingTop(4).Text(caption).FontSize(7).FontColor(Muted);
+            if (caption.Length > 0) c.Item().PaddingTop(4).Text(caption).FontSize(7).FontColor(Muted);
         });
 
     private static void PairedCard(IContainer container, string label, string weight, string difference, string percent, string? weightLabel = null) =>
         container.Element(c => Box(c)).Padding(9).Column(c =>
         {
             c.Item().Text(label).FontSize(7).FontColor(Muted);
-            c.Item().PaddingTop(6).Row(row =>
+            c.Item().PaddingTop(4).Text(t =>
             {
-                row.RelativeItem(.8f).Column(value =>
-                {
-                    value.Item().Text(weightLabel ?? (label == "Nominal do desenho" ? "Peso nominal" : "Peso usado na produção")).FontSize(7).FontColor(Muted);
-                    value.Item().PaddingTop(3).Text(weight).FontSize(17).SemiBold();
-                });
-                row.RelativeItem().Column(value =>
-                {
-                    value.Item().Text("Diferença").FontSize(8).FontColor(Muted);
-                    value.Item().PaddingTop(3).Text(t =>
-                    {
-                        t.Span(difference).FontSize(16).SemiBold().FontColor(DmoPdfPalette.Ink);
-                        t.Span(" · " + percent).FontSize(10).FontColor(Muted);
-                    });
-                });
+                t.Span(weight).FontSize(17).SemiBold();
+                t.Span("   " + difference).FontSize(14).SemiBold();
+                t.Span(" · " + percent).FontSize(10).FontColor(Muted);
             });
         });
 
@@ -267,8 +254,8 @@ public sealed class PesoPdfGenerator
         c.Item().PaddingTop(7).Row(row =>
         {
             row.Spacing(7);
-            SmallCard(row.RelativeItem(), "PROCESSO", input.Process, "Processo de fabrico");
-            SmallCard(row.RelativeItem(), "CONTRA-MOLDE · LOTE", (input.CmReference ?? input.CmToolId) + " · " + (input.CmLot ?? "—"), "Ferramenta utilizada");
+            SmallCard(row.RelativeItem(), "PROCESSO", input.Process, "");
+            SmallCard(row.RelativeItem(), "CONTRA-MOLDE · LOTE", (input.CmReference ?? input.CmToolId) + " · " + (input.CmLot ?? "—"), "");
             SmallCard(row.RelativeItem(), "TEMPERATURA DA ÁGUA", input.WaterTemperatureC + " °C",
                 "Densidade da água " + Fmt(input.WaterDensity, "0.#####") + " g/cm³");
         });
@@ -276,7 +263,7 @@ public sealed class PesoPdfGenerator
         {
             row.Spacing(7);
             SmallCard(row.RelativeItem(), "DENSIDADE DO VIDRO", Fmt(input.GlassDensity, "0.#####"), "g/cm³");
-            SmallCard(row.RelativeItem(), "VOLUME MARISA / PUNÇÃO", Fmt(input.VolumeMarisaCm3) + " / " + Fmt(input.VolumePuncaoCm3), "cm³ · fixos");
+            SmallCard(row.RelativeItem(), "VOLUME MARISA / PUNÇÃO", Fmt(input.VolumeMarisaCm3) + " / " + Fmt(input.VolumePuncaoCm3), "cm³");
             SmallCard(row.RelativeItem(), "VOLUME DO TAMPÃO", input.VolumeTampaoCm3 is { } tampao ? Fmt(tampao) : "—",
                 input.VolumeTampaoCm3 is null ? "Tampão não registado na CM"
                 : "cm³" + (input.CaloteMm is { } calote ? " · calote " + Fmt(calote) + " mm" : ""));
@@ -288,7 +275,6 @@ public sealed class PesoPdfGenerator
             c.Item().PaddingTop(3).Text("Produção anterior " + anteriorNumero + " · " + (anterior.Machine ?? "—") +
                 " · início: " + (anterior.InicioEm?.ToString("d", Pt) ?? "—") +
                 " · fim: " + (anterior.FimEm?.ToString("d", Pt) ?? "—") +
-                (input.PesoProducaoSap is null ? " · peso usado: " + (anterior.PesoGramas is { } sap ? Fmt(sap) + " g" : "—") : "") +
                 (input.PesoProducaoSap is { } producao
                     ? " · peso da produção: média " + Fmt(producao.MediaGramas) + " g · moda " + Fmt(producao.ModaGramas) + " g (" + producao.ModaDias + " de " + producao.Dias + " dias)"
                     : "")).FontSize(7).FontColor(Muted);

@@ -168,7 +168,8 @@
       <partial name="_FerramentaFactos" model="@(new FerramentaFactosForm("ferr-new", true, Model.RequestedTypeToken ?? "CM", tipoFixo,
           Model.RequestedReference, Model.RequestedLot, Model.RequestedLotQuantity, Model.RequestedQuantityManual,
           Model.RequestedMfReference, Model.RequestedTechnicalName, Model.Machines,
-          id => Model.RequestedMachineIds?.Contains(id.ToString()) == true, UsoPercentagem: Model.RequestedUsoPercentagem))" />
+          id => Model.RequestedMachineIds?.Contains(id.ToString()) == true, UsoPercentagem: Model.RequestedUsoPercentagem,
+          QuantidadeAn: Model.RequestedAnQuantity))" />
       @* A INFORMAÇÃO TÉCNICA NO REGISTO (o Diogo, 17/10/2026: «nao temos
          forma de inserir informaçao tecnica nas ferramentas»): opcional e
          fechada (a decisão de 16/10: só aparece quando se pede); cada tipo

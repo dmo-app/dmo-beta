@@ -18,6 +18,15 @@ public sealed class BoquilhasEscolhasQuery : IBoquilhasEscolhasQuery
         _db = db;
     }
 
+    public async Task<IReadOnlyList<BqJobOnAnterior>> BqJobOnsAnterioresAsync(CancellationToken cancellationToken = default) =>
+        await (
+                from c in _db.BqContexts.AsNoTracking()
+                join j in _db.JobOns.AsNoTracking() on c.JobOnId ?? c.ReplacedJobOnId equals (int?)j.Id
+                where c.ToolId != ToolRegistryConstants.RemovedToolId
+                orderby j.InicioEm descending, j.Id descending
+                select new BqJobOnAnterior(c.Id, c.ToolId, j.Id, j.Reference, j.ProductionNumber, j.InicioEm, j.MachineId, j.Machine.Code))
+            .ToListAsync(cancellationToken);
+
     public async Task<IReadOnlyList<BqSemJobOnLida>> BqSemJobOnAsync(CancellationToken cancellationToken = default)
     {
         var lidas = await _db.Tools.AsNoTracking()

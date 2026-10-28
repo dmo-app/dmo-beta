@@ -55,6 +55,8 @@ public sealed partial class IndexModel
             "Indique uma quantidade igual ou superior a 1. Nada foi alterado.",
         nameof(EditBqMovementResult.InvalidOccurrenceTime) =>
             "A data e hora indicadas não são legíveis. Indique a data e a hora reais do movimento. Nada foi alterado.",
+        nameof(EditBqMovementResult.InvalidAnQuantity) =>
+            "Indique a quantidade de AN como um número inteiro, ou deixe em branco. Nada foi alterado.",
         _ => string.Empty
     };
 
@@ -124,7 +126,8 @@ public sealed partial class IndexModel
         [FromForm(Name = "movement_id")] int movementId,
         [FromForm(Name = "movement_type")] string? movementType,
         [FromForm(Name = "quantity")] int? quantity,
-        [FromForm(Name = "occurred_at")] string? occurredAt)
+        [FromForm(Name = "occurred_at")] string? occurredAt,
+        [FromForm(Name = "quantity_an")] string? quantityAn = null)
     {
         if (User?.Identity?.IsAuthenticated != true)
         {
@@ -143,9 +146,18 @@ public sealed partial class IndexModel
             occurredLocal = parsed;
         }
 
+        // Os AN só mudam quando o formulário os traz (o campo «Qtd. AN»).
+        var changesAn = Request.HasFormContentType && Request.Form.ContainsKey("quantity_an");
+        if (changesAn && !TryReadAnQuantity(quantityAn, out _))
+        {
+            return CorrectionRedirect(traceId, movementId, nameof(EditBqMovementResult.InvalidAnQuantity));
+        }
+
+        TryReadAnQuantity(quantityAn, out var anQuantity);
         var outcome = await handler.HandleAsync(
             new EditBqMovement(
-                traceId, movementId, movementType ?? string.Empty, quantity ?? 0, occurredLocal, CurrentActorName()),
+                traceId, movementId, movementType ?? string.Empty, quantity ?? 0, occurredLocal, CurrentActorName(),
+                anQuantity, changesAn),
             HttpContext.RequestAborted);
 
         // A hora que caía na mudança de hora foi gravada na hora seguinte, ou a

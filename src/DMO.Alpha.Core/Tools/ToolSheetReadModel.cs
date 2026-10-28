@@ -31,4 +31,6 @@ public sealed record ToolSheetReadModel(
     DateTime? DuplicateWarningAtUtc = null,
     string? DuplicateWarningBy = null,
     /// <summary>A fábrica de origem (ex.: MG); null = não indicada.</summary>
-    string? FabricaOrigem = null);
+    string? FabricaOrigem = null,
+    /// <summary>A quantidade de AN do lote (Tool.AnQuantity); null = vazia.</summary>
+    int? AnQuantity = null);

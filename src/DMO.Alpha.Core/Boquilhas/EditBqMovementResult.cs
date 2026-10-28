@@ -17,5 +17,8 @@ public enum EditBqMovementResult
     InvalidQuantity,
 
     /// <summary>A data/hora indicada é ilegível (a hora da mudança de hora já não recusa: passa para a hora seguinte).</summary>
-    InvalidOccurrenceTime
+    InvalidOccurrenceTime,
+
+    /// <summary>A quantidade de AN é negativa ou ilegível.</summary>
+    InvalidAnQuantity
 }

@@ -72,6 +72,10 @@ public sealed class IndexModel : PageModel
 
     [BindProperty(SupportsGet = true, Name = "bq_quantity")]
     public string? RequestedLotQuantity { get; set; }
+
+    /// <summary>A quantidade de AN do lote (só na BQ; Diogo, 28/10/2026), de volta numa recusa.</summary>
+    [BindProperty(SupportsGet = true, Name = "an_quantity")]
+    public string? RequestedAnQuantity { get; set; }
     [BindProperty(SupportsGet = true, Name = "quantity_manual")]
     public string? RequestedQuantityManual { get; set; }
     [BindProperty(SupportsGet = true, Name = "machine_ids")]
@@ -373,7 +377,9 @@ public sealed class IndexModel : PageModel
         var typedQuantity = Sanitize(bqQuantity);
         var parsedQuantity = ParseOptionalInt(bqQuantity);
         var unreadableQuantity = typedQuantity is not null && parsedQuantity is null;
-        var negativeQuantity = parsedQuantity is < 0;
+        // Os AN do lote: ilegíveis ficam de fora, negativos recusam.
+        var parsedAn = ParseOptionalInt(RequestedAnQuantity);
+        var negativeQuantity = parsedQuantity is < 0 || parsedAn is < 0;
         var outcome = negativeQuantity ? new CreateToolOutcome(CreateToolResult.InvalidLotQuantity) : await _createTool.HandleAsync(
             new CreateTool(
                 Sanitize(typeToken) ?? string.Empty,
@@ -390,7 +396,8 @@ public sealed class IndexModel : PageModel
                     .ToList(),
                 technicalName?.ToUpperInvariant(),
                 UseLotQuantityDefault: quantityManual != "1" && !unreadableQuantity,
-                RequestedBy: ActorName(User)),
+                RequestedBy: ActorName(User),
+                AnQuantity: parsedAn),
             HttpContext.RequestAborted);
 
         var technical = TechnicalFields.ToDictionary(field => field, field => Sanitize(Request.Form[field].ToString()));
@@ -481,7 +488,8 @@ public sealed class IndexModel : PageModel
             machine_ids = machineIds,
             @return = returnUrl,
             lote_novo = loteNovo,
-            uso_percentagem = Sanitize(usoPercentagem)
+            uso_percentagem = Sanitize(usoPercentagem),
+            an_quantity = Sanitize(RequestedAnQuantity)
         });
         foreach (var field in technical.Where(field => field.Value is not null))
             refusalValues[field.Key] = field.Value;

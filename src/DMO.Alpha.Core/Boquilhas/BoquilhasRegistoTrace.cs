@@ -35,7 +35,13 @@ public sealed record BoquilhasRegistoTrace(
     /// <summary>Quantos movimentos o registo tem ao todo (Movements traz só a página pedida).</summary>
     int MovementCount = 0,
     /// <summary>A página de Movements, já ajustada ao intervalo válido.</summary>
-    int MovementPageNumber = 1)
+    int MovementPageNumber = 1,
+    // Os AN (Diogo, 28/10/2026): a quantidade de AN do lote (Tool.AnQuantity)
+    // e os AN fora, com a mesma conta das BQ («Em reparação»). Null sem AN.
+    int? ToolAnQuantity = null,
+    int? AnQuantityOut = null,
+    // A discrepância acumulada dos AN (Diogo, 28/10/2026: «Sim», também conta); null sem ela.
+    int? AnAccumulatedDiscrepancy = null)
 {
     /// <summary>A página dos movimentos para a tabela (mais recentes primeiro).</summary>
     public DMO.Alpha.Core.Paging.PagedList<BoquilhasRegistoMovement> MovementsPage =>

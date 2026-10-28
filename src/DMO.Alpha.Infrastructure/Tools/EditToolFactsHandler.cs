@@ -74,7 +74,7 @@ public sealed class EditToolFactsHandler : IEditToolFactsHandler
         var lotDefaulted = string.IsNullOrEmpty(typedLot);
         var lot = lotDefaulted ? ToolRegistryConstants.NoLot : typedLot!;
 
-        if (command.BqAccountedQuantity is < 0)
+        if (command.BqAccountedQuantity is < 0 || command.AnQuantity is < 0)
         {
             return Refused(EditToolFactsResult.InvalidLotQuantity);
         }
@@ -125,6 +125,8 @@ public sealed class EditToolFactsHandler : IEditToolFactsHandler
         tool.Lot = lot;
         tool.AssociatedMfReference = associatedMfReference;
         tool.BqAccountedQuantity = command.BqAccountedQuantity;
+        // Os AN do lote só existem na BQ (Diogo, 28/10/2026).
+        tool.AnQuantity = type == ToolType.Bq ? command.AnQuantity : null;
         if (command.TechnicalName is not null)
         {
             tool.TechnicalName = TrimToNull(command.TechnicalName);

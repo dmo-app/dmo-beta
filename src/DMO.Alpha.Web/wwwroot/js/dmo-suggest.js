@@ -22,6 +22,8 @@
  *     Se a página der ao select uma fonte (select.dmoSource = function (termo)
  *     que devolve uma Promise de { items: [{ value, label }], empty, note }),
  *     as opções vêm dessa fonte em vez das que a página tem (o Job On).
+ *     Com select.dmoFicha = function (valor) que devolve um endereço, cada
+ *     opção tem um triângulo à frente que abre essa ficha no painel ao lado.
  *
  * Progressive enhancement: sem este ficheiro os campos e os selects nativos
  * funcionam como antes.
@@ -140,9 +142,31 @@
         li.setAttribute("role", "option");
         li.textContent = item.label;
         if (item.selected) li.setAttribute("aria-selected", "true");
+        // Com item.ficha, o triângulo à frente abre a ficha no painel ao lado, sem escolher
+        // nem sair da página (Diogo, 28/10/2026: no Editar do Job On, «à frente de cada
+        // ferramenta … abre sliding window da ferramenta»).
+        var ficha = null;
+        if (item.ficha) {
+          var texto = document.createElement("span");
+          texto.className = "dmo-suggest-texto";
+          texto.textContent = item.label;
+          ficha = document.createElement("a");
+          ficha.className = "dmo-suggest-ficha";
+          ficha.href = item.ficha;
+          ficha.title = "Abrir a ficha";
+          ficha.setAttribute("aria-label", "Abrir a ficha de " + item.label);
+          ficha.innerHTML = '<span class="dmo-caret" aria-hidden="true"></span>';
+          ficha.addEventListener("click", function (event) { event.preventDefault(); });
+          li.replaceChildren(texto, ficha);
+        }
         // mousedown (antes do blur): a escolha acontece antes de o campo fechar a lista.
         li.addEventListener("mousedown", function (event) {
           event.preventDefault();
+          if (ficha && ficha.contains(event.target)) {
+            close();
+            if (!(window.DmoSupport && window.DmoSupport.tryOpen(item.ficha, ficha))) window.open(item.ficha, "_blank");
+            return;
+          }
           onPick(item);
           close();
         });
@@ -276,12 +300,23 @@
       ++request;
       abortPending();
     });
-    window.addEventListener("pagehide", function () {
+    // Ao sair da página cancela o que estiver em espera. Um só listener para
+    // todos os campos (eram um por campo, e os campos de uma zona trocada
+    // ficavam presos à janela): sai da lista quando o campo sai da página.
+    cancelarAoSair.set(input, function () {
       clearTimeout(timer);
       ++request;
       abortPending();
     });
   }
+
+  var cancelarAoSair = new Map();
+  function largarRemovidos() {
+    cancelarAoSair.forEach(function (_, input) { if (!input.isConnected) cancelarAoSair.delete(input); });
+  }
+  window.addEventListener("pagehide", function () {
+    cancelarAoSair.forEach(function (cancelar) { cancelar(); });
+  });
 
   /* ---------- modo 2: select longo transformado em filtro local ---------- */
   function enhanceSelect(select) {
@@ -345,7 +380,11 @@
             if (!filter.trim() && select.value !== "" && empty) {
               items = [{ value: "", label: empty.text.trim() }].concat(items);
             }
-            items.forEach(function (item) { item.selected = item.value !== "" && item.value === select.value; });
+            items.forEach(function (item) {
+              item.selected = item.value !== "" && item.value === select.value;
+              // select.dmoFicha(valor) dá o endereço da ficha: o triângulo à frente abre-a.
+              if (select.dmoFicha && item.value !== "" && !item.ficha) item.ficha = select.dmoFicha(item.value);
+            });
             list.render(items, result && result.empty, result && result.note);
           })
           .catch(function () {
@@ -394,6 +433,7 @@
   }
 
   function init(root) {
+    largarRemovidos();
     (root || document).querySelectorAll("input[data-dmo-suggest]").forEach(function (input) {
       if (input.dataset.dmoSuggestReady) return;
       input.dataset.dmoSuggestReady = "1";

@@ -49,7 +49,8 @@ public sealed partial class IndexModel
             Movements: Array.Empty<BoquilhasRegistoMovement>(),
             QuantityLegitimatelyOut: 0,
             AccumulatedDiscrepancy: null,
-            ToolAccountedQuantity: context.ToolAccountedQuantity);
+            ToolAccountedQuantity: context.ToolAccountedQuantity,
+            ToolAnQuantity: context.ToolAnQuantity);
         PendingRegisterBqContextId = bqContextId;
 
         // Sem movimentos não há nada para corrigir.

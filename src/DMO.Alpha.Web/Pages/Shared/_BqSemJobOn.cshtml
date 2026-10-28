@@ -7,9 +7,17 @@
 <div id="bqSemJobOn" class="dmo-zona" data-dmo-regiao>
 @if (Model.SemJobOnTools.Count > 0)
 {
-  var recusa = Model.SemJobOnResult is { Length: > 0 } r && r != "ok";
+  var gravou = Model.SemJobOnResult is "ok" or "ok_jobon";
+  var recusa = Model.SemJobOnResult is { Length: > 0 } && !gravou;
   var escolhida = Model.ToolSheet?.ToolId;
-    @if (Model.SemJobOnResult == "ok")
+  @* A Linha só com as da ficha da BQ (Diogo, 28/10/2026: «escolhi uma para C1
+     mete logo C1; se for C1 B2, aparecer C1 e depois apenas poder filtrar pela
+     C1 ou B2»). Vem já a última onde a BQ teve movimentos, se for da ficha;
+     senão a primeira. Sem linhas na ficha, mostra todas. *@
+  var linhasDaEscolhida = Model.SemJobOnTools.FirstOrDefault(t => t.ToolId == escolhida)?.MachineCodes ?? [];
+  var linhaProposta = linhasDaEscolhida.Count == 0 ? null
+      : Model.SemJobOnLines.FirstOrDefault(l => string.Equals(l.Code, linhasDaEscolhida[0], StringComparison.OrdinalIgnoreCase))?.MachineId;
+    @if (gravou)
     {
       <p data-dmo-toast="ok" class="result" role="status">@Model.SemJobOnMessage</p>
     }
@@ -18,13 +26,12 @@
         <div class="bq-sem-jobon-topo">
           <h3 id="bqSemJobOnTitulo">Registar sem Job On</h3>
           <button type="button" class="dmo-dialog-fechar" data-dmo-dialog-close aria-label="Fechar">×</button>
-          <button type="submit" class="dmo-button">Registar</button>
         </div>
         @if (recusa)
         {
           <div class="jobon-aviso warn" role="alert">@Model.SemJobOnMessage</div>
         }
-        <div class="bq-sem-jobon-campos bq-sem-jobon-tres">
+        <div class="bq-sem-jobon-campos bq-sem-jobon-bq-linha">
           @* Uma só escolha (Diogo, 22/10/2026: «ao procurar as boquilhas deve
              mostrar os elementos que identificam a boquilha»): cada opção é
              uma BQ (um tool_id), com a referência, o lote e o resto que a
@@ -35,35 +42,95 @@
               <option value="">Escolher</option>
               @foreach (var tool in Model.SemJobOnTools)
               {
-                <option value="@tool.ToolId" data-procura="@tool.SearchText" selected="@(tool.ToolId == escolhida)">@tool.Label</option>
+                @* Sem o tag helper (o «!»): o data-linhas só aparece com linhas. *@
+                <!option value="@tool.ToolId" data-procura="@tool.SearchText"@(tool.MachineCodes.Count > 0 ? Html.Raw($" data-linhas=\"{System.Net.WebUtility.HtmlEncode(string.Join(' ', tool.MachineCodes))}\"") : null) selected="@(tool.ToolId == escolhida)">@tool.Label</!option>
               }
             </select>
           </div>
-          <div class="dmo-field">
+          <div class="dmo-field bq-sem-jobon-curto">
             <label for="bqSemJobOnLinha">Linha</label>
-            <select id="bqSemJobOnLinha" name="movement_machine_id" required>
-              <option value="">Escolher</option>
+            <select id="bqSemJobOnLinha" name="movement_machine_id" required data-bq-linhas-da="bqSemJobOnBq">
+              <option value="">—</option>
               @foreach (var linha in Model.SemJobOnLines)
               {
-                <option value="@linha.MachineId">@linha.Code</option>
+                var daFicha = linhasDaEscolhida.Count == 0 || linhasDaEscolhida.Contains(linha.Code, StringComparer.OrdinalIgnoreCase);
+                <option value="@linha.MachineId" selected="@(linha.MachineId == linhaProposta)" hidden="@(!daFicha)" disabled="@(!daFicha)">@linha.Code</option>
+              }
+            </select>
+          </div>
+          <div class="dmo-field bq-sem-jobon-curto">
+            <label for="bqSemJobOnPeca">Peça</label>
+            <select id="bqSemJobOnPeca" name="peca">
+              <option value="bq" selected>BQ</option>
+              <option value="an">AN</option>
+            </select>
+          </div>
+        </div>
+        @* UM JOB ON ANTERIOR (Diogo, 28/10/2026: «ao escolher a BQ, desbloquear
+           um campo que mostra as referências que esta BQ trabalhou, e depois um
+           dropdown com a produção; o registo fica associado a esse Job On»).
+           Sem referência, é um registo sem Job On. O bq-sem-jobon.js mostra só
+           as da BQ escolhida e, ao escolher a produção, põe a linha dela. *@
+        @{
+          var referencias = Model.SemJobOnJobOns
+              .GroupBy(j => (j.ToolId, Referencia: j.Reference.Trim().ToUpperInvariant()))
+              .Select(g => g.Key)
+              .OrderBy(k => k.ToolId, StringComparer.Ordinal).ThenBy(k => k.Referencia, StringComparer.Ordinal)
+              .ToList();
+          var temReferencias = referencias.Any(k => k.ToolId == escolhida);
+        }
+        <div class="bq-sem-jobon-campos bq-sem-jobon-jobon" data-bq-jobon-da="bqSemJobOnBq">
+          <div class="dmo-field bq-sem-jobon-ref">
+            <label for="bqSemJobOnReferencia" title="As referências em que esta BQ trabalhou. Escolha uma para registar num Job On anterior.">Job On anterior · referência</label>
+            <select id="bqSemJobOnReferencia" disabled="@(!temReferencias)" data-bq-referencias>
+              <option value="">Sem Job On</option>
+              @foreach (var (bqTool, referencia) in referencias)
+              {
+                <!option value="@referencia" data-bq="@bqTool" hidden="@(bqTool != escolhida)" disabled="@(bqTool != escolhida)">@referencia</!option>
+              }
+            </select>
+          </div>
+          <div class="dmo-field bq-sem-jobon-producao">
+            <label for="bqSemJobOnProducao">Produção</label>
+            <select id="bqSemJobOnProducao" name="bq_id" disabled data-bq-producoes>
+              <option value="">—</option>
+              @foreach (var j in Model.SemJobOnJobOns)
+              {
+                <!option value="@j.BqId" data-bq="@j.ToolId" data-referencia="@j.Reference.Trim().ToUpperInvariant()" data-linha="@j.MachineId" hidden>@j.ProductionNumber@(j.InicioEm is DateOnly inicio ? $" · {inicio:dd/MM/yyyy}" : null) · @j.MachineCode</!option>
               }
             </select>
           </div>
         </div>
-        <fieldset class="bq-movement-types bq-sem-jobon-tipos">
-          <legend class="visually-hidden">Movimento</legend>
-          <label><input type="radio" name="movement_type" value="saida" checked required /><span>Saída</span></label>
-          <label><input type="radio" name="movement_type" value="entrada" /><span>Entrada</span></label>
-          <label><input type="radio" name="movement_type" value="entrada_sem_reparacao" /><span>Entrada sem reparação</span></label>
-        </fieldset>
-        <div class="bq-sem-jobon-campos">
-          <div class="dmo-field">
+        @* Campos do tamanho do que levam (Diogo, 28/10/2026: «AN BQ são duas
+           letras», «Linha a mesma coisa»). A Linha e a Peça ficam em cima, ao pé
+           da procura da BQ; em baixo, como no Registo da página (Diogo,
+           28/10/2026): «Registar» antes da Saída, o movimento, a
+           Quantidade (da Peça escolhida; um movimento de AN não leva BQ), a Data
+           e a Hora em dois campos, como no Registo; o bq-registo.js junta-os no
+           occurred_at, que é o que vai ao servidor. *@
+        <div class="bq-sem-jobon-linha">
+          <button type="submit" class="dmo-button bq-sem-jobon-registar">Registar</button>
+          <fieldset class="bq-movement-types bq-sem-jobon-tipos">
+            <legend class="visually-hidden">Movimento</legend>
+            <label><input type="radio" name="movement_type" value="saida" checked required /><span>Saída</span></label>
+            <label><input type="radio" name="movement_type" value="entrada" /><span>Entrada</span></label>
+            <label><input type="radio" name="movement_type" value="entrada_sem_reparacao" /><span>Entrada sem reparação</span></label>
+          </fieldset>
+          <div class="dmo-field bq-sem-jobon-qtd">
             <label for="bqSemJobOnQtd">Quantidade</label>
             <input id="bqSemJobOnQtd" name="quantity" type="number" lang="en" min="1" required placeholder="Ex.: 1" />
           </div>
-          <div class="dmo-field">
+          <div class="dmo-field bq-sem-jobon-dia">
+            <label for="bqSemJobOnDia">Data</label>
+            <input id="bqSemJobOnDia" type="date" data-bq-dia="bqSemJobOnData" value="@(Model.MovementFormOccurredAt.Split('T')[0])" required />
+          </div>
+          <div class="dmo-field bq-sem-jobon-hora">
+            <label for="bqSemJobOnHora">Hora</label>
+            <input id="bqSemJobOnHora" type="time" data-bq-hora="bqSemJobOnData" value="@(Model.MovementFormOccurredAt.Split('T').ElementAtOrDefault(1))" required />
+          </div>
+          <div class="bq-data-hora-junta" hidden>
             <label for="bqSemJobOnData">Data e hora reais</label>
-            <input id="bqSemJobOnData" name="occurred_at" type="datetime-local" value="@Model.MovementFormOccurredAt" required />
+            <input id="bqSemJobOnData" name="occurred_at" type="datetime-local" value="@Model.MovementFormOccurredAt" />
           </div>
         </div>
       </form>

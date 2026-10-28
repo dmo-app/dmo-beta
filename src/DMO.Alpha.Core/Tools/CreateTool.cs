@@ -19,4 +19,6 @@ public sealed record CreateTool(
     string? TechnicalName = null,
     bool UseLotQuantityDefault = true,
     // Quem regista (fica no aviso da ferramenta existente se for repetida).
-    string? RequestedBy = null);
+    string? RequestedBy = null,
+    // A quantidade de AN do lote (só na BQ; Diogo, 28/10/2026). null = vazia.
+    int? AnQuantity = null);

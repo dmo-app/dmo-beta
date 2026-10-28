@@ -397,7 +397,8 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
         {
           <div class="dmo-fact"><span>Referência MF associada</span><strong>@tool.AssociatedMfReference</strong></div>
         }
-        <div class="dmo-fact"><span>Quantidade</span><strong>@(tool.BqAccountedQuantity?.ToString(pt) ?? "—")</strong></div>
+        @* Com AN (Diogo, 28/10/2026): «24 BQ · 24 AN». *@
+        <div class="dmo-fact"><span>Quantidade</span><strong>@(tool.BqAccountedQuantity?.ToString(pt) ?? "—")@(tool.AnQuantity is int anFicha ? $" BQ · {anFicha.ToString(pt)} AN" : null)</strong></div>
         @* A POSIÇÃO E O ESTADO (Diogo, 22/10/2026): do Armazém, a todos; «—» sem registo. *@
         <div class="dmo-fact" id="ferrPosicao"><span>Posição</span><strong>@(Model.Armazem?.Posicao ?? "—")</strong></div>
         @{ var estadoTexto = Model.Armazem?.Estado is { } estadoFicha ? DMO.Alpha.Core.Armazem.ArmazemTextos.Estado(estadoFicha) : "—"; }
@@ -549,7 +550,8 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
             id => Model.FactsMachine(id, tool.Machines.Any(m => m.MachineId == id)),
             Model.FactsFabricaOrigem(tool.FabricaOrigem),
             Model.FactsUso(Model.Utilizacao?.Ultima?.Percentagem),
-            Model.Utilizacao?.Ultima is { } usoData ? DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(usoData.RegistadaEmUtc).ToString("dd/MM/yyyy", pt) : null))" />
+            Model.Utilizacao?.Ultima is { } usoData ? DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(usoData.RegistadaEmUtc).ToString("dd/MM/yyyy", pt) : null,
+            Model.FactsAnQuantity(tool.AnQuantity)))" />
       </form>
 
     </section>

@@ -4289,6 +4289,73 @@ Novos: 1 · mudaram: 10 · saíram: 0
 
 Selo depois: `d5028b5b0339c195`
 
+## A-0254 · 2026-10-28 · ok-do-diogo
+
+Porquê: DMO-524: o Diogo pediu um campo para colar o link do mcaliper e «Medições» que abre o mcaliper em vez do link/copiar. Os três testes deixam de exigir a janela «Associar link do mcaliper», o «Link do mcaliper associado» e o «Copiar» (data-dmo-copiar) e passam a exigir o campo com o link e o «Medições» com o endereço; o teste do link ganha a gravação JSON do campo (recusa e gravação).
+Referência: mensagem do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraGpkfZmVrGptNbCoC9pNFFB («basta meter um campo para colar o link e no controlo.ver em vez d ver um link aparece Mediçoe abre o mcaliper»)
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ErrosDoResumo.cs :: ControloCapabilitiesCutHPageTests.Resumo_ErrosDe27Out_CabecalhoMcaliperRegistarEVoltar`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: ControloCapabilitiesCutHPageTests.ResumoDoControlo_CartoesDasAreas_GravamEVoltamAoResumo`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.McaliperLink_CreateAssociatesOnToolSheet_ApproveCopiesIt`
+
+Selo depois: `7f41a6c1558f560b`
+
+## A-0305 · 2026-10-28 · contagem-lista
+
+Porquê: «Voltar» passo a passo pelo caminho feito no separador (DMO-569): ficheiro novo voltar-caminho.test.cjs e a sua entrada na lista do test:js
+Referência: DMO-569
+Novos: 6 · mudaram: 1 · saíram: 0
+
+- novo: `tests/ShellProof/voltar-caminho.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/voltar-caminho.test.cjs :: a mesma página com outros filtros ou depois de guardar não é um passo`
+- novo: `tests/ShellProof/voltar-caminho.test.cjs :: a primeira página do separador usa a página anterior do site; o login começa de novo`
+- novo: `tests/ShellProof/voltar-caminho.test.cjs :: as folhas do controlo também contam uma a uma`
+- novo: `tests/ShellProof/voltar-caminho.test.cjs :: as páginas abertas no painel deslizante não entram no caminho`
+- novo: `tests/ShellProof/voltar-caminho.test.cjs :: três páginas seguidas: o Voltar recua uma de cada vez até à primeira`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `43d26cce1f4efcab`
+
+## A-0306 · 2026-10-28 · ok-do-diogo
+
+Porquê: Lote 0.3.0-beta.227: #264 PDF do Peso sem duplicados (DMO-526, antes A-0256: o peso usado da produção anterior já está no cartão, sai a repetição no rodapé); #267 AN nas Boquilhas e DMO-572/573/574 (antes A-0263, contagem-lista); #273 triângulo no Editar e reparador na linha do Armazém (DMO-559, DMO-570, testes novos); #270 relatório de frontend e largura dos campos (DMO-537, testes JS novos).
+Referência: #264: Diogo 28/10 cmsg_01K75FTs9bQnbhhH7qttpgraKQa9WN4maaHqZRbPbFJPru; #267, #270 e #273: ver os PR
+Novos: 25 · mudaram: 5 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: SemDefinicoes.Corrigir_SoAn_AceitaZeroBq_SemAnRecusa`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: SemDefinicoes.Corrigir_SoMudaOsAnQuandoOsTraz`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: SemDefinicoes.Registar_AnNegativo_RecusaENadaGrava`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: SemDefinicoes.Registar_ComAn_GravaOsAn_SemAnOuZeroFicaSemAn`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqSaldoPorBqTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqSaldoPorBqTests.cs :: NoSettings.BqQueSaiuNumJobOn_EVoltaNoutro_NaoFicaComSaldo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqSaldoPorBqTests.cs :: NoSettings.EntraMaisDoQueSaiu_EmTodasAsProducoes_FicaComSaldo`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_ADiscrepanciaTambemContaParaOsAn`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_IlegivelOuNegativo_NaoGravaNada_EOFormularioVoltaComOQueSeEscreveu`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_NaFichaDaBq_GravaEMostraBqEAn`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_NoRegisto_GravaComOMovimento_EContaOsAnFora`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_NosMovimentos_OFiltroPecaAn_MostraSoOsMovimentosComAn`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_RegistarSemJobOn_APecaVemEmBq_ComAnGravaSoOsAn`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_ALinhaPropostaEAUltimaOndeTeveMovimentos_SeForDaFicha`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_ALinhaSoTemAsDaFichaDaBq_EVemJaEscolhida`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_NumJobOnAnterior_FicaNoRegistoDesseJobOn_EODaEntradaDizQuemRegistou`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReparadorNaLinha.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReparadorNaLinha.cs :: JobOnPageTests.Folha_ReparadorDepoisDoEstadoEDaPosicao_SemLinhaAParte`
+- novo: `tests/ShellProof/dmo-suggest-sair.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/dmo-suggest-sair.test.cjs :: sair da página cancela o pedido em voo`
+- novo: `tests/ShellProof/dmo-suggest-sair.test.cjs :: trocar a zona do campo 25 vezes deixa um só «pagehide» e sair da página ainda cancela o pedido`
+- novo: `tests/ShellProof/painel-apoio-alteracoes.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/painel-apoio-alteracoes.test.cjs :: Painel de apoio: um <dmo-painel> com alterações por guardar fica com o aviso e o apoio não abre por cima`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.cs :: PesoPdfGeneratorTests.ProducaoAnterior_DizProducao_ENaoSAP`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasRegistoConsultasTests.cs :: BoquilhasRegistoConsultasTests.Registo_GetFazPoucasConsultas`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.CriarEEditar_UmSoFormulario_EditarGravaONomeTecnico`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `6c1ef279e6a499af`
+
 ## A-0303 · 2026-10-28 · ok-do-diogo
 
 Porquê: DMO-566 «Pedir todas» e DMO-567 «Atualizar do SAP»: o cartão do SAP passa a ter um só botão «Atualizar do SAP»; «Ligar pasta» e «Ler pasta» saem das Opções; a ajuda fala do INSTALAR.cmd
@@ -4309,7 +4376,7 @@ Novos: 10 · mudaram: 3 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.AsPastas_SaoGerais_SoAsAcoesFicamParaTodos`
 - mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AjudaSap.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_OCartaoDoSapTemApagarLidos_EAAjudaExplica`
 
-Selo depois: `9ff9ce33ac56ae90`
+Selo depois: `478277cd1eea22f8`
 
 ## A-0311 · 2026-10-28 · teste-novo
 
@@ -4323,4 +4390,4 @@ Novos: 5 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserAvisoTests.cs :: TechnicalNameParserAvisoTests.UmaBqComONomeDeUmMolde_Avisa`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserAvisoTests.cs :: TechnicalNameParserAvisoTests.UmaCmComONomeDeUmMf_Avisa`
 
-Selo depois: `b465ac84fe9d39ad`
+Selo depois: `00e5a890f757a540`
