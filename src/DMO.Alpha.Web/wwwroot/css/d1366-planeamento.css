@@ -498,7 +498,11 @@ html[data-theme="dark"] body a.dmo-tab-novo:not(:hover):not(.active){color:#fff;
   html body main.beta-light-main:has(#jobonProducoes) .beta-light-grid>:is(.dmo-calendar,.beta-light-productions){min-height:0;overflow:auto}
   html body main.beta-light-main:has(#jobonProducoes) .beta-light-productions{overflow:hidden}
   html body main.beta-light-main:has(#jobonProducoes) .beta-light-productions>:not(#jobonProducoes){flex:none}
-  html body main.beta-light-main:has(#jobonProducoes) .beta-light-productions>#jobonProducoes{flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;margin-top:0}
+  /* A lista só tem a altura das linhas e a procura vem logo a seguir; num ecrã mais alto o espaço
+     que sobra fica por baixo, não entre a lista e a procura (Diogo, 28/10/2026: «foi acrescentado
+     um espaço»). Com muitas linhas, a lista encolhe e desliza por dentro. */
+  html body main.beta-light-main:has(#jobonProducoes) .beta-light-productions>#jobonProducoes{flex:0 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;margin-top:0}
+  html body main.beta-light-main:has(#jobonProducoes) .beta-light-productions>.jobon-procura-bloco:not(#_):not(#__):not(#___){margin-top:0}
   html body main.beta-light-main:has(#jobonProducoes) #lightProductionList>.beta-light-list-head{position:sticky;top:0;z-index:2}
 }
 
