@@ -299,7 +299,7 @@ html body summary.dmo-card-topo>:first-child::before{content:none}
 html body :is(summary,.def-menu-titulo):not(.job-tool-card-head):has(>.dmo-caret:first-child){column-gap:0}
 html body .job-tool-card-head>.dmo-caret{margin-right:calc(.25em - 10px)}
 /* Sem setas nos botões (Diogo, 27/10/2026: «remover setas dos botões»): o triângulo fica só nos títulos que abrem e fecham. */
-html body :is(.dmo-button,.button,.btn)>.dmo-caret{display:none}
+html body :is(.dmo-button,.button,.btn,.dmo-secondary-nav .dmo-tab-menu>summary)>.dmo-caret{display:none}
 html body .dmo-options-list{position:absolute;top:100%;left:0;z-index:60;display:flex;flex-direction:column;min-width:210px;margin-top:4px;padding:6px;background:var(--dmo-card);border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);box-shadow:var(--dmo-shadow)}
 html body .dmo-options-list form{display:block;margin:0}
 html body .dmo-options-item{display:block;width:100%;min-height:0;padding:9px 10px;border:0;border-radius:6px;background:none;color:var(--dmo-text);font:inherit;font-size:var(--dmo-fs-base);text-align:left;white-space:nowrap;cursor:pointer}

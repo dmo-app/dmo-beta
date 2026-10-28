@@ -235,7 +235,7 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
           }
           else
           {
-            <a class="arm-voltar" id="armRegVoltar" href="@Url.Page("/Armazem/Movimentos")" data-dmo-voltar="@s.ToolId" data-dmo-voltar-ignorar="/Armazem/Movimentos">← Voltar</a>
+            <a class="arm-voltar" id="armRegVoltar" href="@Url.Page("/Armazem/Movimentos")" data-dmo-voltar="@s.ToolId" data-dmo-voltar-ignorar="/Armazem/Movimentos">Voltar</a>
           }
         </div>
       </div>
@@ -620,20 +620,20 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
       <nav data-dmo-parcial class="dmo-list-pager" aria-label="Paginação" style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:12px">
         @if (Model.Log.PageNumber > 1)
         {
-          <a class="dmo-button dmo-arrow" href="@Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto, ferramenta = Model.ToolId, q = Model.Procura, pos = Model.PosicaoPedida, modo = Model.ModoTexto, pagina = Model.Log.PageNumber - 1 })" aria-label="Página anterior">←</a>
+          <a class="dmo-button dmo-arrow" href="@Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto, ferramenta = Model.ToolId, q = Model.Procura, pos = Model.PosicaoPedida, modo = Model.ModoTexto, pagina = Model.Log.PageNumber - 1 })" aria-label="Página anterior">Anterior</a>
         }
         else
         {
-          <span class="dmo-button dmo-arrow" aria-disabled="true" aria-label="Página anterior">←</span>
+          <span class="dmo-button dmo-arrow" aria-disabled="true" aria-label="Página anterior">Anterior</span>
         }
         <span role="status" aria-label="Página @Model.Log.PageNumber de @Model.Log.TotalPages">@Model.Log.PageNumber de @Model.Log.TotalPages</span>
         @if (Model.Log.PageNumber < Model.Log.TotalPages)
         {
-          <a class="dmo-button dmo-arrow" href="@Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto, ferramenta = Model.ToolId, q = Model.Procura, pos = Model.PosicaoPedida, modo = Model.ModoTexto, pagina = Model.Log.PageNumber + 1 })" aria-label="Página seguinte">→</a>
+          <a class="dmo-button dmo-arrow" href="@Url.Page("/Armazem/Movimentos", new { tipo = tipoTexto, ferramenta = Model.ToolId, q = Model.Procura, pos = Model.PosicaoPedida, modo = Model.ModoTexto, pagina = Model.Log.PageNumber + 1 })" aria-label="Página seguinte">Seguinte</a>
         }
         else
         {
-          <span class="dmo-button dmo-arrow" aria-disabled="true" aria-label="Página seguinte">→</span>
+          <span class="dmo-button dmo-arrow" aria-disabled="true" aria-label="Página seguinte">Seguinte</span>
         }
       </nav>
     }

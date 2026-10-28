@@ -65,10 +65,10 @@
     }
     <nav data-dmo-parcial class="ferr-pagination" aria-label="Paginação de ferramentas" data-dmo-handler="Resultados" data-dmo-alvo="ferrResultados">
       <a class="dmo-button dmo-arrow" href="@(Model.PageNumber > 1 ? Model.PageLink(Model.PageNumber - 1) : null)"
-         aria-label="Página anterior" aria-disabled="@(Model.PageNumber <= 1 ? "true" : null)">←</a>
+         aria-label="Página anterior" aria-disabled="@(Model.PageNumber <= 1 ? "true" : null)">Anterior</a>
       <span role="status" aria-label="Página @Model.PageNumber de @Model.TotalPages">@Model.PageNumber de @Model.TotalPages</span>
       <a class="dmo-button dmo-arrow" href="@(Model.PageNumber < Model.TotalPages ? Model.PageLink(Model.PageNumber + 1) : null)"
-         aria-label="Página seguinte" aria-disabled="@(Model.PageNumber >= Model.TotalPages ? "true" : null)">→</a>
+         aria-label="Página seguinte" aria-disabled="@(Model.PageNumber >= Model.TotalPages ? "true" : null)">Seguinte</a>
       @* «Por página» é uma opção da página, não um dado da ferramenta: junto da paginação (Diogo, 23/10/2026). *@
       <div class="dmo-field ferr-w-page-size">
         <label for="ferr-page-size">Por página</label>
