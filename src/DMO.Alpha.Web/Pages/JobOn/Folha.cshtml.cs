@@ -173,10 +173,13 @@ public sealed class FolhaModel(
     public FolhaDoJobOnVista Folha { get; private set; } = FolhaDoJobOnVista.Vazia();
 
     /// <summary>
-    /// A cadência do SAP desta produção (Diogo, 27/10/2026: «cadência para
-    /// meter no Job On»), pelo relatório da ZFMD; vazia sem ordens com cadência.
+    /// A cadência usada (Diogo, 27/10/2026: «cadência para meter no Job On»;
+    /// 28/10/2026: «fica Cadência usada, assim sabemos que foi retirada da
+    /// produção depois de feita»): a média e a moda do SAP desta produção;
+    /// sem elas, as da produção anterior da mesma referência; vazia sem
+    /// nenhuma.
     /// </summary>
-    public int? CadenciaSap { get; private set; }
+    public DMO.Alpha.Core.Tools.CadenciaDoJobOn? CadenciaSap { get; private set; }
 
     /// <summary>Os factos das ferramentas da produção (referência, lote, % de uso).</summary>
     public IReadOnlyList<JobOnToolFacts> Facts { get; private set; } = [];
@@ -234,6 +237,22 @@ public sealed class FolhaModel(
         toolId is not null && Usos.TryGetValue(toolId, out var uso) ? UsoCheio.ClasseDe(uso) : null;
 
     public JobOnToolFacts? Fact(string? toolId) => toolId is null ? null : Facts.FirstOrDefault(f => f.ToolId == toolId);
+
+    /// <summary>
+    /// A ferramenta cujo nome técnico diz as gotas: a CM, senão o MF (Diogo,
+    /// 28/10/2026: «ver se o jobon já tem em consideração nome técnico para
+    /// mudar gota e meter número correto»); null quando nenhum nome diz.
+    /// </summary>
+    public JobOnToolFacts? FerramentaDaGota =>
+        JobOn is null ? null : new[] { Fact(JobOn.CmToolId), Fact(JobOn.MfToolId) }.FirstOrDefault(f => f?.Gotas is not null);
+
+    /// <summary>A Gota da produção: a do nome técnico; sem ela, a escrita na folha (<c>cab_gota</c>).</summary>
+    public string? Gota =>
+        FerramentaDaGota?.Gotas?.ToString(System.Globalization.CultureInfo.InvariantCulture)
+        ?? (Folha.Valor("cab_gota") is { } escrita && !string.IsNullOrWhiteSpace(escrita) ? escrita : null);
+
+    /// <summary>De onde vem a Gota quando vem do nome técnico («Do nome técnico da CM: M107595MPPSX»).</summary>
+    public string? GotaOrigem => FerramentaDaGota is { } f ? $"Do nome técnico {(f.Type == "MF" ? "do MF" : "da CM")}: {f.NomeTecnico}" : null;
 
     /// <summary>
     /// A referência total da produção: a referência do MF seguida da da BQ

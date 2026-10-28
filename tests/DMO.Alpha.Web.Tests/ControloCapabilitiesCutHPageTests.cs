@@ -596,9 +596,9 @@ public sealed partial class ControloCapabilitiesCutHPageTests : IClassFixture<Cu
         using (var operacional = await LoginClientAsync("4706", "OperMcalPass1!"))
         {
             var sheetBefore = await operacional.GetStringAsync($"/Controlo/Resumo?jobon_id={jobOnId}");
-            // Sem link, quem tem o Criar associa-o no Resumo (DMO-517, A-0252).
-            Assert.Contains("Associar link do mcaliper", sheetBefore, StringComparison.Ordinal);
-            Assert.Contains("id=\"resumo-area-mcaliper-BQ\"", sheetBefore, StringComparison.Ordinal);
+            // Sem link, quem tem o Criar cola-o num campo da linha do Resumo (DMO-524, A-0254).
+            Assert.Contains("aria-label=\"Link do mcaliper BQ\"", sheetBefore, StringComparison.Ordinal);
+            Assert.DoesNotContain("data-resumo-mcaliper-abrir=\"BQ\"", sheetBefore, StringComparison.Ordinal);
 
             var token = await GetVerificationTokenAsync(operacional, $"/Controlo/Resumo?jobon_id={jobOnId}");
             var refused = await operacional.PostAsync(
@@ -617,10 +617,31 @@ public sealed partial class ControloCapabilitiesCutHPageTests : IClassFixture<Cu
             Assert.DoesNotContain("mcaliper=", saved.Headers.Location?.ToString(), StringComparison.Ordinal);
 
             var sheet = await operacional.GetStringAsync($"/Controlo/Resumo?jobon_id={jobOnId}");
-            Assert.Contains("Link do mcaliper associado", sheet, StringComparison.Ordinal);
+            Assert.Contains("data-resumo-mcaliper-abrir=\"BQ\">Medições</a>", sheet, StringComparison.Ordinal);
             Assert.Contains($"href=\"{url}\"", sheet, StringComparison.Ordinal);
-            // Com o link associado, o Resumo só o abre.
-            Assert.DoesNotContain("id=\"resumo-area-mcaliper-BQ\"", sheet, StringComparison.Ordinal);
+            // O campo fica com o link gravado, para o mudar.
+            Assert.Contains($"name=\"url\" value=\"{url}\"", sheet, StringComparison.Ordinal);
+
+            // O campo grava ao sair (data-dmo-valor): o pedido JSON recebe { ok, valor, aviso }.
+            async Task<string> GravarNoCampoAsync(string valor)
+            {
+                using var pedido = new HttpRequestMessage(HttpMethod.Post, "/Controlo/Resumo?handler=Mcaliper")
+                {
+                    Content = HtmlFormHelpers.BuildFormPost(
+                        ("jobon_id", jobOnId.ToString()), ("area", "BQ"), ("url", valor),
+                        ("__RequestVerificationToken", token)),
+                };
+                pedido.Headers.Accept.ParseAdd("application/json");
+                using var resposta = await operacional.SendAsync(pedido);
+                Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
+                return await resposta.Content.ReadAsStringAsync();
+            }
+            var recusadoNoCampo = await GravarNoCampoAsync("ftp://mcaliper");
+            Assert.Contains("\"ok\":false", recusadoNoCampo, StringComparison.Ordinal);
+            Assert.Contains("http://", recusadoNoCampo, StringComparison.Ordinal);
+            var gravadoNoCampo = await GravarNoCampoAsync(" " + url + " ");
+            Assert.Contains("\"ok\":true", gravadoNoCampo, StringComparison.Ordinal);
+            Assert.Contains($"\"valor\":\"{url}\"", gravadoNoCampo, StringComparison.Ordinal);
         }
 
         using (var scope = _factory.Services.CreateScope())

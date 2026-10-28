@@ -212,7 +212,7 @@
         var ficha = toolId is null || (!Model.PodeEditar && !Model.Capacidades.Contains(DMO.Alpha.Core.Admin.DmoCapabilities.Ferramentas)) ? null : $"/Ferramentas/Ficha?tool_id={Uri.EscapeDataString(toolId)}&voltar={Uri.EscapeDataString($"{Model.Request.Path}{Model.Request.QueryString}")}";
         <div class="jof-tool-slot" data-jof-tool-slot="@tipo">
           <button type="button" class="tool-head@(f is null ? " tool-empty" : null)" data-jof-tool="@tipo" data-jof-ficha="@ficha"
-                  title="@(editar ? "Um clique muda a ferramenta; duplo clique: a ficha" : ficha is null ? null : "Duplo clique: a ficha da ferramenta")"
+                  title="@(editar ? "Um clique muda a ferramenta; duplo clique: a ficha" : ficha is null ? null : "Abrir a ficha da ferramenta")"
                   aria-label="@nome @(f is null ? "por indicar" : $"{f.Reference} lote {FolhaModel.Lote(f.Lot)}")@(editar ? ": mudar a ferramenta" : "")">
             <span class="design-tool-heading"><span class="code">@tipo</span><span class="design-tool-name">@nome</span></span>
             @if (f is null)
@@ -240,7 +240,9 @@
                entrada ou saída (Diogo, 28/10/2026). *@
             const string NaPosicao = "Armazém · posição ";
             var armazem = DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.MovimentosDoArmazem(f.ToolId, "Armazém");
-            <p class="jof-onde" data-dmo-onde-esta>@if (ondeEsta.StartsWith(NaPosicao, StringComparison.Ordinal)) {@NaPosicao@if (armazem.PodeAbrir(Model.Capacidades)) {<a class="jof-onde-pos" href="@armazem.Href" title="Dar entrada ou saída no Armazém"><b>@ondeEsta[NaPosicao.Length..]</b></a>} else {<b>@ondeEsta[NaPosicao.Length..]</b>}} else {@ondeEsta}@if (f.Estado is { } estado) {<text> · </text><b>@DMO.Alpha.Core.Armazem.ArmazemTextos.Estado(estado)</b>}</p>
+            @* O estado primeiro, um espaço e a posição: «Reparado   4094» (Diogo, 28/10/2026: «Reparado, espaço e
+               posição do armazém»); fora do Armazém, o sítio por extenso («Reparação · Moldin»). *@
+            <p class="jof-onde" data-dmo-onde-esta title="@ondeEsta">@if (f.Estado is { } estado) {<b>@DMO.Alpha.Core.Armazem.ArmazemTextos.Estado(estado)</b><span class="jof-onde-espaco"> </span>}@if (ondeEsta.StartsWith(NaPosicao, StringComparison.Ordinal)) {if (armazem.PodeAbrir(Model.Capacidades)) {<a class="jof-onde-pos" href="@armazem.Href" title="@ondeEsta: dar entrada ou saída no Armazém"><b>@ondeEsta[NaPosicao.Length..]</b></a>} else {<b>@ondeEsta[NaPosicao.Length..]</b>}} else {@ondeEsta}</p>
           }
           @if (Model.MostrarAvisoArmazem && f?.AvisoArmazem is { } avisoArmazem)
           {
@@ -442,7 +444,7 @@
     <dl class="jof-painel-faixa">
       @foreach (var (rotulo, chave, unidade) in new[] { ("Secções", "cab_seccoes", ""), ("Gota", "cab_gota", ""), ("Processo", "cab_processo", ""), ("Peso", "cab_peso", " g") })
       {
-        var valorFaixa = Mostra(Vazio(Model.Folha.Valor(chave)));
+        var valorFaixa = Mostra(chave == "cab_gota" ? Model.Gota : Vazio(Model.Folha.Valor(chave)));
         <div><dt>@rotulo</dt><dd>@(valorFaixa is null ? "—" : unidade.Length > 0 && !valorFaixa.TrimEnd().EndsWith(unidade.Trim(), StringComparison.OrdinalIgnoreCase) ? valorFaixa + unidade : valorFaixa)</dd></div>
       }
     </dl>
@@ -627,6 +629,14 @@ else
                     }
                   </select>
                 }
+                else if (chave == "cab_gota" && Model.GotaOrigem is { } origemGota)
+                {
+                  @* A Gota vem do nome técnico da CM (senão do MF), não se escreve (Diogo, 28/10/2026: «ver se o
+                     jobon já tem em consideração nome técnico para mudar gota e meter número correto»). No Editar,
+                     a escrita à mão vai como está. *@
+                  <strong title="@origemGota" data-jof-gota-nome-tecnico>@Model.Gota</strong>
+                  @if (editar) {<input type="hidden" name="@campo.NomeNoFormulario" value="@Model.Folha.Valor(chave)" />}
+                }
                 else if (editar)
                 {
                   <input class="f" id="@campo.Id" name="@campo.NomeNoFormulario" type="text" maxlength="@campo.Maximo" autocomplete="off" spellcheck="false" value="@Mostra(Model.Folha.Valor(chave))" aria-label="@rotulo" data-edit="@chave" />
@@ -640,11 +650,14 @@ else
           </div>
         }
         @* A cadência vem do SAP, não se escreve (Diogo, 27/10/2026: «cadência para meter no Job On»); no Editar
-           não aparece, para a faixa dos campos caber numa linha no ecrã do trabalho (~1290 px). *@
+           não aparece, para a faixa dos campos caber numa linha no ecrã do trabalho (~1290 px).
+           «Cadência usada» (Diogo, 28/10/2026): a moda do SAP desta produção, depois de feita, com a
+           média no título; sem ela, a da produção anterior, marcada «ant.». *@
         @if (!editar)
         {
+          var cadencia = Model.CadenciaSap;
           <div class="fact-col">
-            <span class="fl">Cadência</span><span class="fv"><strong title="Do SAP (relatório de produções)">@(Model.CadenciaSap?.ToString() ?? "—")</strong></span>
+            <span class="fl">Cadência usada</span><span class="fv"><strong title="@(cadencia is null ? "Do SAP (relatório de produções)" : $"Do SAP{(cadencia.DaAnterior ? $", produção anterior {cadencia.AnteriorProducao}" : null)}: moda {cadencia.Resumo.Moda} · média {DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(cadencia.Resumo.Media)}")">@(cadencia?.Resumo.Moda.ToString() ?? "—")</strong>@if (cadencia is { DaAnterior: true }) {<span class="unit">ant.</span>}</span>
           </div>
         }
         </div>

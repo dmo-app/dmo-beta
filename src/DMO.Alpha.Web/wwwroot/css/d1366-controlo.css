@@ -235,18 +235,17 @@
 /* As colunas das leituras e do mapa não alargam a página (num ecrã estreito as tabelas deslizam dentro do cartão). */
 html body main.peg-page :is(.peg-folha,.peg-folha-leituras){min-width:0}
 /* A página não desliza (Diogo, 27/10/2026: «as páginas que deslizam estragam
-   o UI»): ocupa o ecrã; as leituras deslizam dentro da coluna da esquerda e o
-   mapa fica à vista na da direita. */
+   o UI»): ocupa o ecrã e a folha desliza por dentro. O mapa fica por baixo das
+   leituras (Diogo, 28/10/2026: «o mapa aparecia em baixo»). */
 @media (min-width:1100px) and (min-height:640px){
   html body .app:has(>main.peg-page .peg-folha){height:100dvh;display:flex;flex-direction:column;overflow:hidden}
   html body .app:has(>main.peg-page .peg-folha)>*{flex:0 0 auto}
   html body .app>main.peg-page:has(.peg-folha){flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
   html body main.peg-page:has(.peg-folha)>*{flex:0 0 auto}
-  html body main.peg-page>.peg-folha{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:8px;align-items:stretch}
-  html body main.peg-page .peg-folha-leituras{min-height:0;overflow:auto;display:flex;flex-direction:column;gap:8px;scrollbar-gutter:stable}
-  html body main.peg-page .peg-folha>#pegMapa{min-height:0;overflow:auto}
+  html body main.peg-page>.peg-folha{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:8px;overflow:auto;scrollbar-gutter:stable}
+  html body main.peg-page .peg-folha>*{flex:0 0 auto}
+  html body main.peg-page .peg-folha-leituras{display:flex;flex-direction:column;gap:8px}
   html body main.peg-page .peg-folha>#pegMapa:not(:has(*)){display:none}
-  html body main.peg-page .peg-folha:has(>#pegMapa:empty){grid-template-columns:minmax(0,1fr)}
   /* Na coluna: o nominal e o permitido por baixo do título (as ações ficam no canto). */
   html body main.peg-page .peg-folha section.peg-card[data-peg-component]>.peg-ferramenta-linha{grid-column:1/-1;grid-row:2;padding-left:0;margin:0 0 6px}
   html body main.peg-page .peg-folha table.peg-registo-tabela>thead>tr>th:nth-child(1){width:48px}
@@ -490,7 +489,12 @@ html body main.peg-page :is(.peg-folha,.peg-folha-leituras){min-width:0}
      linha, como na maqueta 04 (DMO-517); depois o estado, o OK/NOK e o comentário. */
   html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area{grid-template-columns:200px 200px 120px 96px minmax(0,1fr)}
   html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area>span:first-child{grid-column:1;grid-row:1}
-  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area>.resumo-area-link{grid-column:2;grid-row:1;justify-self:start;max-width:100%;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area>.resumo-area-mcaliper{grid-column:2;grid-row:1;display:flex;align-items:center;gap:8px;min-width:0}
+  /* O campo do link (DMO-524): a altura dos outros campos da linha; «Medições» ao lado, numa linha. */
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area-mcaliper-form{flex:1 1 auto;min-width:0;margin:0}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area-mcaliper-form input{box-sizing:border-box;width:100%;min-width:0;height:var(--dmo-control-height-compact);padding:0 8px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-field);color:var(--dmo-text);font:inherit;font-size:13px}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area-mcaliper-form input:focus-visible{outline:2px solid var(--design-medium);outline-offset:1px}
+  html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area-mcaliper>.resumo-area-link{flex:0 0 auto;margin:0;white-space:nowrap}
   html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area>strong{grid-column:3;grid-row:1}
   html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area>.resumo-area-form{grid-column:4;grid-row:1}
   html body main.resumo-page[aria-labelledby="resumo-title"] .resumo-areas .resumo-area>.resumo-area-note{grid-column:5;grid-row:1}
@@ -504,8 +508,10 @@ html body main.peg-page :is(.peg-folha,.peg-folha-leituras){min-width:0}
   html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area>:is(.resumo-area-form,strong){grid-column:2;grid-row:1}
   html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area>:is(.resumo-area-ferramenta,.resumo-area-identificacao){grid-column:3;grid-row:1}
   html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area:has(>.resumo-area-identificacao)>.resumo-area-identificacao{grid-column:3/span 2}
-  html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area>.resumo-area-link{grid-column:4;grid-row:1;justify-self:start;margin:0;white-space:nowrap}
-  html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area:has(>.resumo-area-link.set)>.resumo-area-link:not(.set){grid-row:2}
+  html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area>.resumo-area-mcaliper{grid-column:4;grid-row:1;display:flex;align-items:center;gap:8px;min-width:0}
+  html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area-mcaliper-form{flex:1 1 auto;min-width:0;margin:0}
+  html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area-mcaliper-form input{box-sizing:border-box;width:100%;min-width:0;height:var(--dmo-control-height);padding:0 8px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-field);color:var(--dmo-text);font:inherit;font-size:13px}
+  html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area-mcaliper>:is(.resumo-area-link,.resumo-area-by){flex:0 0 auto;margin:0;white-space:nowrap}
   html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area>.resumo-area-note{grid-column:5;grid-row:1}
   html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area>small.resumo-area-by{grid-column:2/span 2;grid-row:2}
   html body main.resumo-page .revisao-resumo .revisao-areas .resumo-area>.resumo-area-historico{grid-column:5;grid-row:2;justify-self:start}
@@ -542,11 +548,6 @@ html body main.peg-page :is(.peg-folha,.peg-folha-leituras){min-width:0}
   html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-leitura-row{grid-template-columns:72px 112px auto;align-items:end}
   /* O seletor nativo escondido (1 px) não estica o cartão mais baixo. */
   html body main.peso-page form#cmpForm .dmo-suggest-native{overflow:hidden;top:0;bottom:auto}
-
-  /* Peso · registo: «Peso usado — …» e «Diferença para a anterior» numa linha. */
-  html body main.peso-page .peso-resumo[data-producao-anterior-delta]{width:fit-content;max-width:100%}
-  html body main.peso-page .peso-resumo[data-producao-anterior-delta]>.peso-fact{flex:0 0 auto}
-  html body main.peso-page .peso-resumo[data-producao-anterior-delta]>.peso-fact>span{white-space:nowrap}
 }
 
 /* Comparação aberta pelo Resumo: a produção fixa é texto, na altura dos
@@ -709,3 +710,7 @@ html:root body .beta-production-rail:not(#armTiposRail):not([aria-label="Planeam
    caber o cartão a mais que aparece quando uma linha muda de produção. O nome
    fica para o leitor de ecrã (aria-label da faixa). */
 html:root body #bqCurrentLines>.beta-production-rail-head{display:none}
+
+/* Pegamentos › Contexto da produção: os valores maiores e ao centro (Diogo, 28/10/2026). */
+html body main.peg-page .peg-context-grid>.dmo-fact{text-align:center;align-items:center}
+html body main.peg-page .peg-context-grid>.dmo-fact>strong{font-size:18px}
