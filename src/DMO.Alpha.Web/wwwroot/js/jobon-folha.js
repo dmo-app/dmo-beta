@@ -595,11 +595,20 @@
       lugar = null;
       aberta = null;
     };
+    // Com uma nota ampliada, um clique fora só a fecha: não abre outra nem carrega no que está por
+    // baixo (Diogo, 28/10/2026: «carregar nas notas abre e outro clique fora fecha, não deixa
+    // substituir»). No Editar, o que se escreveu fica na caixa e vai com o Guardar.
+    // O mousedown fora também não passa, para o clique que fecha não pôr o cursor noutra caixa.
+    document.addEventListener('mousedown', (e) => { if (aberta && !aberta.contains(e.target)) e.preventDefault(); }, true);
+    document.addEventListener('click', (e) => {
+      if (!aberta || aberta.contains(e.target)) return;
+      fechar();
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    }, true);
     folha.addEventListener('click', (e) => {
       const caixa = e.target.closest('[data-jof-nota]');
-      if (caixa === aberta) return;
-      fechar();
-      if (!caixa) return;
+      if (!caixa || caixa === aberta) return;
       const rotulo = caixa.querySelector(':scope > span');
       if (rotulo) rotulo.textContent = titulo(caixa);
       lugar = document.createElement('div');
@@ -609,12 +618,14 @@
       caixa.before(lugar);
       caixa.classList.add('is-ampliada');
       aberta = caixa;
+      // No Editar abre já pronta a escrever, no fim do texto (a não ser que se tenha clicado no texto).
+      const texto = caixa.querySelector('textarea');
+      if (texto && e.target !== texto) { texto.focus(); texto.setSelectionRange(texto.value.length, texto.value.length); }
     });
     folha.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') fechar();
       else if (e.key === 'Enter' && e.target.matches('.note-view[data-jof-nota]')) e.target.click();
     });
-    document.addEventListener('click', (e) => { if (aberta && !folha.contains(e.target)) fechar(); });
     // A «Informação técnica» abre por cima das Notas (Diogo, 27/10/2026), em vista e no Editar
     // (28/10/2026: a folha não desliza): um clique fora dela, ou o Escape, fecha-a; abre uma de cada vez.
     const tecnicas = () => folha.querySelectorAll('.sec > details.more[open]');
