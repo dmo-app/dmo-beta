@@ -52,6 +52,20 @@
     doc.querySelector('#ferrEditar :is(input:not([type=hidden]),select)')?.focus();
   }
   let opener, dirty = false, operation = false, aberta = null;
+  // «Voltar» no cabeçalho do painel (Diogo, 28/10/2026: «usar o voltar em vez do
+  // carregar fora»): aparece quando se navegou dentro do painel e recua uma
+  // página; o «Fechar» fecha. Clicar fora já não faz nada.
+  let paginas = 0;
+  const voltar = document.createElement('button');
+  voltar.type = 'button'; voltar.className = 'dmo-button'; voltar.textContent = 'Voltar'; voltar.hidden = true;
+  voltar.dataset.dmoPainelVoltar = '';
+  full.before(voltar);
+  voltar.addEventListener('click', () => {
+    if (paginas < 2) return;
+    if (dirty) { requestClose(); return; }
+    paginas -= 2;
+    try { frame.contentWindow.history.back(); } catch { /* fica */ }
+  });
   const destinations = new Map([
     ['/Ferramentas/Ficha', 'Ficha da ferramenta'],
     // O título vem do h1 da página (diz qual é a ferramenta).
@@ -77,7 +91,7 @@
     panel.dataset.largura = largas.has(caminho) ? 'total' : resumos.has(caminho) ? 'media' : 'larga';
   }
   function close() {
-    panel.close(); frame.removeAttribute('src'); dirty = false; aberta = null;
+    panel.close(); frame.removeAttribute('src'); dirty = false; aberta = null; paginas = 0; voltar.hidden = true;
     document.documentElement.classList.remove('dmo-support-open', 'dmo-painel-aberto');
     confirm.hidden = true;
     if (operation) refresh.hidden = false;
@@ -131,6 +145,7 @@
     apontar(url.href);
     url.searchParams.set('painel', '1');
     loading.hidden = false;
+    paginas = 0; voltar.hidden = true;
     frame.src = url.href;
     if (!panel.open) panel.showModal();
     // O foco não fica no «Abrir página» (parecia um botão apagado).
@@ -141,6 +156,7 @@
   frame.addEventListener('load', () => {
     if (!panel.open || !frame.hasAttribute('src')) return;
     loading.hidden = true;
+    paginas += 1; voltar.hidden = paginas < 2;
     let doc;
     try { doc = frame.contentDocument; } catch { return; }
     if (!doc) return;
@@ -158,29 +174,9 @@
       if (event.key === 'Escape' && !doc.querySelector('dialog[open],.dmo-modal-backdrop.open')) {event.preventDefault(); requestClose();}
     });
   });
-  // Clicar fora fecha o painel; se o clique foi noutra linha ou ferramenta,
-  // abre essa logo a seguir (Diogo, 27/10/2026).
-  panel.addEventListener('click', event => {
-    if (event.target !== panel) return;
-    const r = panel.getBoundingClientRect();
-    if (event.clientX >= r.left && event.clientX <= r.right && event.clientY >= r.top && event.clientY <= r.bottom) return;
-    if (dirty) return requestClose();
-    // Para saber o que está por baixo, o painel fecha-se um instante (com ele
-    // aberto, a página não responde ao ponto). Se por baixo está o que abriu
-    // esta mesma página (cliques repetidos no mesmo sítio), o painel volta logo,
-    // sem recarregar nem deslizar outra vez.
-    panel.close();
-    const alvo = document.elementFromPoint(event.clientX, event.clientY);
-    const destino = alvo?.closest?.('a[href]')?.href;
-    if (destino && semPainel_(destino) === aberta) {
-      panel.dataset.semEntrada = '';
-      panel.showModal();
-      requestAnimationFrame(() => requestAnimationFrame(() => delete panel.dataset.semEntrada));
-      return;
-    }
-    close();
-    if (alvo && alvo !== document.body && alvo !== document.documentElement) alvo.click();
-  });
+  // Clicar fora não faz nada (Diogo, 28/10/2026: clicar fora abria sempre o que
+  // estava por baixo e trazia problemas): o painel fecha no «Fechar» ou no Esc,
+  // e recua no «Voltar».
   panel.addEventListener('cancel', event => {event.preventDefault(); requestClose();});
   panel.querySelector('[data-dmo-painel-fechar]').addEventListener('click', requestClose);
   panel.querySelector('[data-dmo-painel-continuar]').addEventListener('click', () => {confirm.hidden=true; frame.focus();});

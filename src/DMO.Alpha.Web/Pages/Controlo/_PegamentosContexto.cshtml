@@ -14,7 +14,6 @@
   <div class="peg-section-head">
     <div>
       <h3 id="peg-context-title">@(sheet.SemJobOn ? "Pegamentos sem Job On" : "Contexto da produção")</h3>
-      <p>@(sheet.SemJobOn ? "As ferramentas foram escolhidas à mão. Associe o Job On quando a produção existir." : folhaAnterior ? "A produção vem do Job On selecionado no Resumo do Controlo; as ferramentas são as desta folha, de antes da troca." : "A produção e as ferramentas vêm do Job On selecionado no Resumo do Controlo.")</p>
     </div>
     @* O PDF DA FOLHA (o corte PDF estendido aos Pegamentos): as fichas
        congeladas + as medições por componente com o gesto em cruz + as
@@ -63,9 +62,9 @@
       <div class="dmo-fact"><span>Operador</span><strong>@(sheet.Pegamentos?.RegistadoPor ?? "—")</strong></div>
     }
     <div class="dmo-fact">
-      <span>Corredor de tolerância</span>
-      <strong>nominal ± @PegamentosVista.Fmt(Model.ShownTolerance) mm</strong>
-      <small>@(sheet.Pegamentos is null ? "tolerância das Definições do Controlo — fica congelada no registo na primeira medição" : sheet.SemJobOn ? "congelada neste registo" : variasFolhas ? "congelada nesta folha" : "congelada no registo desta produção")</small>
+      @* Só «Tolerância ± 0.20», sem textos (Diogo, 28/10/2026). *@
+      <span>Tolerância</span>
+      <strong>± @PegamentosVista.Fmt(Model.ShownTolerance)</strong>
     </div>
   </div>
   <div class="peg-context-notes">

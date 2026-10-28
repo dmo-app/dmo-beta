@@ -6,8 +6,8 @@ const { JSDOM } = require('jsdom');
 
 const assets = path.resolve(__dirname, '../../src/DMO.Alpha.Web/wwwroot');
 
-// A folha nova do Job On (Diogo, 22/10/2026): o duplo clique numa
-// ferramenta leva à ficha (sempre); um clique só muda a ferramenta no Editar.
+// A folha nova do Job On (Diogo, 22/10/2026): no Editar, um clique muda a
+// ferramenta e o duplo clique leva à ficha; bloqueada, um clique leva à ficha.
 async function folha(modo) {
   const procura = modo === 'editar'
     ? `<div class="jof-tool-procura" data-jof-tool-procura hidden><select name="cm_tool_id" data-facts-type="CM" data-dmo-filter>
@@ -32,13 +32,11 @@ function duplo(window, el) {
   el.dispatchEvent(new window.MouseEvent('dblclick', { bubbles: true }));
 }
 
-test('Bloqueada: um clique não faz nada; o duplo clique leva à ficha', async () => {
+// Bloqueada, um clique leva à ficha (Diogo, 28/10/2026: «abrir ferramenta com 1 clique em vez de 2»).
+test('Bloqueada: um clique leva à ficha', async () => {
   const { window, doc, idas } = await folha('bloqueada');
   const botao = doc.querySelector('[data-jof-tool]');
   botao.click();
-  await espera(320);
-  assert.deepEqual(idas, []);
-  duplo(window, botao);
   assert.deepEqual(idas, ['/Ferramentas/Ficha?tool_id=T3']);
   window.close();
 });

@@ -853,3 +853,9 @@ html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo
 html body main.resumo-page .resumo-linked-peso .resumo-linked-card-head:not(#_) { flex-wrap: nowrap; }
 html body main.resumo-page .resumo-linked-peso .resumo-card-actions:has(> .dmo-button + .dmo-button) > .resumo-status:not(#_) { display: none; }
 html body main.resumo-page .resumo-linked-peso .resumo-card-actions:not(#_) { flex-wrap: nowrap; }
+
+/* Sem as bolinhas do estado (Diogo, 28/10/2026: «círculos não funcionam»; os únicos ícones são a bola de ajuda e o triângulo): fica só o texto «Registado» / «Sem registo». */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-linked-card .resumo-status::before{content:none;display:none}
+/* Os valores do Peso um pouco para a esquerda e ao centro dos títulos Valor / g / % (Diogo, 28/10/2026: «mover os valores ligeiramente para a esquerda e alinhar com títulos»). */
+html body main.resumo-page .resumo-peso-tabela :is(thead th:not(:first-child),td){text-align:center;padding-left:8px;padding-right:8px}
+html body main.resumo-page .resumo-peso-tabela :is(th,td):last-child{padding-right:12px}
