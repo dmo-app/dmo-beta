@@ -646,3 +646,9 @@ html body main.peso-page .peso-facts>.peso-fact{justify-content:flex-start}
 html body main.peso-page .peso-facts>.peso-fact:has(>small){display:grid;grid-template-columns:auto 1fr;align-content:start;column-gap:6px}
 html body main.peso-page .peso-facts>.peso-fact:has(>small)>span{grid-column:1 / -1}
 html body main.peso-page .peso-facts>.peso-fact:has(>small)>small{margin:0;align-self:end;font-size:11px;line-height:20px;white-space:nowrap}
+
+/* O botão «Completar no Job On» do aviso do apoio TP/calote, dentro dos factos,
+   perdia a letra (a regra dos links dos factos herdava a cor do fundo): volta a
+   branco sobre o botão escuro, claro e escuro (Diogo, 28/10/2026). */
+html body main.peso-page :is(.peso-fact,.peso-facts) a.dmo-aviso-link:not(#_),
+html body main.peso-page :is(.peso-fact,.peso-facts) a.dmo-aviso-link:not(#_):is(:hover,:focus-visible){color:var(--dmo-text-on-color);text-decoration:none}
