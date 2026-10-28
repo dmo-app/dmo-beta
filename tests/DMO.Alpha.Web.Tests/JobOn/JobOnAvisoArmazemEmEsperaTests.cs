@@ -6,8 +6,9 @@ namespace DMO.Alpha.Web.Tests;
 
 /// <summary>
 /// Os avisos «… não está registada no Armazém e não tem estado» do Job On
-/// estão em espera (Diogo, 22/10/2026): escondidos por omissão, voltam com
-/// Dmo:Avisos:ArmazemSemRegisto = true. Os outros avisos não mudam.
+/// mostram-se por omissão (Diogo, 28/10/2026: sem registo no Armazém →
+/// «Sem registo» + aviso; antes estavam em espera desde 22/10). Escondem-se
+/// só com Dmo:Avisos:ArmazemSemRegisto = false. Os outros avisos não mudam.
 /// </summary>
 public sealed class JobOnAvisoArmazemEmEsperaTests
 {
@@ -36,7 +37,7 @@ public sealed class JobOnAvisoArmazemEmEsperaTests
     }
 
     [Fact]
-    public void PorOmissao_AAplicacaoNaoOLigaNasDefinicoes()
+    public void PorOmissao_OAvisoDoArmazemMostraSe()
     {
         var raiz = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../../src/DMO.Alpha.Web"));
         Assert.True(File.Exists(Path.Combine(raiz, "appsettings.json")));
@@ -45,6 +46,7 @@ public sealed class JobOnAvisoArmazemEmEsperaTests
             .AddJsonFile(Path.Combine(raiz, "appsettings.Production.json"), optional: true)
             .Build();
 
-        Assert.False(config.GetValue(IndexModel.AvisoArmazemChave, false));
+        Assert.True(IndexModel.AvisoArmazemPorOmissao);
+        Assert.True(config.GetValue(IndexModel.AvisoArmazemChave, IndexModel.AvisoArmazemPorOmissao));
     }
 }

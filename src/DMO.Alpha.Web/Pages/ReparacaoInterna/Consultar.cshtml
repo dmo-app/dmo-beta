@@ -40,8 +40,7 @@ html body .ri-filtros-acoes>.ri-so-por-associar:has(>input:focus-visible){outlin
 html body .ri-filtros-card .dmo-filter-bar>.ri-w-pessoa{width:auto;min-width:150px}
 html body .ri-filtros-card .dmo-filter-bar>.ri-w-pessoa>select{width:auto;min-width:150px;white-space:nowrap}
 /* A marca «Por associar»: texto escuro numa pílula clara, não um botão; abre a janela de associar. */
-.ri-card .dmo-table td a.ri-por-associar{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;background:var(--dmo-warning-soft);color:var(--dmo-brand-900);font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap}
-.ri-card .dmo-table td a.ri-por-associar:hover{text-decoration:underline}
+.ri-card .dmo-table td .ri-por-associar{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;background:var(--dmo-warning-soft);color:var(--dmo-brand-900);font-size:12px;font-weight:700;white-space:nowrap}
 /* A janela de associar: o formulário em grelha (dmo-normalize) dá o espaço; o dropdown curto. */
 html body .dmo-dialog.ri-janela h3{margin:0 0 10px}
 html body .dmo-dialog.ri-janela>p{margin:0 0 12px}
@@ -229,7 +228,11 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
           @foreach (var r in Model.Lista.Items)
           {
             var producao = $"{r.Referencia} · {r.Producao}";
-            <tr data-dmo-reparacao="@r.Id">
+            @* SEM BOTÕES NEM LINKS DE AÇÃO NAS LINHAS (DMO-580): a linha por
+               associar escolhe-se com um clique e o Enter ou dois cliques
+               abrem a janela «Associar ferramenta»; a marca é só texto. *@
+            var porAssociar = r.Escrita is { PorAssociar: true };
+            <tr data-dmo-reparacao="@r.Id" data-dmo-row="@(porAssociar ? "" : null)" data-id="@(porAssociar ? r.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) : null)" data-dmo-abre-janela="@(porAssociar ? $"riAssociar-{r.Id}" : null)" title="@(porAssociar ? "Dois cliques (ou o Enter) para associar a ferramenta" : null)">
               <td>@ConsultarModel.Dia(r.Dia)</td>
               <td>@IndexModel.Hora(r.Hora, r.RegistadoEmUtc)</td>
               <td>@r.Maquina</td>
@@ -252,7 +255,7 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
                 {<a href="@DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.FichaFerramenta(toolId, string.Empty).Href" data-dmo-completa>@ConsultarModel.Ferramenta(r)</a>}
                 else
                 {@ConsultarModel.Ferramenta(r)}@if (r.Escrita is { PorAssociar: true })
-                {<a href="#riAssociar-@r.Id" class="ri-por-associar" data-dmo-dialog="riAssociar-@r.Id" data-dmo-por-associar="@r.Id">Por associar</a>}</td>
+                {<span class="ri-por-associar" data-dmo-por-associar="@r.Id">Por associar</span>}</td>
               <td><strong>@r.Numero</strong></td>
               <td>@(r.Quem ?? "—")</td>
             </tr>

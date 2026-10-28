@@ -12,6 +12,8 @@ Português de Portugal em tudo o que se escreve (PR, relatórios, textos da app)
    - a **prioridade de entrada** (1 = entra primeiro; ordem em que os PRs devem entrar na `integracao`);
    - a **lista de testes**: cada teste com a funcionalidade que garante, em frase do negócio.
      Esta lista fica também registada na guarda dos testes (`guarda-testes.py registar --porque`).
+     Cada teste novo ganha também a sua linha em [docs/testes/REGISTO.md](docs/testes/REGISTO.md)
+     (o que cada teste garante; os testes fracos ou errados conhecidos estão em `docs/testes/PROBLEMAS.md`).
    Abre o PR para o ramo `integracao` com a etiqueta **`agentes: testar`**. O Claude não corre o CI.
 2. **O agente de fora** trata de tudo o que é CI e PR: pega nos PRs pela prioridade, resolve os
    conflitos com a `integracao`, corre o CI, corrige o que falhar e escreve o **relatório** de como
