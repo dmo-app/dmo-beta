@@ -119,6 +119,11 @@
                     <summary class="dmo-button" aria-label="Opções desta BQ e lote"><span class="dmo-caret" aria-hidden="true"></span>Opções</summary>
                     <div class="dmo-options-list">
                       <a class="dmo-options-item bq-register-history-link" href="/Boquilhas?historico=1&amp;bq_ferramenta=@Uri.EscapeDataString(historyToolId)" title="Movimentos desta BQ e lote">Movimentos</a>
+                      @* «Corrigir» (Diogo, 28/10/2026): o botão «Corrigir movimentos» do cabeçalho dos últimos movimentos passa para as Opções (o botão fica escondido por CSS). *@
+                      @if (trace.MovementCount > 0)
+                      {
+                        <a class="dmo-options-item bq-register-corrigir-link" href="@(Model.MovementCorrectionHref(trace.BqRepairTraceId, editMode: true))#bqLatest" title="Corrigir ou apagar movimentos desta BQ e lote">Corrigir</a>
+                      }
                       @if (Model.LotesParaAlterar is not null)
                       {
                         <button type="button" class="dmo-options-item" id="bqAlterarLoteAbrir" data-dmo-dialog="bq-alterar-lote">Alterar lote</button>
@@ -342,7 +347,7 @@
               <p class="muted" role="status">Esta boquilha tem um registo sem Job On com @Model.PendingUnresolvedMovementCount @(Model.PendingUnresolvedMovementCount == 1 ? "movimento" : "movimentos"). Ao guardar o primeiro movimento desta produção, esse registo passa a ser desta produção, com os movimentos que já tem. <a href="@Url.Page("/Boquilhas/Index", null, new { ficheiros = 1, ferramenta = trace.ToolId }, null, null, "bqSemJobOnMovimentos")">Ver os movimentos sem Job On</a></p>
             }
 
-            <form method="post" asp-page="/Boquilhas/Index" asp-page-handler="RegisterMovement" class="bq-movement-form">
+            <form method="post" asp-page="/Boquilhas/Index" asp-page-handler="RegisterMovement" class="bq-movement-form" aria-label="Registar entrada ou saída">
               @* A máquina sem registo envia o bq_id: o primeiro movimento cria o registo. *@
               @if (Model.PendingRegisterBqContextId is int pendingBqId)
               {
@@ -352,9 +357,6 @@
               {
                 <input type="hidden" name="trace_id" value="@trace.BqRepairTraceId" />
               }
-              <div class="dmo-card-topo">
-                <h3 title="@(trace.BqContextId is null ? "Movimento associado à boquilha, lote e máquina. Número e referência de produção em branco." : "Produção, boquilha e lote associados ao movimento.")">Registar Entrada ou Saída</h3>
-              </div>
               @* SEM FOCO AUTOMÁTICO no tipo (Diogo, 22/10/2026): ao voltar do
                  Histórico pelo painel lateral, a «Saída» aparecia com o anel
                  de foco. O anel fica só para o teclado (:focus-visible).
@@ -400,7 +402,7 @@
         {
           <div class="card bq-metrics-card" id="bqMetrics">
             @* O título é a ferramenta escolhida, sem «valores» nem dica (Diogo, 27/10/2026: «Registo T188 - Lote 22»). *@
-            <h3 title="Quantidades calculadas para este lote e contexto, com base na sequência de movimentos; não são stock editável.">Registo @trace.ToolReference@(trace.ToolLot is null ? null : $" - Lote {trace.ToolLot}")</h3>
+            <h3 title="Quantidades calculadas para este lote e contexto, com base na sequência de movimentos; não são stock editável.">Quantidades</h3>
             @* O PAINEL DAS QUANTIDADES CALCULADAS (o card das metrics do
                dmo-html: «Quantidade do lote — Fabricação — Em reparação —
                Discrepância acumulada»): TODOS os valores vêm do backend (a
