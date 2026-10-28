@@ -180,10 +180,13 @@ public sealed class FolhaModel(
     public FolhaDoJobOnVista Folha { get; private set; } = FolhaDoJobOnVista.Vazia();
 
     /// <summary>
-    /// A cadência do SAP desta produção (Diogo, 27/10/2026: «cadência para
-    /// meter no Job On»), pelo relatório da ZFMD; vazia sem ordens com cadência.
+    /// A cadência usada (Diogo, 27/10/2026: «cadência para meter no Job On»;
+    /// 28/10/2026: «fica Cadência usada, assim sabemos que foi retirada da
+    /// produção depois de feita»): a média e a moda do SAP desta produção;
+    /// sem elas, as da produção anterior da mesma referência; vazia sem
+    /// nenhuma.
     /// </summary>
-    public int? CadenciaSap { get; private set; }
+    public DMO.Alpha.Core.Tools.CadenciaDoJobOn? CadenciaSap { get; private set; }
 
     /// <summary>Os factos das ferramentas da produção (referência, lote, % de uso).</summary>
     public IReadOnlyList<JobOnToolFacts> Facts { get; private set; } = [];
