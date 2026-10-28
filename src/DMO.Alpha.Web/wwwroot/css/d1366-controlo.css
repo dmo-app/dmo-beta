@@ -545,3 +545,56 @@ html body .peso-cmp-producao-fixa strong{display:flex;align-items:center;min-hei
    ao lado»). */
 html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-row-buttons{display:flex;flex-direction:column;gap:2px;height:var(--dmo-control-height);align-self:end}
 html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-row-button{flex:0 0 auto;height:calc((var(--dmo-control-height) - 2px) / 2)!important;min-height:0!important;width:26px;min-width:0!important;padding:0!important;font-size:13px;line-height:1}
+
+/* =========================================================================
+   Controlo › Peso (folha aberta): A PÁGINA NÃO DESLIZA a 1290×646 nem a 1366×768
+   (Diogo, 28/10/2026). A ordem e o conteúdo são os de sempre (os números e a
+   leitura nova em cima, as tabelas por baixo, Controlo anterior e Produção
+   anterior); só a arrumação no ecrã muda, em duas colunas: à esquerda a
+   produção e as leituras, à direita o controlo anterior e a produção anterior.
+   O que não couber desliza dentro da sua tabela, com o cabeçalho fixo. Os
+   tamanhos de letra são os de sempre. 95 px = as duas barras do topo.
+   ========================================================================= */
+@media (min-width:1100px){
+  html body main.peso-page.dmo-workspace:has(>section[data-peso-live]){box-sizing:border-box;height:calc(100vh - 96px);display:grid;grid-template-columns:minmax(0,63fr) minmax(0,37fr);grid-template-rows:auto auto minmax(0,1fr) auto;gap:6px 12px;align-content:stretch;padding-top:2px;padding-bottom:6px}
+  html body main.peso-page:has(>section[data-peso-live])>.page-head{grid-column:1/-1;grid-row:1;flex:none}
+  html body main.peso-page:has(>section[data-peso-live])>.page-head>div{display:flex;align-items:baseline;gap:16px}
+  html body main.peso-page:has(>section[data-peso-live])>.page-head h1{margin:0}
+  html body main.peso-page:has(>section[data-peso-live])>section.peso-card{box-sizing:border-box;min-width:0;min-height:0;max-height:100%;margin:0;overflow:hidden;align-self:start}
+  html body main.peso-page:has(>section[data-peso-live])>section.peso-card:not([data-peso-live]):not(.peso-compare){grid-column:1;grid-row:2;padding:6px 14px}
+  html body main.peso-page:has(>section[data-peso-live])>section[data-peso-live]{grid-column:1;grid-row:3/span 2;padding:6px 14px}
+  html body main.peso-page:has(>section[data-peso-live])>section.peso-compare:not(.peso-producao-anterior){grid-column:2;grid-row:2/span 2;display:flex;flex-direction:column;padding:6px 14px}
+  html body main.peso-page:has(>section[data-peso-live])>section.peso-producao-anterior{grid-column:2;grid-row:4;margin:0;padding:6px 14px}
+
+  /* Cabeçalhos dos cartões baixos. */
+  html body main.peso-page:has(>section[data-peso-live])>section.peso-card>.peso-card-heading{padding:0 0 3px;margin:0 0 3px;min-height:0}
+
+  /* A produção (cartão da esquerda): os valores em faixas que partem em linhas. */
+  html body main.peso-page:has(>section[data-peso-live])>section.peso-card:not([data-peso-live]):not(.peso-compare) .peso-facts{padding:2px 0}
+  html body main.peso-page:has(>section[data-peso-live])>section.peso-card:not([data-peso-live]):not(.peso-compare) .peso-facts>*{flex:1 1 auto;padding:0 6px!important}
+  html body main.peso-page:has(>section[data-peso-live])>section.peso-card:not([data-peso-live]):not(.peso-compare) .peso-facts .peso-fact strong{margin-top:0}
+  html body main.peso-page:has(>section[data-peso-live])>section.peso-card:not([data-peso-live]):not(.peso-compare) .peso-facts .peso-fact>span{white-space:nowrap}
+  html body main.peso-page:has(>section[data-peso-live])>section.peso-card:not([data-peso-live]):not(.peso-compare) .peso-facts+.peso-facts{margin-top:4px!important}
+  html body main.peso-page:has(>section[data-peso-live])>section.peso-card:not([data-peso-live]):not(.peso-compare) .peso-facts.peso-context-grid{overflow:visible}
+
+  /* As leituras (esquerda): os números e a leitura nova fixos; a tabela desliza. */
+  html body main.peso-page section.peso-card[data-peso-live]{min-height:0}
+  html body main.peso-page section.peso-card[data-peso-live]>.peso-live-region{flex:none;margin-bottom:4px}
+  html body main.peso-page section.peso-card[data-peso-live] .peso-section-heading{margin:0 0 4px}
+  html body main.peso-page section.peso-card[data-peso-live] .peso-live-region>.peso-live-area>#pesoLeituraResumo{flex-wrap:wrap;padding:4px 0}
+  html body main.peso-page section.peso-card[data-peso-live] .peso-live-region>.peso-live-area>#pesoLeituraResumo .peso-fact{flex:1 1 auto;padding:0 4px 0 8px}
+  html body main.peso-page section.peso-card[data-peso-live] #pesoLeituraResumo .peso-fact strong{margin-top:0}
+  html body main.peso-page section.peso-card[data-peso-live] .peso-live-region>.peso-live-area>#pesoLeituraResumo .peso-fact strong{white-space:nowrap}
+  html body main.peso-page section.peso-card[data-peso-live]>#pesoLeituras>.dmo-table-wrap{flex:1 1 auto;min-height:0}
+  html body main.peso-page section.peso-card[data-peso-live]>#pesoLeituras>.peso-section-heading,
+  html body main.peso-page section.peso-card[data-peso-live]>#pesoLeituras>:not(.dmo-table-wrap){flex:none}
+
+  /* Controlo anterior (direita): o texto fixo e a tabela a deslizar. */
+  html body main.peso-page section.peso-compare>#pesoComparacao{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+  html body main.peso-page section.peso-compare>#pesoComparacao>*{flex:none}
+  html body main.peso-page section.peso-compare>#pesoComparacao>.dmo-table-wrap{flex:1 1 auto;min-height:0}
+
+  /* As tabelas que deslizam: cabeçalho fixo (a caixa tem 4 px de margem interior, dmo-normalize.css). */
+  html body main.peso-page:has(>section[data-peso-live]) .dmo-table-wrap{overflow:auto}
+  html body main.peso-page:has(>section[data-peso-live]) .dmo-table-wrap>.dmo-table thead th{position:sticky;top:-4px;z-index:2}
+}
