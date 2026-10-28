@@ -1,5 +1,5 @@
 {
-  "selo": "b294547c9bd8db2b",
+  "selo": "698d8174f036520b",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2254,6 +2254,8 @@
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.PedirTodas_DaOsCodigosDeTodasAsFerramentasComNomeTecnico": "e994c7cee5c55a16",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.SemOModuloFerramentas_ALeituraNaoGravaNada": "bc9148b89aaa0500",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.UmFicheiroQueNaoEALista_DizQueNadaFoiGravado": "c465d160e25ebae1",
+    "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoReferencia.cs :: (resto do ficheiro)": "ac921f9156cccc90",
+    "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoReferencia.cs :: DefinicoesPorModuloPageTests.AJanelaDaUtilizacao_MostraAReferenciaDeCadaProducao": "0e2c2a28fd1038f8",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: (resto do ficheiro)": "bacae70c55fb549f",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: DefinicoesPorModuloPageTests.Admin_TemDefinicoesProprias_SoAApp": "a9a42322c6e4132c",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_OnlyForWhoHasTheModule_AndLeftTheAdmin": "aaafe56712d6a766",

@@ -4120,3 +4120,13 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.PedirTodas_DaOsCodigosDeTodasAsFerramentasComNomeTecnico`
 
 Selo depois: `b294547c9bd8db2b`
+
+## A-0304 · 2026-10-28 · teste-novo
+
+Porquê: DMO-568: referência completa por produção na janela Utilização (Diogo 28/10 15:39, cmsg_01K75FTs9bQnbhhH7qttpgra58775M9hU3ekADFHCbxaUx)
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoReferencia.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoReferencia.cs :: DefinicoesPorModuloPageTests.AJanelaDaUtilizacao_MostraAReferenciaDeCadaProducao`
+
+Selo depois: `698d8174f036520b`
