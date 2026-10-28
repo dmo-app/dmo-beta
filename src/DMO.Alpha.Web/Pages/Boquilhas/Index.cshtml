@@ -1062,7 +1062,8 @@
   </main>
 </div>
 
-@if (activeTab == "registo")
+@* Também na aba Boquilhas: a janela «Registar sem Job On» tem a data e a hora em dois campos. *@
+@if (activeTab is "registo" or "boquilhas")
 {
   <script src="~/js/bq-registo.js" asp-append-version="true"></script>
 }
