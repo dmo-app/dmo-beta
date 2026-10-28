@@ -4139,3 +4139,13 @@ Novos: 3 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReferenciaNova.cs :: JobOnPageTests.Folha_ReferenciaSemJobOn_QuemSoVe_FicaComOAviso`
 
 Selo depois: `f36070a927fa88b7`
+
+## A-0291 · 2026-10-28 · ok-do-diogo
+
+Porquê: DMO-556: a lista «Produção» do Planeamento vem já com a última produção escolhida
+Referência: Diogo 28/10 13:18 «ok» na thread Job On (cmsg_01K75FTs9bQnbhhH7qttpgra3FCNTj9umBvP7F7hPToAYt)
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Procura_EmDoisCampos_AReferenciaEncheODropdownDasProducoes`
+
+Selo depois: `46c4e9cd976b4215`

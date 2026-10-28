@@ -1,5 +1,5 @@
 {
-  "selo": "f36070a927fa88b7",
+  "selo": "46c4e9cd976b4215",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2564,7 +2564,7 @@
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.PlaneamentoRedirectsToJobOn_TheGridIsGone": "bb3665d82fc3f437",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Planeamento_CriarJobOn_FicaNaBarraDaProcura_ADireitaDasCaixas_ComODia": "980722fd0edd6cf5",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Procura_AoEscrever_SemLogin_ERecusada": "a7f589d0471b686b",
-    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Procura_EmDoisCampos_AReferenciaEncheODropdownDasProducoes": "9927bbf12ddda5db",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Procura_EmDoisCampos_AReferenciaEncheODropdownDasProducoes": "963307b616446fee",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Procura_EmDoisCampos_NaoEncontraPelaFerramenta": "fdbf3359ebb93aa8",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Procura_SugereAsReferenciasPorBaixo_ParaOBrowser": "c072799939b2a0fc",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.ProximaMudanca_FicaANegrito": "b5bc1e323dcb0fee",
