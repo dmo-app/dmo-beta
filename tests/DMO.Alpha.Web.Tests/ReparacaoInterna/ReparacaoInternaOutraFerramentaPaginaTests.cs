@@ -295,8 +295,10 @@ public sealed class ReparacaoInternaOutraFerramentaPaginaTests : IClassFixture<C
         Assert.Contains("data-dmo-autosubmit", filtro);
         var linha = Elemento(html, $"data-dmo-reparacao=\"{primeira}\"");
         Assert.Contains($"{Trocada("E")} · lote 4 (escrita)", linha);
-        Assert.Contains($"<a href=\"#riAssociar-{primeira}\" class=\"ri-por-associar\" data-dmo-dialog=\"riAssociar-{primeira}\"", linha);
-        Assert.Contains(">Por associar</a>", linha);
+        // A marca é só texto; a linha é que abre a janela (Diogo: nunca botões nas linhas).
+        Assert.Contains($"<span class=\"ri-por-associar\" data-dmo-por-associar=\"{primeira}\">Por associar</span>", linha);
+        Assert.Matches($"<tr data-dmo-reparacao=\"{primeira}\" data-dmo-row=\"\" data-id=\"{primeira}\" data-dmo-abre-janela=\"riAssociar-{primeira}\"", html);
+        Assert.Contains($"<dialog id=\"riAssociar-{primeira}\"", html);
 
         // Só por associar: as duas, também a sem Job On («Sem Job On» na produção).
         var porAssociar = await client.GetStringAsync("/ReparacaoInterna/Consultar?por_associar=true");
@@ -304,8 +306,10 @@ public sealed class ReparacaoInternaOutraFerramentaPaginaTests : IClassFixture<C
         var tabela = Elemento(porAssociar, "id=\"riConsultaLista\"");
         Assert.Contains($"data-dmo-reparacao=\"{primeira}\"", tabela);
         Assert.Contains("Sem Job On", Elemento(tabela, $"data-dmo-reparacao=\"{segunda}\""));
-        Assert.Contains(">Por associar</a>", Elemento(tabela, $"data-dmo-reparacao=\"{segunda}\""));
+        Assert.Contains(">Por associar</span>", Elemento(tabela, $"data-dmo-reparacao=\"{segunda}\""));
+        Assert.Contains("data-dmo-abre-janela", tabela);
         Assert.DoesNotContain("<button", tabela);
+        Assert.DoesNotContain("data-dmo-dialog=", tabela);
         Assert.Contains("class=\"dmo-table\"", tabela);
         Assert.DoesNotContain("Molde técnico secreto", porAssociar);
     }
