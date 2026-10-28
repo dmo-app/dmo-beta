@@ -18,7 +18,7 @@
     const cm = tools.querySelector('select[data-facts-type="CM"]');
 
     function label(item) {
-      return item.reference + ' · Lote ' + item.lot + ' · ' + (item.machineCodes || 'Máquinas por indicar');
+      return item.reference + ' · Lote ' + item.lot + ' · ' + (item.machineCodes || 'Máquinas por indicar') + (item.uso ? ' · ' + item.uso : '');
     }
 
     function source(type) {

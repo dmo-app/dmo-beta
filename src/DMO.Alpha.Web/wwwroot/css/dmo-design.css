@@ -135,13 +135,13 @@ html body .peso-live-strip {border-left-width:1px;border-left-color:var(--dmo-bo
 html body :is(.revisao-detail h3.revisao-section,.resumo-linked h4.revisao-folha) {border-left:0;background:none;padding-left:0}
 html body .dmo-table thead th {background:var(--dmo-subtle);text-transform:none;letter-spacing:0;font-weight:600;color:var(--dmo-muted)}
 html body .dmo-table tbody tr {background:var(--dmo-card)}
-html body .dmo-table tbody tr:hover {background:var(--dmo-brand-050)}
+/* Hover só nas linhas que abrem alguma coisa (Diogo, 28/10/2026: «não deve existir hover se não abre nada»). */
+html body .dmo-table tbody tr:is([data-dmo-row],[data-dmo-open],[data-dmo-ficha],[data-hist-linha],[data-dmo-candidata],[onclick]):hover {background:var(--dmo-brand-050)}
 html body .beta-production-rail {background:var(--dmo-card);color:var(--dmo-text);border-right:1px solid var(--dmo-border);padding:20px 14px;box-shadow:none}
 html body .beta-production-rail-head :is(strong,a) {color:var(--dmo-text)}
 html body .beta-production-rail-head span {color:var(--dmo-muted)}
 html body .beta-production-lines > :is(button,a) {border-radius:6px;box-shadow:none}
 /* The rail is a light surface now: an empty line's hover no longer turns dark. */
-html body .beta-production-lines :is(button,.dmo-rail-link).bq-line-empty:hover {background:var(--dmo-brand-050);border-color:var(--dmo-border)}
 /* Job On: compact hierarchy with related components kept together. */
 html body .jof2 {padding:12px 24px 16px;font-size:13px}
 html body .jof2 .wrap {max-width:1800px}
@@ -317,7 +317,6 @@ html body .ferr-checks label{min-width:0}
 html body .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]){border:0;border-left:0;background:color-mix(in srgb,var(--dmo-machine-color,var(--dmo-brand-600)) 12%,var(--dmo-card));color:var(--dmo-text)}
 html body .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]) :is(strong,span){color:var(--dmo-text)}
 html body .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]) span+span{color:var(--dmo-muted)}
-html body .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):hover:not(.selected):not(.active){background:color-mix(in srgb,var(--dmo-machine-color,var(--dmo-brand-600)) 22%,var(--dmo-card))}
 html body .beta-production-lines :is(button,.dmo-rail-link):is(.selected,.active){background:var(--dmo-brand-600);border-color:var(--dmo-brand-600);color:var(--dmo-text-on-color);outline:0}
 html body .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(.selected,.active){background:var(--dmo-machine-color,var(--dmo-brand-600));border-left:0}
 html body .beta-production-lines :is(button,.dmo-rail-link):is(.selected,.active) :is(strong,span),
@@ -375,7 +374,6 @@ html body .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link
 }
 /* Same specificity as normalize's :is(:hover,.selected,.active) rule for coloured line cards, loaded later. */
 html body .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(.selected,.active) {background:var(--dmo-machine-color,var(--dmo-brand-600));color:var(--dmo-text-on-color);outline:0}
-html body .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):not(.selected):not(.active):hover {background:color-mix(in srgb,var(--dmo-machine-color,var(--dmo-brand-600)) 22%,var(--dmo-card));color:var(--dmo-text);outline:0}
 /* Smaller controls (Owner, 26/10/2026: «botões demasiado grandes»): buttons and fields share one
    lower height, so the normalize rule «buttons = field height» still holds. */
 :root {--dmo-control-height:34px;--dmo-control-height-compact:30px}

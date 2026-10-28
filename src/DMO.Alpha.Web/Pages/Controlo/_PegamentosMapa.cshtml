@@ -13,8 +13,7 @@
     <div class="peg-map-heading">
       <h3 id="peg-map-title">Mapa de limites</h3>
     </div>
-    @* Texto curto (Diogo, 27/10/2026): a legenda diz o resto. *@
-    <p class="peg-map-help">Uma linha por componente: a faixa é o corredor permitido (nominal ± tolerância) e os pontos são as medições.</p>
+    @* Sem texto de ajuda (Diogo, 28/10/2026: «tirar os comentários todos»). *@
     <partial name="_PegamentosGrafico" model="@PegamentosGrafico.From(input)" />
     <div class="peg-map-status @(map.HasAlerts ? "alert" : (sheet.Pegamentos?.Measurements.Any(m => m.Evaluation.IsNotEvaluable) == true ? null : map.MeasurementCount > 0 ? "ok" : null))"><strong>@map.SummaryText</strong></div>
   </section>

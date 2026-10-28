@@ -1603,7 +1603,10 @@ public partial class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>
         var dropdown = await GetPageHtmlAsync(client, $"{PagePath}?handler=ProcurarProducao&ano=2026&mes=3&dia=4&q=6018y232");
         // Com produções, o dropdown destaca-se (Diogo, 19/10/2026: enchia-se sem se ver).
         Assert.Contains("<select id=\"lightProcuraProducoes\" class=\"jobon-procura-com-resultados\" aria-label=\"Últimas produções de 6018y232\" data-dmo-ir>", dropdown);
-        Assert.Contains("<option value=\"\" selected>Escolher produção</option>", dropdown);
+        // Vem já com a última escolhida (Diogo, 28/10/2026: «selecionar, deixar a última no dropdown»).
+        Assert.Contains("<option value=\"\">Escolher produção</option>", dropdown);
+        Assert.Contains($"value=\"/JobOn/Folha?jobon_id={newestId}&amp;dia=2026-03-04\" data-id=\"{newestId}\" selected=\"selected\">202612 ", dropdown);
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(dropdown, " selected[ =>]"));
         Assert.Equal(6, System.Text.RegularExpressions.Regex.Matches(dropdown, "<option").Count);   // «Produção» e as 5
         Assert.Matches(@">202612 [A-Z]\d+</option>", dropdown);
         Assert.Matches(@">202607 [A-Z]\d+</option>", dropdown);

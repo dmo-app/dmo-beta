@@ -58,20 +58,11 @@ public static class TechnicalNameParser
     /// </summary>
     public static Decoded Decode(string technicalName)
     {
-        var name = technicalName?.Trim().ToUpperInvariant().Replace(".", "");
+        var name = Limpo(technicalName);
         if (string.IsNullOrEmpty(name))
         {
             return new Decoded(null, null, null, null, null, null, null, "desconhecido");
         }
-
-        // Os sufixos de fábrica («_SO», «_AT», o «_» sozinho) e as notas
-        // em texto livre (os parênteses) saem do decode.
-        var parenIndex = name.IndexOf('(');
-        if (parenIndex > 0)
-        {
-            name = name[..parenIndex].Trim();
-        }
-        name = Regex.Replace(name, @"_[A-Z]{0,2}$", "");
 
         var mold = MoldRegex.Match(name);
         if (mold.Success)
@@ -132,6 +123,38 @@ public static class TechnicalNameParser
         }
 
         return new Decoded(null, null, null, null, null, null, null, "desconhecido");
+    }
+
+    /// <summary>
+    /// As GOTAS que o molde diz pelo código da dimensão (Diogo, 28/10/2026:
+    /// «ver se o jobon já tem em consideração nome técnico para mudar gota e
+    /// meter número correto»): 55 = dupla (2); 44 e 4T = tripla (3); 50 e 5T
+    /// (B3) = 3; 95 (B1, C2) = 4. Sem nome, um acessório ou outra dimensão:
+    /// null, e a Gota fica a que se escreveu à mão.
+    /// </summary>
+    public static int? Gotas(string? technicalName)
+    {
+        var mold = MoldRegex.Match(Limpo(technicalName));
+        return !mold.Success ? null : mold.Groups["mm"].Value switch
+        {
+            "55" => 2,
+            "44" or "4T" or "50" or "5T" => 3,
+            "95" => 4,
+            _ => null
+        };
+    }
+
+    // Maiúsculas, sem os pontos de separação antigos, sem as notas em texto
+    // livre (os parênteses) nem os sufixos de fábrica («_SO», «_AT», o «_» sozinho).
+    private static string Limpo(string? technicalName)
+    {
+        var name = technicalName?.Trim().ToUpperInvariant().Replace(".", "") ?? string.Empty;
+        var parenIndex = name.IndexOf('(');
+        if (parenIndex > 0)
+        {
+            name = name[..parenIndex].Trim();
+        }
+        return Regex.Replace(name, @"_[A-Z]{0,2}$", "");
     }
 
     private static string DescribeDimension(string raw) => raw switch

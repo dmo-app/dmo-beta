@@ -169,7 +169,7 @@
     @* A FOLHA DAS PUNÇÕES (Diogo, 22/10/2026): só a tabela por posição da
        linha, com o «PDF»; a ligação volta ao registo (a verificação). *@
     <nav class="pu-ligacoes" aria-label="PU NNPB" data-pu-ligacoes>
-      <a class="dmo-button" href="@Model.LigacaoRegisto">← Registo das punções</a>
+      <a class="dmo-button" href="@Model.LigacaoRegisto">Registo das punções</a>
     </nav>
     <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="GeneratePdf" id="pu-pdf-form" data-dmo-nativo>
       <input type="hidden" name="@folhaAlvo.Name" value="@folhaAlvo.Value" />
@@ -436,7 +436,8 @@
               }
               else
               {
-                @foreach (var row in registo.Rows)
+                @* O último registo em cima: vê-se logo se a PU inserida está certa, sem scroll (Diogo, 28/10/2026). *@
+                @foreach (var row in registo.Rows.Reverse())
                 {
                   var estaPu = row.Id == escolhidaPu;
                   <tr data-dmo-row data-id="@row.Id" data-pu-puncao="@(row.PunchSeen ? "true" : "false")" data-pu-arrefecedor="@(row.CoolerSeen ? "true" : "false")"
