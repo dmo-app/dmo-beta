@@ -46,6 +46,7 @@ public sealed class ToolSheetQuery : IToolSheetQuery
                 t.Lot,
                 t.AssociatedMfReference,
                 t.BqAccountedQuantity,
+                t.AnQuantity,
                 t.TechnicalName,
                 t.FabricaOrigem,
                 t.DuplicateWarningAtUtc,
@@ -99,6 +100,7 @@ public sealed class ToolSheetQuery : IToolSheetQuery
             facts.TechnicalVersion ?? 0,
             facts.DuplicateWarningAtUtc,
             facts.DuplicateWarningByNameFrozen,
-            facts.FabricaOrigem);
+            facts.FabricaOrigem,
+            facts.AnQuantity);
     }
 }

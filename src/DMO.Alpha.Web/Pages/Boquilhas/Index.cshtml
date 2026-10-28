@@ -376,8 +376,13 @@
                   <label><input type="radio" name="movement_type" value="entrada_sem_reparacao" checked="@(Model.MovementFormType == "entrada_sem_reparacao")" /><span>Entrada sem reparação</span></label>
                 </fieldset>
                 <div class="field dmo-field bq-line-quantity">
-                  <label for="quantity">Quantidade</label>
+                  <label for="quantity">Qtd. BQ</label>
                   <input id="quantity" name="quantity" type="number" lang="en" min="1" required placeholder="Ex.: 1" value="@Model.MovementFormQuantity" />
+                </div>
+                @* Os AN do lote (Diogo, 28/10/2026: «vamos passar a registar AN»): em branco é sem AN. *@
+                <div class="field dmo-field bq-line-quantity">
+                  <label for="quantityAn">Qtd. AN</label>
+                  <input id="quantityAn" name="quantity_an" type="number" lang="en" min="0" placeholder="Ex.: 1" value="@Model.MovementFormAnQuantity" title="Quantidade de AN (anéis) neste movimento. Em branco, sem AN." />
                 </div>
                 @* A DATA/HORA REAL do movimento (o equivalente ao «Data e
                    hora reais *» do boquilhas.html): pre-preenchida com o
@@ -409,10 +414,16 @@
                casa é a subtração feita no servidor (Razor), nunca no
                cliente; «—» quando o lote ainda não tem quantidade
                contabilística (truthful, nunca zero inventado). *@
-            <div class="lot-data">
-              <div><span>Quantidade do lote</span><strong>@(Model.RegisterLotQuantity is int lotQty ? lotQty.ToString() : "—")</strong></div>
-              <div><span>Fabricação</span><strong>@(Model.RegisterLotQuantity is int lote && lote >= trace.QuantityLegitimatelyOut ? (lote - trace.QuantityLegitimatelyOut).ToString() : "—")</strong></div>
-              <div><span>Em reparação</span><strong>@trace.QuantityLegitimatelyOut</strong></div>
+            @* OS AN (Diogo, 28/10/2026): com AN no lote ou nos movimentos, cada
+               valor mostra as BQ e, por baixo, os AN, com a mesma conta. *@
+            @{
+              var temAn = trace.ToolAnQuantity is not null || trace.AnQuantityOut is not null;
+              var anFora = trace.AnQuantityOut ?? 0;
+            }
+            <div class="lot-data@(temAn ? " bq-com-an" : null)">
+              <div><span>Quantidade do lote</span><strong>@(Model.RegisterLotQuantity is int lotQty ? lotQty.ToString() : "—")@if (temAn) {<small class="bq-peca">BQ</small><span class="bq-an">@(trace.ToolAnQuantity is int anLote ? anLote.ToString() : "—")<small class="bq-peca">AN</small></span>}</strong></div>
+              <div><span>Fabricação</span><strong>@(Model.RegisterLotQuantity is int lote && lote >= trace.QuantityLegitimatelyOut ? (lote - trace.QuantityLegitimatelyOut).ToString() : "—")@if (temAn) {<small class="bq-peca">BQ</small><span class="bq-an">@(trace.ToolAnQuantity is int anTotal && anTotal >= anFora ? (anTotal - anFora).ToString() : "—")<small class="bq-peca">AN</small></span>}</strong></div>
+              <div><span>Em reparação</span><strong>@trace.QuantityLegitimatelyOut@if (temAn) {<small class="bq-peca">BQ</small><span class="bq-an">@anFora<small class="bq-peca">AN</small></span>}</strong></div>
               @* POSTA A ZERO (Diogo, 17/10/2026: «ao carregar nela poder fazer
                  reset»): um clique no valor abre a janela; depois conta só os
                  movimentos com data real posterior. *@
@@ -481,11 +492,12 @@
                 <td>@trace.ToolReference@(trace.ToolLot is null ? null : $" · Lote {trace.ToolLot}")</td>
                 <td>@movementLabel(movement.MovementType)</td>
                 <td>@movement.Quantity</td>
+                <td>@(movement.AnQuantity is int an ? an.ToString() : "—")</td>
                 <td>@(movement.MachineCodeFrozen ?? "—")</td>
                 <td>@(movement.BqRepairerNameFrozen ?? "—")</td>
                 <td>@(movement.Discrepancy is int disc ? disc.ToString() : "—")</td>
               }
-              const string movementsHead = "<tr><th>Data/hora</th><th>BQ · lote</th><th>Movimento</th><th>Qtd.</th><th>Máquina</th><th>Reparador</th><th>Saldo</th></tr>";
+              const string movementsHead = "<tr><th>Data/hora</th><th>BQ · lote</th><th>Movimento</th><th>Qtd. BQ</th><th>Qtd. AN</th><th>Máquina</th><th>Reparador</th><th>Saldo</th></tr>";
               <div class="dmo-table-wrap">
                 <table class="dmo-table" id="bqTraceMovements">
                   <thead>@Html.Raw(movementsHead)</thead>
@@ -574,8 +586,12 @@
                     <label><input type="radio" name="movement_type" value="entrada_sem_reparacao" checked="@(editing.MovementType == "entrada_sem_reparacao")" autofocus="@(editing.MovementType == "entrada_sem_reparacao" ? "autofocus" : null)" /><span>Entrada sem reparação</span></label>
                   </fieldset>
                     <div class="field dmo-field bq-line-quantity">
-                      <label for="editQuantity">Quantidade</label>
+                      <label for="editQuantity">Qtd. BQ</label>
                       <input id="editQuantity" name="quantity" type="number" lang="en" min="1" required value="@editing.Quantity" />
+                    </div>
+                    <div class="field dmo-field bq-line-quantity">
+                      <label for="editQuantityAn">Qtd. AN</label>
+                      <input id="editQuantityAn" name="quantity_an" type="number" lang="en" min="0" value="@editing.AnQuantity" title="Quantidade de AN (anéis) neste movimento. Em branco, sem AN." />
                     </div>
                     <div class="field dmo-field bq-line-date">
                       <label for="editOccurredAt">Data e hora reais</label>
@@ -773,6 +789,10 @@
               </select></div>
               <div class="field dmo-field"><label for="tipo">Tipo</label><select id="tipo" name="tipo" data-dmo-autosubmit>
                 <option value="">Todos</option><option value="saida" selected="@(Model.FilterType == "saida")">Saída</option><option value="entrada" selected="@(Model.FilterType == "entrada")">Entrada</option><option value="entrada_sem_reparacao" selected="@(Model.FilterType == "entrada_sem_reparacao")">Sem reparação</option>
+              </select></div>
+              @* Onde param os AN de cada lote (Diogo, 28/10/2026): «AN» mostra só os movimentos com AN. *@
+              <div class="field dmo-field"><label for="peca">Peça</label><select id="peca" name="peca" data-dmo-autosubmit>
+                <option value="">Todas</option><option value="an" selected="@Model.FilterOnlyAn">AN</option>
               </select></div>
               <div class="field dmo-field"><label for="reparador">Reparador</label><input id="reparador" name="reparador" value="@Model.FilterOperator" data-dmo-suggest="reparadores" data-dmo-suggest-submit /></div>
               <div id="bqHistDesdeZona" class="field dmo-field" data-dmo-regiao><label for="desde">Desde</label><input id="desde" name="desde" type="date" value="@(Model.FilterDesde?.ToString("yyyy-MM-dd"))" data-dmo-autosubmit /></div>

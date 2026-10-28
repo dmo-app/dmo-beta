@@ -88,7 +88,7 @@ public sealed class CreateToolHandler : ICreateToolHandler
         }
         var lot = lotDefaulted ? ToolRegistryConstants.NoLot : typedLot!;
 
-        if (command.BqAccountedQuantity is < 0) return Refused(CreateToolResult.InvalidLotQuantity);
+        if (command.BqAccountedQuantity is < 0 || command.AnQuantity is < 0) return Refused(CreateToolResult.InvalidLotQuantity);
 
         // 3. Associação explícita de referência MF (descoberta, opcional):
         //    trim, vazio = null — nunca substitui a referência canónica.
@@ -162,6 +162,8 @@ public sealed class CreateToolHandler : ICreateToolHandler
             Lot = lot,
             AssociatedMfReference = associatedMfReference,
             BqAccountedQuantity = quantity,
+            // Os AN do lote só existem na BQ (Diogo, 28/10/2026).
+            AnQuantity = type == ToolType.Bq ? command.AnQuantity : null,
             // O nome técnico (o código do desenho do SAP) guardado como o
             // operador escreveu — o decode é PROPOSTA na ficha.
             TechnicalName = TrimToNull(command.TechnicalName),

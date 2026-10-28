@@ -20,4 +20,6 @@ public sealed record BoquilhasRegistoMovement(
     string? BqRepairerNameFrozen = null,
     string? MachineCodeFrozen = null,
     string? CorrectedByNameFrozen = null,
-    DateTime? CorrectedAtUtc = null);
+    DateTime? CorrectedAtUtc = null,
+    // Os AN do movimento (Diogo, 28/10/2026); null = sem AN.
+    int? AnQuantity = null);

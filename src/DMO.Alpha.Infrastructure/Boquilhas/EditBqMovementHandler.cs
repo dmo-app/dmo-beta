@@ -51,6 +51,11 @@ public sealed class EditBqMovementHandler : IEditBqMovementHandler
             return new EditBqMovementOutcome(EditBqMovementResult.InvalidQuantity);
         }
 
+        if (command.ChangesAn && command.AnQuantity < 0)
+        {
+            return new EditBqMovementOutcome(EditBqMovementResult.InvalidAnQuantity);
+        }
+
         // Uma hora que cai no salto da mudança de hora (março) passa para a
         // hora seguinte e a página avisa; nunca recusa (decisão do proprietário
         // de 16/10/2026: avisar em vez de bloquear, desde que não parta nada).
@@ -75,6 +80,11 @@ public sealed class EditBqMovementHandler : IEditBqMovementHandler
 
         movement.Type = BqMovementTypeTokens.FromStorage(command.MovementType);
         movement.Quantity = command.Quantity;
+        if (command.ChangesAn)
+        {
+            movement.AnQuantity = command.AnQuantity is > 0 ? command.AnQuantity : null;
+        }
+
         movement.CorrectedByNameFrozen = BqActorName.Freeze(command.CorrectedBy);
         movement.CorrectedAtUtc = now.UtcDateTime;
         BqDiscrepancyFold.Apply(traceMovements);

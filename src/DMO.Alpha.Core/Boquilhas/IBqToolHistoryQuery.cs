@@ -35,7 +35,8 @@ public interface IBqToolHistoryQuery
     /// início delas ou da parte BQ; o lote, o nº da produção, a máquina e o
     /// reparador por parte do texto; case-insensitive). Do mais recente para o mais
     /// antigo; os FATOS HUMANOS de cada movimento. Com <paramref name="limit"/>,
-    /// só os N mais recentes (null = todos).
+    /// só os N mais recentes (null = todos). Com <paramref name="onlyAn"/>,
+    /// só os movimentos com AN (Diogo, 28/10/2026: «onde param os AN»).
     /// </summary>
     Task<IReadOnlyList<BqHistoryMovementItem>> ListMovementsAsync(
         DateOnly? desde,
@@ -47,7 +48,8 @@ public interface IBqToolHistoryQuery
         CancellationToken cancellationToken = default,
         int? limit = null,
         string? toolId = null,
-        int? jobOnId = null);
+        int? jobOnId = null,
+        bool onlyAn = false);
 
 }
 
@@ -72,7 +74,9 @@ public sealed record BqHistoryMovementItem(
     string? Reference,
     string? BqRepairerNameFrozen = null,
     /// <summary>O tool_id da ferramenta (o clique na linha abre a ficha dela).</summary>
-    string? ToolId = null);
+    string? ToolId = null,
+    /// <summary>A quantidade de AN do movimento (Diogo, 28/10/2026); null sem AN.</summary>
+    int? AnQuantity = null);
 
 /// <summary>Um dia do calendário com movimentos (o ponto do Histórico).</summary>
 public sealed record BqHistoryDayCount(

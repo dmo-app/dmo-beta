@@ -98,7 +98,8 @@ public sealed class BqToolHistoryQuery : IBqToolHistoryQuery
         CancellationToken cancellationToken = default,
         int? limit = null,
         string? toolId = null,
-        int? jobOnId = null)
+        int? jobOnId = null,
+        bool onlyAn = false)
     {
         var (startUtc, endUtc) = UtcBounds(desde, ate);
 
@@ -107,6 +108,12 @@ public sealed class BqToolHistoryQuery : IBqToolHistoryQuery
         if (jobOnId is int wantedJobOn)
         {
             filtered = filtered.Where(row => row.JobOnId == wantedJobOn);
+        }
+
+        // Só os movimentos com AN (Diogo, 28/10/2026: onde param os AN de cada lote).
+        if (onlyAn)
+        {
+            filtered = filtered.Where(row => row.AnQuantity != null);
         }
 
         var rows = filtered
@@ -146,6 +153,7 @@ public sealed class BqToolHistoryQuery : IBqToolHistoryQuery
         public int TraceId { get; set; }
         public BqMovementType Type { get; set; }
         public int Quantity { get; set; }
+        public int? AnQuantity { get; set; }
         public int? Discrepancy { get; set; }
         public DateTime OccurredAtUtc { get; set; }
         public string? RegisteredByOperatorId { get; set; }
@@ -176,6 +184,7 @@ public sealed class BqToolHistoryQuery : IBqToolHistoryQuery
             TraceId = mov.BqRepairTraceId,
             Type = mov.Type,
             Quantity = mov.Quantity,
+            AnQuantity = mov.AnQuantity,
             Discrepancy = mov.Discrepancy,
             OccurredAtUtc = mov.OccurredAtUtc,
             RegisteredByOperatorId = mov.RegisteredByOperatorId,
@@ -279,5 +288,6 @@ public sealed class BqToolHistoryQuery : IBqToolHistoryQuery
             row.ProductionNumber,
             row.ProductionReference,
             row.RepairerName,
-            row.ToolId));
+            row.ToolId,
+            row.AnQuantity));
 }

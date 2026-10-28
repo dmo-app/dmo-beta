@@ -73,13 +73,14 @@ public partial class FerramentasPagesTests
             .Matches(html, $"<label for=\"{prefixo}-[a-z-]+\">([^<]+)<")
             .Select(m => m.Groups[1].Value).ToArray();
         Assert.Equal(
-            ["Tipo", "Referência", "Lote", "Quantidade do lote", "% uso", "Ref. MF associada", "Nome técnico (produção)"],
-            Rotulos(criar, "ferr-new").Take(7));
+            ["Tipo", "Referência", "Lote", "Quantidade do lote", "Qtd. AN", "% uso", "Ref. MF associada", "Nome técnico (produção)"],
+            Rotulos(criar, "ferr-new").Take(8));
         // A ficha acrescenta a Fábrica de origem (o % uso também está no Criar, 23/10/2026).
-        var doCriar = Rotulos(criar, "ferr-new").Take(7).ToList();
+        // A Qtd. AN só existe na ficha de uma BQ (Diogo, 28/10/2026); esta é uma CM.
+        var doCriar = Rotulos(criar, "ferr-new").Take(8).Where(r => r != "Qtd. AN").ToList();
         Assert.Equal(doCriar.Append("Fábrica de origem"), Rotulos(ficha, "ferr-edit"));
         // A ficha da CM só tem os campos da CM (a Marisa é da BQ).
-        Assert.Equal(Rotulos(criar, "ferr-new").Skip(7).Where(r => r != "Marisa (cm³)"), Rotulos(ficha, "ferr-tech"));
+        Assert.Equal(Rotulos(criar, "ferr-new").Skip(8).Where(r => r != "Marisa (cm³)"), Rotulos(ficha, "ferr-tech"));
 
         var token = await GetVerificationTokenAsync(client, $"{FichaPath}?tool_id={toolId}");
         var response = await client.PostAsync($"{FichaPath}?handler=EditFacts", HtmlFormHelpers.BuildFormPost(

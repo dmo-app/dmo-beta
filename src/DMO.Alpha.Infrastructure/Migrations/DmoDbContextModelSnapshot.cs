@@ -506,6 +506,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("AnQuantity")
+                        .HasColumnType("integer");
+
                     b.Property<int>("BqRepairTraceId")
                         .HasColumnType("integer");
 
@@ -2773,6 +2776,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
                 {
                     b.Property<string>("ToolId")
                         .HasColumnType("text");
+
+                    b.Property<int?>("AnQuantity")
+                        .HasColumnType("integer");
 
                     b.Property<string>("AssociatedMfReference")
                         .HasColumnType("text");

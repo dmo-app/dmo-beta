@@ -21,4 +21,6 @@ public sealed record RegisterBqMovement(
     int Quantity,
     string? RegisteredByOperatorId = null,
     DateTime? OccurredAtUtc = null,
-    int? MachineId = null);
+    int? MachineId = null,
+    // Os AN que vão com as BQ (Diogo, 28/10/2026); null = sem AN.
+    int? AnQuantity = null);

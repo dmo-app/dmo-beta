@@ -69,6 +69,16 @@
       <input id="ferr-quantity-manual" type="hidden" name="quantity_manual" value="@(Model.QuantidadeManual ?? "0")" />
     }
   </div>
+  @* OS AN DO LOTE (Diogo, 28/10/2026: «vamos passar a registar AN»): só na BQ,
+     ao lado da quantidade das BQ, que é outra (B1: 120 BQ, 180 AN). No Criar o
+     tipo mostra-o ou esconde-o (data-ferr-tech-tipo, ferramentas-live.js). *@
+  @if (Model.Criar || Model.Tipo == "BQ")
+  {
+    <div class="dmo-field ferr-w-qty ferr-w-an" id="@(p)-an-field" data-ferr-tech-tipo="@(Model.Criar ? "BQ" : null)" hidden="@(Model.Criar && Model.Tipo != "BQ" ? true : null)">
+      <label for="@(p)-an">Qtd. AN</label>
+      <input id="@(p)-an" name="an_quantity" type="text" inputmode="numeric" value="@Model.QuantidadeAn" title="Quantidade de AN (anéis) do lote." />
+    </div>
+  }
   @* O % DE USO (Diogo, 22/10/2026): escrito à mão, opcional, gravado com o
      «Guardar» do Editar como uma leitura nova (origem manual). Vazio ou igual
      não grava; acima de 100 grava e avisa. *@

@@ -53,6 +53,7 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
                 tool != null ? tool.Reference : null,
                 tool != null ? tool.Lot : null,
                 tool != null ? tool.BqAccountedQuantity : null,
+                tool != null ? tool.AnQuantity : null,
                 jobOn != null ? jobOn.Reference : null,
                 jobOn != null ? jobOn.ProductionNumber : null,
                 machine != null ? machine.Code : null,
@@ -84,7 +85,8 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
             movement.BqRepairerNameFrozen,
             movement.MachineCodeFrozen,
             movement.CorrectedByNameFrozen,
-            movement.CorrectedAtUtc);
+            movement.CorrectedAtUtc,
+            movement.AnQuantity);
     }
 
     public async Task<BoquilhasRegistoContext?> FindByContextAsync(
@@ -115,6 +117,7 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
                 ToolReference = tool != null ? tool.Reference : null,
                 ToolLot = tool != null ? tool.Lot : null,
                 ToolAccountedQuantity = tool != null ? tool.BqAccountedQuantity : null,
+                ToolAnQuantity = tool != null ? tool.AnQuantity : null,
                 jobOn.Reference,
                 jobOn.ProductionNumber,
                 MachineCode = machine.Code,
@@ -139,6 +142,7 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
                     row.ToolReference,
                     row.ToolLot,
                     row.ToolAccountedQuantity,
+                    row.ToolAnQuantity,
                     row.Reference,
                     row.ProductionNumber,
                     row.MachineCode,
@@ -165,7 +169,8 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
             new BoquilhasRegistoProductionContext(row.Reference, row.ProductionNumber, row.MachineCode, row.InicioEm, row.FimEm, row.JobOnId),
             contextTool,
             contextTool is null ? null : row.ToolAccountedQuantity,
-            associated);
+            associated,
+            contextTool is null ? null : row.ToolAnQuantity);
     }
 
     /// <summary>A linha do trace com a Tool efetiva e a produção do bq_id.</summary>
@@ -176,6 +181,7 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
         string? ToolReference,
         string? ToolLot,
         int? ToolAccountedQuantity,
+        int? ToolAnQuantity,
         string? ProductionReference,
         string? ProductionNumber,
         string? MachineCode,
@@ -210,6 +216,7 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
                 movement.Id,
                 movement.Type,
                 movement.Quantity,
+                movement.AnQuantity,
                 movement.Discrepancy,
                 movement.OccurredAtUtc,
                 movement.CreatedAtUtc
@@ -231,6 +238,9 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
         var quantityLegitimatelyOut = 0;
         var accumulatedDiscrepancy = 0;
         var hasDiscrepancy = false;
+        // Os AN fora, com a mesma conta, só com os movimentos que levam AN.
+        var anOut = 0;
+        var hasAn = false;
         foreach (var movement in chronological)
         {
             if (movement.Type == BqMovementType.Saida)
@@ -241,6 +251,12 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
             {
                 var matched = Math.Min(movement.Quantity, quantityLegitimatelyOut);
                 quantityLegitimatelyOut -= matched;
+            }
+
+            if (movement.AnQuantity is int an)
+            {
+                hasAn = true;
+                anOut = movement.Type == BqMovementType.Saida ? anOut + an : anOut - Math.Min(an, anOut);
             }
 
             // Depois de posta a zero, a discrepância acumulada só conta os
@@ -289,13 +305,16 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
                 movement.BqRepairerNameFrozen,
                 movement.MachineCodeFrozen,
                 movement.CorrectedByNameFrozen,
-                movement.CorrectedAtUtc)).ToList(),
+                movement.CorrectedAtUtc,
+                movement.AnQuantity)).ToList(),
             quantityLegitimatelyOut,
             hasDiscrepancy || header.DiscrepancyResetAtUtc is not null ? accumulatedDiscrepancy : null,
             header.ToolAccountedQuantity,
             header.DiscrepancyResetAtUtc,
             header.DiscrepancyResetBy,
             chronological.Count,
-            page);
+            page,
+            header.ToolAnQuantity,
+            hasAn ? anOut : null);
     }
 }
