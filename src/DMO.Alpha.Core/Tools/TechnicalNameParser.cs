@@ -126,6 +126,47 @@ public static class TechnicalNameParser
     }
 
     /// <summary>
+    /// O NOME TÉCNICO QUE NÃO BATE (Diogo, 28/10/2026: «um fullproof system»,
+    /// o OP 99 PMD 02): o aviso da ficha quando o nome não segue a regra dos
+    /// desenhos ou diz outro tipo de ferramenta (uma CM com MF, uma BQ com M…).
+    /// Com o nome errado o SAP não encontra a ferramenta e a % uso não vem.
+    /// Null quando bate certo ou não há nome. A app nunca recusa o nome.
+    /// </summary>
+    public static string? Aviso(ToolType tipo, string? technicalName)
+    {
+        if (string.IsNullOrWhiteSpace(technicalName))
+        {
+            return null;
+        }
+
+        var decoded = Decode(technicalName);
+        var esperado = tipo switch
+        {
+            ToolType.Cm => "M + modelo + medida + MP + processo + ventilação (ex. M544744MPPSX)",
+            ToolType.Mf => "M + modelo + medida + MF + processo + ventilação (ex. M00664TMFNNV)",
+            _ => "AB + acabamento + processo + material + medidas (ex. ABS023SC4713)"
+        };
+        if (decoded.Family == "desconhecido")
+        {
+            return $"O nome técnico não segue a regra dos desenhos: uma {Nome(tipo)} é {esperado}. O SAP pode não a encontrar.";
+        }
+
+        if (decoded.InferredType is { } inferido && inferido != tipo)
+        {
+            return $"O nome técnico é de uma {Nome(inferido)}, mas esta ferramenta é uma {Nome(tipo)}: uma {Nome(tipo)} é {esperado}. O SAP pode dar a % uso de outra ferramenta.";
+        }
+
+        return null;
+    }
+
+    private static string Nome(ToolType tipo) => tipo switch
+    {
+        ToolType.Cm => "CM",
+        ToolType.Mf => "MF",
+        _ => "BQ"
+    };
+
+    /// <summary>
     /// As GOTAS que o molde diz pelo código da dimensão (Diogo, 28/10/2026:
     /// «ver se o jobon já tem em consideração nome técnico para mudar gota e
     /// meter número correto»): 55 = dupla (2); 44 e 4T = tripla (3); 50 e 5T

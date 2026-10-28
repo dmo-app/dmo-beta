@@ -39,7 +39,7 @@ else
           <tr data-dmo-row data-id="@prod.JobOnId" data-dmo-open="@Url.Page("/JobOn/Index", new { jobon_id = prod.JobOnId })"
               title="@prod.Maquina · @(prod.InicioEm?.ToString("dd/MM/yyyy") ?? "—") a @(prod.FimEm?.ToString("dd/MM/yyyy") ?? "em curso")"
               aria-label="Produção @prod.Producao — um clique abre a ficha do Job On">
-            <td><a class="ferr-armazem-link" href="@Url.Page("/JobOn/Index", new { jobon_id = prod.JobOnId })"><strong>@prod.Producao</strong></a> <small class="ferr-producao-maquina">@prod.Maquina</small></td>
+            <td><a class="ferr-armazem-link" href="@Url.Page("/JobOn/Index", new { jobon_id = prod.JobOnId })"><strong>@prod.Producao</strong></a> @* A referência completa de cada produção (Diogo, 28/10/2026: «em frente ao 202601 meter a referência total»): a mesma ferramenta serve vários artigos. *@<small class="ferr-producao-maquina">@prod.Referencia · @prod.Maquina</small></td>
             <td>@(prod.InicioEm?.ToString("dd/MM/yyyy") ?? "—") a @(prod.FimEm?.ToString("dd/MM/yyyy") ?? "em curso")</td>
             <td>@(prod.ProducaoBruta?.ToString("#,0", pecasProd) ?? "—")</td>
             @* Sem as leituras antes e depois (só o % de hoje), o delta

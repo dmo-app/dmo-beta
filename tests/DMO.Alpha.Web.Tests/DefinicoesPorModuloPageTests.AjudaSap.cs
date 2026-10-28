@@ -48,7 +48,7 @@ public sealed partial class DefinicoesPorModuloPageTests
         var ajuda = await client.GetStringAsync("/Ferramentas/AjudaSap");
         var inicioAjuda = ajuda.IndexOf("id=\"ajudaSap\"", StringComparison.Ordinal);
         var texto = ajuda[inicioAjuda..ajuda.IndexOf("</article>", inicioAjuda, StringComparison.Ordinal)];
-        Assert.Contains("AGENDAR_18H.cmd", texto, StringComparison.Ordinal);
+        Assert.Contains("INSTALAR.cmd", texto, StringComparison.Ordinal);
         Assert.Contains("«Apagar lidos»", texto, StringComparison.Ordinal);
     }
 }

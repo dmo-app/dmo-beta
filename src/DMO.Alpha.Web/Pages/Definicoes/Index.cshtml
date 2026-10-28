@@ -332,10 +332,24 @@ html body #sec-ferramentas > .def-parte > fieldset.def-geral-campos:only-child{g
         @* As Definições do ADMIN (Diogo, 22/10/2026): só a App (Email do ADMIN e PIN). As horas de viragem foram cada uma para o seu módulo (Diogo, 25/10/2026). Só o ADMIN as vê; gravam pelas páginas de /Admin, só do ADMIN. *@
         <section id="sec-admin" class="def-secao" data-dmo-def-secao="admin" aria-labelledby="def-admin-title" hidden="@(Model.Secao != "admin")">
           <h2 id="def-admin-title" class="dmo-visually-hidden">Admin</h2>
+          @* App e SAP (Diogo, 28/10/2026: «nas definições do admin cria uma página SAP»). *@
+          <nav class="def-modulos" aria-label="Admin">
+            <a href="/Definicoes?secao=admin&amp;sub=app" class="@(Model.AdminSub == "app" ? "active" : null)" aria-current="@(Model.AdminSub == "app" ? "page" : null)">App</a>
+            <a href="/Definicoes?secao=admin&amp;sub=sap" class="@(Model.AdminSub == "sap" ? "active" : null)" aria-current="@(Model.AdminSub == "sap" ? "page" : null)">SAP</a>
+          </nav>
           <div class="def-parte" id="admin">
-            <div class="ctl-def-grade adm-app-cartoes" data-dmo-ctl-sub="app" data-dmo-grupo="admin" hidden="@(Model.AdminSub != "app")">
+            @if (Model.AdminSub == "sap")
+            {
+              <div class="ctl-def-grade adm-app-cartoes" data-dmo-ctl-sub="sap" data-dmo-grupo="admin">
+                <partial name="/Pages/Admin/Definicoes/_DefinicoesSap.cshtml" model="app" />
+              </div>
+            }
+            else
+            {
+            <div class="ctl-def-grade adm-app-cartoes" data-dmo-ctl-sub="app" data-dmo-grupo="admin">
               <partial name="/Pages/Admin/Definicoes/_DefinicoesApp.cshtml" model="app" />
             </div>
+            }
           </div>
         </section>
       }
