@@ -4229,3 +4229,13 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReparadorNaLinha.cs :: JobOnPageTests.Folha_ReparadorDepoisDoEstadoEDaPosicao_SemLinhaAParte`
 
 Selo depois: `1aebe084f6288ba7`
+
+## A-0298 · 2026-10-28 · teste-novo
+
+Porquê: DMO-577: na Consulta da Reparação, o Resumo por pessoa repartido (uma linha por pessoa, em colunas) e carregar no nome filtra por essa pessoa (Diogo, 28/10/2026: «a tabela dos users deve ser repartida», «ao carregar num nome filtrar logo pelo nome»). Teste novo.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra2qcgfkSyPLL2civh9MwNge
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaConsultaPaginaTests.cs :: ReparacaoInternaConsultaPaginaTests.OResumoPorPessoa_Repartido_ONomeFiltraPorEla`
+
+Selo depois: `24959d40aec75db8`
