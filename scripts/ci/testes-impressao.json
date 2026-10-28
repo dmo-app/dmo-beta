@@ -1,5 +1,5 @@
 {
-  "selo": "fe7959d2a3a9a1df",
+  "selo": "2097035a92d7ad4f",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -450,7 +450,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloDocumentPathsTests.cs :: ControloDocumentPathsTests.FileNames_AreCanonical_PesoPegamentosResumo": "f8429c05b3e7e4c4",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloDocumentPathsTests.cs :: ControloDocumentPathsTests.PegamentosFileName_SecondSheetOnwards_EndsWithItsNumber": "fbe2a0f91c106b46",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloDocumentPathsTests.cs :: ControloDocumentPathsTests.PesoFileName_SecondPesoOnwards_EndsWithItsNumber": "741699ddd2beb6c2",
-    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloDocumentPathsTests.cs :: ControloDocumentPathsTests.ProductionRelativeFolder_IsReferenceThenProduction_SafeForWindowsShares": "b9a7f698fad84b4c",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloDocumentPathsTests.cs :: ControloDocumentPathsTests.ProductionRelativeFolder_IsReferenceThenProduction_SafeForWindowsShares": "9dbe3b926d061311",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloDocumentPathsTests.cs :: ControloDocumentPathsTests.Segments_WithPathSeparators_NeverBecomeStructure": "5f5eb62ccd62187c",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloHistoricoProcuraTests.cs :: (resto do ficheiro)": "2760c0d9566c9cfd",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloHistoricoProcuraTests.cs :: ControloHistoricoProcuraTests.OTipoEADataSaoLidosDoPedido": "59e08836b85bf1f1",
@@ -2736,7 +2736,7 @@
     "tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.MissingNominal_ToolSheet_SavesGargalo_AndReturnsToTheSheet": "5d3a9cb537a13d5a",
     "tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.MissingNominal_UnreadableGargalo_IsRefused_ToolUntouched": "9ba6e3c8a3a7b0e6",
     "tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.MixedAxes_SummaryAndPdfUseRowMeans_WithoutHidingAlert": "15b8d65e068bee39",
-    "tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.PdfDownloads_UsePersistedModels_AllComponents_AndDoNotWriteDatabaseOrServerFiles": "962212f78f9f7f27",
+    "tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.PdfDownloads_UsePersistedModels_AllComponents_AndDoNotWriteDatabaseOrServerFiles": "28a52c3635aca292",
     "tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.Pdf_WithoutMeasurements_NoButton_AndPostIsRefused_WithoutWriting": "f5f4c65d7af9d7f3",
     "tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.PostMeasurement_CreatesRegistro_PRG_BackToShowWithBackendCalculations": "646c50892ae15ff6",
     "tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.PostMeasurement_MfInProduction_RegistersWithInFlowGargaloCompletion": "2543e14e7d9019cf",
@@ -3301,7 +3301,7 @@
     "tests/visual/paginacao_parcial_browser.py": "e9fd21e044518a16",
     "tests/visual/painel_cores_linhas_browser.py": "314294fe9aeb453c",
     "tests/visual/painel_lateral_browser.py": "85c135a8f92bce44",
-    "tests/visual/pasta_pdf_browser.py": "9d48fc2ea93cddb1",
+    "tests/visual/pasta_pdf_browser.py": "a56132dd12285d6c",
     "tests/visual/puncoes_tabela_browser.py": "85f38f0093870709",
     "tests/visual/resumo_parcial_browser.py": "c422fd31d6088551",
     "tests/visual/revisao_aprovar_browser.py": "3235b5e5b374469e",

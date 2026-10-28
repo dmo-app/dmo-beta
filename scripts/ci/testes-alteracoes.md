@@ -4418,3 +4418,15 @@ Novos: 41 · mudaram: 11 · saíram: 2
 - saiu: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.HistoricoDasFerramentas_AcimaDoLimite_MostraOAviso`
 
 Selo depois: `fe7959d2a3a9a1df`
+
+## A-0257 · 2026-10-28 · ok-do-diogo
+
+Porquê: Pasta dos PDFs (DMO-527): a subpasta da produção passa a «<produção> <referência>»; os testes da pasta pedem o formato novo.
+Referência: Diogo 28/10: cmsg_01K75FTs9bQnbhhH7qttpgraMP6JULLoLAQaT7A1nRgtsh e formato «202601 1075C142» cmsg_01K75FTs9bQnbhhH7qttpgraHgZ7AWc5LyZZPeje9cH7jP
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloDocumentPathsTests.cs :: ControloDocumentPathsTests.ProductionRelativeFolder_IsReferenceThenProduction_SafeForWindowsShares`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.PdfDownloads_UsePersistedModels_AllComponents_AndDoNotWriteDatabaseOrServerFiles`
+- mudou: `tests/visual/pasta_pdf_browser.py`
+
+Selo depois: `2097035a92d7ad4f`
