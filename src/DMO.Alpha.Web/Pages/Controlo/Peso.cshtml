@@ -870,7 +870,7 @@
             }
             else
             {
-              <div class="peso-aviso-simples" role="status">Complete o diâmetro e a calote do tampão na Folha do Job On (bloco TP). O Peso pode continuar sem este apoio.@if (productionCtx.JobOnId > 0) {<partial name="_DmoAvisoLink" model="@DmoAvisoLink.JobOn(productionCtx.JobOnId, "Completar no Job On", editar: true)" />}</div>
+              <div class="peso-aviso-simples" role="status">Complete o diâmetro e a calote do tampão na Folha do Job On (bloco TP). O Peso pode continuar sem este apoio.@if (productionCtx.JobOnId > 0) {<partial name="_DmoAvisoLink" model="@DmoAvisoLink.FolhaEditar(productionCtx.JobOnId, "Completar no Job On")" />}</div>
             }
             @if (Model.CapSimuladaIlegivel)
             {
@@ -1033,7 +1033,7 @@
            (o cálculo precisa das duas): o aviso diz porquê em vez de a
            secção desaparecer sem explicação. *@
         <div class="peso-aviso warn" role="status" style="margin-top:14px" data-peso-sem-ferramentas>
-          O «Novo Peso da produção» não aparece porque o Job On desta produção não tem @(productionCtx.CmToolId is null && productionCtx.BqToolId is null ? "CM nem boquilha (BQ)" : productionCtx.CmToolId is null ? "CM" : "boquilha (BQ)"). O cálculo do Peso precisa das duas ferramentas: complete o Job On e volte a esta folha.<partial name="_DmoAvisoLink" model="@DmoAvisoLink.JobOn(productionCtx.JobOnId, "Editar o Job On", editar: true)" />
+          O «Novo Peso da produção» não aparece porque o Job On desta produção não tem @(productionCtx.CmToolId is null && productionCtx.BqToolId is null ? "CM nem boquilha (BQ)" : productionCtx.CmToolId is null ? "CM" : "boquilha (BQ)"). O cálculo do Peso precisa das duas ferramentas: complete o Job On e volte a esta folha.<partial name="_DmoAvisoLink" model="@DmoAvisoLink.FolhaEditar(productionCtx.JobOnId, "Editar o Job On")" />
         </div>
       }
     </section>
