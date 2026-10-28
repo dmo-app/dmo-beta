@@ -4100,3 +4100,36 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_JobOnNoPainel_TituloLarguraEFolha`
 
 Selo depois: `1ecbaa53f6ccc384`
+
+## A-0263 · 2026-10-28 · contagem-lista
+
+Porquê: testes novos dos achados S01–S07 do relatório do dmo-Improvements de 28/10/2026 (rascunho do Job On, Excel das Boquilhas, aviso de correção depois da aprovação do Peso, limite de 500 no Comparar peso e no Sumário); package.json só acrescenta os dois ficheiros novos à lista do test:js
+Novos: 24 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararLimiteTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararLimiteTests.cs :: PesoCompararLimiteTests.OPesoDeOndeSeParte_ForaDos500MaisRecentes_FicaDoLadoAtual`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCompararLimiteTests.cs :: PesoCompararLimiteTests.Os500MaisRecentesNoutraMaquina_ACmDestaMaquinaContinuaACompararSe`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCorrigidoDepoisDaAprovacaoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCorrigidoDepoisDaAprovacaoTests.cs :: PesoCorrigidoDepoisDaAprovacaoTests.ApagarAUnicaLeituraDepoisDaAprovacao_FicaComAData`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCorrigidoDepoisDaAprovacaoTests.cs :: PesoCorrigidoDepoisDaAprovacaoTests.AsCorrecoesDeOutroControlo_NaoContam`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCorrigidoDepoisDaAprovacaoTests.cs :: PesoCorrigidoDepoisDaAprovacaoTests.SemCorrecoes_AUltimaCorrecaoFicaVazia`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCorrigidoDepoisDaAprovacaoTests.cs :: PesoCorrigidoDepoisDaAprovacaoTests.UmaCorrecaoAntesDeAprovar_NaoContaDepoisDaAprovacao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoCorrigidoDepoisDaAprovacaoTests.cs :: PesoCorrigidoDepoisDaAprovacaoTests.UmaLeituraCorrigidaDepoisDaAprovacao_MantemAAprovacao_EFicaComAData`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Planeamento/SumarioLimiteTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Planeamento/SumarioLimiteTests.cs :: SumarioLimiteTests.PoucasLinhas_UmaLeituraComoAntes`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Planeamento/SumarioLimiteTests.cs :: SumarioLimiteTests.QuinhentasProducoesNoDia1_NaoEscondemADoDia24`
+- novo: `tests/ShellProof/excel-bq-escritas.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/excel-bq-escritas.test.cjs :: S03: sem registo novo durante a escrita, escreve uma só vez`
+- novo: `tests/ShellProof/excel-bq-escritas.test.cjs :: S03: um registo durante uma escrita lenta volta a escrever e o Excel fica com ele`
+- novo: `tests/ShellProof/excel-bq-escritas.test.cjs :: S04: dois separadores escrevem um de cada vez, e o Excel fica com o mais novo`
+- novo: `tests/ShellProof/excel-bq-escritas.test.cjs :: sem Web Locks no browser, um separador escreve como antes`
+- novo: `tests/ShellProof/jobon-rascunho-envio.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/jobon-rascunho-envio.test.cjs :: S01: na mesma versão o rascunho volta como antes`
+- novo: `tests/ShellProof/jobon-rascunho-envio.test.cjs :: S01: o rascunho da versão 3 não substitui sozinho a versão 4; «Usar o rascunho» traz-o`
+- novo: `tests/ShellProof/jobon-rascunho-envio.test.cjs :: S01: «Descartar rascunho» numa versão nova apaga-o`
+- novo: `tests/ShellProof/jobon-rascunho-envio.test.cjs :: S02: a folha gravada apaga a cópia do envio, e o rascunho não volta`
+- novo: `tests/ShellProof/jobon-rascunho-envio.test.cjs :: S02: um envio sem resposta (rede) e depois outra página não perde o que se escreveu`
+- novo: `tests/ShellProof/jobon-rascunho-envio.test.cjs :: S02: voltar atrás à mesma folha depois de um envio falhado traz o que se escreveu`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `871a54050d3a702b`
