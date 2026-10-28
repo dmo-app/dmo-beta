@@ -34,15 +34,24 @@
             </div>
         </form>
     </section>
-    <section id="admSapPasta" class="dmo-card adm-card" aria-labelledby="admin-sap-pasta-title" data-sap-admin-pasta>
+    @* «Atualizar do SAP» também aqui (Diogo, 28/10/2026): as mesmas três escolhas. O script envia o que leu direto para a app (DMO-582). *@
+    <section id="admSapPasta" class="dmo-card adm-card" aria-labelledby="admin-sap-pasta-title" data-sap-admin-pasta data-ferr-sap data-ferr-sap-admin data-ferr-sap-base="/Admin/Definicoes">
         <div class="dmo-card-topo">
             <h3 id="admin-sap-pasta-title">Pasta do SAP neste computador</h3>
             <div class="dmo-card-topo-acoes">
-                <button type="button" class="dmo-button" data-sap-admin-ligar>Ligar pasta</button>
+                <button type="button" class="dmo-button" data-ferr-sap-atualizar>Atualizar do SAP</button>
+                <details class="dmo-options" data-dmo-tab-menu>
+                    <summary class="dmo-button" aria-label="Opções da pasta do SAP"><span class="dmo-caret" aria-hidden="true"></span>Opções</summary>
+                    <div class="dmo-options-list">
+                        <button type="button" class="dmo-options-item" data-sap-admin-ligar>Ligar pasta</button>
+                        <button type="button" class="dmo-options-item" data-ferr-sap-instalar>Instalar neste PC</button>
+                    </div>
+                </details>
             </div>
         </div>
-        <p><span data-sap-admin-estado role="status">Nenhuma pasta ligada</span></p>
-        <p class="card-note">Na primeira vez em cada PC: Ferramentas › Definições › Opções › «Instalar neste PC» e duplo clique no INSTALAR.cmd.</p>
+        <p><span data-sap-admin-estado data-ferr-sap-estado role="status">Nenhuma pasta ligada</span></p>
+        <p class="card-note">Na primeira vez em cada PC: «Ligar pasta», depois «Instalar neste PC» e duplo clique no INSTALAR.cmd. O que o SAP lê vai direto para a app, sem abrir as Ferramentas.</p>
+        <partial name="/Pages/Ferramentas/_SapAtualizarJanela.cshtml" />
     </section>
     <section id="admSapScripts" class="dmo-card adm-card" aria-labelledby="admin-sap-scripts-title">
         <div class="dmo-card-topo">
@@ -55,6 +64,7 @@
                 <tr>
                     <td><a href="#" data-dmo-dialog="admSapScript@(i)">@Model.SapScriptsTextos[i].Nome</a></td>
                     <td>@(Model.SapScriptsTextos[i].Mudado ? "mudado no Admin" : "o da app")</td>
+                    <td><a href="#" data-dmo-dialog="admSapScript@(i)">Editar</a></td>
                 </tr>
             }
             </tbody>

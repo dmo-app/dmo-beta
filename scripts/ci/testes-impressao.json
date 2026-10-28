@@ -1,5 +1,5 @@
 {
-  "selo": "32dc4f2d6565160f",
+  "selo": "0f01aa73bdaad785",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2325,6 +2325,7 @@
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: (resto do ficheiro)": "7d02e1550e06aa92",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.AListaDoSap_GravaOUsoQueAFichaDaFerramentaMostra": "ae2598cc450b39bc",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.AtualizarPorReferencia_DaOsCodigosDessaReferenciaEDoTipo": "61ac021d41ace1d3",
+    "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.OScriptDoSap_EnviaDireto_ComAChave_ESemElaNao": "77bae2403b612d8b",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.OsCodigosAPedirAoSap_SaoOsPedidosNaFicha": "e74365d29e7425dd",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.PedirTodas_DaOsCodigosDeTodasAsFerramentasComNomeTecnico": "e994c7cee5c55a16",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.SemOModuloFerramentas_ALeituraNaoGravaNada": "bc9148b89aaa0500",

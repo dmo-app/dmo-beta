@@ -4496,3 +4496,13 @@ Novos: 0 · mudaram: 3 · saíram: 0
 - mudou: `tests/visual/pasta_pdf_browser.py`
 
 Selo depois: `32dc4f2d6565160f`
+
+## A-0319 · 2026-10-28 · teste-novo
+
+Porquê: DMO-582: o script do SAP envia direto para a app com a chave
+Referência: Diogo 28/10/2026: «amanhã quero ter a app a funcionar com o sistema já nela, sem ter de ler pasta»
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.OScriptDoSap_EnviaDireto_ComAChave_ESemElaNao`
+
+Selo depois: `0f01aa73bdaad785`

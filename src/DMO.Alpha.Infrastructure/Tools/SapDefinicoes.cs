@@ -117,6 +117,49 @@ public sealed class SapDefinicoes(DmoDbContext db, IDataProtectionProvider prote
         return SapGravacao.Gravado;
     }
 
+    public async Task<string> ChaveDeEnvioAsync(CancellationToken cancellationToken = default)
+    {
+        if (await ChaveGuardadaAsync(cancellationToken) is { } guardada)
+        {
+            return guardada;
+        }
+
+        var nova = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
+        await PorAsync(SapDefinicoesRegras.ChaveEnvio, protetor.Protect(nova), cancellationToken);
+        await db.SaveChangesAsync(cancellationToken);
+        return nova;
+    }
+
+    public async Task<bool> ConfereChaveAsync(string? chave, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(chave) || await ChaveGuardadaAsync(cancellationToken) is not { } guardada)
+        {
+            return false;
+        }
+
+        return CryptographicOperations.FixedTimeEquals(
+            System.Text.Encoding.ASCII.GetBytes(chave),
+            System.Text.Encoding.ASCII.GetBytes(guardada));
+    }
+
+    private async Task<string?> ChaveGuardadaAsync(CancellationToken cancellationToken)
+    {
+        var cifrada = await ValorAsync(SapDefinicoesRegras.ChaveEnvio, cancellationToken);
+        if (string.IsNullOrEmpty(cifrada))
+        {
+            return null;
+        }
+
+        try
+        {
+            return protetor.Unprotect(cifrada);
+        }
+        catch (CryptographicException)
+        {
+            return null;
+        }
+    }
+
     public async Task<IReadOnlyList<SapLeituraFeita>> LeiturasAsync(int maximo, CancellationToken cancellationToken = default)
     {
         var usos = await db.FerramentaUtilizacoes.AsNoTracking()

@@ -718,6 +718,46 @@ var suggestionModules = new Dictionary<string, string[]>(StringComparer.Ordinal)
 // O posto da RI: a página está a ser usada (dmo-posto.js). Só renova a
 // sessão (a renovação deslizante do cookie); quem está parado não chama.
 app.MapGet("/posto/ativo", () => Results.NoContent());
+// O ENVIO DIRETO DO SAP (Diogo, 28/10/2026: «amanhã quero ter a app a funcionar
+// com o sistema já nela, sem ter de ler pasta»; DMO-582): o DMO_SAP_DIARIO.vbs
+// do PC do SAP manda cada ficheiro que leu, com a chave das definições do
+// Admin › SAP no cabeçalho X-DMO-SAP. Grava como o «Ler pasta» do browser.
+app.MapPost("/sap/enviar", async (
+    HttpRequest request,
+    string? ficheiro,
+    DMO.Alpha.Core.Tools.ISapDefinicoes sapDefinicoes,
+    DMO.Alpha.Core.Tools.IFerramentasUsoSap usoSap,
+    DMO.Alpha.Core.Tools.IFerramentasFabricoSap fabricoSap,
+    CancellationToken cancellationToken) =>
+{
+    if (!await sapDefinicoes.ConfereChaveAsync(request.Headers["X-DMO-SAP"].ToString(), cancellationToken))
+    {
+        return Results.StatusCode(StatusCodes.Status403Forbidden);
+    }
+
+    using var memoria = new MemoryStream();
+    await request.Body.CopyToAsync(memoria, cancellationToken);
+    var conteudo = DMO.Alpha.Web.Services.SapScripts.Texto(memoria.ToArray());
+    var nome = string.IsNullOrWhiteSpace(ficheiro) ? "sap" : Path.GetFileName(ficheiro);
+    var (gravado, mensagem) = await DMO.Alpha.Web.Pages.Ferramentas.DefinicoesModel.ImportarSapAsync(
+        usoSap, fabricoSap, conteudo, nome, DateTime.UtcNow, cancellationToken);
+    return Results.Json(new { gravado, mensagem });
+}).AllowAnonymous().DisableAntiforgery().WithMetadata(new Microsoft.AspNetCore.Mvc.RequestSizeLimitAttribute(20 * 1024 * 1024));
+// Os códigos de todas as ferramentas com nome técnico, para o script pedir à ZPPG.
+app.MapGet("/sap/codigos", async (
+    HttpRequest request,
+    DMO.Alpha.Core.Tools.ISapDefinicoes sapDefinicoes,
+    DMO.Alpha.Core.Tools.IFerramentasUsoSap usoSap,
+    CancellationToken cancellationToken) =>
+{
+    if (!await sapDefinicoes.ConfereChaveAsync(request.Headers["X-DMO-SAP"].ToString(), cancellationToken))
+    {
+        return Results.StatusCode(StatusCodes.Status403Forbidden);
+    }
+
+    var codigos = await usoSap.TodosOsCodigosAsync(cancellationToken);
+    return Results.Text(string.Concat(codigos.Select(c => c + "\r\n")), "text/plain");
+}).AllowAnonymous();
 app.MapGet("/Sugestoes", async (
     string? fonte, string? q, string? tipo, int? linha,
     DMO.Alpha.Core.Search.ISuggestionQuery suggestions, CurrentUserCapabilities capabilities, HttpContext context) =>

@@ -19,8 +19,32 @@ namespace DMO.Alpha.Web.Pages.Admin.Definicoes;
 public class IndexModel(
     IAdminEmailSettings adminEmailSettings,
     IPinDasDefinicoes pinDasDefinicoes,
-    ISapDefinicoes sapDefinicoes) : PageModel
+    ISapDefinicoes sapDefinicoes,
+    SapScripts sapScripts,
+    IFerramentasUsoSap usoSap) : PageModel
 {
+    /// <summary>GET: os scripts do SAP para o «Atualizar do SAP» do Admin › SAP (escritos na pasta pelo browser).</summary>
+    public async Task<IActionResult> OnGetScriptsSapAsync()
+    {
+        var ficheiros = await sapScripts.FicheirosAsync($"{Request.Scheme}://{Request.Host}{Request.PathBase}", HttpContext.RequestAborted);
+        Response.Headers.CacheControl = "no-store";
+        return new JsonResult(ficheiros.Select(f => new { nome = f.Nome, base64 = Convert.ToBase64String(f.Conteudo) }));
+    }
+
+    /// <summary>GET: os códigos de uma referência (o «Por referência» do Admin › SAP).</summary>
+    public async Task<IActionResult> OnGetCodigosSapAsync(string? referencia, string? tipo)
+    {
+        ToolType? tipoPedido = tipo?.ToLowerInvariant() switch
+        {
+            "cm" => ToolType.Cm,
+            "mf" => ToolType.Mf,
+            "bq" => ToolType.Bq,
+            _ => null
+        };
+        var codigos = await usoSap.CodigosDaReferenciaAsync(referencia ?? string.Empty, tipoPedido, HttpContext.RequestAborted);
+        return new JsonResult(new { codigos });
+    }
+
     /// <summary>O SAP nas Definições do ADMIN (Diogo, 28/10/2026: «nas definições do admin cria uma página SAP»).</summary>
     public SapDefinicoesDados? Sap { get; private set; }
 
