@@ -775,8 +775,9 @@
         var pesoDeAntes = Model.PesoAnterior ? Model.Peso : null;
       }
       <div class="peso-facts peso-context-grid">
-        <div class="peso-fact"><span>Nº de produção</span><strong>@productionCtx.ProductionNumber</strong></div>
-        <div class="peso-fact"><span>Referência</span><strong>@productionCtx.Reference</strong></div>
+        @* O número abre o Job On desta produção; a referência abre o Histórico do Planeamento com todas as produções dela (Diogo, 28/10/2026). *@
+        <div class="peso-fact"><span>Nº de produção</span><strong>@if (productionCtx.JobOnId > 0) {<a href="/JobOn/Folha?jobon_id=@productionCtx.JobOnId" target="_top" title="Abrir o Job On desta produção">@productionCtx.ProductionNumber</a>} else {@productionCtx.ProductionNumber}</strong></div>
+        <div class="peso-fact"><span>Referência</span><strong>@if (!string.IsNullOrWhiteSpace(productionCtx.Reference)) {<a href="/JobOn?historico=1&amp;referencia=@Uri.EscapeDataString(productionCtx.Reference)" target="_top" title="Todas as produções desta referência no Histórico">@productionCtx.Reference</a>} else {@productionCtx.Reference}</strong></div>
         <div class="peso-fact"><span>Máquina</span><strong>@productionCtx.Machine</strong></div>
         <div class="peso-fact"><span>CM</span><strong>@(pesoDeAntes is not null ? pesoDeAntes.CmToolReference ?? "—" : Model.CmTool?.Reference ?? "—")</strong></div>
         <div class="peso-fact"><span>Lote da CM</span><strong>@(pesoDeAntes is not null ? pesoDeAntes.CmToolLot ?? "—" : Model.CmTool?.Lot ?? Model.Peso?.CmToolLot ?? "—")</strong></div>
