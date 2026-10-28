@@ -504,6 +504,24 @@ public sealed class PesoModel : PageModel
     /// <summary>O echo da temperatura submetida na recusa de criação (o form volta com o que foi escrito).</summary>
     public string? EchoTemperature { get; private set; }
 
+    /// <summary>
+    /// A temperatura escrita no Novo Peso e a densidade da água que lhe
+    /// corresponde (o Diogo, 28/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgra6yFCa111pk22o44zJ9bmZL:
+    /// «mostrar o valor que foi selecionado e densidade associada a esse
+    /// valor»); null sem temperatura válida.
+    /// </summary>
+    public string? DensidadeAguaEscolhida => DensidadeAguaTexto(ParseOptionalDecimal(EchoTemperature));
+
+    /// <summary>«20 °C · 0.99717 g/cm³»: o grau usado na tabela e a densidade dele; null fora de 5–35 °C.</summary>
+    public static string? DensidadeAguaTexto(decimal? temperaturaC)
+    {
+        if (temperaturaC is not { } t) return null;
+        var grau = WaterDensityTable.RoundToWholeDegree(t);
+        return WaterDensityTable.Resolve(grau) is { } densidade
+            ? $"{grau} °C · {densidade.ToString("0.#####", DmoNumberFormat.Culture)} g/cm³"
+            : null;
+    }
+
     /// <summary>O echo do processo submetido na recusa de criação.</summary>
     public string? EchoCmProcess { get; private set; }
 
@@ -2286,6 +2304,13 @@ public sealed class PesoModel : PageModel
     /// sem referência TP devolve o estado «Referência por completar»
     /// (temReferencia=false), nunca um bloqueio.
     /// </summary>
+    /// <summary>
+    /// A densidade da água para a temperatura que se está a escrever no Novo
+    /// Peso (peso-live.js): a tabela fica só no servidor. Zero escrita.
+    /// </summary>
+    public IActionResult OnGetDensidadeAgua([FromQuery(Name = "temperatura")] string? temperatura) =>
+        new JsonResult(new { texto = DensidadeAguaTexto(ParseOptionalDecimal(temperatura)) });
+
     public async Task<IActionResult> OnGetCapSupportAsync(
         [FromQuery(Name = "controlo_id")] int? controloId,
         [FromQuery(Name = "peso_id")] int? pesoId,

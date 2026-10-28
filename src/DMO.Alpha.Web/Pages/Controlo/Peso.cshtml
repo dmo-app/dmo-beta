@@ -1017,7 +1017,7 @@
               </div>
             }
             <div class="peso-form-grid wide" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-top:12px">
-              <div class="peso-fact"><span>Densidade da água</span><strong>Tabela de densidades (5–35 °C, grau inteiro)</strong></div>
+              <div class="peso-fact" data-peso-densidade-agua><span>Densidade da água</span><strong>@(Model.DensidadeAguaEscolhida ?? "—")</strong></div>
               <div class="peso-fact">
                 <span>Densidade do vidro</span>
                 <strong>@(Model.ConfiguredGlassDensity is { } density ? $"{fmtDensity(density)} g/cm³" : "não configurada")</strong>
@@ -1336,7 +1336,7 @@
           </div>
         }
         <div class="peso-form-grid wide" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-top:12px">
-          <div class="peso-fact"><span>Densidade da água</span><strong>Tabela de densidades (5–35 °C, grau inteiro)</strong></div>
+          <div class="peso-fact" data-peso-densidade-agua><span>Densidade da água</span><strong>@(Model.DensidadeAguaEscolhida ?? "—")</strong></div>
           <div class="peso-fact">
             <span>Densidade do vidro</span>
             <strong>@(Model.ConfiguredGlassDensity is { } density ? $"{fmtDensity(density)} g/cm³" : "não configurada")</strong>

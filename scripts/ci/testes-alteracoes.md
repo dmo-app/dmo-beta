@@ -4069,7 +4069,7 @@ Novos: 0 · mudaram: 4 · saíram: 0
 
 Selo depois: `f4fe603cf0e02cbf`
 
-## A-0253 · 2026-10-27 · teste-novo
+## A-0258 · 2026-10-27 · teste-novo
 
 Porquê: DMO-519: testes novos do uso por produção (a leitura de hoje só conta para a última produção)
 Novos: 3 · mudaram: 0 · saíram: 0
@@ -4100,3 +4100,14 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_JobOnNoPainel_TituloLarguraEFolha`
 
 Selo depois: `1ecbaa53f6ccc384`
+
+## A-0258 · 2026-10-28 · teste-novo
+
+Porquê: Peso (DMO-528): o Novo Peso mostra a temperatura escrita e a densidade da água dela, em vez do texto da tabela (Diogo, 28/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgra6yFCa111pk22o44zJ9bmZL).
+Referência: DMO-528
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoDensidadeAgua.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoDensidadeAgua.cs :: ControloCapabilitiesCutHPageTests.NovoPeso_MostraATemperaturaEADensidadeDaAgua`
+
+Selo depois: `53a6349f7132de7b`
