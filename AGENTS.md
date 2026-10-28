@@ -7,10 +7,15 @@ Português de Portugal em tudo o que se escreve (PR, relatórios, textos da app)
 
 ## Quem faz o quê
 
-1. **O Claude** faz a mudança (refinamento, correção, funcionalidade) e abre o PR para o ramo
-   `integracao`, com a etiqueta **`agentes: testar`**.
-2. **O agente de fora** pega nesse PR, resolve os conflitos com a `integracao`, corre os testes,
-   corrige o que falhar e deixa um **relatório da correção** no PR (modelo abaixo). Muda a etiqueta para
+1. **O Claude** implementa a mudança (refinamento, correção, funcionalidade) e **escreve os testes**
+   dela. Em cada PR (modelo em `.github/pull_request_template.md`) diz:
+   - a **prioridade de entrada** (1 = entra primeiro; ordem em que os PRs devem entrar na `integracao`);
+   - a **lista de testes**: cada teste com a funcionalidade que garante, em frase do negócio.
+     Esta lista fica também registada na guarda dos testes (`guarda-testes.py registar --porque`).
+   Abre o PR para o ramo `integracao` com a etiqueta **`agentes: testar`**. O Claude não corre o CI.
+2. **O agente de fora** trata de tudo o que é CI e PR: pega nos PRs pela prioridade, resolve os
+   conflitos com a `integracao`, corre o CI, corrige o que falhar e escreve o **relatório** de como
+   tudo foi feito (modelo abaixo) no PR e no repositório de relatórios do Diogo. Muda a etiqueta para
    **`agentes: pronto`** (CI verde) ou **`agentes: ajuda`** (não conseguiu, diz porquê).
 3. **O Claude** lê o relatório. Se a correção estiver mal, sugere no PR (comentário) e volta a pôr
    `agentes: testar`. Não a refaz por cima.
@@ -19,8 +24,9 @@ Português de Portugal em tudo o que se escreve (PR, relatórios, textos da app)
 
 ## Como encontrar o trabalho
 
-PRs abertos com a etiqueta `agentes: testar`, do mais antigo para o mais recente:
-`is:pr is:open label:"agentes: testar"`. Um PR de cada vez; trabalhar sempre no ramo do próprio PR.
+PRs abertos com a etiqueta `agentes: testar`, pela **prioridade de entrada** escrita no PR
+(empate: o mais antigo primeiro): `is:pr is:open label:"agentes: testar"`. Um PR de cada vez;
+trabalhar sempre no ramo do próprio PR.
 
 ## Conflitos
 
@@ -80,6 +86,8 @@ bash scripts/ci/ci-local.sh
 **O que falhava:** <teste ou erro, com a mensagem copiada>
 **Causa:** <uma ou duas frases>
 **Correção:** <ficheiros e o que mudou; commit>
+**Prioridade:** <a do PR>
+**Testes do PR:** <cada teste da lista: passou / falhou>
 **Testes mudados:** nenhum | <quais e o registo da guarda>
 **Por resolver / dúvidas:** nenhuma | <o quê>
 ```
