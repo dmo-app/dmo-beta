@@ -4316,3 +4316,13 @@ Novos: 8 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoReferencia.cs :: DefinicoesPorModuloPageTests.AJanelaDaUtilizacao_MostraAReferenciaDeCadaProducao`
 
 Selo depois: `d5c3fb2fd0bdec76`
+
+## A-0308 · 2026-10-28 · ok-do-diogo
+
+Porquê: DMO-571: contagem de consultas por ferramenta 4→5 (movimentos do Armazém). Diogo escolheu «Sim, muda o teste» no cartão cmsg_01K75FTs9bQnbhhH7qttpgraWAyxNzW7qWufbX2ZnbyHFg, 28/10 16:23
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraWAyxNzW7qWufbX2ZnbyHFg
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoricoLote.cs :: PostgresMigrationIntegrationTests.HistoricoFerramentas_ProducoesEmLote_IguaisAUmaAUma_ComConsultasFixas`
+
+Selo depois: `dd688870c7e74f58`

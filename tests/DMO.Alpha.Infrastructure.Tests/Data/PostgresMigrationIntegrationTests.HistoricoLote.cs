@@ -147,8 +147,8 @@ public sealed partial class PostgresMigrationIntegrationTests
                         Assert.Equal(itens, novas[id]);
                     }
 
-                    // Antes: 4 leituras por ferramenta (ou menos sem Job On); depois: um número fixo (máx. 6).
-                    Assert.Equal(n * 4, contaAntes.Vezes);
+                    // Antes: 5 leituras por ferramenta (com os movimentos do Armazém, DMO-571); depois: um número fixo (máx. 6).
+                    Assert.Equal(n * 5, contaAntes.Vezes);
                     Assert.True(contaDepois.Vezes <= 6, $"{contaDepois.Vezes} consultas");
                     if (filtro is null)
                     {
