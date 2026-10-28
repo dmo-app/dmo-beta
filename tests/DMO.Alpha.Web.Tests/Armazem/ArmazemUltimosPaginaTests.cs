@@ -273,7 +273,7 @@ public sealed class ArmazemUltimosPaginaTests : IClassFixture<CustomWebApplicati
         Assert.Contains("Armazém · posição 0042", Texto(Elemento(ficha, "id=\"ferrLocalizacao\"")));
         Assert.Contains($"href=\"/Armazem/Movimentos?ferramenta={Cm}\"", Elemento(ficha, "id=\"ferrLocalizacao\""));
         Assert.Contains("Reparado", Texto(Elemento(ficha, "id=\"ferrEstadoArmazem\"")));
-        Assert.Contains("A reparar · LE", Texto(Elemento(fichaBq, "id=\"ferrLocalizacao\"")));
+        Assert.Contains("Reparação · LE", Texto(Elemento(fichaBq, "id=\"ferrLocalizacao\"")));
         Assert.Contains($"href=\"/Armazem/Ultimos?ferramenta={Cm}\"", ficha);
         Assert.DoesNotContain("/Armazem/Historico", ficha);
         // A posição e o estado a todos (Diogo, 22/10/2026); o link só a quem tem o Armazém.
@@ -288,6 +288,30 @@ public sealed class ArmazemUltimosPaginaTests : IClassFixture<CustomWebApplicati
         var movimentos = await comArmazem.GetStringAsync($"/Armazem/Ultimos?ferramenta={Cm}");
         Assert.Contains("Só CM 5447T173 · lote 3.", Texto(Elemento(movimentos, "id=\"armMovFerramenta\"")));
         Assert.Equal(3, Regex.Matches(Elemento(movimentos, "id=\"armMovLista\""), "<tr data-dmo-movimento").Count);
+    }
+
+    [Fact]
+    public async Task SemRegistoNoArmazem_AFichaDizSemRegisto_ENaoFabrico()
+    {
+        // Diogo, 28/10/2026: «Fabrico» é só quando está a ser usada numa linha.
+        const string semRegisto = "arm-rep-sem-registo";
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            if (!db.Tools.Any(t => t.ToolId == semRegisto))
+            {
+                db.Tools.Add(new Tool { ToolId = semRegisto, Type = ToolType.Bq, Reference = "T194", Lot = "214" });
+                db.SaveChanges();
+            }
+        }
+
+        using var client = await LoginOperatorAsync("6609", DmoCapabilities.Ferramentas, DmoCapabilities.ArmazemGestao);
+        var ficha = await client.GetStringAsync($"/Ferramentas/Ficha?tool_id={semRegisto}");
+        var armazem = await client.GetStringAsync($"/Armazem/Movimentos?ferramenta={semRegisto}");
+
+        Assert.Equal("Sem registo", Texto(Elemento(ficha, "data-dmo-localizacao")).Trim());
+        Assert.Contains("Sem registo", Elemento(armazem, "data-dmo-onde"));
+        Assert.DoesNotContain("Fabrico", Elemento(armazem, "data-dmo-onde"));
     }
 
     private sealed class Sessao : ICurrentAccountContext

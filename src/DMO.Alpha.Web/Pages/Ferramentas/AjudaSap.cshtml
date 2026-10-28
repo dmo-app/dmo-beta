@@ -60,9 +60,9 @@ html body main.ajuda-page .ajuda-card{padding:12px 16px;display:flex;flex-direct
         <h4>2. Preparar uma vez</h4>
         <ol>
             <li>Criar uma pasta no computador, por exemplo <code>C:\temp\DMO-SAP</code>.</li>
-            <li>Pôr lá o <code>DMO_USO_SAP.vbs</code> e o <code>Moldes Existentes.SAP</code> (o atalho do SAP que abre a ZPPG).</li>
-            <li>No DMO: Definições › Este computador › Utilização pela produção › «Opções» › «Ligar pasta» e escolher essa pasta. Quando o browser perguntar, carregar em «Permitir» (se aparecer, «Permitir em todas as visitas»).</li>
-            <li>O DMO escreve logo na pasta o <code>dmo-codigos.txt</code>.</li>
+            <li>No DMO: Admin › Definições › SAP › «Ligar pasta» (ou o primeiro «Atualizar do SAP») e escolher essa pasta. Quando o browser perguntar, carregar em «Permitir» (se aparecer, «Permitir em todas as visitas»).</li>
+            <li>Utilização pela produção › «Opções» › «Instalar neste PC»: o DMO escreve na pasta os scripts e o <code>INSTALAR.cmd</code>. Duplo clique no <code>INSTALAR.cmd</code>, só uma vez.</li>
+            <li>O utilizador, a senha, a hora da leitura diária e os dias de produções ficam em Admin › Definições › SAP. Os scripts também se abrem e mudam lá.</li>
         </ol>
         </section>
         <section class="ajuda-secao">
@@ -72,18 +72,18 @@ html body main.ajuda-page .ajuda-card{padding:12px 16px;display:flex;flex-direct
         <section class="ajuda-secao">
         <h4>4. Atualizar a % de uso</h4>
         <ol>
-            <li>Duplo clique no <code>DMO_USO_SAP.vbs</code>.</li>
+            <li>«Atualizar do SAP» e escolher: como nas definições (as produções e a % uso de todas), por data (só as produções, mês e ano) ou por referência (só a % uso dessas ferramentas, CM, MF, BQ ou todas).</li>
             <li>O script lê os códigos, abre o SAP na ZPPG (espera até 90 segundos), procura cada código e lê o PERC da lista.</li>
             <li>Grava tudo no <code>dmo-uso-sap.csv</code>, na mesma pasta. Primeiro grava num ficheiro à parte e só no fim lhe dá o nome final, para o DMO nunca ler uma lista a meio.</li>
-            <li>Ao abrir as Ferramentas no DMO, o DMO lê o ficheiro mais recente da pasta e, se for mais novo do que o último lido, grava a % de uso na ferramenta certa (pelo nome técnico e o lote). Também se pode carregar em «Ler pasta».</li>
+            <li>Ao abrir as Ferramentas no DMO, o DMO lê o ficheiro mais recente da pasta e, se for mais novo do que o último lido, grava a % de uso na ferramenta certa (pelo nome técnico e o lote). Depois do «Atualizar do SAP» grava sozinho quando o SAP acaba.</li>
         </ol>
         <p>Sem script: no SAP, no campo Equipment Code, seleção múltipla › «Carregar da área de transferência» (depois de «Copiar códigos»), F8 e exportar a lista para a pasta. O DMO lê-a da mesma forma.</p>
-        <p><b>Sozinho ao fim do dia:</b> duplo clique uma vez no <code>AGENDAR_18H.cmd</code>, na mesma pasta. O Windows corre o script todos os dias às 18:00, com o SAP minimizado e sem mensagem no fim. Para tirar: Agendador de Tarefas › «DMO uso SAP» › Eliminar.</p>
+        <p><b>Sozinho todos os dias:</b> o <code>INSTALAR.cmd</code> cria a tarefa «DMO SAP», que lê o SAP uma vez por dia à hora marcada no Admin, com o SAP minimizado. Para tirar: Agendador de Tarefas › «DMO SAP» › Eliminar.</p>
         <p><b>Limpar a pasta:</b> «Apagar lidos» (em «Opções») apaga da pasta os ficheiros que o DMO já leu. O <code>dmo-codigos.txt</code>, o script e o atalho ficam.</p>
         </section>
         <section class="ajuda-secao">
         <h4>5. O fabrico das produções</h4>
-        <p>O relatório de fabrico do SAP grava-se na mesma pasta. O DMO envia todos os ficheiros mais novos do que o último lido, do mais antigo para o mais novo, e reconhece cada um sozinho. O «Ler pasta» envia todos os da pasta; um ficheiro mais antigo do que o último lido do mesmo tipo não grava por cima. Cada linha (material, linha, início e fim) fica uma vez; lida outra vez, atualiza-se.</p>
+        <p>O relatório de fabrico do SAP grava-se na mesma pasta. O DMO envia todos os ficheiros mais novos do que o último lido, do mais antigo para o mais novo, e reconhece cada um sozinho. Um ficheiro mais antigo do que o último lido do mesmo tipo não grava por cima. Cada linha (material, linha, início e fim) fica uma vez; lida outra vez, atualiza-se.</p>
         <p>Uma produção de uma ferramenta é cada Job On em que ela foi a CM, o MF ou a BQ (também quando foi trocada). O produzido é a soma das linhas do relatório da mesma referência, linha e datas do Job On. Conta o <b>total produzido (bruto)</b>, não só as peças boas: uma peça má também gastou o molde.</p>
         </section>
         <section class="ajuda-secao">

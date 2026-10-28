@@ -222,6 +222,17 @@ public sealed class FerramentasUsoSapTests
     }
 
     [Fact]
+    public async Task TodosOsCodigos_SaoOsDeTodasAsFerramentasComNomeTecnico()
+    {
+        await using var db = CreateContext();
+        await LembreteAsync(db, "cm11");
+
+        var codigos = await Servico(db).TodosOsCodigosAsync();
+
+        Assert.Equal(new[] { "M544744MPPSX03", "M544744MPPSX11", "M544744MPPSX12" }, codigos);
+    }
+
+    [Fact]
     public async Task Pedir_AbreUmLembreteSoUmaVez()
     {
         await using var db = CreateContext();

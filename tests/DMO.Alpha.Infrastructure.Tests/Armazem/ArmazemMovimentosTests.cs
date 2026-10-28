@@ -521,7 +521,25 @@ public sealed class ArmazemMovimentosTests
         var encontradas = (await Servico(db).ProcurarAsync("5447")).ToDictionary(e => e.ToolId);
 
         Assert.Equal(("Armazém · posição 0042", true), (encontradas[Cm].OndeEsta, encontradas[Cm].NoArmazem));
-        Assert.Equal(("A reparar · Só MF", false), (encontradas[Mf].OndeEsta, encontradas[Mf].NoArmazem));
+        Assert.Equal(("Reparação · Só MF", false), (encontradas[Mf].OndeEsta, encontradas[Mf].NoArmazem));
+    }
+
+    [Fact]
+    public async Task Localizacao_EmprestadaDizAFabricaEscolhidaNaSaida()
+    {
+        // Diogo, 28/10/2026: o sítio concreto da Saída («Reparação · Moldin»).
+        using var db = CreateContext();
+        await Servico(db).EntradaAsync(Entrada(toolId: Cm));
+        await Servico(db).EntradaAsync(Entrada(toolId: Mf));
+        await Servico(db).SaidaAsync(Saida(ArmazemDestino.Emprestado, toolId: Cm, fabrica: "Fábrica Norte"));
+        await Servico(db).SaidaAsync(Saida(ArmazemDestino.Emprestado, toolId: Mf));
+
+        var encontradas = (await Servico(db).ProcurarAsync("5447")).ToDictionary(e => e.ToolId);
+        var situacao = (await Servico(db).SituacaoAsync(Cm))!;
+
+        Assert.Equal("Emprestado · Fábrica Norte", encontradas[Cm].OndeEsta);
+        Assert.Equal("Emprestado", encontradas[Mf].OndeEsta);
+        Assert.Equal("Emprestado · Fábrica Norte", ArmazemTextos.Localizacao(situacao.Localizacao, situacao.LocalizacaoPormenor));
     }
 
     [Fact]

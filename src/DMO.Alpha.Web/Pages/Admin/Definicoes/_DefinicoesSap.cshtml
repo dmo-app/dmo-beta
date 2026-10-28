@@ -1,0 +1,114 @@
+@model DMO.Alpha.Web.Pages.Admin.Definicoes.IndexModel
+@using System.Globalization
+@* O SAP nas Definições do ADMIN (Diogo, 28/10/2026: «nas definições do admin cria uma página SAP onde terá todas essas definições»):
+   o utilizador e a senha que os scripts usam, a hora da leitura diária, os dias de produções, os scripts (abrir, mudar e guardar),
+   a pasta deste computador e as leituras feitas. A senha nunca volta para a página: o campo vazio mantém a guardada. *@
+@{ var sap = Model.Sap!; }
+@if (Model.SapResultMessage.Length > 0)
+{
+    <p data-dmo-toast="@(Model.SapSucceeded ? "ok" : "erro")" role="@(Model.SapSucceeded ? "status" : "alert")">@Model.SapResultMessage</p>
+}
+    <section id="admSap" class="dmo-card adm-card" aria-labelledby="admin-sap-title">
+        <div class="dmo-card-topo">
+            <h3 id="admin-sap-title">Leitura do SAP<partial name="_DmoHelp" model="@("Os scripts do SAP vivem na app: no «Atualizar do SAP» (Ferramentas › Definições) o DMO escreve-os na pasta ligada com estes valores. A leitura do dia corre sozinha à hora marcada.")" /></h3>
+            <div class="dmo-card-topo-acoes">
+                <button type="submit" class="dmo-button" id="admSapGuardar" form="admSapForm">Guardar</button>
+            </div>
+        </div>
+        <form id="admSapForm" method="post" asp-page="/Admin/Definicoes/Index" asp-page-handler="SaveSap" class="adm-sap-form">
+            <div class="dmo-field">
+                <label for="admSapUtilizador">Utilizador do SAP</label>
+                <input id="admSapUtilizador" name="sap_utilizador" type="text" value="@sap.Utilizador" maxlength="@DMO.Alpha.Core.Tools.SapDefinicoesRegras.UtilizadorMaximo" size="14" autocomplete="off" required />
+            </div>
+            <div class="dmo-field">
+                <label for="admSapSenha">Senha do SAP</label>
+                <input id="admSapSenha" name="sap_senha" type="password" maxlength="@DMO.Alpha.Core.Tools.SapDefinicoesRegras.SenhaMaxima" size="14" autocomplete="new-password" placeholder="@(sap.TemSenha ? "guardada" : "por escrever")" />
+            </div>
+            <div class="dmo-field">
+                <label for="admSapHora">Hora da leitura diária</label>
+                <input id="admSapHora" name="sap_hora" type="number" min="0" max="23" value="@sap.Hora" style="width:6ch" required />
+            </div>
+            <div class="dmo-field">
+                <label for="admSapDias">Dias de produções</label>
+                <input id="admSapDias" name="sap_dias" type="number" min="@DMO.Alpha.Core.Tools.SapDefinicoesRegras.DiasMinimo" max="@DMO.Alpha.Core.Tools.SapDefinicoesRegras.DiasMaximo" value="@sap.Dias" style="width:7ch" required />
+            </div>
+        </form>
+    </section>
+    <section id="admSapPasta" class="dmo-card adm-card" aria-labelledby="admin-sap-pasta-title" data-sap-admin-pasta>
+        <div class="dmo-card-topo">
+            <h3 id="admin-sap-pasta-title">Pasta do SAP neste computador</h3>
+            <div class="dmo-card-topo-acoes">
+                <button type="button" class="dmo-button" data-sap-admin-ligar>Ligar pasta</button>
+            </div>
+        </div>
+        <p><span data-sap-admin-estado role="status">Nenhuma pasta ligada</span></p>
+        <p class="card-note">Na primeira vez em cada PC: Ferramentas › Definições › Opções › «Instalar neste PC» e duplo clique no INSTALAR.cmd.</p>
+    </section>
+    <section id="admSapScripts" class="dmo-card adm-card" aria-labelledby="admin-sap-scripts-title">
+        <div class="dmo-card-topo">
+            <h3 id="admin-sap-scripts-title">Scripts</h3>
+        </div>
+        <table class="dmo-table">
+            <tbody>
+            @for (var i = 0; i < Model.SapScriptsTextos.Count; i++)
+            {
+                <tr>
+                    <td><a href="#" data-dmo-dialog="admSapScript@(i)">@Model.SapScriptsTextos[i].Nome</a></td>
+                    <td>@(Model.SapScriptsTextos[i].Mudado ? "mudado no Admin" : "o da app")</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </section>
+    <section id="admSapLeituras" class="dmo-card adm-card" aria-labelledby="admin-sap-leituras-title">
+        <div class="dmo-card-topo">
+            <h3 id="admin-sap-leituras-title">Leituras feitas</h3>
+        </div>
+        @if (Model.SapLeituras.Count == 0)
+        {
+            <p class="card-note">Ainda nenhuma leitura do SAP gravada.</p>
+        }
+        else
+        {
+            <table class="dmo-table">
+                <thead><tr><th>Quando</th><th>O quê</th><th>Linhas</th><th>Ficheiro</th></tr></thead>
+                <tbody>
+                @foreach (var l in Model.SapLeituras)
+                {
+                    <tr>
+                        <td>@DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(l.LidoEmUtc).ToString("dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture)</td>
+                        <td>@l.Tipo</td>
+                        <td>@l.Linhas.ToString("N0", CultureInfo.GetCultureInfo("pt-PT"))</td>
+                        <td>@l.Ficheiro</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+    </section>
+    @for (var i = 0; i < Model.SapScriptsTextos.Count; i++)
+    {
+        var (nome, texto, mudado) = Model.SapScriptsTextos[i];
+        <dialog id="admSapScript@(i)" class="dmo-dialog adm-sap-script" aria-labelledby="admSapScriptTitulo@(i)">
+            <h3 id="admSapScriptTitulo@(i)">@nome</h3>
+            <p class="card-note">Os {{UTILIZADOR}}, {{SENHA}}, {{HORA}} e {{DIAS}} levam as definições de cima.</p>
+            <form method="post" asp-page="/Admin/Definicoes/Index" asp-page-handler="SaveSapScript">
+                <input type="hidden" name="sap_script" value="@nome" />
+                <textarea name="sap_texto" class="dmo-input" spellcheck="false" wrap="off" maxlength="@DMO.Alpha.Core.Tools.SapDefinicoesRegras.ScriptMaximo">@texto</textarea>
+                <div class="dmo-dialog-actions">
+                    <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+                    @if (mudado)
+                    {
+                        <button type="submit" class="dmo-button" name="sap_repor" value="1" formnovalidate>Repor o da app</button>
+                    }
+                    <button type="submit" class="dmo-button">Guardar</button>
+                </div>
+            </form>
+        </dialog>
+    }
+<style>
+.adm-sap-form{display:flex;gap:14px;flex-wrap:wrap}
+.adm-sap-script{width:min(1100px,94vw)}
+.adm-sap-script textarea{width:100%;height:56vh;font-family:ui-monospace,Consolas,monospace;font-size:12px;white-space:pre}
+</style>
+<script src="~/js/ferramentas-sap.js" asp-append-version="true"></script>

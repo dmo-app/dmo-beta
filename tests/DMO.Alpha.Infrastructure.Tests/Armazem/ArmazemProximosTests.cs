@@ -80,14 +80,14 @@ public sealed class ArmazemProximosTests
         Assert.Equal(
             [
                 ("cm", "Armazém · posição 0042", ArmazemProximoAcao.Tirar),
-                ("mf", "A reparar · Moldes Lda", ArmazemProximoAcao.Indisponivel),
+                ("mf", "Reparação · Moldes Lda", ArmazemProximoAcao.Indisponivel),
                 ("bq", "Fabrico", ArmazemProximoAcao.Pronta)
             ],
             producao.Ferramentas.Select(f => (f.ToolId, f.OndeEsta, f.Acao)).ToArray());
     }
 
     [Theory]
-    [InlineData(FerramentaLocalizacaoTipo.AReparar, "A reparar · Moldes Lda")]
+    [InlineData(FerramentaLocalizacaoTipo.AReparar, "Reparação · Moldes Lda")]
     [InlineData(FerramentaLocalizacaoTipo.Emprestado, "Emprestado")]
     [InlineData(FerramentaLocalizacaoTipo.Sucata, "Sucata")]
     public async Task ForaDoArmazemEDoFabrico_NaoDisponivel(FerramentaLocalizacaoTipo localizacao, string ondeEsta)
