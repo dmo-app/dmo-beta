@@ -4101,7 +4101,7 @@ Novos: 0 · mudaram: 1 · saíram: 0
 
 Selo depois: `1ecbaa53f6ccc384`
 
-## A-0261 · 2026-10-28 · contagem-lista
+## A-0263 · 2026-10-28 · contagem-lista
 
 Porquê: Os AN das boquilhas (DMO-531, Diogo 28/10/2026): a lista das migrações ganha a AnDasBoquilhas; a lista dos rótulos do Criar ganha a «Qtd. AN» (só das BQ, por isso a ficha da CM não a tem). O que os testes verificam fica igual.
 Novos: 10 · mudaram: 2 · saíram: 0
