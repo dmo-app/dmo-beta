@@ -545,7 +545,7 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
             id => Model.FactsMachine(id, tool.Machines.Any(m => m.MachineId == id)),
             Model.FactsFabricaOrigem(tool.FabricaOrigem),
             Model.FactsUso(Model.Utilizacao?.Ultima?.Percentagem),
-            Model.Utilizacao?.Ultima is { } usoData ? DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(usoData.RegistadaEmUtc).ToString("dd/MM/yyyy", pt) : null))" />
+            Model.Utilizacao?.Ultima is { } usoData ? DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(usoData.RegistadaEmUtc).ToString("dd/MM/yyyy", pt) : null, Model.Fabricas))" />
       </form>
 
     </section>

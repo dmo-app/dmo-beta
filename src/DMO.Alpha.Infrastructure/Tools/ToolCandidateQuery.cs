@@ -206,9 +206,12 @@ public sealed class ToolCandidateQuery : IToolCandidateQuery
                     _ => FerramentaLocalizacaoTipo.Emprestado
                 };
                 var reparador = local.Reparador?.Trim().ToUpperInvariant();
+                var fabrica = local.Fabrica?.Trim().ToUpperInvariant();
                 query = query.Where(tool => !naPosicao.Contains(tool.ToolId)
                     && _db.FerramentaLocalizacoes.Any(l => l.ToolId == tool.ToolId && l.Localizacao == onde
-                        && (reparador == null || (l.ReparadorNome != null && l.ReparadorNome.ToUpper() == reparador))));
+                        && (reparador == null || (l.ReparadorNome != null && l.ReparadorNome.ToUpper() == reparador))
+                        && (fabrica == null || _db.ArmazemMovimentos.Any(m => m.Id == l.MovimentoId
+                            && m.FabricaDestino != null && m.FabricaDestino.ToUpper() == fabrica))));
             }
         }
 

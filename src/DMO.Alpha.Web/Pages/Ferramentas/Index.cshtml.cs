@@ -56,6 +56,10 @@ public sealed class IndexModel : PageModel
     private readonly IFerramentasUsoSap _usoSap;
     private readonly DMO.Alpha.Core.Programada.IReparacaoProgramada _reparacao;
     private readonly DMO.Alpha.Core.Boquilhas.IBqRepairerQuery _bqReparadores;
+    private readonly IFabricasBa _fabricasBa;
+
+    /// <summary>As fábricas da BA (Armazém › Definições): o Empréstimo por fábrica e o filtro «Fábrica».</summary>
+    public IReadOnlyList<FabricaBaItem> Fabricas { get; private set; } = Array.Empty<FabricaBaItem>();
 
     /// <summary>Os reparadores das Definições, um por opção na «Localização» (Diogo, 28/10/2026).</summary>
     public IReadOnlyList<string> Reparadores { get; private set; } = Array.Empty<string>();
@@ -94,8 +98,10 @@ public sealed class IndexModel : PageModel
         IFerramentasUsoSap usoSap,
         IJobOnToolFactsQuery factos,
         DMO.Alpha.Core.Programada.IReparacaoProgramada reparacao,
-        DMO.Alpha.Core.Boquilhas.IBqRepairerQuery bqReparadores)
+        DMO.Alpha.Core.Boquilhas.IBqRepairerQuery bqReparadores,
+        IFabricasBa fabricasBa)
     {
+        _fabricasBa = fabricasBa;
         _reparacao = reparacao;
         _bqReparadores = bqReparadores;
         _factos = factos;
@@ -166,6 +172,9 @@ public sealed class IndexModel : PageModel
     /// <summary>O valor da opção de um reparador («reparacao:Nome»).</summary>
     public static string LocalReparador(string nome) => "reparacao:" + nome;
 
+    /// <summary>O valor da opção do Empréstimo a uma fábrica («emprestado:MG»).</summary>
+    public static string LocalFabrica(string sigla) => "emprestado:" + sigla;
+
     private static ToolCandidateLocal? LocalPara(string? valor)
     {
         if (string.IsNullOrWhiteSpace(valor)) return null;
@@ -173,6 +182,11 @@ public sealed class IndexModel : PageModel
         {
             var nome = valor["reparacao:".Length..].Trim();
             return nome.Length == 0 ? new ToolCandidateLocal(ToolCandidateLocalTipo.Reparacao) : new ToolCandidateLocal(ToolCandidateLocalTipo.Reparacao, nome);
+        }
+        if (valor.StartsWith("emprestado:", StringComparison.Ordinal))
+        {
+            var sigla = valor["emprestado:".Length..].Trim();
+            return new ToolCandidateLocal(ToolCandidateLocalTipo.Emprestado, Fabrica: sigla.Length == 0 ? null : sigla);
         }
         foreach (var local in Locais)
         {
@@ -301,6 +315,7 @@ public sealed class IndexModel : PageModel
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .OrderBy(n => n, StringComparer.CurrentCultureIgnoreCase)
                 .ToList();
+            Fabricas = await _fabricasBa.ListarAsync(HttpContext.RequestAborted);
         }
 
         // Template de return do fluxo contextual: validação LOCAL-ONLY —

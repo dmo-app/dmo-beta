@@ -64,9 +64,10 @@ public sealed record ToolCandidateFilter(
 /// Onde a ferramenta está, para o filtro «Localização» do Ferramentas (Diogo,
 /// 28/10/2026): numa posição do Armazém, ou senão a localização dos movimentos;
 /// sem movimentos é Fabrico. Com <see cref="Reparador"/>, só as que estão a
-/// reparar nesse reparador.
+/// reparar nesse reparador; com <see cref="Fabrica"/>, só as emprestadas a essa
+/// fábrica da BA (a sigla da última Saída).
 /// </summary>
-public sealed record ToolCandidateLocal(ToolCandidateLocalTipo Tipo, string? Reparador = null);
+public sealed record ToolCandidateLocal(ToolCandidateLocalTipo Tipo, string? Reparador = null, string? Fabrica = null);
 
 public enum ToolCandidateLocalTipo
 {

@@ -113,12 +113,38 @@
                 <option value="@valor" selected="@(Model.RequestedLocal == valor)">Reparação · @reparador</option>
               }
             }
+            @if (local.Valor == "emprestado")
+            {
+              foreach (var fabrica in Model.Fabricas)
+              {
+                var valor = DMO.Alpha.Web.Pages.Ferramentas.IndexModel.LocalFabrica(fabrica.Sigla);
+                <option value="@valor" title="@fabrica.Nome" selected="@(Model.RequestedLocal == valor)">Empréstimo · @fabrica.Sigla</option>
+              }
+            }
           }
         </select>
       </div>
       <div class="dmo-field ferr-w-fabrica">
         <label for="ferr-fabrica" title="Fábrica de origem (a dona da ferramenta)">Fábrica</label>
-        <input id="ferr-fabrica" name="fabrica" data-dmo-maiusculas autocapitalize="characters" maxlength="32" value="@Model.RequestedFabrica" placeholder="MG" />
+        @* As fábricas da BA das Definições; sem elas, o texto livre. *@
+        @if (Model.Fabricas.Count > 0)
+        {
+          <select id="ferr-fabrica" name="fabrica" data-dmo-autosubmit>
+            <option value="">Todas</option>
+            @if (Model.RequestedFabrica is { } escolhida && Model.Fabricas.All(f => f.Sigla != escolhida))
+            {
+              <option value="@escolhida" selected>@escolhida</option>
+            }
+            @foreach (var fabrica in Model.Fabricas)
+            {
+              <option value="@fabrica.Sigla" title="@fabrica.Nome" selected="@(Model.RequestedFabrica == fabrica.Sigla)">@fabrica.Sigla</option>
+            }
+          </select>
+        }
+        else
+        {
+          <input id="ferr-fabrica" name="fabrica" data-dmo-maiusculas autocapitalize="characters" maxlength="32" value="@Model.RequestedFabrica" placeholder="MG" />
+        }
       </div>
       <div class="ferr-filter-actions">
         <a class="dmo-button" data-dmo-completa href="@Url.Page("/Ferramentas/Index", new { @return = Model.ReturnTemplate, por_pagina = Model.PageSize })">Limpar filtros</a>

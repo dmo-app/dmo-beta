@@ -4112,3 +4112,20 @@ Novos: 4 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolCandidateEstadoLocalTests.cs :: ToolCandidateEstadoLocalTests.Localizacao_armazem_primeiro_e_sem_movimentos_e_fabrico`
 
 Selo depois: `2192538d1e48c104`
+
+## A-0260 · 2026-10-28 · contagem-lista
+
+Porquê: Tabela nova FabricasBa (Fábricas da BA, DMO-530): a lista das tabelas e das migrações ganha FabricasBa; o que os testes verificam fica igual. Testes novos das fábricas e do Empréstimo por fábrica.
+Novos: 4 · mudaram: 5 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/FabricasBaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/FabricasBaTests.cs :: FabricasBaTests.Comeca_vazia_e_acrescenta_com_sigla_de_duas_letras_unica`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/FabricasBaTests.cs :: FabricasBaTests.Desativa_sem_apagar_e_MG_e_a_proposta`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/FabricasBaTests.cs :: FabricasBaTests.Emprestimo_filtra_pela_fabrica_da_ultima_saida`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloResumoSchemaTests.cs :: ControloResumoSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingControlos`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosSchemaTests.cs :: PegamentosSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingPegamentosTables`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoToolScopedSchemaTests.cs :: PesoToolScopedSchemaTests.CurrentModel_ExactlyTheListedTables_IncludingPesoTables`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+
+Selo depois: `af57a25520e69d31`
