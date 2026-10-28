@@ -561,3 +561,6 @@ html:root body .jof2.jof2.jof2.jof2.jof2:not(.editing) .zones .card.pair .sec{ga
 /* CS: a Referência e os Furos separados (Diogo, 28/10/2026: «CS referência e aberto e fechado colado»). */
 html:root body .jof2.jof2.jof2.jof2.jof2 [data-jof-familia="CS"]>.sec-head:not(#_){height:auto;flex:none;row-gap:6px}
 html:root body .jof2 .jof-onde .jof-onde-espaco{display:inline-block;width:1.5em}
+/* Com a Informação técnica aberta, a linha da grelha cresce: as notas dos outros cartões ficam do tamanho do texto e não esticam. */
+html:root body main.jof2.jof2.jof2:not(.editing) .zones:has(.sec>details.more[open]) .sec:not(:has(>details.more[open]))>.note-box.note-view:not(.is-ampliada):not(#_){flex:none !important}
+html:root body main.jof2.jof2.jof2:not(.editing) .zones:has(.sec>details.more[open]) .sec:not(:has(>details.more[open]))>.note-box.note-view:not(.is-ampliada)>p:not(#_){flex:none !important}
