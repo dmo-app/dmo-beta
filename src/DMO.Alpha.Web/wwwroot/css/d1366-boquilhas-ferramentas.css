@@ -502,3 +502,21 @@ html body .beta-bq-layout #bqTraceMovements :is(th,td):nth-child(4){width:8%}
 html body .beta-bq-layout #bqTraceMovements :is(th,td):nth-child(5){width:11%}
 html body .beta-bq-layout #bqTraceMovements :is(th,td):nth-child(6){width:20%}
 html body .beta-bq-layout #bqTraceMovements :is(th,td):nth-child(7){width:12%}
+
+/* Ferramentas › Criar (Diogo, 28/10/2026): a Informação técnica vem antes da
+   opcional («é mais importante»), como na ficha (uso, técnica, opcional), e os
+   dois títulos são iguais: letra do «Informação opcional» e o traço à direita. */
+html body main.ferr-page #ferr-create-form{display:flex;flex-direction:column}
+html body main.ferr-page #ferr-create-form>.ferr-editar-linha{display:contents}
+html body main.ferr-page #ferr-create-form>.ferr-create-row-machines{order:1}
+html body main.ferr-page #ferr-create-form>.ferr-editar-linha>.ferr-editar-principal{order:2;margin-top:8px}
+html body main.ferr-page #ferr-create-form>.ferr-hint{order:3}
+html body main.ferr-page #ferr-create-form>.ferr-create-tech{order:4;margin-top:16px;padding-top:0;border-top:0}
+html body main.ferr-page #ferr-create-form>.ferr-editar-linha>.ferr-opcional{order:5;flex:none;margin-top:16px;padding-top:0;border-top:0}
+html body main.ferr-page #ferr-create-form>.ferr-create-tech>summary,
+html body main.ferr-page #ferr-create-form .ferr-opcional>.ferr-opcional-titulo{display:flex;align-items:center;gap:4px;width:100%;height:16px;margin:0 0 8px;padding:0;list-style:none;font-size:12px;font-weight:500;line-height:16px;text-transform:none;letter-spacing:0;color:var(--dmo-text-muted,#5a6273)}
+html body main.ferr-page #ferr-create-form>.ferr-create-tech>summary::-webkit-details-marker{display:none}
+html body main.ferr-page #ferr-create-form>.ferr-create-tech>summary::after,
+html body main.ferr-page #ferr-create-form .ferr-opcional>.ferr-opcional-titulo::after{content:"";flex:1 1 auto;margin-left:8px;border-top:1px solid var(--dmo-border)}
+html body main.ferr-page #ferr-create-form>.ferr-create-tech>summary:is(:hover,:focus-visible){color:var(--dmo-brand-700);outline:0}
+:root[data-theme="dark"] body main.ferr-page #ferr-create-form>.ferr-create-tech>summary:is(:hover,:focus-visible){color:#fff}

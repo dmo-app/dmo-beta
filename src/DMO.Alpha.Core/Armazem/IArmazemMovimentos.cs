@@ -245,6 +245,10 @@ public static class ArmazemTextos
         _ => "Sucatado"
     };
 
+    /// <summary>Uma ferramenta sem nenhum registo no Armazém (Diogo, 28/10/2026:
+    /// «os que não têm registo no armazém mete sem registo»; antes dizia «Fabrico»).</summary>
+    public const string SemRegisto = "Sem registo";
+
     public static string Localizacao(FerramentaLocalizacaoTipo localizacao, string? reparador) => localizacao switch
     {
         FerramentaLocalizacaoTipo.AReparar => string.IsNullOrWhiteSpace(reparador) ? "A reparar" : $"A reparar · {reparador}",

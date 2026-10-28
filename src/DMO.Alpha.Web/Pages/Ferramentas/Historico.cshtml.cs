@@ -23,7 +23,6 @@ namespace DMO.Alpha.Web.Pages.Ferramentas;
 [ModuleEntry(DmoCapabilities.Ferramentas)]
 public sealed class HistoricoModel(
     IFerramentaHistorico historico,
-    IMachineListQuery maquinas,
     CurrentUserCapabilities capabilities,
     ShellStateFactory shellState) : PageModel
 {
@@ -132,8 +131,8 @@ public sealed class HistoricoModel(
             ViewData["Title"] = Ferramenta is null ? "Histórico — Ferramentas" : $"Histórico {Nome(Ferramenta)} — Ferramentas";
             ViewData["Shell"] = (await shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("ferramentas", "Ferramentas"))) with
             {
-                ActiveFunctionKey = "historico",
-                Functions = ShellStateFactory.FerramentasFunctions("historico")
+                ActiveFunctionKey = "ver",
+                Functions = ShellStateFactory.FerramentasFunctions("ver")
             };
             if (Ferramenta is not null)
             {
@@ -143,22 +142,7 @@ public sealed class HistoricoModel(
             return Page();
         }
 
-        ViewData["Title"] = "Histórico das Ferramentas — Ferramentas";
-        ViewData["Shell"] = (await shellState.ForDestinationAsync("ModuleFunctions", new ModulePresentation("ferramentas", "Ferramentas"))) with
-        {
-            ActiveFunctionKey = "historico",
-            Functions = ShellStateFactory.FerramentasFunctions("historico")
-        };
-        Maquinas = await maquinas.ListAsync(cancelar);
-        var filtro = new HistoricoFiltro(Referencia, Tipo, string.IsNullOrWhiteSpace(Linha) ? null : Linha.Trim(), De, Ate, Lote);
-        ComFiltro = filtro.ComFiltro;
-        if (ComFiltro)
-        {
-            var procura = await historico.ProcurarAsync(filtro, cancelar);
-            Linhas = procura.Linhas;
-            Cortada = procura.Cortada;
-        }
-
-        return Page();
+        // Sem ferramenta, vai para o Pesquisar (Diogo, 28/10/2026: «historico e pesquisar é redundante»).
+        return RedirectToPage("/Ferramentas/Index");
     }
 }

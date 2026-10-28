@@ -779,8 +779,14 @@
         <div class="peso-fact"><span>Nº de produção</span><strong>@if (productionCtx.JobOnId > 0) {<a href="/JobOn/Folha?jobon_id=@productionCtx.JobOnId" target="_top" title="Abrir o Job On desta produção">@productionCtx.ProductionNumber</a>} else {@productionCtx.ProductionNumber}</strong></div>
         <div class="peso-fact"><span>Referência</span><strong>@if (!string.IsNullOrWhiteSpace(productionCtx.Reference)) {<a href="/JobOn?historico=1&amp;referencia=@Uri.EscapeDataString(productionCtx.Reference)" target="_top" title="Todas as produções desta referência no Histórico">@productionCtx.Reference</a>} else {@productionCtx.Reference}</strong></div>
         <div class="peso-fact"><span>Máquina</span><strong>@productionCtx.Machine</strong></div>
-        <div class="peso-fact"><span>CM</span><strong>@(pesoDeAntes is not null ? pesoDeAntes.CmToolReference ?? "—" : Model.CmTool?.Reference ?? "—")</strong></div>
-        <div class="peso-fact"><span>Lote da CM</span><strong>@(pesoDeAntes is not null ? pesoDeAntes.CmToolLot ?? "—" : Model.CmTool?.Lot ?? Model.Peso?.CmToolLot ?? "—")</strong></div>
+        @* A CM e o lote num só cartão, com link para a ficha da ferramenta (Diogo, 28/10/2026). *@
+        @{
+          var cmRef = pesoDeAntes is not null ? pesoDeAntes.CmToolReference : Model.CmTool?.Reference;
+          var cmLote = pesoDeAntes is not null ? pesoDeAntes.CmToolLot : Model.CmTool?.Lot ?? Model.Peso?.CmToolLot;
+          var cmId = pesoDeAntes is not null ? pesoDeAntes.CmToolId : Model.CmTool?.ToolId ?? productionCtx.CmToolId;
+          var cmTexto = (cmRef ?? "—") + (string.IsNullOrWhiteSpace(cmLote) ? null : $" · Lote {cmLote}");
+        }
+        <div class="peso-fact"><span>CM</span><strong>@if (!string.IsNullOrWhiteSpace(cmId) && cmRef is not null) {<a href="/Ferramentas/Ficha?tool_id=@Uri.EscapeDataString(cmId)" target="_top" title="Abrir a ficha desta CM">@cmTexto</a>} else {@cmTexto}</strong></div>
         <div class="peso-fact"><span>Processo</span><strong>@(Model.Peso?.Process ?? cmProcessLabel(Model.CmTechnical?.Process))</strong></div>
       </div>
 

@@ -171,8 +171,11 @@ public sealed class JobOnImpressao
 
     private string Percent(string campo) => Model(campo) is { Length: > 0 } x ? x.TrimEnd('%') + "%" : "";
 
+    // Um número por espaço (JobOnFolgas): no MF, «0.12 / 0.16» no primeiro vai para o primeiro e o último.
     private string Folgas(string tipo) =>
-        string.Join(" | ", new[] { 1, 2, 3 }.Select(n => Model($"{tipo}_folga{n}")).Where(f => f.Length > 0));
+        string.Join(" | ", (tipo == "mf"
+            ? JobOnFolgas.UmaPorEspaco(_m.Folha.Valor("mf_folga1"), _m.Folha.Valor("mf_folga2"), _m.Folha.Valor("mf_folga3"))
+            : [_m.Folha.Valor("cm_folga1"), _m.Folha.Valor("cm_folga2"), _m.Folha.Valor("cm_folga3")]).Select(N).Where(f => f.Length > 0));
 
     private static string LoteDe(JobOnToolFacts? f) => f is null ? "" : FolhaModel.Lote(f.Lot);
 

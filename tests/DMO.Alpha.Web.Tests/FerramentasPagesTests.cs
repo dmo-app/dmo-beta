@@ -369,7 +369,7 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
 
         // A lista mostra onde está e o estado no armazém (Diogo, 27/10/2026:
         // «mostrar o estado posiçao no armaze, reparado por reparar»).
-        Assert.Contains(">Onde está<", html);
+        Assert.Contains(">Localização<", html);
         Assert.Contains(">Estado<", html);
 
         // A criação contextual e os formatos-canónicos HINT estão na
