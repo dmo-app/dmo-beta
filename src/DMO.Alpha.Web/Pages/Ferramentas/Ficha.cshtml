@@ -362,17 +362,18 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
           <details class="dmo-options" data-dmo-tab-menu>
             <summary class="dmo-button" aria-label="Opções da ferramenta @humanFacts"><span class="dmo-caret" aria-hidden="true"></span>Opções</summary>
             <div class="dmo-options-list" id="ferrOpcoes">
-              <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-duplicate-dialog">Duplicar para lote novo</button>
-              <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-delete-dialog">Eliminar ferramenta</button>
-              @* Pedir a utilização ao SAP: abre o lembrete, como a Entrada
+              @* Só «Duplicar» e «Eliminar», sem repetir «ferramenta» (Diogo, 28/10/2026: «já sabemos que é a ferramenta»); Eliminar em último. *@
+              @* «Atualizar informação do SAP» (Diogo, 28/10/2026): abre o lembrete, como a Entrada
                  vinda da Produção (só um aberto de cada vez). *@
               @if (Model.Utilizacao?.LembreteDesdeUtc is null)
               {
               <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="PedirUtilizacao" id="ferr-pedir-utilizacao">
                 <input type="hidden" name="tool_id" value="@tool.ToolId" />
-                <button type="submit" class="dmo-options-item" id="ferr-pedir-utilizacao-botao">Pedir a utilização à produção</button>
+                <button type="submit" class="dmo-options-item" id="ferr-pedir-utilizacao-botao">Atualizar informação do SAP</button>
               </form>
               }
+              <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-duplicate-dialog">Duplicar</button>
+              <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-delete-dialog">Eliminar</button>
             </div>
           </details>
           @* UM SÓ «VOLTAR» (Diogo, 26/10/2026: «o voltar depende da página»):
@@ -547,7 +548,7 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
             Model.FactsFabricaOrigem(tool.FabricaOrigem),
             Model.FactsUso(Model.Utilizacao?.Ultima?.Percentagem),
             Model.Utilizacao?.Ultima is { } usoData ? DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(usoData.RegistadaEmUtc).ToString("dd/MM/yyyy", pt) : null,
-            Model.FactsAnQuantity(tool.AnQuantity)))" />
+            Model.FactsAnQuantity(tool.AnQuantity), Model.Fabricas))" />
       </form>
 
     </section>

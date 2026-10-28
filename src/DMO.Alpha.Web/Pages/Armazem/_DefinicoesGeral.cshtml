@@ -12,6 +12,7 @@ html body .arm-linha .dmo-field input{width:min(260px,100%)}
 .arm-card .dmo-table td{padding:4px 8px;vertical-align:middle}
 .arm-card .dmo-valor{min-width:16ch}
 .arm-arquivado .dmo-valor{color:var(--dmo-muted)}
+html body .arm-linha .dmo-field input.arm-fab-sigla{width:56px}
 </style>
   <div id="armDefAvisos" class="dmo-zona" data-dmo-regiao>
     @if (Model.Mensagem.Length > 0)
@@ -57,6 +58,60 @@ html body .arm-linha .dmo-field input{width:min(260px,100%)}
                   <select id="armRepEstado-@r.Id" name="ativo" data-dmo-autosubmit aria-label="Estado do reparador @r.Nome">
                     <option value="sim" selected="@r.Ativo">Ativo</option>
                     <option value="nao" selected="@(!r.Ativo)">Arquivado</option>
+                  </select>
+                </form>
+              </td>
+            </tr>
+          }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  @* AS FÁBRICAS DA BA (Diogo, 28/10/2026): sigla de duas letras e nome, como a
+     tabela dos emails. Começa vazia («deixar só forma de adicionar»); não se
+     apaga, desativa-se («fábricas fecham, outras abrem»). Usa-se no Empréstimo
+     do Armazém e na Fábrica de origem das Ferramentas. *@
+  <section id="armDefFabricas" class="dmo-card arm-card" aria-labelledby="arm-def-fab-title" data-dmo-regiao data-dmo-parcial>
+    <div class="dmo-card-topo">
+      <h3 id="arm-def-fab-title" title="As fábricas da BA para onde se emprestam ferramentas e de onde vêm. Clique num nome para o mudar. Uma fábrica desativada sai das escolhas novas; os movimentos guardam a sigla.">Fábricas da BA</h3>
+      <div class="dmo-card-topo-acoes"><button type="submit" class="dmo-button" id="armFabCriar" form="armFabCriarForm">Adicionar fábrica</button></div>
+    </div>
+
+    <form id="armFabCriarForm" method="post" asp-page="/Armazem/Definicoes" asp-page-handler="CriarFabrica" class="arm-linha">
+      <div class="dmo-field">
+        <label for="armFabSigla">Sigla</label>
+        <input id="armFabSigla" name="sigla" class="arm-fab-sigla" data-dmo-maiusculas autocapitalize="characters" maxlength="2" minlength="2" pattern="[A-Za-z]{2}" autocomplete="off" placeholder="MG" required />
+      </div>
+      <div class="dmo-field">
+        <label for="armFabNome">Nome</label>
+        <input id="armFabNome" name="nome" maxlength="@DMO.Alpha.Core.Armazem.FabricaBa.NomeMaxLength" autocomplete="off" placeholder="Nome da fábrica" required />
+      </div>
+    </form>
+
+    @if (Model.Fabricas.Count > 0)
+    {
+      <div class="dmo-table-wrap">
+        <table class="dmo-table" data-dmo-list="Fábricas da BA">
+          <thead><tr><th>Sigla</th><th>Nome</th><th>Estado</th></tr></thead>
+          <tbody>
+          @foreach (var f in Model.Fabricas)
+          {
+            <tr class="@(f.Ativa ? null : "arm-arquivado")" data-dmo-fabrica="@f.Id">
+              <td>@f.Sigla</td>
+              <td>
+                <form id="armFabNome-@f.Id" method="post" asp-page="/Armazem/Definicoes" asp-page-handler="MudarFabrica">
+                  <input type="hidden" name="fabrica_id" value="@f.Id" />
+                  <input id="armFabNomeValor-@f.Id" class="dmo-valor" data-dmo-valor name="nome" value="@f.Nome" maxlength="@DMO.Alpha.Core.Armazem.FabricaBa.NomeMaxLength" autocomplete="off" aria-label="Nome da fábrica @f.Sigla" required />
+                </form>
+              </td>
+              <td>
+                <form id="armFabAtiva-@f.Id" method="post" asp-page="/Armazem/Definicoes" asp-page-handler="MudarFabrica">
+                  <input type="hidden" name="fabrica_id" value="@f.Id" />
+                  <select id="armFabEstado-@f.Id" name="ativa" data-dmo-autosubmit aria-label="Estado da fábrica @f.Sigla">
+                    <option value="sim" selected="@f.Ativa">Ativa</option>
+                    <option value="nao" selected="@(!f.Ativa)">Desativada</option>
                   </select>
                 </form>
               </td>

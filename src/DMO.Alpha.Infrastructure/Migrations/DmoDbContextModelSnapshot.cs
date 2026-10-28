@@ -388,6 +388,35 @@ namespace DMO.Alpha.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("DMO.Alpha.Core.Armazem.FabricaBa", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Ativa")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<string>("Sigla")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Sigla")
+                        .IsUnique();
+
+                    b.ToTable("FabricasBa", (string)null);
+                });
+
             modelBuilder.Entity("DMO.Alpha.Core.Armazem.FerramentaEstado", b =>
                 {
                     b.Property<int>("Id")

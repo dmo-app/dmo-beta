@@ -114,8 +114,10 @@ public sealed class FichaModel : PageModel
         DMO.Alpha.Core.Armazem.IArmazemMovimentos armazem,
         CurrentUserCapabilities capabilities,
         IFerramentasUsoSap usoSap,
-        IFerramentasFabricoSap fabricoSap)
+        IFerramentasFabricoSap fabricoSap,
+        DMO.Alpha.Core.Armazem.IFabricasBa fabricasBa)
     {
+        _fabricasBa = fabricasBa;
         _usoSap = usoSap;
         _fabricoSap = fabricoSap;
         _armazem = armazem;
@@ -134,6 +136,10 @@ public sealed class FichaModel : PageModel
     private readonly CurrentUserCapabilities _capabilities;
     private readonly IFerramentasUsoSap _usoSap;
     private readonly IFerramentasFabricoSap _fabricoSap;
+    private readonly DMO.Alpha.Core.Armazem.IFabricasBa _fabricasBa;
+
+    /// <summary>As siglas das fábricas da BA ativas, para a Fábrica de origem (Diogo, 28/10/2026).</summary>
+    public IReadOnlyList<string> Fabricas { get; private set; } = Array.Empty<string>();
 
     /// <summary>As produções que a janela mostra (com deslizar, sem páginas).</summary>
     public const int ProducoesPorPagina = 200;
@@ -550,6 +556,7 @@ public sealed class FichaModel : PageModel
         TypeChangedWarning = Sheet is { } mudada ? TypeChangedMessage(tipoAnterior, producoes, mudada.Type) : null;
 
         Machines = await _machineListQuery.ListAsync(HttpContext.RequestAborted);
+        Fabricas = (await _fabricasBa.ListarAsync(HttpContext.RequestAborted)).Where(f => f.Ativa).Select(f => f.Sigla).ToList();
 
         // ?confirm_delete=1 abre logo a janela «Quer mesmo eliminar…?».
         ConfirmDelete = confirmDelete == "1";

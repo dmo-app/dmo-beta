@@ -18,9 +18,12 @@ namespace DMO.Alpha.Web.Pages.Armazem;
 /// </summary>
 [Authorize]
 [DefinicoesEntry("armazem", DmoCapabilities.ArmazemGestao)]
-public sealed class DefinicoesModel(IReparadores reparadores) : PageModel
+public sealed class DefinicoesModel(IReparadores reparadores, IFabricasBa fabricas) : PageModel
 {
     public IReadOnlyList<ReparadorItem> Reparadores { get; private set; } = [];
+
+    /// <summary>As fábricas da BA (Diogo, 28/10/2026): começa vazia, só se acrescenta e desativa.</summary>
+    public IReadOnlyList<FabricaBaItem> Fabricas { get; private set; } = [];
 
     public string? Gravacao { get; private set; }
 
@@ -36,6 +39,11 @@ public sealed class DefinicoesModel(IReparadores reparadores) : PageModel
         "existe" => "Já existe um reparador de CM e MF com esse nome.",
         "familia" => "Escolha se o reparador recebe CM, MF ou os dois.",
         "nao-existe" => "Esse reparador já não existe.",
+        "fab-sigla" => "A sigla da fábrica tem duas letras (por exemplo MG).",
+        "fab-vazio" => "O nome da fábrica não pode ficar em branco.",
+        "fab-longo" => $"O nome da fábrica tem no máximo {FabricaBa.NomeMaxLength} caracteres.",
+        "fab-existe" => "Já existe uma fábrica com essa sigla.",
+        "fab-nao-existe" => "Essa fábrica já não existe.",
         _ => string.Empty
     };
 
@@ -67,6 +75,43 @@ public sealed class DefinicoesModel(IReparadores reparadores) : PageModel
 
         Gravacao = gravacao;
         Reparadores = await reparadores.ListarAsync(HttpContext.RequestAborted);
+        Fabricas = await fabricas.ListarAsync(HttpContext.RequestAborted);
+    }
+
+    private static string Token(FabricaBaResultado resultado) => resultado switch
+    {
+        FabricaBaResultado.Gravada => "ok",
+        FabricaBaResultado.SiglaInvalida => "fab-sigla",
+        FabricaBaResultado.NomeVazio => "fab-vazio",
+        FabricaBaResultado.NomeLongo => "fab-longo",
+        FabricaBaResultado.JaExiste => "fab-existe",
+        _ => "fab-nao-existe"
+    };
+
+    /// <summary>POST: acrescentar uma fábrica da BA (sigla e nome).</summary>
+    [EnvioUnico]
+    [DefinicaoGeral]
+    public async Task<IActionResult> OnPostCriarFabricaAsync(
+        [FromForm(Name = "sigla")] string? sigla,
+        [FromForm(Name = "nome")] string? nome) =>
+        RedirectToPage("/Definicoes/Index", new { gravacao = Token(await fabricas.CriarAsync(sigla, nome, HttpContext.RequestAborted)) });
+
+    /// <summary>POST: mudar o nome (no próprio valor, JSON) ou ativar/desativar uma fábrica (PRG).</summary>
+    [DefinicaoGeral]
+    public async Task<IActionResult> OnPostMudarFabricaAsync(
+        [FromForm(Name = "fabrica_id")] int fabricaId,
+        [FromForm(Name = "nome")] string? nome,
+        [FromForm(Name = "ativa")] string? ativa)
+    {
+        var gravacao = Token(await fabricas.MudarAsync(fabricaId, nome,
+            ativa switch { "sim" => true, "nao" => false, _ => null }, HttpContext.RequestAborted));
+        if (Request.Headers.Accept.Any(a => a?.Contains("application/json", StringComparison.OrdinalIgnoreCase) == true))
+        {
+            var ok = gravacao == "ok";
+            return new JsonResult(new { ok, valor = ok ? nome?.Trim() : null, aviso = ok ? null : MensagemDe(gravacao) });
+        }
+
+        return RedirectToPage("/Definicoes/Index", new { gravacao });
     }
 
     /// <summary>POST: criar um reparador de CM e MF.</summary>

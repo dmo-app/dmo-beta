@@ -69,6 +69,8 @@
   html body main.arm-page #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 12px;align-items:end;margin:0 0 6px}
   html body main.arm-page #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha>.dmo-field{min-width:0}
   html body main.arm-page #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha>.dmo-field :is(input,select){width:100%;max-width:none}
+  /* A Fábrica da BA fica pequena, só a sigla (Diogo, 28/10/2026). */
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha>.dmo-field select.arm-fab{width:76px}
   /* «Corrigir» e «Registar»: no canto superior direito do cartão. */
   html body main.arm-page #armMovFerramenta[data-dmo-ferramenta] .arm-registar-acoes{position:absolute;top:14px;right:20px;z-index:1}
   /* Direita: a ferramenta selecionada. */
