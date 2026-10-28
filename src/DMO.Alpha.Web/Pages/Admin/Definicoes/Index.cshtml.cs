@@ -21,8 +21,50 @@ public class IndexModel(
     IPinDasDefinicoes pinDasDefinicoes,
     ISapDefinicoes sapDefinicoes,
     SapScripts sapScripts,
-    IFerramentasUsoSap usoSap) : PageModel
+    IFerramentasUsoSap usoSap,
+    ISapProcuraRegras sapProcura,
+    DMO.Alpha.Core.Production.IMachineListQuery maquinas) : PageModel
 {
+    /// <summary>A tabela dos códigos de procura no SAP (DMO-585).</summary>
+    public IReadOnlyList<SapProcuraRegra> SapProcura { get; private set; } = [];
+
+    /// <summary>As Linhas para a tabela (os códigos das máquinas).</summary>
+    public IReadOnlyList<string> SapLinhas { get; private set; } = [];
+
+    /// <summary>POST: grava uma linha da tabela dos códigos de procura (ou tira-a, com «Tirar»).</summary>
+    public async Task<IActionResult> OnPostSaveSapProcuraAsync(
+        [FromForm(Name = "procura_tipo")] string? tipo,
+        [FromForm(Name = "procura_linha")] string? linha,
+        [FromForm(Name = "procura_antes")] string? antes,
+        [FromForm(Name = "procura_meio")] string? meio,
+        [FromForm(Name = "procura_depois")] string? depois,
+        [FromForm(Name = "procura_lote")] bool lote,
+        [FromForm(Name = "procura_tirar")] string? tirar)
+    {
+        ToolType? tipoPedido = tipo?.ToLowerInvariant() switch
+        {
+            "cm" => ToolType.Cm,
+            "mf" => ToolType.Mf,
+            "bq" => ToolType.Bq,
+            _ => null
+        };
+        if (tipoPedido is not { } t)
+        {
+            return VoltarSap("procura-invalida");
+        }
+
+        if (!string.IsNullOrEmpty(tirar))
+        {
+            await sapProcura.ApagarAsync(t, linha ?? string.Empty, HttpContext.RequestAborted);
+            return VoltarSap("ok-procura-tirada");
+        }
+
+        var regra = new SapProcuraRegra(t, linha ?? string.Empty, antes ?? string.Empty,
+            string.Equals(meio, "referencia", StringComparison.OrdinalIgnoreCase) ? SapProcuraMeio.Referencia : SapProcuraMeio.NomeTecnico, depois ?? string.Empty, lote);
+        var resultado = await sapProcura.GravarAsync(regra, HttpContext.RequestAborted);
+        return VoltarSap(resultado == SapProcuraGravacao.Gravado ? "ok-procura" : "procura-invalida");
+    }
+
     /// <summary>GET: os scripts do SAP para o «Atualizar do SAP» do Admin › SAP (escritos na pasta pelo browser).</summary>
     public async Task<IActionResult> OnGetScriptsSapAsync()
     {
@@ -55,13 +97,16 @@ public class IndexModel(
 
     public string? SapResult { get; private set; }
 
-    public bool SapSucceeded => SapResult is "ok" or "ok-script" or "ok-repor";
+    public bool SapSucceeded => SapResult is "ok" or "ok-script" or "ok-repor" or "ok-procura" or "ok-procura-tirada";
 
     public string SapResultMessage => SapResult switch
     {
         "ok" => "Definições do SAP guardadas. Os scripts da pasta mudam no próximo «Atualizar do SAP».",
         "ok-script" => "Script guardado.",
         "ok-repor" => "Script reposto como o da app.",
+        "ok-procura" => "Código de procura guardado. Vale no próximo «Atualizar do SAP».",
+        "ok-procura-tirada" => "Linha tirada da tabela dos códigos de procura.",
+        "procura-invalida" => "O código de procura só pode ter letras, algarismos, «-» e «_» (até 20; o «*» bloqueia a ZPPG).",
         nameof(SapGravacao.UtilizadorInvalido) => "O utilizador do SAP não pode ficar vazio nem levar aspas.",
         nameof(SapGravacao.SenhaInvalida) => $"A senha tem no máximo {SapDefinicoesRegras.SenhaMaxima} letras.",
         nameof(SapGravacao.HoraInvalida) => "A hora é de 0 a 23.",
@@ -77,6 +122,8 @@ public class IndexModel(
         SapResult = resultado;
         Sap = await sapDefinicoes.LerAsync(HttpContext.RequestAborted);
         SapLeituras = await sapDefinicoes.LeiturasAsync(20, HttpContext.RequestAborted);
+        SapProcura = await sapProcura.LerAsync(HttpContext.RequestAborted);
+        SapLinhas = (await maquinas.ListAsync(HttpContext.RequestAborted)).Select(m => m.Code).ToList();
         var textos = new List<(string, string, bool)>();
         // O INSTALAR.cmd não se edita: só instala (Diogo, 28/10/2026 18:31).
         foreach (var nome in SapScriptsRegras.Nomes.Where(n => n != SapScriptsRegras.Instalar))

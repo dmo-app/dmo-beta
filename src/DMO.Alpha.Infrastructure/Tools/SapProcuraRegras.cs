@@ -97,10 +97,45 @@ public sealed class SapProcuraRegras(DmoDbContext db) : ISapProcuraRegras
         }
     }
 
-    // Letras, algarismos e o «*» do SAP; nada de aspas nem espaços.
+    public async Task<(string? Codigo, string? AMao)> DaFerramentaAsync(string toolId, CancellationToken cancellationToken = default)
+    {
+        var tool = await db.Tools.AsNoTracking()
+            .Where(t => t.ToolId == toolId)
+            .Select(t => new { t.Type, t.TechnicalName, t.Reference, t.Lot, t.SapCodigo })
+            .FirstOrDefaultAsync(cancellationToken);
+        if (tool is null)
+        {
+            return (null, null);
+        }
+
+        var regras = await LerDeAsync(db, cancellationToken);
+        var linhas = await db.ToolMachineLinks.AsNoTracking().Where(l => l.ToolId == toolId).Select(l => l.Machine.Code).ToListAsync(cancellationToken);
+        return (SapProcura.Codigo(regras, tool.Type, linhas, tool.SapCodigo, tool.TechnicalName, tool.Reference, tool.Lot), tool.SapCodigo);
+    }
+
+    public async Task<bool> GravarCodigoAsync(string toolId, string? codigo, CancellationToken cancellationToken = default)
+    {
+        var limpo = (codigo ?? "").Trim().ToUpperInvariant().Replace(" ", "", StringComparison.Ordinal);
+        if (limpo.Length > FerramentaUtilizacao.CodigoMaxLength || !limpo.All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_' or '.'))
+        {
+            return false;
+        }
+
+        var tool = await db.Tools.FirstOrDefaultAsync(t => t.ToolId == toolId, cancellationToken);
+        if (tool is null)
+        {
+            return false;
+        }
+
+        tool.SapCodigo = limpo.Length == 0 ? null : limpo;
+        await db.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    // Letras, algarismos, «-» e «_»; o «*» bloqueia a ZPPG (Diogo), nada de aspas nem espaços.
     private static bool TextoValido(string? texto) =>
         (texto ?? "").Trim().Length <= SapProcuraRegra.TextoMaximo
-        && (texto ?? "").Trim().All(c => char.IsAsciiLetterOrDigit(c) || c is '*' or '-' or '_');
+        && (texto ?? "").Trim().All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_');
 
     private static ToolType? ToolTypeDe(string token)
     {

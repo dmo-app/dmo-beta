@@ -100,6 +100,12 @@ public interface ISapProcuraRegras
     /// <summary>Grava (ou troca) uma regra.</summary>
     Task<SapProcuraGravacao> GravarAsync(SapProcuraRegra regra, CancellationToken cancellationToken = default);
 
+    /// <summary>O código que o script procura para a ferramenta e o «Código SAP» escrito nela (null quando vem da tabela).</summary>
+    Task<(string? Codigo, string? AMao)> DaFerramentaAsync(string toolId, CancellationToken cancellationToken = default);
+
+    /// <summary>Grava o «Código SAP» da ferramenta; vazio volta à tabela. False quando a ferramenta não existe ou o código é inválido.</summary>
+    Task<bool> GravarCodigoAsync(string toolId, string? codigo, CancellationToken cancellationToken = default);
+
     /// <summary>Tira a regra de uma Linha (a geral do tipo volta ao nome técnico + lote).</summary>
     Task ApagarAsync(ToolType tipo, string linha, CancellationToken cancellationToken = default);
 }

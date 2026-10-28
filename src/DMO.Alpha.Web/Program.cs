@@ -200,6 +200,7 @@ builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IArmazemReparacao, DMO.Alpha.I
 builder.Services.AddScoped<DMO.Alpha.Core.Armazem.IArmazemProximos, DMO.Alpha.Infrastructure.Armazem.ArmazemProximos>();
 builder.Services.AddScoped<DMO.Alpha.Core.Tools.IFerramentasUsoSap, DMO.Alpha.Infrastructure.Tools.FerramentasUsoSap>();
 builder.Services.AddScoped<DMO.Alpha.Core.Tools.ISapDefinicoes, DMO.Alpha.Infrastructure.Tools.SapDefinicoes>();
+builder.Services.AddScoped<DMO.Alpha.Core.Tools.ISapProcuraRegras, DMO.Alpha.Infrastructure.Tools.SapProcuraRegras>();
 builder.Services.AddScoped<DMO.Alpha.Web.Services.SapScripts>();
 builder.Services.AddScoped<DMO.Alpha.Core.Tools.IFerramentasFabricoSap, DMO.Alpha.Infrastructure.Tools.FerramentasFabricoSap>();
 builder.Services.AddScoped<DMO.Alpha.Core.Tools.IFerramentaHistorico, DMO.Alpha.Infrastructure.Tools.FerramentaHistoricoQuery>();

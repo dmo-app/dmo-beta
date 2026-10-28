@@ -7,8 +7,8 @@
 '       modo=data    só as produções, de inicio=aaaa-mm até fim=aaaa-mm
 '                    (sem fim: até hoje);
 '       modo=ref     só a % uso das ferramentas do dmo-codigos-pedido.txt.
-'   - pelo Agendador de Tarefas (/agendado, de 15 em 15 minutos): uma vez
-'     por dia, a partir da HORA, como o modo normal.
+'   - pelo Agendador de Tarefas (/agendado, uma vez por dia à HORA, ou ao
+'     ligar o PC se estava desligado): como o modo normal.
 ' No fim escreve «feito» no dmo-sap-estado.txt. Cada ficheiro lido vai logo
 ' para o DMO (URL, com a CHAVE do Admin › SAP): grava sem ninguém abrir a app
 ' (Diogo, 28/10/2026: «sem ter de ler pasta»).

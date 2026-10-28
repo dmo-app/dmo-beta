@@ -160,6 +160,19 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
        com «Ferramenta eliminada…», em vez de o segundo pedido já não
        encontrar a ferramenta e dizer «Nenhuma eliminação foi feita». A
        lista é outra página: abre-se inteira, como antes. *@
+    @* O «Código SAP» (DMO-586): o que o script procura na ZPPG, quando não é o que a tabela do Admin › SAP dá. *@
+    <dialog id="ferr-codigo-sap-dialog" class="dmo-dialog" aria-labelledby="ferr-codigo-sap-title">
+      <h3 id="ferr-codigo-sap-title">Código SAP</h3>
+      <p class="dmo-aviso-discreto">O script procura <strong id="ferrCodigoSapAtual">@(Model.CodigoSap.Codigo ?? "nada (falta o nome técnico ou o lote)")</strong>@(Model.CodigoSap.AMao is null ? " (da tabela do Admin › SAP)" : " (escrito aqui)"). Escreva outro para esta ferramenta, ou deixe vazio para usar a tabela.</p>
+      <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="CodigoSap" data-dmo-parcial>
+        <input type="hidden" name="tool_id" value="@sheet.ToolId" />
+        <input type="text" name="codigo_sap" class="dmo-input" value="@Model.CodigoSap.AMao" maxlength="64" size="24" autocomplete="off" aria-label="Código SAP" />
+        <div class="dmo-dialog-actions">
+          <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+          <button type="submit" class="dmo-button">Guardar</button>
+        </div>
+      </form>
+    </dialog>
     <dialog id="ferr-delete-dialog" class="dmo-dialog" aria-labelledby="ferr-delete-title" data-dmo-dialog-aberta="@(Model.ConfirmDelete ? "1" : null)">
       <h3 id="ferr-delete-title">Eliminar ferramenta</h3>
       <p class="dmo-aviso-discreto">Quer mesmo eliminar @humanFacts?</p>
@@ -243,6 +256,10 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
     else if (Model.SavedSection == FichaModel.SavedDuplicateWarningCleared)
     {
       <div data-dmo-toast="ok" class="ferr-nota" role="status">Aviso de ferramenta repetida limpo.</div>
+    }
+    else if (Model.SavedSection == FichaModel.SavedCodigoSap)
+    {
+      <div data-dmo-toast="ok" class="ferr-nota" role="status" id="ferrCodigoSapGuardado">Código SAP guardado.</div>
     }
     else if (Model.SavedSection == FichaModel.SavedUtilizacaoPedida)
     {
@@ -372,6 +389,7 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
                 <button type="submit" class="dmo-options-item" id="ferr-pedir-utilizacao-botao">Atualizar informação do SAP</button>
               </form>
               }
+              <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-codigo-sap-dialog">Código SAP</button>
               <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-duplicate-dialog">Duplicar</button>
               <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-delete-dialog">Eliminar</button>
             </div>

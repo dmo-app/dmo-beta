@@ -86,7 +86,7 @@ public sealed class FerramentasUsoSapTests
         var leitura = UsoSapExportacao.Ler(CsvDoScript);
 
         Assert.True(leitura.CabecalhoEncontrado);
-        Assert.Equal(new[] { new UsoSapLinha("M544744MPPSX11", 91.4m, null, null) }, leitura.Linhas);
+        Assert.Equal(new[] { new UsoSapLinha("M544744MPPSX11", 91.4m, null, null, "M544744MPPSX11") }, leitura.Linhas);
     }
 
     [Fact]
