@@ -4167,3 +4167,14 @@ Novos: 7 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.LotesUsados.cs :: JobOnPageTests.Folha_DepoisDeAlterarOLoteDaBq_MostraOAtualEOsDeAntes`
 
 Selo depois: `9639e32da4f53b65`
+
+## A-0293 · 2026-10-28 · teste-novo
+
+Porquê: Calibres da folha do Job On: o «mm» vai para o título e sai do valor; «56.40 X 58.60» em três linhas (Diogo, 28/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraY5DcPyZsqrbPRVhQf3PV4y e cmsg_01K75FTs9bQnbhhH7qttpgraYLxGTcbw5qgNTTgafoptKT)
+Referência: DMO-560
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CalMm.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CalMm.cs :: JobOnPageTests.Folha_CalibresComMm_OMmVaiParaOTitulo`
+
+Selo depois: `3c8bedd55fb52a4f`

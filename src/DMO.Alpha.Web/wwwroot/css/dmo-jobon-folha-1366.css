@@ -543,3 +543,6 @@ html:root body .jof2 .jof-onde a.jof-onde-pos:hover{text-decoration:underline}
    abrir (duplo clique, a ficha) ou, no Editar, trocar a ferramenta (Diogo, 28/10/2026) */
 html:root body .jof2.jof2.jof2 .tool-head[data-jof-ficha]:is(:hover,:focus-visible),
 html:root body .jof2.editing.editing.editing .tool-head:is(:hover,:focus-visible){background:var(--dmo-row-hover) !important;box-shadow:0 0 0 4px var(--dmo-row-hover) !important;border-radius:4px}
+/* Calibres: «56.40 x 58.60» em três linhas, número / x / número (Diogo, 28/10/2026) */
+html:root body .jof2 .calv .cal-vezes{display:inline-flex;flex-direction:column;align-items:center;line-height:1.15}
+html:root body .jof2 .calv .cal-vezes>span:nth-child(2){font-weight:500;color:var(--dmo-muted)}

@@ -1,5 +1,5 @@
 {
-  "selo": "9639e32da4f53b65",
+  "selo": "3c8bedd55fb52a4f",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2487,6 +2487,8 @@
     "tests/DMO.Alpha.Web.Tests/JobOnCabecalhoCssTests.cs :: JobOnCabecalhoCssTests.CabecalhoDoJobOn_ReferenciaEProducaoNaoSeTocam": "2d62bfb54843bc88",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CadenciaSap.cs :: (resto do ficheiro)": "46ed00d38c642192",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CadenciaSap.cs :: JobOnPageTests.Folha_MostraACadenciaDoSap_DaOrdemComMaisDias": "b91dcce9eb25a267",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CalMm.cs :: (resto do ficheiro)": "6ba5b0c2dcbdac75",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CalMm.cs :: JobOnPageTests.Folha_CalibresComMm_OMmVaiParaOTitulo": "ed775dc68504428c",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: (resto do ficheiro)": "c698d9b21097e599",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.Duplicar_AProducaoSugerida_EASeguinteAMaior": "b6936c4f2ff95aa2",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_AbreComOTemplateSemEditar_SoReferenciaEProducao_EDepoisCria": "f59fb1568f960854",

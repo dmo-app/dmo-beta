@@ -43,6 +43,21 @@
     private static readonly (string Curto, string Nome)[] ZonasDasFolgas =
         [("Folga", "Folga"), ("Tol.", "Tolerância"), ("Flecha", "Folga da flecha (hollow mill)")];
 
+    // Nos Calibres o «mm» vai para o título e sai do valor, para poupar espaço (Diogo, 28/10/2026:
+    // «nos calibres metemos os MM nos títulos da tabela»): «Inversão MF (mm)» e «75.20».
+    private static readonly System.Text.RegularExpressions.Regex Mm = new(@"(?<=\d)\s*mm\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+    private static (string Designacao, string? Valor) CalSemMm(string? designacao, string? valor)
+    {
+        var d = designacao ?? "";
+        var v = Mostra(valor);
+        if (v is null || !Mm.IsMatch(v)) return (d, v);
+        return (d.Contains("mm", StringComparison.OrdinalIgnoreCase) ? d : d + " (mm)", Mm.Replace(v, ""));
+    }
+
+    // «56.40 X 58.60»: um número, o «x» por baixo e o outro número por baixo dele (Diogo, 28/10/2026:
+    // «ficar número x, muda linha, número é confuso»).
+    private static readonly System.Text.RegularExpressions.Regex Vezes = new(@"^(?<a>\d+(?:[.,]\d+)?)\s*[xX×]\s*(?<b>\d+(?:[.,]\d+)?)$");
+
     // A tolerância com um só sinal (Diogo, 28/10/2026: «as dimensões apresentam sinal +/- repetido»):
     // «±0.05» e «+0.05» mostram-se «± 0.05»; «-0.05» e «+0.05/-0.02» ficam como estão.
     private static string? Tolerancia(string? v) => Mostra(v)?.Trim() is not { Length: > 0 } t ? null
@@ -832,6 +847,7 @@ else
                     <tbody>
                       @foreach (var l in linhas)
                       {
+                        var (designacaoVista, valorVisto) = CalSemMm(l.Designacao, l.Valor);
                         <tr>
                           <th scope="row">
                             @if (editar)
@@ -844,10 +860,10 @@ else
                             }
                             else
                             {
-                              @l.Designacao
+                              @designacaoVista
                             }
                           </th>
-                          <td>@if (editar) {<input class="f" id="@l.IdDe(JobOnFolhaCampoCal.Valor)" name="Cal[@l.Indice].Valor" value="@Mostra(l.Valor)" type="text" maxlength="@JobOnFolhaCampos.CalMaximo" autocomplete="off" aria-label="Componentes de @l.Nome" />} else {@(Mostra(l.Valor) ?? "—")}</td>
+                          <td>@if (editar) {<input class="f" id="@l.IdDe(JobOnFolhaCampoCal.Valor)" name="Cal[@l.Indice].Valor" value="@Mostra(l.Valor)" type="text" maxlength="@JobOnFolhaCampos.CalMaximo" autocomplete="off" aria-label="Componentes de @l.Nome" />} else if (valorVisto is not null && Vezes.Match(valorVisto) is { Success: true } vezes) {<span class="cal-vezes"><span>@vezes.Groups["a"].Value</span><span>x</span><span>@vezes.Groups["b"].Value</span></span>} else {@(valorVisto ?? "—")}</td>
                           <td>@if (editar) {<input class="f" id="@l.IdDe(JobOnFolhaCampoCal.QtdMaq)" name="Cal[@l.Indice].QtdMaq" value="@Mostra(l.QtdMaq)" type="text" maxlength="@JobOnFolhaCampos.CalMaximo" autocomplete="off" aria-label="QTD máq. de @l.Nome" />} else {@(Mostra(l.QtdMaq) ?? "—")}</td>
                         </tr>
                       }
