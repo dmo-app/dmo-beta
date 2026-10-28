@@ -65,6 +65,8 @@
       });
 
       if (!select) return;
+      // O triângulo à frente de cada ferramenta da lista abre a ficha dela no painel (Diogo, 28/10/2026).
+      select.dmoFicha = id => '/Ferramentas/Ficha?tool_id=' + encodeURIComponent(id);
       select.dmoSource = async term => {
         const query = new URLSearchParams({ handler: 'ToolCandidates', type: tipo, q: term, reference: reference ? reference.value.trim() : '', all: 'false' });
         if (machine && machine.value) query.set('machine_id', machine.value);
@@ -79,8 +81,7 @@
         return {
           // A linha ao lado do lote: o contexto que distingue os lotes.
           // Sem lote, «sem lote» e não «Lote s/lote» (ronda de 26/10/2026, J10).
-          // O triângulo à frente de cada uma abre a ficha dela no painel (Diogo, 28/10/2026).
-          items: page.items.map(item => ({ value: item.toolId, ficha: '/Ferramentas/Ficha?tool_id=' + encodeURIComponent(item.toolId), label: item.reference + ' · ' + (item.lot && item.lot !== 's/lote' ? 'Lote ' + lote(item.lot) : 'sem lote') + (item.machineCodes ? ' · ' + item.machineCodes : '') + (item.uso ? ' · ' + item.uso : '') })),
+          items: page.items.map(item => ({ value: item.toolId, label: item.reference + ' · ' + (item.lot && item.lot !== 's/lote' ? 'Lote ' + lote(item.lot) : 'sem lote') + (item.machineCodes ? ' · ' + item.machineCodes : '') + (item.uso ? ' · ' + item.uso : '') })),
           note: nota(page.filtro) || contagem,
           empty: term ? 'Sem resultados para «' + term + '».' : 'Escreva a referência da ' + tipo + '.'
         };
