@@ -290,6 +290,30 @@ public sealed class ArmazemUltimosPaginaTests : IClassFixture<CustomWebApplicati
         Assert.Equal(3, Regex.Matches(Elemento(movimentos, "id=\"armMovLista\""), "<tr data-dmo-movimento").Count);
     }
 
+    [Fact]
+    public async Task SemRegistoNoArmazem_AFichaDizSemRegisto_ENaoFabrico()
+    {
+        // Diogo, 28/10/2026: «Fabrico» é só quando está a ser usada numa linha.
+        const string semRegisto = "arm-rep-sem-registo";
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            if (!db.Tools.Any(t => t.ToolId == semRegisto))
+            {
+                db.Tools.Add(new Tool { ToolId = semRegisto, Type = ToolType.Bq, Reference = "T194", Lot = "214" });
+                db.SaveChanges();
+            }
+        }
+
+        using var client = await LoginOperatorAsync("6609", DmoCapabilities.Ferramentas, DmoCapabilities.ArmazemGestao);
+        var ficha = await client.GetStringAsync($"/Ferramentas/Ficha?tool_id={semRegisto}");
+        var armazem = await client.GetStringAsync($"/Armazem/Movimentos?ferramenta={semRegisto}");
+
+        Assert.Equal("Sem registo", Texto(Elemento(ficha, "data-dmo-localizacao")).Trim());
+        Assert.Contains("Sem registo", Elemento(armazem, "data-dmo-onde"));
+        Assert.DoesNotContain("Fabrico", Elemento(armazem, "data-dmo-onde"));
+    }
+
     private sealed class Sessao : ICurrentAccountContext
     {
         public ActorContext Current { get; } = new() { IsAuthenticated = true, ActorId = Guid.NewGuid(), DisplayName = "Rui", OperatorId = "2165" };

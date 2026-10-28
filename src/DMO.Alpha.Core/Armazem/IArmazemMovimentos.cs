@@ -138,6 +138,18 @@ public sealed record ArmazemSituacao(
 {
     public bool NoArmazem => Posicao is not null;
 
+    /// <summary>
+    /// Onde está, para a ficha e o Armazém: a posição, o sítio da Saída
+    /// («Reparação · Moldin», «Fabrico» quando saiu para uma Linha) ou, sem
+    /// nenhum registo no Armazém, «Sem registo» (Diogo, 28/10/2026: «Fabrico»
+    /// é só quando está a ser usada numa linha).
+    /// </summary>
+    public string OndeEsta => NoArmazem
+        ? $"Armazém · posição {Posicao}"
+        : LocalizacaoDesdeUtc is null
+            ? ArmazemTextos.SemRegisto
+            : ArmazemTextos.Localizacao(Localizacao, LocalizacaoPormenor);
+
     /// <summary>O par desta ferramenta (o MF da CM, ou a CM do MF, da mesma referência e lote), se existir.</summary>
     public ArmazemPar? Par { get; init; }
 
