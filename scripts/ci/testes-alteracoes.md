@@ -4127,3 +4127,13 @@ Novos: 3 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReferenciaNova.cs :: JobOnPageTests.Folha_ReferenciaSemJobOn_QuemSoVe_FicaComOAviso`
 
 Selo depois: `1f1e7627f8515fe9`
+
+## A-0291 · 2026-10-28 · ok-do-diogo
+
+Porquê: Planeamento: a lista «Produção» vem já com a última produção escolhida em vez de «Escolher produção» (Diogo, 28/10/2026: «selecionar, deixar a última no dropdown»; «sim» no cartão e «ok» em cmsg_01K75FTs9bQnbhhH7qttpgra3FCNTj9umBvP7F7hPToAYt)
+Referência: DMO-556
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Procura_EmDoisCampos_AReferenciaEncheODropdownDasProducoes`
+
+Selo depois: `126fec2738be8168`
