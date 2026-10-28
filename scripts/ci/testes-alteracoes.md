@@ -4103,10 +4103,10 @@ Selo depois: `1ecbaa53f6ccc384`
 
 ## A-0280 · 2026-10-28 · teste-novo
 
-Porquê: DMO-545: teste novo do Histórico de produções com o artigo e a % estimada
+Porquê: DMO-545: teste novo do Histórico de produções com o artigo de cada produção
 Novos: 2 · mudaram: 0 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoComArtigo.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoComArtigo.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraOArtigoEAPercentagemEstimada`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoComArtigo.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraOArtigoDeCadaProducao`
 
-Selo depois: `b7f364766785160b`
+Selo depois: `461f3447b9a7a32b`
