@@ -1,6 +1,8 @@
 using DMO.Alpha.Core.Paging;
+using DMO.Alpha.Core.Production;
 using DMO.Alpha.Core.Runtime;
 using DMO.Alpha.Core.Tools;
+using DMO.Alpha.Infrastructure.Controlo;
 using DMO.Alpha.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -66,26 +68,49 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
     public Task<DateTime?> UltimoFicheiroAsync(CancellationToken cancellationToken = default) =>
         db.SapFabricos.AsNoTracking().MaxAsync(s => s.FicheiroModificadoEmUtc, cancellationToken);
 
-    public async Task<int?> CadenciaDoJobOnAsync(int jobOnId, CancellationToken cancellationToken = default)
+    public async Task<CadenciaDoJobOn?> CadenciaDoJobOnAsync(int jobOnId, CancellationToken cancellationToken = default)
     {
-        var j = await db.JobOns.AsNoTracking()
-            .Where(j => j.Id == jobOnId && j.InicioEm != null)
-            .Select(j => new { j.Reference, Maquina = j.Machine.Code, j.InicioEm, j.FimEm })
+        var atual = await db.JobOns.AsNoTracking()
+            .Where(j => j.Id == jobOnId)
+            .Select(j => new { j.Id, j.Reference, j.ProductionNumber, Maquina = j.Machine.Code, j.InicioEm, j.FimEm })
             .FirstOrDefaultAsync(cancellationToken);
-        if (j is null)
+        if (atual is null)
         {
             return null;
         }
 
-        var maquina = j.Maquina.ToUpperInvariant();
-        var de = j.InicioEm!.Value;
-        var sap = await db.SapFabricos.AsNoTracking()
-            .Where(s => s.Linha == maquina && s.FimEm >= de && s.Cadencia != null)
+        // A própria produção; sem cadência, as anteriores da mesma referência
+        // pela regra única de «anterior» (a do Peso), a mais recente primeiro.
+        var anteriores = await db.JobOns.AsNoTracking()
+            .Where(j => j.Reference == atual.Reference && j.Id != atual.Id)
+            .SoAnteriores(j => j, atual.Id, atual.InicioEm)
+            .MaisRecentePrimeiro(j => j)
+            .Take(IProductionPickerQuery.MaxResults)
+            .Select(j => new { j.Id, j.Reference, j.ProductionNumber, Maquina = j.Machine.Code, j.InicioEm, j.FimEm })
             .ToListAsync(cancellationToken);
-        return FabricoSapCadencia.DoJobOn(
-            sap.Where(s => FabricoSapExportacao.Corresponde(s.Material, s.Linha, s.InicioEm, s.FimEm, j.Reference, j.Maquina, j.InicioEm, j.FimEm)),
-            de,
-            j.FimEm);
+        var producoes = anteriores.Prepend(atual).Where(j => j.InicioEm.HasValue).ToList();
+        if (producoes.Count == 0)
+        {
+            return null;
+        }
+
+        var maquinas = producoes.Select(j => j.Maquina.ToUpperInvariant()).Distinct().ToList();
+        var de = producoes.Min(j => j.InicioEm!.Value);
+        var sap = await db.SapFabricos.AsNoTracking()
+            .Where(s => maquinas.Contains(s.Linha) && s.FimEm >= de && s.Cadencia != null)
+            .ToListAsync(cancellationToken);
+        foreach (var j in producoes)
+        {
+            var ordens = sap.Where(s => FabricoSapExportacao.Corresponde(s.Material, s.Linha, s.InicioEm, s.FimEm, j.Reference, j.Maquina, j.InicioEm, j.FimEm));
+            if (FabricoSapCadencia.Resumo(ordens, j.InicioEm!.Value, j.FimEm) is { } resumo)
+            {
+                return j.Id == atual.Id
+                    ? new CadenciaDoJobOn(resumo)
+                    : new CadenciaDoJobOn(resumo, j.Id, j.ProductionNumber);
+            }
+        }
+
+        return null;
     }
 
     public async Task<IReadOnlyDictionary<int, PesoSapResumo>> PesoDosJobOnsAsync(IReadOnlyCollection<int> jobOnIds, CancellationToken cancellationToken = default)
@@ -276,7 +301,8 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
             linhas.Any(s => s.ProducaoLiquida.HasValue) ? linhas.Sum(s => s.ProducaoLiquida ?? 0) : null,
             linhas.Count,
             UsoAntes(leituras, inicio),
-            UsoDepois(leituras, inicio, fim, proximoInicio));
+            UsoDepois(leituras, inicio, fim, proximoInicio),
+            inicio is { } de ? FabricoSapCadencia.Resumo(linhas, de, fim) : null);
     }
 
     // Antes: a última leitura até ao dia do início (a desse dia é o ponto de
