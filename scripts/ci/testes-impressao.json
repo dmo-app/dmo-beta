@@ -1,5 +1,5 @@
 {
-  "selo": "fd8a7571dbcd50e2",
+  "selo": "e1b6ee495b0e05a8",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2365,7 +2365,7 @@
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.Ficha_CamposTecnicos_NoMaximoDuasCasas_SemZerosNoFim": "0f8e725edd971cb4",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.Ficha_SemMaquinas_AvisaComLinkParaOEditar": "024662b750ffc71c",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.GetFicha_Bq_ShowsOnlyBqTechnicalFields_AndPostKeepsCmValuesOffTheBq": "7ce9895bab307537",
-    "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.GetFicha_ComposesFactsAndGenesisTpGeometry_ShownAsRegistered": "5de773ce595ff69c",
+    "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.GetFicha_ComposesFactsAndGenesisTpGeometry_ShownAsRegistered": "e7222bed2fea9e5c",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.GetFicha_OldRefusalLinks_StillShowTheirMessages": "ac3ba73a8a8eca24",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.GetFicha_UnknownToolId_CleanWarning_NothingInvented": "cc6a6dbda12bea61",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.PostCreate_ContextualReturnTemplate_GetsMintedToolIdBack": "1578f55ea7c3a0a5",

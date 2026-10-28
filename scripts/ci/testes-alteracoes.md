@@ -4138,3 +4138,13 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/visual/paginacao_parcial_browser.py`
 
 Selo depois: `fd8a7571dbcd50e2`
+
+## A-0262 · 2026-10-28 · ok-do-diogo
+
+Porquê: Nas Opções da ficha os textos passam a «Duplicar» e «Eliminar» (Diogo: «já sabemos que é a ferramenta»); o teste verifica os textos novos.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra78HhrtqAE3oZqT6prTaNap, cmsg_01K75FTs9bQnbhhH7qttpgraNrCcjWyRm9mYUMQiUFy3br
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.cs :: ForbiddenMachineListQuery.GetFicha_ComposesFactsAndGenesisTpGeometry_ShownAsRegistered`
+
+Selo depois: `e1b6ee495b0e05a8`

@@ -980,8 +980,8 @@ public partial class FerramentasPagesTests : IClassFixture<CustomWebApplicationF
         // Duplicar e Eliminar no «Opções» do canto do Geral, cada um numa janela
         // pequena (Diogo, 17/10/2026); já não são secções da página.
         Assert.Contains("<summary class=\"dmo-button\" aria-label=\"Opções da ferramenta", html);
-        Assert.Contains("data-dmo-dialog=\"ferr-duplicate-dialog\">Duplicar para lote novo</button>", html);
-        Assert.Contains("data-dmo-dialog=\"ferr-delete-dialog\">Eliminar ferramenta</button>", html);
+        Assert.Contains("data-dmo-dialog=\"ferr-duplicate-dialog\">Duplicar</button>", html);
+        Assert.Contains("data-dmo-dialog=\"ferr-delete-dialog\">Eliminar</button>", html);
         Assert.Contains("<dialog id=\"ferr-duplicate-dialog\"", html);
         Assert.DoesNotContain("Eliminar esta ferramenta", html);
         // Eliminar: só o aviso curto, sem as contagens (Diogo, 17/10/2026).

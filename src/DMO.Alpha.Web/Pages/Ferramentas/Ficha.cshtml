@@ -362,8 +362,7 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
           <details class="dmo-options" data-dmo-tab-menu>
             <summary class="dmo-button" aria-label="Opções da ferramenta @humanFacts"><span class="dmo-caret" aria-hidden="true"></span>Opções</summary>
             <div class="dmo-options-list" id="ferrOpcoes">
-              <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-duplicate-dialog">Duplicar para lote novo</button>
-              <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-delete-dialog">Eliminar ferramenta</button>
+              @* Só «Duplicar» e «Eliminar», sem repetir «ferramenta» (Diogo, 28/10/2026: «já sabemos que é a ferramenta»); Eliminar em último. *@
               @* Pedir a utilização ao SAP: abre o lembrete, como a Entrada
                  vinda da Produção (só um aberto de cada vez). *@
               @if (Model.Utilizacao?.LembreteDesdeUtc is null)
@@ -373,6 +372,8 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
                 <button type="submit" class="dmo-options-item" id="ferr-pedir-utilizacao-botao">Pedir a utilização à produção</button>
               </form>
               }
+              <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-duplicate-dialog">Duplicar</button>
+              <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-delete-dialog">Eliminar</button>
             </div>
           </details>
           @* UM SÓ «VOLTAR» (Diogo, 26/10/2026: «o voltar depende da página»):
