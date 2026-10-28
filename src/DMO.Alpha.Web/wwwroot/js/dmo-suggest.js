@@ -300,12 +300,23 @@
       ++request;
       abortPending();
     });
-    window.addEventListener("pagehide", function () {
+    // Ao sair da página cancela o que estiver em espera. Um só listener para
+    // todos os campos (eram um por campo, e os campos de uma zona trocada
+    // ficavam presos à janela): sai da lista quando o campo sai da página.
+    cancelarAoSair.set(input, function () {
       clearTimeout(timer);
       ++request;
       abortPending();
     });
   }
+
+  var cancelarAoSair = new Map();
+  function largarRemovidos() {
+    cancelarAoSair.forEach(function (_, input) { if (!input.isConnected) cancelarAoSair.delete(input); });
+  }
+  window.addEventListener("pagehide", function () {
+    cancelarAoSair.forEach(function (cancelar) { cancelar(); });
+  });
 
   /* ---------- modo 2: select longo transformado em filtro local ---------- */
   function enhanceSelect(select) {
@@ -422,6 +433,7 @@
   }
 
   function init(root) {
+    largarRemovidos();
     (root || document).querySelectorAll("input[data-dmo-suggest]").forEach(function (input) {
       if (input.dataset.dmoSuggestReady) return;
       input.dataset.dmoSuggestReady = "1";

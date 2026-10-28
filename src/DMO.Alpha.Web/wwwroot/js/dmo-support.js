@@ -137,8 +137,10 @@
       if (semPainel_(url.href) === aberta) return true;
       if (dirty) { requestClose(); return true; }
     }
+    // Um <dmo-painel> com alterações por guardar recusa fechar: fica ele, com o
+    // aviso, e o painel de apoio não abre por cima (eram dois painéis abertos).
+    if (!panel.open && window.DmoPainel?.fecharTodos?.() === false) return true;
     aberta = semPainel_(url.href);
-    window.DmoPainel?.fecharTodos?.();
     opener = source || document.activeElement;
     dirty = false; operation = false; confirm.hidden = true;
     acertarPainel(url.pathname);
