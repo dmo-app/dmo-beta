@@ -52,12 +52,14 @@
       }
 
       botao.addEventListener('click', () => {
-        if (!editar) return;
+        // Fora do Editar, um clique abre a ficha (Diogo, 28/10/2026: «abrir ferramenta com 1 clique em vez de 2»).
+        if (!editar) { abrirFicha(); return; }
         // Um clique muda; o segundo clique logo a seguir é o duplo clique (abre a ficha).
         if (espera) return;
         espera = setTimeout(() => { espera = null; mudar(); }, ESPERA_CLIQUE);
       });
       botao.addEventListener('dblclick', () => {
+        if (!editar) return;
         if (espera) { clearTimeout(espera); espera = null; }
         abrirFicha();
       });
@@ -77,7 +79,7 @@
         return {
           // A linha ao lado do lote: o contexto que distingue os lotes.
           // Sem lote, «sem lote» e não «Lote s/lote» (ronda de 26/10/2026, J10).
-          items: page.items.map(item => ({ value: item.toolId, label: item.reference + ' · ' + (item.lot && item.lot !== 's/lote' ? 'Lote ' + lote(item.lot) : 'sem lote') + (item.machineCodes ? ' · ' + item.machineCodes : '') })),
+          items: page.items.map(item => ({ value: item.toolId, label: item.reference + ' · ' + (item.lot && item.lot !== 's/lote' ? 'Lote ' + lote(item.lot) : 'sem lote') + (item.machineCodes ? ' · ' + item.machineCodes : '') + (item.uso ? ' · ' + item.uso : '') })),
           note: nota(page.filtro) || contagem,
           empty: term ? 'Sem resultados para «' + term + '».' : 'Escreva a referência da ' + tipo + '.'
         };
@@ -595,11 +597,20 @@
       lugar = null;
       aberta = null;
     };
+    // Com uma nota ampliada, um clique fora só a fecha: não abre outra nem carrega no que está por
+    // baixo (Diogo, 28/10/2026: «carregar nas notas abre e outro clique fora fecha, não deixa
+    // substituir»). No Editar, o que se escreveu fica na caixa e vai com o Guardar.
+    // O mousedown fora também não passa, para o clique que fecha não pôr o cursor noutra caixa.
+    document.addEventListener('mousedown', (e) => { if (aberta && !aberta.contains(e.target)) e.preventDefault(); }, true);
+    document.addEventListener('click', (e) => {
+      if (!aberta || aberta.contains(e.target)) return;
+      fechar();
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    }, true);
     folha.addEventListener('click', (e) => {
       const caixa = e.target.closest('[data-jof-nota]');
-      if (caixa === aberta) return;
-      fechar();
-      if (!caixa) return;
+      if (!caixa || caixa === aberta) return;
       const rotulo = caixa.querySelector(':scope > span');
       if (rotulo) rotulo.textContent = titulo(caixa);
       lugar = document.createElement('div');
@@ -609,12 +620,14 @@
       caixa.before(lugar);
       caixa.classList.add('is-ampliada');
       aberta = caixa;
+      // No Editar abre já pronta a escrever, no fim do texto (a não ser que se tenha clicado no texto).
+      const texto = caixa.querySelector('textarea');
+      if (texto && e.target !== texto) { texto.focus(); texto.setSelectionRange(texto.value.length, texto.value.length); }
     });
     folha.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') fechar();
       else if (e.key === 'Enter' && e.target.matches('.note-view[data-jof-nota]')) e.target.click();
     });
-    document.addEventListener('click', (e) => { if (aberta && !folha.contains(e.target)) fechar(); });
     // A «Informação técnica» abre por cima das Notas (Diogo, 27/10/2026), em vista e no Editar
     // (28/10/2026: a folha não desliza): um clique fora dela, ou o Escape, fecha-a; abre uma de cada vez.
     const tecnicas = () => folha.querySelectorAll('.sec > details.more[open]');
@@ -795,7 +808,19 @@
     });
   }
 
+  // No painel deslizante (?painel=1) o «Cancelar» do Editar volta ao resumo da
+  // folha dentro do painel, não à folha inteira (Diogo, 28/10/2026).
+  function cancelarNoPainel() {
+    if (document.documentElement.dataset.dmoEmbedded !== 'true') return;
+    document.querySelectorAll('.head-tools a.btn[href^="/JobOn/Folha"]').forEach(a => {
+      const u = new URL(a.getAttribute('href'), location.href);
+      u.searchParams.set('painel', '1');
+      a.setAttribute('href', u.pathname + u.search);
+    });
+  }
+
   function init() {
+    cancelarNoPainel();
     calibresValores();
     dimensoesLongas();
     painel();

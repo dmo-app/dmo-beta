@@ -321,8 +321,9 @@ public class PesoPorCombinacaoPageTests : IClassFixture<CustomWebApplicationFact
         Assert.Contains("Peso 1 de 2 · de antes da troca da CM ou da BQ: fica como estava e já não recebe leituras.", antigo);
         Assert.Contains($"<a class=\"dmo-button\" href=\"/Controlo/Peso?controlo_id={producao.ControloId}\">Abrir o Peso atual</a>", antigo);
         Assert.DoesNotContain("data-peso-rows-form", antigo);
-        Assert.Contains("<div class=\"peso-fact\"><span>CM</span><strong>5447</strong></div>", antigo);
-        Assert.Contains("<div class=\"peso-fact\"><span>Lote da CM</span><strong>8</strong></div>", antigo);
+        // A CM e o lote num só cartão, com link para a ficha (Diogo, 28/10/2026).
+        Assert.Matches("<div class=\"peso-fact\"><span>CM</span><strong><a href=\"/Ferramentas/Ficha\\?tool_id=[^\"]+\"[^>]*>5447 · Lote 8</a></strong></div>", antigo);
+        Assert.DoesNotContain("<span>Lote da CM</span>", antigo);
         Assert.Contains("Ferramentas anteriores · aberto", CartaoDosPesos(antigo));
         Assert.Contains($"name=\"peso_id\" value=\"{pesoA}\"", antigo);
 

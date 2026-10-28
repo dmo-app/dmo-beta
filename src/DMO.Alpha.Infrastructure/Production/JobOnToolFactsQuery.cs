@@ -192,7 +192,7 @@ public sealed class JobOnToolFactsQuery : IJobOnToolFactsQuery
                 ? $"Armazém · posição {posicao}"
                 : localizacoes.TryGetValue(tool.ToolId, out var localizacao)
                     ? DMO.Alpha.Core.Armazem.ArmazemTextos.Localizacao(localizacao.Localizacao, localizacao.ReparadorNome)
-                    : registada ? "Fabrico" : null;
+                    : registada ? "Fabrico" : DMO.Alpha.Core.Armazem.ArmazemTextos.SemRegisto;
             var avisoArmazem = (registada, temEstado) switch
             {
                 (false, false) => $"{nome} não está registada no Armazém e não tem estado.",

@@ -106,9 +106,9 @@
     </div>
   }
   <nav data-dmo-parcial class="bq-tool-pagination" aria-label="Paginação de boquilhas">
-    <a class="btn dmo-arrow" href="@(Model.CatalogPageNumber > 1 ? Model.CatalogLink(Model.CatalogPageNumber - 1) : null)" aria-label="Página anterior" aria-disabled="@(Model.CatalogPageNumber <= 1 ? "true" : null)">←</a>
+    <a class="btn dmo-arrow" href="@(Model.CatalogPageNumber > 1 ? Model.CatalogLink(Model.CatalogPageNumber - 1) : null)" aria-label="Página anterior" aria-disabled="@(Model.CatalogPageNumber <= 1 ? "true" : null)">Anterior</a>
     <span aria-label="Página @Model.CatalogPageNumber de @Model.CatalogPages">@Model.CatalogPageNumber de @Model.CatalogPages</span>
-    <a class="btn dmo-arrow" href="@(Model.CatalogPageNumber < Model.CatalogPages ? Model.CatalogLink(Model.CatalogPageNumber + 1) : null)" aria-label="Página seguinte" aria-disabled="@(Model.CatalogPageNumber >= Model.CatalogPages ? "true" : null)">→</a>
+    <a class="btn dmo-arrow" href="@(Model.CatalogPageNumber < Model.CatalogPages ? Model.CatalogLink(Model.CatalogPageNumber + 1) : null)" aria-label="Página seguinte" aria-disabled="@(Model.CatalogPageNumber >= Model.CatalogPages ? "true" : null)">Seguinte</a>
     @* Mudar o «Por página» mantém os filtros e volta à página 1. *@
     <form method="get" asp-page="/Boquilhas/Index" class="dmo-por-pagina" data-dmo-fica data-dmo-parcial>
       <input type="hidden" name="ficheiros" value="1" />
