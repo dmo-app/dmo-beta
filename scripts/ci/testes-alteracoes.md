@@ -4111,3 +4111,13 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoDensidadeAgua.cs :: ControloCapabilitiesCutHPageTests.NovoPeso_MostraATemperaturaEADensidadeDaAgua`
 
 Selo depois: `53a6349f7132de7b`
+
+## A-0300 · 2026-10-28 · teste-novo
+
+Porquê: O Peso lê o Diâmetro e a Calote do Tampão da folha do Job On quando o Job On não os tem gravados (Job On importado).
+Referência: DMO-564
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_TampaoSoNaFolhaDoJobOn_LeODaFolha`
+
+Selo depois: `bcd425becb1b4772`
