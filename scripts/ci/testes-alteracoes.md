@@ -4316,3 +4316,42 @@ Novos: 6 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `43d26cce1f4efcab`
+
+## A-0306 · 2026-10-28 · ok-do-diogo
+
+Porquê: Lote 0.3.0-beta.227: #264 PDF do Peso sem duplicados (DMO-526, antes A-0256: o peso usado da produção anterior já está no cartão, sai a repetição no rodapé); #267 AN nas Boquilhas e DMO-572/573/574 (antes A-0263, contagem-lista); #273 triângulo no Editar e reparador na linha do Armazém (DMO-559, DMO-570, testes novos); #270 relatório de frontend e largura dos campos (DMO-537, testes JS novos).
+Referência: #264: Diogo 28/10 cmsg_01K75FTs9bQnbhhH7qttpgraKQa9WN4maaHqZRbPbFJPru; #267, #270 e #273: ver os PR
+Novos: 25 · mudaram: 5 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: SemDefinicoes.Corrigir_SoAn_AceitaZeroBq_SemAnRecusa`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: SemDefinicoes.Corrigir_SoMudaOsAnQuandoOsTraz`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: SemDefinicoes.Registar_AnNegativo_RecusaENadaGrava`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: SemDefinicoes.Registar_ComAn_GravaOsAn_SemAnOuZeroFicaSemAn`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqSaldoPorBqTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqSaldoPorBqTests.cs :: NoSettings.BqQueSaiuNumJobOn_EVoltaNoutro_NaoFicaComSaldo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqSaldoPorBqTests.cs :: NoSettings.EntraMaisDoQueSaiu_EmTodasAsProducoes_FicaComSaldo`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_ADiscrepanciaTambemContaParaOsAn`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_IlegivelOuNegativo_NaoGravaNada_EOFormularioVoltaComOQueSeEscreveu`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_NaFichaDaBq_GravaEMostraBqEAn`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_NoRegisto_GravaComOMovimento_EContaOsAnFora`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_NosMovimentos_OFiltroPecaAn_MostraSoOsMovimentosComAn`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_RegistarSemJobOn_APecaVemEmBq_ComAnGravaSoOsAn`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_ALinhaPropostaEAUltimaOndeTeveMovimentos_SeForDaFicha`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_ALinhaSoTemAsDaFichaDaBq_EVemJaEscolhida`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_NumJobOnAnterior_FicaNoRegistoDesseJobOn_EODaEntradaDizQuemRegistou`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReparadorNaLinha.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReparadorNaLinha.cs :: JobOnPageTests.Folha_ReparadorDepoisDoEstadoEDaPosicao_SemLinhaAParte`
+- novo: `tests/ShellProof/dmo-suggest-sair.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/dmo-suggest-sair.test.cjs :: sair da página cancela o pedido em voo`
+- novo: `tests/ShellProof/dmo-suggest-sair.test.cjs :: trocar a zona do campo 25 vezes deixa um só «pagehide» e sair da página ainda cancela o pedido`
+- novo: `tests/ShellProof/painel-apoio-alteracoes.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/painel-apoio-alteracoes.test.cjs :: Painel de apoio: um <dmo-painel> com alterações por guardar fica com o aviso e o apoio não abre por cima`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.cs :: PesoPdfGeneratorTests.ProducaoAnterior_DizProducao_ENaoSAP`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasRegistoConsultasTests.cs :: BoquilhasRegistoConsultasTests.Registo_GetFazPoucasConsultas`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.CriarEEditar_UmSoFormulario_EditarGravaONomeTecnico`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `6c1ef279e6a499af`
