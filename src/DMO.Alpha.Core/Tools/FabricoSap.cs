@@ -185,7 +185,11 @@ public static class FabricoSapExportacao
 /// que se repete mais»). Cada ordem do SAP conta com os dias que tem dentro
 /// das datas do Job On.
 /// </summary>
-public sealed record PesoSapResumo(decimal MediaGramas, decimal ModaGramas, int Dias, int Ordens);
+/// <summary>
+/// O peso de uma produção: a média pelos dias, a moda, os dias em que a moda
+/// se usou (Diogo, 28/10/2026: «quantas vezes usaram 130»), os dias e as ordens.
+/// </summary>
+public sealed record PesoSapResumo(decimal MediaGramas, decimal ModaGramas, int Dias, int Ordens, int ModaDias = 0);
 
 public static class FabricoSapPeso
 {
@@ -219,8 +223,8 @@ public static class FabricoSapPeso
             .GroupBy(o => o.Peso)
             .OrderByDescending(g => g.Sum(o => o.Dias))
             .ThenByDescending(g => g.Max(o => o.InicioEm))
-            .First().Key;
-        return new PesoSapResumo(media, moda, totalDias, comPeso.Count);
+            .First();
+        return new PesoSapResumo(media, moda.Key, totalDias, comPeso.Count, moda.Sum(o => o.Dias));
     }
 }
 

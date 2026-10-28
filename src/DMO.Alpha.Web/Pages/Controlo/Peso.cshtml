@@ -1932,13 +1932,6 @@
       }
       else
       {
-        var pesoGuardadoDaEscolhida = escolhida is not null && guardada?.JobOnId == escolhida.JobOnId ? guardada.PesoGramas : null;
-        // O peso do SAP da escolhida (média pelos dias e moda); sem peso
-        // guardado, o campo vem com a média, para guardar ou mudar.
-        var sapDoCampo = escolhida is not null && Model.ProducaoAnteriorSap.TryGetValue(escolhida.JobOnId, out var sapCampo) ? sapCampo : null;
-        var pesoEcho = Model.ProducaoAnteriorEcho
-            ?? (pesoGuardadoDaEscolhida is { } pg ? pg.ToString("0.##", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) : null)
-            ?? (sapDoCampo is not null ? fmt(sapDoCampo.MediaGramas) : null);
         <form id="pesoAnteriorForm" method="post" asp-page="/Controlo/Peso" asp-page-handler="GuardarProducaoAnterior" class="peso-inline-form" data-producao-anterior>
           <div id="pesoAnteriorContexto" class="dmo-zona" data-dmo-regiao>
             <input type="hidden" name="peso_id" value="@currentPesoForComparison.PesoId" />
@@ -1969,10 +1962,7 @@
               }
             </select>
           </div>
-          <div class="dmo-field">
-            @* Sem rótulo à vista (o Owner 2026-10-17: «remove»); o nome fica no aria-label. *@
-            <input id="producaoAnteriorPeso" name="anterior_peso" type="text" inputmode="decimal" autocomplete="off" placeholder="Peso usado (g)" aria-label="Peso usado na produção (g)" value="@pesoEcho" />
-          </div>
+          @* Sem o peso escrito à mão (Diogo, 28/10/2026): contam a média e a moda da produção. *@
           @* O Peso completo da produção anterior (Diogo, 26/10/2026: «caso não exista, criar, que abre uma página onde criamos, podendo assim associar a um Job On»):
              abre a folha de Peso dessa produção (CM, tampão, calote e temperatura), gravada no Job On escolhido. *@
           <button type="submit" class="dmo-button" formaction="@Url.Page("/Controlo/Peso", "AbrirJobOn")" formtarget="_self" formnovalidate data-peso-anterior-abrir aria-label="Abrir o Peso desta produção">Abrir</button>
@@ -1980,17 +1970,16 @@
       }
       </div>
       </div>
-      @* A média e a moda da produção, o peso usado, a diferença e a variação
-         numa só faixa (Diogo, 27/10/2026). A média e a moda trocam no browser
-         com a produção escolhida; o resto é a zona do que está guardado. *@
+      @* A média e a moda da produção numa só faixa (Diogo, 27/10/2026), cada
+         uma com a sua diferença (28/10/2026); trocam no browser com a
+         produção escolhida. *@
       <div class="peso-anterior-faixa">
       @if (!semProducaoAnterior)
       {
         @* O PESO DA PRODUÇÃO NO SAP (Diogo, 21/10/2026; 26/10/2026; 27/10/2026):
            pelas datas da produção escolhida e a referência, a média pelos dias
            de cada ordem e a moda (o peso com mais dias), cada uma com a
-           diferença do peso médio deste controlo para ela. Ficam na mesma
-           faixa que o peso usado, a diferença e a variação, sem «Hoje». *@
+           diferença do peso médio deste controlo para ela, sem «Hoje». *@
         var sapDaEscolhida = escolhida is not null && Model.ProducaoAnteriorSap.TryGetValue(escolhida.JobOnId, out var sapEsc) ? sapEsc : null;
         var pesoAtualSap = currentPesoForComparison.Averages?.AverageGlassWeightGrams;
         string deltaSapTexto(decimal pesoSapRef)
@@ -1998,35 +1987,44 @@
             var (dg, dp) = DMO.Alpha.Core.Controlo.PesoCalculation.NominalDeviation(pesoAtualSap, pesoSapRef);
             return dg is { } g ? $"{signed(g)} g" + (dp is { } pc ? $" ({signed(pc)} %)" : null) : "";
         }
-        <div class="peso-anterior-sap" id="pesoAnteriorSap" data-producao-anterior-sap data-peso-atual="@(pesoAtualSap is { } pa ? fmt(pa) : null)">
-          @* Sem a palavra «SAP» à vista (Diogo, 21/10/2026: «sempre que for referência a produção usar produção e não SAP»). *@
-          <div class="peso-fact peso-sap-fact">
-            <span class="peso-sap-titulo">Peso da produção <span class="peso-hint" data-sap-com hidden="@(sapDaEscolhida is null ? "hidden" : null)">(<span data-sap-dias>@sapDaEscolhida?.Dias</span> dias)</span></span>
-            @* O início e o fim da produção escolhida no cartão do peso dela (Diogo, 27/10/2026). *@
-            <span class="peso-hint peso-sap-periodo" data-producao-anterior-periodo>Início <span data-inicio>@(escolhida?.InicioEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span> · Fim <span data-fim>@(escolhida?.FimEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span></span>
-            <span class="peso-sap-opcoes" data-sap-com hidden="@(sapDaEscolhida is null ? "hidden" : null)">
-              <span class="peso-sap-opcao">Média <strong data-sap-media>@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.MediaGramas))</strong> g <span class="peso-sap-delta" data-sap-delta="media">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.MediaGramas))</span></span>
-              <span class="peso-sap-opcao">Moda <strong data-sap-moda>@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.ModaGramas))</strong> g <span class="peso-sap-delta" data-sap-delta="moda">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.ModaGramas))</span></span>
-            </span>
-            <span data-sap-sem hidden="@(sapDaEscolhida is null ? null : "hidden")">Ainda não há o peso desta produção. <a class="dmo-button" href="/Definicoes?secao=computador">Ler a pasta da produção</a></span>
+        <div class="peso-anterior-sap" id="pesoAnteriorSap" data-producao-anterior-sap>
+          @* Sem a palavra «SAP» à vista (Diogo, 21/10/2026: «sempre que for referência a produção usar produção e não SAP»).
+             Uma tabela: os títulos numa linha e os valores por baixo (Diogo, 28/10/2026).
+             A média e a moda, cada uma com a diferença do peso médio deste
+             controlo para ela, e a moda com os dias em que esse peso se usou
+             (Diogo, 28/10/2026: «meter na produção anterior uma Média e Moda
+             e começarmos a usar os dois»; «quantidade de vezes que esse peso
+             é usado»). *@
+          @{ var semSap = sapDaEscolhida is null ? "hidden" : null; }
+          <div class="dmo-table-wrap peso-sap-tabela">
+            <table class="dmo-table">
+              <thead>
+                <tr><th>Peso da produção</th><th>Média</th><th>Diferença para a média</th><th>Moda</th><th>Diferença para a moda</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  @* O início e o fim da produção escolhida no cartão do peso dela (Diogo, 27/10/2026). *@
+                  <td><span data-producao-anterior-periodo>Início <span data-inicio>@(escolhida?.InicioEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span> · Fim <span data-fim>@(escolhida?.FimEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span></span><span data-sap-com hidden="@semSap"> · <span data-sap-valor="dias">@sapDaEscolhida?.Dias</span> dias</span></td>
+                  <td data-sap-com hidden="@semSap"><strong><span data-sap-valor="media">@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.MediaGramas))</span> g</strong></td>
+                  <td data-sap-com hidden="@semSap" data-sap-delta="media">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.MediaGramas))</td>
+                  <td data-sap-com hidden="@semSap"><strong><span data-sap-valor="moda">@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.ModaGramas))</span> g</strong> · <span data-sap-valor="moda-dias">@sapDaEscolhida?.ModaDias</span> de <span data-sap-valor="dias">@sapDaEscolhida?.Dias</span> dias</td>
+                  <td data-sap-com hidden="@semSap" data-sap-delta="moda">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.ModaGramas))</td>
+                  <td colspan="4" data-sap-sem hidden="@(sapDaEscolhida is null ? null : "hidden")">Ainda não há o peso desta produção. <a class="dmo-button" href="/Definicoes?secao=computador">Ler a pasta da produção</a></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          @* O peso do SAP de cada produção do select, para trocar sem pedir ao servidor. *@
+          @* O peso de cada produção do select, para trocar sem pedir ao servidor. *@
           @foreach (var (sapJobOnId, sapOpcao) in Model.ProducaoAnteriorSap)
           {
-            <span hidden data-sap-opcao="@sapJobOnId" data-sap-media="@fmt(sapOpcao.MediaGramas)" data-sap-moda="@fmt(sapOpcao.ModaGramas)" data-sap-dias="@sapOpcao.Dias"></span>
+            <span hidden data-sap-opcao="@sapJobOnId" data-sap-media="@fmt(sapOpcao.MediaGramas)" data-sap-moda="@fmt(sapOpcao.ModaGramas)" data-sap-moda-dias="@sapOpcao.ModaDias" data-sap-dias="@sapOpcao.Dias"></span>
           }
         </div>
       }
+      @* O peso médio deste controlo é uma zona: uma leitura gravada muda-o, e
+         as diferenças para a média e para a moda refazem-se com ele. *@
       <div id="pesoAnteriorDelta" class="dmo-zona" data-dmo-regiao>
-      @if (!semProducaoAnterior && guardada is { PesoGramas: { } pesoSap })
-      {
-        var deltaSap = guardada.Delta(currentPesoForComparison.Averages?.AverageGlassWeightGrams);
-        <div class="peso-resumo" data-producao-anterior-delta>
-          <div class="peso-fact"><span>Peso usado — @(guardada.ProductionNumber ?? "produção anterior")@(string.IsNullOrEmpty(guardada.Machine) ? null : $" · {guardada.Machine}")</span><strong>@fmt(pesoSap) g</strong></div>
-          <div class="peso-fact"><span>Diferença para a anterior</span><strong class="@(deltaSap.Grams is < 0 ? "peso-valor-negativo" : null)">@(deltaSap.Grams is { } dg ? $"{signed(dg)} g" : "—")</strong></div>
-          <div class="peso-fact"><span>Variação</span><strong>@(deltaSap.Percent is { } dpc ? $"{signed(dpc)} %" : "—")</strong></div>
-        </div>
-      }
+        <span hidden data-peso-atual="@(currentPesoForComparison.Averages?.AverageGlassWeightGrams is { } pesoAtual ? fmt(pesoAtual) : null)"></span>
       </div>
       </div>
 
@@ -2274,9 +2272,9 @@
     Array.prototype.forEach.call(sap.querySelectorAll('[data-sap-com]'), function (fact) { fact.hidden = !media; });
     sap.querySelector('[data-sap-sem]').hidden = !!media;
     if (media) {
-      sap.querySelector('strong[data-sap-media]').textContent = media;
-      sap.querySelector('strong[data-sap-moda]').textContent = dados.getAttribute('data-sap-moda') || '';
-      sap.querySelector('span[data-sap-dias]').textContent = dados.getAttribute('data-sap-dias') || '';
+      [['media', 'data-sap-media'], ['moda', 'data-sap-moda'], ['moda-dias', 'data-sap-moda-dias'], ['dias', 'data-sap-dias']].forEach(function (par) {
+        Array.prototype.forEach.call(sap.querySelectorAll('[data-sap-valor="' + par[0] + '"]'), function (el) { el.textContent = dados.getAttribute(par[1]) || ''; });
+      });
       deltasSap(sap);
     }
   });
@@ -2284,10 +2282,11 @@
   // A média e a moda do SAP, cada uma com a diferença do peso médio deste
   // controlo para ela.
   function deltasSap(sap) {
-    var atual = parseFloat(sap.getAttribute('data-peso-atual'));
+    var pesoAtual = document.querySelector('#pesoAnteriorDelta [data-peso-atual]');
+    var atual = parseFloat(pesoAtual ? pesoAtual.getAttribute('data-peso-atual') : '');
     [['media', 'media'], ['moda', 'moda']].forEach(function (par) {
       var delta = sap.querySelector('[data-sap-delta="' + par[0] + '"]');
-      var valor = sap.querySelector('strong[data-sap-' + par[0] + ']');
+      var valor = sap.querySelector('[data-sap-valor="' + par[0] + '"]');
       if (!delta || !valor) { return; }
       var ref = parseFloat(valor.textContent);
       if (isNaN(atual) || isNaN(ref)) { delta.textContent = ''; return; }
@@ -2296,10 +2295,12 @@
       delta.textContent = sinal(g) + ' g' + (ref ? ' (' + sinal(g / ref * 100) + ' %)' : '');
     });
   }
-  (function () {
+  function refazerDeltasSap() {
     var sap = document.querySelector('[data-producao-anterior-sap]');
     if (sap) { deltasSap(sap); }
-  })();
+  }
+  refazerDeltasSap();
+  document.addEventListener('dmo:troca', refazerDeltasSap);
 
   // Um formulário GET dentro de data-dmo-parcial (escolher a comparação, o
   // «Supomos» e, desde o deep sweep 2 de 18/10/2026 (F-8), a referência e a
