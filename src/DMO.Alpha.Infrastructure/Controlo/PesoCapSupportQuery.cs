@@ -52,10 +52,16 @@ public sealed class PesoCapSupportQuery : IPesoCapSupportQuery
             var doJobOn = await _db.Controlos
                 .AsNoTracking()
                 .Where(c => c.Id == controloId)
-                .Select(c => new { c.JobOn.CaloteMm, c.JobOn.TampaoDiametroMm })
+                .Select(c => new
+                {
+                    c.JobOn.CaloteMm,
+                    c.JobOn.TampaoDiametroMm,
+                    Folha = _db.JobOnFolhas.Where(f => f.JobOnId == c.JobOnId).Select(f => new { f.TpDiametroPs, f.TpBaciaPs }).FirstOrDefault()
+                })
                 .FirstOrDefaultAsync(cancellationToken);
-            caloteJobOn = doJobOn?.CaloteMm;
-            diametroJobOn = doJobOn?.TampaoDiametroMm;
+            // Sem o Tampão gravado no Job On, o da folha (TampaoDaFolha).
+            caloteJobOn = TampaoDaFolha.Calote(doJobOn?.CaloteMm, doJobOn?.Folha?.TpBaciaPs);
+            diametroJobOn = TampaoDaFolha.Diametro(doJobOn?.TampaoDiametroMm, doJobOn?.Folha?.TpDiametroPs);
         }
 
         return Calcular(

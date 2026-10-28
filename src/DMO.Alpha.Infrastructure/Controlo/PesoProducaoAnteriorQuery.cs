@@ -48,6 +48,23 @@ public sealed class PesoProducaoAnteriorQuery
     }
 
     /// <summary>
+    /// As produções anteriores à do Peso <paramref name="pesoId"/> (as do
+    /// <see cref="ListOpcoesAsync"/>); nenhuma se o Peso não tem Job On.
+    /// </summary>
+    public async Task<IReadOnlyList<PesoProducaoAnteriorOpcao>> ListOpcoesDoPesoAsync(
+        int pesoId,
+        CancellationToken cancellationToken = default)
+    {
+        var jobOnId = await _db.Pesos.AsNoTracking()
+            .Where(p => p.Id == pesoId && p.Controlo != null)
+            .Select(p => (int?)p.Controlo!.JobOnId)
+            .FirstOrDefaultAsync(cancellationToken);
+        return jobOnId is int id
+            ? await ListOpcoesAsync(id, cancellationToken)
+            : Array.Empty<PesoProducaoAnteriorOpcao>();
+    }
+
+    /// <summary>
     /// As produções da mesma referência anteriores ao Job On atual, da mais
     /// recente para a mais antiga, no máximo
     /// <see cref="IProductionPickerQuery.MaxResults"/>: as que começaram antes
