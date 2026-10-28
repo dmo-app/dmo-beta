@@ -4133,3 +4133,13 @@ Novos: 24 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `871a54050d3a702b`
+
+## A-0281 · 2026-10-28 · teste-novo
+
+Porquê: teste novo no PostgreSQL: uma leitura nova do Peso espera pelo trinco do corrigir/apagar (relatório de backend do dmo-Improvements de 28/10/2026, BE08)
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.TrincoDoPeso.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.TrincoDoPeso.cs :: PostgresMigrationIntegrationTests.LeituraDoPeso_EsperaPeloTrincoDoCorrigirEApagar`
+
+Selo depois: `5569a4926689fa9d`
