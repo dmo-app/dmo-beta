@@ -4130,3 +4130,13 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoReferencia.cs :: DefinicoesPorModuloPageTests.AJanelaDaUtilizacao_MostraAReferenciaDeCadaProducao`
 
 Selo depois: `698d8174f036520b`
+
+## A-0307 · 2026-10-28 · teste-novo
+
+Porquê: DMO-571: as produções da ferramenta pela história do Armazém (Diogo 28/10 15:43, cmsg_01K75FTs9bQnbhhH7qttpgraCYDYFUc4eevxAVcoP2W9v5)
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoPeloArmazem.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoPeloArmazem.cs :: DefinicoesPorModuloPageTests.AJanelaDaUtilizacao_MostraOsJobOnDaLinhaEnquantoAFerramentaLaEsteve`
+
+Selo depois: `a601a6cde9889707`

@@ -124,6 +124,7 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
         var bq = db.BqContexts.Where(c => c.ToolId == toolId).Select(c => c.JobOnId ?? c.ReplacedJobOnId);
         var ids = (await cm.Concat(mf).Concat(bq).ToListAsync(cancellationToken))
             .OfType<int>()
+            .Concat(await JobOnsPeloArmazemAsync(toolId, cancellationToken))
             .Distinct()
             .ToList();
         var jobOns = (await db.JobOns.AsNoTracking()
@@ -163,6 +164,62 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
             PagedList<FerramentaProducao>.FromLoaded(itens, pagina, porPagina),
             itens.Any(p => p.ProducaoBruta.HasValue) ? itens.Sum(p => p.ProducaoBruta ?? 0) : null,
             itens.Any(p => p.ProducaoLiquida.HasValue) ? itens.Sum(p => p.ProducaoLiquida ?? 0) : null);
+    }
+
+    /// <summary>
+    /// Os Job On em que a ferramenta esteve pela história do Armazém (Diogo,
+    /// 28/10/2026: «deve aparecer o que a tool_id tem e não o Job On»): cada
+    /// Saída para a Produção numa Linha, até ao movimento seguinte da
+    /// ferramenta (sem ele, ainda lá está), dá os Job On dessa Linha com datas
+    /// dentro desse tempo, de qualquer artigo. O Job On do próprio movimento
+    /// também conta.
+    /// </summary>
+    private async Task<IReadOnlyList<int>> JobOnsPeloArmazemAsync(string toolId, CancellationToken cancellationToken)
+    {
+        var movimentos = await db.ArmazemMovimentos.AsNoTracking()
+            .Where(m => m.ToolId == toolId)
+            .OrderBy(m => m.OcorridoEmUtc).ThenBy(m => m.Id)
+            .Select(m => new { m.Tipo, m.Destino, m.MachineId, m.JobOnId, m.OcorridoEmUtc })
+            .ToListAsync(cancellationToken);
+        var ids = new List<int>();
+        var periodos = new List<(int Maquina, DateOnly De, DateOnly? Ate)>();
+        for (var i = 0; i < movimentos.Count; i++)
+        {
+            var m = movimentos[i];
+            if (m.Tipo != Core.Armazem.ArmazemMovimentoTipo.Saida || m.Destino != Core.Armazem.ArmazemDestino.Producao)
+            {
+                continue;
+            }
+
+            if (m.JobOnId is { } jobOnId)
+            {
+                ids.Add(jobOnId);
+            }
+
+            if (m.MachineId is { } maquina)
+            {
+                var de = DateOnly.FromDateTime(DmoBusinessTime.ToLocal(m.OcorridoEmUtc));
+                DateOnly? ate = i + 1 < movimentos.Count ? DateOnly.FromDateTime(DmoBusinessTime.ToLocal(movimentos[i + 1].OcorridoEmUtc)) : null;
+                periodos.Add((maquina, de, ate));
+            }
+        }
+
+        if (periodos.Count > 0)
+        {
+            var maquinas = periodos.Select(p => p.Maquina).Distinct().ToList();
+            var desde = periodos.Min(p => p.De);
+            var candidatos = await db.JobOns.AsNoTracking()
+                .Where(j => maquinas.Contains(j.MachineId) && j.InicioEm != null && (j.FimEm == null || j.FimEm >= desde))
+                .Select(j => new { j.Id, j.MachineId, j.InicioEm, j.FimEm })
+                .ToListAsync(cancellationToken);
+            ids.AddRange(candidatos
+                .Where(j => periodos.Any(p => p.Maquina == j.MachineId
+                    && (p.Ate is not { } ate || j.InicioEm!.Value <= ate)
+                    && (j.FimEm ?? DateOnly.MaxValue) >= p.De))
+                .Select(j => j.Id));
+        }
+
+        return ids;
     }
 
     /// <summary>
