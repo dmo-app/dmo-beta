@@ -4317,7 +4317,7 @@ Novos: 8 · mudaram: 0 · saíram: 0
 
 Selo depois: `d5c3fb2fd0bdec76`
 
-## A-0308 · 2026-10-28 · ok-do-diogo
+## A-0314 · 2026-10-28 · ok-do-diogo
 
 Porquê: DMO-571: contagem de consultas por ferramenta 4→5 (movimentos do Armazém). Diogo escolheu «Sim, muda o teste» no cartão cmsg_01K75FTs9bQnbhhH7qttpgraWAyxNzW7qWufbX2ZnbyHFg, 28/10 16:23
 Referência: cmsg_01K75FTs9bQnbhhH7qttpgraWAyxNzW7qWufbX2ZnbyHFg
