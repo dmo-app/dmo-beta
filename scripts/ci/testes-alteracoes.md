@@ -4140,16 +4140,196 @@ Novos: 3 · mudaram: 0 · saíram: 0
 
 Selo depois: `f36070a927fa88b7`
 
+## A-0291 · 2026-10-28 · ok-do-diogo
+
+Porquê: DMO-556: a lista «Produção» do Planeamento vem já com a última produção escolhida
+Referência: Diogo 28/10 13:18 «ok» na thread Job On (cmsg_01K75FTs9bQnbhhH7qttpgra3FCNTj9umBvP7F7hPToAYt)
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: JobOnPageTests.Procura_EmDoisCampos_AReferenciaEncheODropdownDasProducoes`
+
+Selo depois: `46c4e9cd976b4215`
+
+## A-0292 · 2026-10-28 · ok-do-diogo
+
+Porquê: Folha do Job On (Diogo, 28/10/2026): tolerância com um só sinal; folgas com um número por espaço (MF folga · tol. · flecha, CM só folga · tol.) e o Editar recusa dois números numa folga; a BQ sem «Antes nesta produção» (o teste dos lotes usados passa a exigir que não aparece); posição e estado do Armazém a negrito, a posição abre o Armazém (o teste do Armazém no cartão passa a exigir o negrito). Pedidos do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraXsQAqwXMvdwzxEBtZXVi8x, cmsg_01K75FTs9bQnbhhH7qttpgraKrQi7JHehQiEg7H86U68T1, cmsg_01K75FTs9bQnbhhH7qttpgraVoYdoBPQWZ26Vyr5f5nUSn, cmsg_01K75FTs9bQnbhhH7qttpgraVgPCefiS4NQsiePhNhB2HE
+Referência: DMO-557
+Novos: 7 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolgasRecusaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolgasRecusaTests.cs :: JobOnFolgasRecusaTests.DoisNumerosNumaFolga_ERecusada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolgasTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFolgasTests.cs :: JobOnFolgasTests.UmNumeroPorEspaco`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolgasDimensoes.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolgasDimensoes.cs :: JobOnPageTests.Editar_DoisNumerosNumaFolga_ERecusado`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolgasDimensoes.cs :: JobOnPageTests.Folha_ToleranciaComUmSoSinal_EFolgasUmNumeroPorEspaco`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_OndeEstaNoArmazem_EAvisoSemRegisto`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.LotesUsados.cs :: JobOnPageTests.Folha_DepoisDeAlterarOLoteDaBq_MostraOAtualEOsDeAntes`
+
+Selo depois: `9639e32da4f53b65`
+
+## A-0293 · 2026-10-28 · teste-novo
+
+Porquê: Calibres da folha do Job On: o «mm» vai para o título e sai do valor; «56.40 X 58.60» em três linhas (Diogo, 28/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraY5DcPyZsqrbPRVhQf3PV4y e cmsg_01K75FTs9bQnbhhH7qttpgraYLxGTcbw5qgNTTgafoptKT)
+Referência: DMO-560
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CalMm.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CalMm.cs :: JobOnPageTests.Folha_CalibresComMm_OMmVaiParaOTitulo`
+
+Selo depois: `3c8bedd55fb52a4f`
+
+## A-0294 · 2026-10-28 · ok-do-diogo
+
+Porquê: Folha do Job On (Diogo, 28/10/2026): um clique na CM, MF ou BQ abre a ficha (cmsg_01K75FTs9bQnbhhH7qttpgra8GmmFF8a9FLWUhv4j7vS7F; o teste «bloqueada: um clique não faz nada» passa a «um clique leva à ficha»); a linha do Armazém com o estado primeiro e só a posição, «Reparado 4094» (cmsg_01K75FTs9bQnbhhH7qttpgra5n2GjpqGpVYF5m8QHge882, cmsg_01K75FTs9bQnbhhH7qttpgraLZ41oDX4qovbS7Gq9ksQWZ)
+Referência: DMO-562
+Novos: 1 · mudaram: 1 · saíram: 1
+
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: Bloqueada: um clique leva à ficha`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_OndeEstaNoArmazem_EAvisoSemRegisto`
+- saiu: `tests/ShellProof/jobon-folha.test.cjs :: Bloqueada: um clique não faz nada; o duplo clique leva à ficha`
+
+Selo depois: `0f714b35b5fd7df3`
+
+## A-0295 · 2026-10-28 · ok-do-diogo
+
+Porquê: Diogo 28/10 14:54-14:55 (cmsg_01K75FTs9bQnbhhH7qttpgraN8reRcbxZwyA2NZDx8YcZG, cmsg_01K75FTs9bQnbhhH7qttpgraX1A34EDwGZauiatJpzMRCM): «recomer corredor de nao sei das quantas … deixar Tolerancia 0.20» / «+/- 0.20 mas tirar os comentarios todo». Os testes pedem «Tolerância» e «± 0.20» em vez de «nominal ± 0.20 mm» e dos textos «congelada…».
+Referência: DMO-563
+Novos: 0 · mudaram: 4 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.Folhas.cs :: PegamentosPageTests.CmChanged_PageIsReadyForANewSheet_TheFirstReadingStartsIt_AndThePageSaysSo`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.Folhas.cs :: PegamentosPageTests.SingleSheet_PageLooksAsBefore_NoSheetsCard`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.ToleranciaDasDefinicoes.cs :: PegamentosPageTests.FolhaSemMedicoes_MostraAToleranciaDasDefinicoes_EAPrimeiraMedicaoCongelaA`
+- mudou: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.cs :: PegamentosPageTests.GetFolha_ControloId_ShowsInheritedContext_GargaloMissing_MfAlwaysInherited`
+
+Selo depois: `931a9ce77f2c77bd`
+
+## A-0296 · 2026-10-28 · teste-novo
+
+Porquê: DMO-535: a Gota do Job On vem do nome técnico da CM (senão do MF): 55 = 2, 44/4T/50/5T = 3, 95 = 4 (Diogo, 28/10/2026: «ver se o jobon já tem em consideração nome técnico para mudar gota e meter número correto»). Testes novos do parser e da folha.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraKF2m3xMYuf6tyaurxyUd5F
+Novos: 6 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserGotasTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserGotasTests.cs :: TechnicalNameParserGotasTests.Molde_DizAsGotasPelaDimensao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserGotasTests.cs :: TechnicalNameParserGotasTests.SemNomeAcessorioOuOutraDimensao_NaoDiz`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.GotaNomeTecnico.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.GotaNomeTecnico.cs :: JobOnPageTests.Folha_GotaVemDoNomeTecnicoDaCm_PorCimaDaEscrita`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.GotaNomeTecnico.cs :: JobOnPageTests.Folha_SemNomeNaCm_GotaDoMf_ESemNenhum_AEscrita`
+
+Selo depois: `3f4d1d2b421330dd`
+
+## A-0255 · 2026-10-28 · ok-do-diogo
+
+Porquê: DMO-525: a cadência do SAP passa a média e moda por produção, como o peso. O teste da cadência no Job On passa a exigir o nome «Cadência usada», a moda com a média no título e, sem SAP dessa produção, a da produção anterior marcada «ant.»; sem nenhuma, «—» como antes. Testes novos: média e moda, a produção anterior, a cadência de cada produção no Histórico de produções e o «≈» do % uso no Histórico.
+Referência: «sim» do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraDtxDo1jmQDo6x9jiTc2Ubd (cartão cmsg_01K75FTs9bQnbhhH7qttpgraKVHfGf2ThnhN8rTRanYkpz)
+Novos: 8 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaPorProducaoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaPorProducaoTests.cs :: FabricoSapCadenciaPorProducaoTests.AMediaPesaOsDias_EAModaEADasOrdensComMaisDias`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaPorProducaoTests.cs :: FabricoSapCadenciaPorProducaoTests.CadaProducaoDaFerramenta_TemASuaCadencia`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaPorProducaoTests.cs :: FabricoSapCadenciaPorProducaoTests.OJobOnSemCadencia_FicaComADaProducaoAnteriorDaMesmaReferencia`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.CadenciaPorProducao.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.CadenciaPorProducao.cs :: DefinicoesPorModuloPageTests.OHistorico_MostraACadenciaDeCadaProducao_EAJanelaComMediaModaEDelta`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoUsoEstimado.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoUsoEstimado.cs :: DefinicoesPorModuloPageTests.OHistorico_SemLeiturasAVolta_EstimaOUsoPeloProduzido`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CadenciaSap.cs :: JobOnPageTests.Folha_MostraACadenciaDoSap_DaOrdemComMaisDias`
+
+Selo depois: `f0420e29cb4dc503`
+
+## A-0258 · 2026-10-28 · teste-novo
+
+Porquê: O Novo Peso mostra a temperatura escrita e a densidade da água dela.
+Referência: DMO-528
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoDensidadeAgua.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.PesoDensidadeAgua.cs :: ControloCapabilitiesCutHPageTests.NovoPeso_MostraATemperaturaEADensidadeDaAgua`
+
+Selo depois: `e3c2fdbe5805a823`
+
+## A-0300 · 2026-10-28 · teste-novo
+
+Porquê: O Peso lê o Diâmetro e a Calote do Tampão da folha do Job On quando o Job On não os tem gravados (Job On importado).
+Referência: DMO-564
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_TampaoSoNaFolhaDoJobOn_LeODaFolha`
+
+Selo depois: `10c7afebdc0b9b62`
+
+## A-0301 · 2026-10-28 · teste-novo
+
+Porquê: O «Criar» do Controlo anterior tem as duas opções: sem Job On ou num Job On anterior da referência.
+Referência: DMO-565
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.AssociarJobOn.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.AssociarJobOn.cs :: PesoFolhaProducaoAnteriorPageTests.CriarControloAnterior_SemJobOnOuNumJobOnAnterior`
+
+Selo depois: `0699590f0e13f023`
+
+## A-0266 · 2026-10-28 · ok-do-diogo
+
+Porquê: Produção anterior passa a ser uma tabela (títulos numa linha, valores por baixo) com a Média e a Moda (com «X de Y dias»), cada uma com a sua diferença, e deixa de ter o peso escrito à mão; Resumo e PDF usam as duas. Os testes antigos deixam de procurar a caixa «Peso usado» e o campo anterior_peso, e o resumo SAP passa a ter os dias da moda.
+Referência: DMO-534; ok do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraVoNvoQBUPf4cwx9jYiHvPJ, cmsg_01K75FTs9bQnbhhH7qttpgraTaRYMDqbdFc2okYBHmExZW e cmsg_01K75FTs9bQnbhhH7qttpgraPN7CxcF7Rzwfmmd7mHxLcm
+Novos: 1 · mudaram: 10 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.Resumo_ProducaoAnteriorComAMediaEAModa`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.OPesoDoSap_EAMediaPelosDiasEAModaOPesoComMaisDias`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.OPesoDosJobOns_VemDasOrdensDaMesmaReferenciaMaquinaEDatas`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.OsDiasDeCadaOrdem_SaoOsQueFicamDentroDoJobOn_EAModaEmpatadaEAMaisRecente`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_MostraAMediaPelosDiasEAModaDoSap_EOCampoVemComAMedia`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_SemOrdensDoSap_DizQueOSapAindaNaoDeuOPeso`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_TrocaParcial_ForaDasZonasNadaMuda_EOsFormulariosLevamAComparacao`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_AsUltimas5_EAGuardadaForaDelasFicaEscolhida`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_PesoIlegivel_RecusaComEcho_ENaoGuarda`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_PropoeAMaisRecente_GuardaOPesoDoSap_EMostraODelta`
+
+Selo depois: `d5028b5b0339c195`
+
+## A-0254 · 2026-10-28 · ok-do-diogo
+
+Porquê: DMO-524: o Diogo pediu um campo para colar o link do mcaliper e «Medições» que abre o mcaliper em vez do link/copiar. Os três testes deixam de exigir a janela «Associar link do mcaliper», o «Link do mcaliper associado» e o «Copiar» (data-dmo-copiar) e passam a exigir o campo com o link e o «Medições» com o endereço; o teste do link ganha a gravação JSON do campo (recusa e gravação).
+Referência: mensagem do Diogo cmsg_01K75FTs9bQnbhhH7qttpgraGpkfZmVrGptNbCoC9pNFFB («basta meter um campo para colar o link e no controlo.ver em vez d ver um link aparece Mediçoe abre o mcaliper»)
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ErrosDoResumo.cs :: ControloCapabilitiesCutHPageTests.Resumo_ErrosDe27Out_CabecalhoMcaliperRegistarEVoltar`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: ControloCapabilitiesCutHPageTests.ResumoDoControlo_CartoesDasAreas_GravamEVoltamAoResumo`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.McaliperLink_CreateAssociatesOnToolSheet_ApproveCopiesIt`
+
+Selo depois: `7f41a6c1558f560b`
+
+## A-0305 · 2026-10-28 · contagem-lista
+
+Porquê: «Voltar» passo a passo pelo caminho feito no separador (DMO-569): ficheiro novo voltar-caminho.test.cjs e a sua entrada na lista do test:js
+Referência: DMO-569
+Novos: 6 · mudaram: 1 · saíram: 0
+
+- novo: `tests/ShellProof/voltar-caminho.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/voltar-caminho.test.cjs :: a mesma página com outros filtros ou depois de guardar não é um passo`
+- novo: `tests/ShellProof/voltar-caminho.test.cjs :: a primeira página do separador usa a página anterior do site; o login começa de novo`
+- novo: `tests/ShellProof/voltar-caminho.test.cjs :: as folhas do controlo também contam uma a uma`
+- novo: `tests/ShellProof/voltar-caminho.test.cjs :: as páginas abertas no painel deslizante não entram no caminho`
+- novo: `tests/ShellProof/voltar-caminho.test.cjs :: três páginas seguidas: o Voltar recua uma de cada vez até à primeira`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `43d26cce1f4efcab`
+
 ## A-0263 · 2026-10-28 · contagem-lista
 
-Porquê: Os AN das boquilhas (DMO-531, Diogo 28/10/2026): a lista das migrações ganha a AnDasBoquilhas; a lista dos rótulos do Criar ganha a «Qtd. AN» (só das BQ, por isso a ficha da CM não a tem). O que os testes verificam fica igual. Testes novos dos AN: registo, ficha, sem Job On com a peça BQ/AN, discrepância dos AN e filtro dos Movimentos.
-Novos: 12 · mudaram: 2 · saíram: 0
+Porquê: AN nas boquilhas, Linha da ficha e Job On anterior no «Registar sem Job On», Saldo da BQ em todas as produções (DMO-531, DMO-572, DMO-573, DMO-574): só mudam listas e números (a migração nova na lista, «Qtd. AN» na lista dos rótulos, os limites de consultas).
+Novos: 18 · mudaram: 3 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: SemDefinicoes.Corrigir_SoAn_AceitaZeroBq_SemAnRecusa`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: SemDefinicoes.Corrigir_SoMudaOsAnQuandoOsTraz`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: SemDefinicoes.Registar_AnNegativo_RecusaENadaGrava`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqMovementAnTests.cs :: SemDefinicoes.Registar_ComAn_GravaOsAn_SemAnOuZeroFicaSemAn`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqSaldoPorBqTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqSaldoPorBqTests.cs :: NoSettings.BqQueSaiuNumJobOn_EVoltaNoutro_NaoFicaComSaldo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqSaldoPorBqTests.cs :: NoSettings.EntraMaisDoQueSaiu_EmTodasAsProducoes_FicaComSaldo`
 - novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_ADiscrepanciaTambemContaParaOsAn`
 - novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_IlegivelOuNegativo_NaoGravaNada_EOFormularioVoltaComOQueSeEscreveu`
@@ -4157,30 +4337,11 @@ Novos: 12 · mudaram: 2 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_NoRegisto_GravaComOMovimento_EContaOsAnFora`
 - novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_NosMovimentos_OFiltroPecaAn_MostraSoOsMovimentosComAn`
 - novo: `tests/DMO.Alpha.Web.Tests/BoquilhasAnTests.cs :: BoquilhasRegistoPageTests.An_RegistarSemJobOn_APecaVemEmBq_ComAnGravaSoOsAn`
-- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
-- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.CriarEEditar_UmSoFormulario_EditarGravaONomeTecnico`
-
-Selo depois: `0a65058f2652b403`
-
-## A-0308 · 2026-10-28 · teste-novo
-
-Porquê: Linha do «Registar sem Job On» só com as linhas da ficha da BQ (DMO-572).
-Novos: 2 · mudaram: 0 · saíram: 0
-
 - novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_ALinhaPropostaEAUltimaOndeTeveMovimentos_SeForDaFicha`
 - novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_ALinhaSoTemAsDaFichaDaBq_EVemJaEscolhida`
-
-Selo depois: `9d50b5039c93e9e9`
-
-## A-0310 · 2026-10-28 · contagem-lista
-
-Porquê: Saldo da BQ em todas as produções e Job On anterior no «Registar sem Job On» (DMO-573, DMO-574): só sobem os limites de consultas (+1 nas aberturas com registo, +2 na grelha do histórico).
-Novos: 4 · mudaram: 1 · saíram: 0
-
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqSaldoPorBqTests.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqSaldoPorBqTests.cs :: NoSettings.BqQueSaiuNumJobOn_EVoltaNoutro_NaoFicaComSaldo`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqSaldoPorBqTests.cs :: NoSettings.EntraMaisDoQueSaiu_EmTodasAsProducoes_FicaComSaldo`
 - novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_NumJobOnAnterior_FicaNoRegistoDesseJobOn_EODaEntradaDizQuemRegistou`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
 - mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasRegistoConsultasTests.cs :: BoquilhasRegistoConsultasTests.Registo_GetFazPoucasConsultas`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.CriarEEditar_UmSoFormulario_EditarGravaONomeTecnico`
 
-Selo depois: `b693433f51db0d77`
+Selo depois: `62d69517872d22e8`

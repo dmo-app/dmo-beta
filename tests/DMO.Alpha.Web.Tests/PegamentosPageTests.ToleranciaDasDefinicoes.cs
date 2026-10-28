@@ -22,8 +22,8 @@ public partial class PegamentosPageTests
         var url = $"{PagePath}?controlo_id={controloId}";
 
         var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, url));
-        Assert.Contains("nominal ± 0.30 mm", html);
-        Assert.Contains("tolerância das Definições do Controlo — fica congelada no registo na primeira medição", html);
+        Assert.Contains("<span>Tolerância</span>", html);
+        Assert.Contains("<strong>± 0.30</strong>", html);
         Assert.DoesNotContain("predefinida", html);
         Assert.DoesNotContain("±0.20", html);
 
@@ -33,8 +33,8 @@ public partial class PegamentosPageTests
         // Mudar as Definições depois não muda a folha: os 0.30 ficaram no registo.
         await GuardarToleranciaAsync(0.25m);
         html = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, url));
-        Assert.Contains("nominal ± 0.30 mm", html);
-        Assert.Contains("congelada no registo desta produção", html);
+        Assert.Contains("<span>Tolerância</span>", html);
+        Assert.Contains("<strong>± 0.30</strong>", html);
         Assert.DoesNotContain("tolerância das Definições do Controlo", html);
     }
 

@@ -44,6 +44,12 @@ public sealed record JobOnToolFacts(
     /// </summary>
     public string? OndeEsta { get; init; }
 
+    /// <summary>O nome técnico da ferramenta; null sem nome.</summary>
+    public string? NomeTecnico { get; init; }
+
+    /// <summary>As gotas que o nome técnico diz (<see cref="DMO.Alpha.Core.Tools.TechnicalNameParser.Gotas"/>); null quando não diz.</summary>
+    public int? Gotas => DMO.Alpha.Core.Tools.TechnicalNameParser.Gotas(NomeTecnico);
+
     /// <summary>O último estado registado no Armazém; null sem estado.</summary>
     public DMO.Alpha.Core.Armazem.FerramentaEstadoTipo? Estado { get; init; }
 

@@ -347,7 +347,7 @@ public partial class PegamentosPageTests : IClassFixture<CustomWebApplicationFac
         Assert.DoesNotContain("Ainda sem medições nesta produção.", html);
         Assert.DoesNotContain("id=\"pegExtrairPdf\"", html);
         // O default do Owner exibido como tolerância efetiva corrente.
-        Assert.Contains("nominal ± 0.20 mm", html);
+        Assert.Contains("<strong>± 0.20</strong>", html);
         // O form da medição em cruz presente por componente.
         Assert.Contains("Costura (0°) mm", html);
         Assert.Contains("Contra costura (90°) mm", html);

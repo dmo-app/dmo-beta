@@ -36,7 +36,8 @@ public partial class JobOnPageTests
         var html = await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={id}");
 
         Assert.Contains("<b data-jof-tool-lote>167</b>", html, StringComparison.Ordinal);
-        Assert.Contains("<p class=\"jof-onde\" data-jof-lotes-antes>Antes nesta produção: lote 21</p>", html, StringComparison.Ordinal);
+        // Os lotes de antes já não aparecem no cartão (Diogo, 28/10/2026: «remover das boquilhas o antes desta produção»).
+        Assert.DoesNotContain("Antes nesta produção", html, StringComparison.Ordinal);
     }
 
     // Diogo, 26/10/2026: «quando altero para ferramenta nova não atualiza em
