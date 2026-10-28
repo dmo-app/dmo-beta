@@ -4474,3 +4474,13 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoricoLote.cs :: PostgresMigrationIntegrationTests.HistoricoFerramentas_ProducoesEmLote_IguaisAUmaAUma_ComConsultasFixas`
 
 Selo depois: `c2acdce52a1c5ddb`
+
+## A-0312 · 2026-10-28 · ok-do-diogo
+
+Porquê: O Histórico em lote também lê os movimentos do Armazém, como a ficha (DMO-571, #274 d742aa9): mais uma consulta fixa (6→7, 12→13), além da 5.ª por ferramenta; os resultados continuam iguais.
+Referência: Diogo 28/10 «Sim, muda o teste» (cmsg_01K75FTs9bQnbhhH7qttpgraWAyxNzW7qWufbX2ZnbyHFg)
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoricoLote.cs :: PostgresMigrationIntegrationTests.HistoricoFerramentas_ProducoesEmLote_IguaisAUmaAUma_ComConsultasFixas`
+
+Selo depois: `65a93dc61611553b`

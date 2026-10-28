@@ -1,5 +1,5 @@
 {
-  "selo": "c2acdce52a1c5ddb",
+  "selo": "65a93dc61611553b",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -982,7 +982,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoricoControlo.cs :: (resto do ficheiro)": "588b11ba8a3d7b1a",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoricoControlo.cs :: PostgresMigrationIntegrationTests.HistoricoDoControlo_ReferenciaDataEProducao_NoPostgres": "ee635572ab4c10aa",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoricoLote.cs :: (resto do ficheiro)": "3dd969f8e43776a6",
-    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoricoLote.cs :: PostgresMigrationIntegrationTests.HistoricoFerramentas_ProducoesEmLote_IguaisAUmaAUma_ComConsultasFixas": "6fe91343f3441747",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoricoLote.cs :: PostgresMigrationIntegrationTests.HistoricoFerramentas_ProducoesEmLote_IguaisAUmaAUma_ComConsultasFixas": "532216f028707e52",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.IntegrityRules.cs :: (resto do ficheiro)": "cdc43668506bafc9",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.IntegrityRules.cs :: BeforeFirstSave.Approval_ApproveAndNotApproveAtTheSameTime_LastDecisionWinsWhole": "3db1c0f2b22ca508",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.IntegrityRules.cs :: BeforeFirstSave.EnsureControlo_TwoOpeningsAtTheSameTime_BothGetTheSameControlo": "eec9e1b3d25e3160",
