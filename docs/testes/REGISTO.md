@@ -5846,3 +5846,4 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | JobOnFichaTests.Peso_ComparacaoTemOMaisEOMenosDentroDaCaixa | + e − dentro da caixa da Comparação | OK | A-0417 (DMO-672) |
 | PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_DiferencasFicamForaDaTroca_RegistarNaoVoltaAoTopo | As diferenças da produção anterior ficam fora da troca (registar não volta ao topo) | OK | A-0417 (DMO-672) |
 | tests/ShellProof/painel-gravou-sem-recarregar.test.cjs | Depois de gravar sem recarregar, o painel fecha sem aviso falso de alterações por guardar | OK | A-0417 (DMO-672) |
+| PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDaComparacao_AgrupaPorGrandeza_AtualAnteriorEDiferenca_ComAnteriorACinza | A tabela do Controlo anterior compara por grandeza, com o anterior a cinza | OK | A-0419 (DMO-672) |

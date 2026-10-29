@@ -5433,3 +5433,17 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/ShellProof/painel-gravou-sem-recarregar.test.cjs :: Painel de apoio: depois de gravar sem recarregar, sem campos alterados, fecha sem aviso`
 
 Selo depois: `daf9bbebd5494b9b`
+
+## A-0419 · 2026-10-29 · ok-do-diogo
+
+Porquê: Tabela do Controlo anterior lado a lado por grandeza com o anterior a cinza (DMO-672)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraM8r59Af85tn7f3zTFfP4DF
+Novos: 1 · mudaram: 3 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBAgrupamento.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDaComparacao_AgrupaPorGrandeza_AtualAnteriorEDiferenca_ComAnteriorACinza`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.UltimasProducoes.cs :: PesoComparacaoPageTests.Folha_AProducaoACompararTemAsUltimas5Anteriores_EAPedidaFica`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_PrimeiraTabelaTemVolumeEPesoPorCm_EAComparacaoFicaAbaixo`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoSoParaComparacaoPageTests.cs :: PesoSoParaComparacaoPageTests.CriarDaComparacao_LigaOPesoAoAtual_MostraAComparacao_ENuncaPedeJobOn`
+- saiu: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBAgrupamento.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDaComparacao_AgrupaEsteControlo_ControloAnterior_EDiferenca_PorEstaOrdem`
+
+Selo depois: `3d2817c5fc411e69`

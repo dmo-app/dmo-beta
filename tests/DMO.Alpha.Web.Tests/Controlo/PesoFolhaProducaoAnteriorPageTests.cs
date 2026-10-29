@@ -233,9 +233,9 @@ public partial class PesoFolhaProducaoAnteriorPageTests : IClassFixture<CustomWe
         // das leituras (o Owner 2026-10-17), sem «Sem par», e as médias no fim.
         // O que está na tabela é o «Controlo anterior» (Diogo, 27/10/2026,
         // cmsg_01K75FTs9bQnbhhH7qttpgraChGeZYDRdpWXkZFJYD88JY).
-        Assert.Contains("<th colspan=\"3\" scope=\"colgroup\">Controlo anterior · 202604</th>", html);
-        Assert.Contains("<td>70.26</td>", html);
-        Assert.Contains("<td>70.46</td>", html);
+        Assert.Contains("<th class=\"peso-cmp-ant\">Controlo anterior · 202604</th>", html);
+        Assert.Contains("<td class=\"peso-cmp-ant\">70.26</td>", html);
+        Assert.Contains("<td class=\"peso-cmp-ant\">70.46</td>", html);
         Assert.Contains("data-peso-comparacao-medias", html);
         Assert.DoesNotContain("Sem par", html);
         Assert.DoesNotContain("a mesma máquina", html);
