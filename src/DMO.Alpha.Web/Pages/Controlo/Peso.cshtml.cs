@@ -869,6 +869,15 @@ public sealed class PesoModel : PageModel
     /// </summary>
     public PesoProducaoAnteriorOpcao? ProducaoAnteriorEscolhida { get; private set; }
 
+    /// <summary>
+    /// A produção anterior gravada deixou de ser anterior pelas datas de
+    /// hoje (PESO-B04, sweep 2): mudaram as datas de uma das duas
+    /// produções e a escolha guardada já não satisfaz a regra única de
+    /// «anterior» — continua no select (nunca se perde silenciosamente),
+    /// mas sinalizada como desatualizada, nunca usada sem aviso.
+    /// </summary>
+    public bool ProducaoAnteriorDesatualizada { get; private set; }
+
     /// <summary>A recusa ao guardar a produção anterior (PRG); null sem recusa.</summary>
     public string? ProducaoAnteriorRefusal { get; private set; }
 
@@ -1944,11 +1953,16 @@ public sealed class PesoModel : PageModel
         // A guardada fica no select mesmo fora das últimas 5 (deep sweep 2,
         // F-11): o select só envia as suas opções, e o «Guardar» trocava-a
         // sem aviso pela primeira, ou apagava-a com o select vazio.
+        ProducaoAnteriorDesatualizada = false;
         if (ProducaoAnterior is { JobOnId: int saved, ProductionNumber: { } savedNumber } guardada
             && saved != jobOnId
             && opcoes.All(o => o.JobOnId != saved))
         {
             opcoes.Add(new PesoProducaoAnteriorOpcao(saved, savedNumber, guardada.Machine ?? "—", guardada.InicioEm, guardada.FimEm));
+            // PESO-B04: fora das últimas 5 pode ser só o corte de recência
+            // (F-11, válido) ou a escolha ter deixado de ser anterior depois
+            // de uma mudança de datas — só o segundo caso é sinalizado.
+            ProducaoAnteriorDesatualizada = !await ProducaoAnteriorQuery.AindaValidaAsync(saved, jobOnId, HttpContext.RequestAborted);
         }
 
         ProducaoAnteriorOpcoes = opcoes;

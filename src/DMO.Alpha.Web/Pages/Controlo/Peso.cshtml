@@ -1923,6 +1923,10 @@
       {
         <div data-dmo-toast="ok" class="peso-aviso-simples" role="status">Produção anterior guardada.</div>
       }
+      @if (Model.ProducaoAnteriorDesatualizada)
+      {
+        <div data-dmo-toast="aviso" class="peso-aviso" role="alert">A produção anterior guardada já não é anterior a esta (as datas mudaram) — confirme ou escolha outra.</div>
+      }
       </div>
       <div class="peso-anterior-linha">
       <div id="pesoAnterior" class="dmo-zona" data-dmo-fica>

@@ -107,4 +107,39 @@ public sealed class PesoProducaoAnteriorQueryTests : IDisposable
         Assert.Empty(await NumerosAsync(atual));
         Assert.Empty(await NumerosAsync(atual + 100));
     }
+
+    [Fact]
+    public async Task AindaValida_ProducaoAindaAnterior_Verdadeiro()
+    {
+        var anterior = await SeedJobOnAsync("8001Z100", "202601", new DateOnly(2026, 1, 5));
+        var atual = await SeedJobOnAsync("8001Z100", "202602", new DateOnly(2026, 2, 10));
+
+        Assert.True(await _query.AindaValidaAsync(anterior, atual));
+    }
+
+    [Fact]
+    public async Task AindaValida_DepoisDeMudarAsDatas_DeixaDeSerAnterior_Falso()
+    {
+        // PESO-B04 (sweep 2): a produção anterior foi gravada quando a atual
+        // começava depois dela; se a data de início da atual for corrigida
+        // para antes da guardada, a escolha deixa de ser anterior — mas fica
+        // gravada tal como estava, nunca trocada por conta própria.
+        var anterior = await SeedJobOnAsync("8001Z100", "202601", new DateOnly(2026, 2, 20));
+        var atual = await SeedJobOnAsync("8001Z100", "202602", new DateOnly(2026, 2, 25));
+        Assert.True(await _query.AindaValidaAsync(anterior, atual));
+
+        var jobOnAtual = await _db.JobOns.SingleAsync(j => j.Id == atual);
+        jobOnAtual.InicioEm = new DateOnly(2026, 1, 1); // a data corrigida para ANTES da «anterior»
+        await _db.SaveChangesAsync();
+
+        Assert.False(await _query.AindaValidaAsync(anterior, atual));
+    }
+
+    [Fact]
+    public async Task AindaValida_SemProducaoAtual_Falso()
+    {
+        var anterior = await SeedJobOnAsync("8001Z100", "202601", new DateOnly(2026, 1, 5));
+
+        Assert.False(await _query.AindaValidaAsync(anterior, currentJobOnId: 999_999));
+    }
 }

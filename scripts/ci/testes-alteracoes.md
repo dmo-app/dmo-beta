@@ -4929,3 +4929,20 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelMedio_AbreMaisLargo`
 
 Selo depois: `c07be0113f2cf44c`
+
+## A-0365 · 2026-10-29 · contagem-lista
+
+Porquê: PESO-B01/B04/B05 (sweep 2): testes novos para o emparelhamento do CM com zeros à esquerda, a revalidação da produção anterior e o corte das últimas 5 por produção; o 'resto do ficheiro' de PesoComparisonQueryTests.cs só ganhou o ajudante SeedPesoVazioAsync, sem mudar o que os testes existentes verificam.
+Novos: 8 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparacaoCalculationTests.cs :: PesoComparacaoCalculationTests.Pares_CmComLetraEZeros_NuncaNumerico_FicaSemContraparte`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparacaoCalculationTests.cs :: PesoComparacaoCalculationTests.Pares_CmComZerosAEsquerda_EmparelhaComOMesmoNumero`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparacaoCalculationTests.cs :: PesoComparacaoCalculationTests.Pares_CmDigitosDiferentes_NuncaEmparelham`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparacaoCalculationTests.cs :: PesoComparacaoCalculationTests.Pares_CmIguais_Emparelham`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparisonQueryTests.cs :: PesoComparisonQueryTests.FindCandidates_PesoVazioCriadoDepois_NaoEscondeAProducaoComLeituras`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoProducaoAnteriorQueryTests.cs :: PesoProducaoAnteriorQueryTests.AindaValida_DepoisDeMudarAsDatas_DeixaDeSerAnterior_Falso`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoProducaoAnteriorQueryTests.cs :: PesoProducaoAnteriorQueryTests.AindaValida_ProducaoAindaAnterior_Verdadeiro`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoProducaoAnteriorQueryTests.cs :: PesoProducaoAnteriorQueryTests.AindaValida_SemProducaoAtual_Falso`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparisonQueryTests.cs :: (resto do ficheiro)`
+
+Selo depois: `93ff394fb2507cde`
