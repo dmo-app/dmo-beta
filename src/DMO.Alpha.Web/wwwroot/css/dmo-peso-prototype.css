@@ -354,3 +354,4 @@ html body main.peso-page section.peso-card[data-peso-live]>.peso-live-region{mar
 /* A tabela do Controlo anterior lado a lado por grandeza (Diogo, 29/10/2026): as colunas do
    controlo anterior com um fundo cinza claro; as do atual ficam brancas. */
 .peso-page [data-peso-comparacao-tabela] .peso-cmp-ant{background:var(--dmo-subtle)}
+.peso-page [data-peso-comparacao-tabela]{table-layout:fixed;width:100%}

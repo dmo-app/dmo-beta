@@ -195,6 +195,46 @@ public partial class PesoFolhaProducaoAnteriorPageTests : IClassFixture<CustomWe
     }
 
     [Fact]
+    public async Task Folha_TabelaDoControloAnterior_ChamaControloAtualComONumeroDaProducao()
+    {
+        var (controloId, _, _, _) = await SeedAsync();
+        SeedUser("4409", "Peso Operador", "provider-folha-9", "Folha409!");
+        using var client = await LoginClientAsync("4409", "Folha409!");
+
+        var html = await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}");
+
+        Assert.Contains("<th>Controlo atual · 202605</th>", html);
+        Assert.DoesNotContain("Este controlo", html);
+    }
+
+    [Fact]
+    public async Task NovoPesoComJobOn_ASelecaoDeMaquina_SoMostraAsDaReferencia()
+    {
+        await SeedAsync();
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            db.Machines.Add(new Machine { Code = "C3" });
+            db.ToolMachineLinks.Add(new ToolMachineLink { ToolId = "T8", MachineId = db.Machines.Single(m => m.Code == "B1").Id });
+            await db.SaveChangesAsync();
+        }
+        SeedUser("4408", "Peso Operador", "provider-folha-8", "Folha408!");
+        using var client = await LoginClientAsync("4408", "Folha408!");
+
+        var html = await GetPageHtmlAsync(client, $"{PagePath}?modo=jobon&referencia=5447");
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            db.ToolMachineLinks.RemoveRange(db.ToolMachineLinks);
+            db.SaveChanges();
+        }
+
+        Assert.Matches("<option value=\"B1\"", html);
+        Assert.DoesNotContain("<option value=\"C3\"", html);
+    }
+
+    [Fact]
     public async Task Folha_PrimeiraTabelaTemVolumeEPesoPorCm_EAComparacaoFicaAbaixo()
     {
         var (controloId, _, _, _) = await SeedAsync();

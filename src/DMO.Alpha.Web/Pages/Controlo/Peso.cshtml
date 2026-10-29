@@ -1844,7 +1844,7 @@
                 <th colspan="3" scope="colgroup">Peso (g)</th>
               </tr>
               <tr>
-                <th>Este controlo</th>
+                <th>Controlo atual@(Model.ProductionContext is { } prodAtual ? " · " + prodAtual.ProductionNumber : null)</th>
                 <th class="peso-cmp-ant">@historicoRotulo</th>
                 <th>Atual</th>
                 <th class="peso-cmp-ant">Anterior</th>
