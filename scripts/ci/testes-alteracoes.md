@@ -5558,3 +5558,12 @@ Novos: 3 · mudaram: 3 · saíram: 1
 - saiu: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBAgrupamento.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDaComparacao_AgrupaEsteControlo_ControloAnterior_EDiferenca_PorEstaOrdem`
 
 Selo depois: `188b67503f0e65e6`
+
+## A-0421 · 2026-10-29 · teste-novo
+
+Porquê: DMO-667/A-0412 (parte 2, Diogo 29/10): na Saída de uma BQ há a opção dos reparadores das BQ e, a seguir, os do Armazém. 1 teste novo; nenhum antigo mudou.
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Saida_DeBq_ParaReparacao_OferecePorGruposOsReparadoresDasBqEDoArmazem`
+
+Selo depois: `b7ee30734ac3ae0f`
