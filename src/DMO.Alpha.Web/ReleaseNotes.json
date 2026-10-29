@@ -609,7 +609,7 @@
     { "id": "DMO-624", "module": "Aplicação", "description": "0.3.0-beta.239 (A-0364): quatro dias por defeito (sem data escrita) usavam o relógio do servidor em vez do de Lisboa — à noite de verão podiam cair no dia errado." },
     { "id": "DMO-603", "module": "Job On", "description": "0.3.0-beta.236 (A-0350): na gaveta Planeamento da folha do Job On, os cartões das produções ficam com as cores do Planeamento: em repouso o fundo claro da cor da linha com letra normal, no hover e no escolhido a cor da linha cheia com letra branca, no claro e no escuro." },
     { "id": "DMO-652", "module": "Job On", "description": "0.3.0-beta.238 no Planeamento sai o título grande «Planeamento» (o separador Job On já diz onde se está) e as linhas do dia ficam um pouco mais baixas, para as seis máquinas caberem sem deslizar a 1290×646." },
-    { "id": "DMO-658", "module": "Ferramentas", "description": "SAP: as BQ procuram-se na ZPPG pelo nome técnico até ao NX/PX, «*» e o lote (ABC002NX*64; o lote pode ter 2 ou 3 algarismos), porque no SAP há características pelo meio. Nos códigos de procura do Admin › SAP aceita-se o «*» e há o Meio «Nome técnico até NX/PX»." }
+    { "id": "DMO-658", "module": "Ferramentas", "description": "0.3.0-beta.240 (A-0400): SAP: as BQ procuram-se na ZPPG pelo nome técnico até ao NX/PX, «*» e o lote (ABC002NX*64; o lote pode ter 2 ou 3 algarismos), porque no SAP há características pelo meio. Nos códigos de procura do Admin › SAP aceita-se o «*» e há o Meio «Nome técnico até NX/PX»." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
