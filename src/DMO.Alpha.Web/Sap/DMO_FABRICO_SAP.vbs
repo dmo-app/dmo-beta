@@ -373,7 +373,7 @@ Sub EscreverSenha()
     ' estiver, Tab, a senha e Enter.
     ' Código 3: a janela «Moldes Existentes» não tem a caixa da senha (o SAP
     ' já está aberto). Pelo teclado escrevia-se na janela do SAP em uso
-    ' (Diogo, 29/10/2026: «Função impossível», DMO-666): não se escreve nada.
+    ' (Diogo, 29/10/2026: «Função impossível», DMO-677): não se escreve nada.
     If codigo = 3 Then Registo "janela sem caixa da senha: nada escrito"
     If codigo <> 0 And codigo <> 3 Then
         shell.AppActivate JANELA_LOGON

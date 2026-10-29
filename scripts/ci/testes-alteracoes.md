@@ -5606,9 +5606,9 @@ Novos: 1 · mudaram: 1 · saíram: 0
 
 Selo depois: `ffd1b58d9d7cece0`
 
-## A-0424 · 2026-10-29 · ok-do-diogo
+## A-0428 · 2026-10-29 · ok-do-diogo
 
-Porquê: DMO-666: sem caixa da senha o script não escreve pelo teclado na janela do SAP em uso (Diogo 29/10, «Função impossível»)
+Porquê: DMO-677: sem caixa da senha o script não escreve pelo teclado na janela do SAP em uso (Diogo 29/10, «Função impossível»)
 Referência: cmsg_01K75FTs9bQnbhhH7qttpgraYbZnyAJ6oEvMe6guNRA41v
 Novos: 1 · mudaram: 0 · saíram: 0
 

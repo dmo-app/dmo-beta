@@ -61,7 +61,7 @@ public sealed class SapScriptsVbsTests
         Assert.Matches(new Regex(@"If total = 0 Then(\s+'[^\n]*)*\s+If Not automatico Then MsgBox[^\n]*\s+WScript\.Quit 0"), vbs);
     }
 
-    // Diogo, 29/10/2026: «Função impossível» (DMO-666): sem caixa da senha (código 3) o
+    // Diogo, 29/10/2026: «Função impossível» (DMO-677): sem caixa da senha (código 3) o
     // teclado não escreve na janela do SAP que está em uso.
     [Theory]
     [InlineData("Sap.DMO_USO_SAP.vbs")]
