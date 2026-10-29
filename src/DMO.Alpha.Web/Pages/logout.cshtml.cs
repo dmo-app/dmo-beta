@@ -19,15 +19,24 @@ public class LogoutModel : PageModel
     /// (dmo-posto.js): volta ao posto para a pessoa seguinte, não ao login.</param>
     public async Task<IActionResult> OnGetAsync(string? posto)
     {
-        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        await SairDosDoisEsquemasAsync();
         DMO.Alpha.Web.Services.DesbloqueioDasDefinicoes.Fechar(HttpContext);
         return Redirect(posto == "1" ? "/Posto" : "/login");
     }
 
     public async Task<IActionResult> OnPostAsync()
     {
-        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        await SairDosDoisEsquemasAsync();
         DMO.Alpha.Web.Services.DesbloqueioDasDefinicoes.Fechar(HttpContext);
         return Redirect("/login");
+    }
+
+    // AUTH-B05 (DMO-657): desde que o posto passou a ter o seu próprio
+    // esquema de cookie, sair tem de acabar os dois — nunca se sabe por
+    // qual dos dois esta sessão entrou sem ler o cookie.
+    private async Task SairDosDoisEsquemasAsync()
+    {
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        await HttpContext.SignOutAsync(DMO.Alpha.Web.Services.PostoAuthentication.Scheme);
     }
 }

@@ -841,6 +841,21 @@
   function avisosNoCanto() {
     const avisos = document.querySelectorAll('.jof2:not(.editing) .sec :is([data-dmo-aviso-b2],[data-dmo-aviso-armazem])');
     if (!avisos.length) return;
+    // Como os outros alertas da app: na pilha do canto do ecrã (DMOLive), com o seu × (Diogo, 29/10/2026:
+    // «deve aparecer como aparecem os alertas»).
+    // No telemóvel os alertas ficam em baixo a toda a largura e tapavam a folha: lá ficam no cartão.
+    if (window.matchMedia && window.matchMedia('(max-width: 640px)').matches) return;
+    if (window.DMOLive && window.DMOLive.mostrarMensagens) {
+      const caixa = document.createElement('div');
+      avisos.forEach(aviso => {
+        aviso.classList.remove('jobon-aviso', 'warn');
+        aviso.setAttribute('data-dmo-toast', 'aviso');
+        aviso.setAttribute('role', 'status');
+        caixa.append(aviso);
+      });
+      window.DMOLive.mostrarMensagens(caixa);
+      return;
+    }
     const pilha = document.createElement('div');
     pilha.className = 'jof-avisos-canto';
     pilha.setAttribute('data-jof-avisos-canto', '');

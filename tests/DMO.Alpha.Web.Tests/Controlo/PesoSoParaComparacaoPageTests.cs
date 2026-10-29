@@ -269,9 +269,9 @@ public class PesoSoParaComparacaoPageTests : IClassFixture<CustomWebApplicationF
         // e a diferença; o 54 não tem par. As médias comparam o mesmo.
         var linhas = Linhas(Tabela(html));
         Assert.Equal(4, linhas.Count);
-        Assert.Equal(new[] { "45", "70.36", "176.51", "45", "70.26", "176.27", "+0.10", "+0.24" }, linhas[1]);
-        Assert.Equal(new[] { "54", "70.76", "177.47", "—", "—", "—", "—", "—" }, linhas[2]);
-        Assert.Equal(new[] { "Média", "70.56", "176.99", "", "70.26", "176.27", "+0.30", "+0.72 (+0.41 %)" }, linhas[3]);
+        Assert.Equal(new[] { "45", "45", "70.36", "70.26", "+0.10", "176.51", "176.27", "+0.24" }, linhas[1]);
+        Assert.Equal(new[] { "54", "—", "70.76", "—", "—", "177.47", "—", "—" }, linhas[2]);
+        Assert.Equal(new[] { "Média", "", "70.56", "70.26", "+0.30", "176.99", "176.27", "+0.72 (+0.41 %)" }, linhas[3]);
 
         // Sem escolha no endereço, a folha da produção também o compara.
         html = await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}");

@@ -63,6 +63,16 @@ public sealed class PostoRi(DmoDbContext db, IAdminAuthorizationService autoriza
             utilizador.RequiresPasswordChange = false;
         }
 
+        // AUTH-B03 (DMO-655): um PIN novo sobe a versão da sessão, tal como
+        // uma palavra-passe nova sobe a do login normal — sem isto, uma
+        // sessão do posto aberta com o PIN antigo continuava válida depois
+        // de o PIN mudar (AdminSessionCookieValidator recusa pela versão,
+        // o mesmo caminho que já lê para o login normal).
+        if (utilizador is not null)
+        {
+            utilizador.SessionVersion++;
+        }
+
         await db.SaveChangesAsync(cancellationToken);
         return PinGravacao.Gravado;
     }

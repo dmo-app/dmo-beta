@@ -1495,6 +1495,15 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         Assert.Contains("<strong>Aprovado</strong>", depois);
     }
 
+    // Diogo, 29/10/2026: «+ e − estão fora na comparação»: a caixa das
+    // leituras da Comparação ajusta-se ao que leva, com o + e o − dentro.
+    [Fact]
+    public async Task Peso_ComparacaoTemOMaisEOMenosDentroDaCaixa()
+    {
+        var css = await CreateClient().GetStringAsync("/css/d1366-controlo.css");
+        Assert.Contains(".peso-leitura-row{grid-template-columns:72px 112px 26px;align-items:end;box-sizing:border-box;flex:0 0 auto;width:max-content;max-width:100%}", css);
+    }
+
     [Fact]
     public async Task Peso_OAvisoDeQueOJobOnMudouTemUmXParaFechar()
     {

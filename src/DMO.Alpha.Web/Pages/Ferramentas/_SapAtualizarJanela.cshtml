@@ -31,5 +31,7 @@
 #ferrSapJanela .ferr-sap-modo-campos{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
 #ferrSapJanela .ferr-sap-modo-campos label{display:flex;flex-direction:column;gap:4px;font-size:12.5px}
 #ferrSapJanela .ferr-sap-modo-campos .rp-modo{flex-basis:100%;margin:0}
+/* O display:flex de cima ganhava ao hidden e mostrava as três partes ao mesmo tempo (Diogo, 29/10/2026, DMO-665). */
+#ferrSapJanela [data-ferr-sap-parte][hidden],#ferrSapJanela [data-ferr-sap-fim-campo][hidden]{display:none}
 #ferrSapJanela .ferr-sap-modo-texto{flex-basis:100%;margin:6px 0 14px;color:var(--dmo-muted);font-size:12.5px}
 </style>

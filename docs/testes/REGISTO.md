@@ -2563,6 +2563,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | ReparacaoProgramadaTests.Lista_FechaSozinha_QuandoAUltimaFerramentaDaEntrada | Lista fecha sozinha quando a última ferramenta entra | OK |  |
 | ReparacaoProgramadaTests.Procurar_SemFiltros_AbreVazia_EComFiltros_MostraCmEMfComAPosicao | Reparação programada abre vazia e procura CM/MF com posição e % uso | OK |  |
 | ReparacaoProgramadaTests.SaidaEEntrada_AtualizamALista_EALinhaQueEntrouMostraDiaPosicaoENome | Saída e entrada no Armazém atualizam a lista programada | OK |  |
+| ReparacaoProgramadaTests.Procurar_PelaReferenciaToda_OuPeloNomeTecnico_EncontraACmEOMf | Registar Reparação: a referência toda e o nome técnico encontram a CM e o MF (DMO-579) | OK |  |
 
 ### `tests/DMO.Alpha.Infrastructure.Tests/Search/ReferenceMatchTests.ParteBq.cs`
 
@@ -2851,14 +2852,14 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | Teste | Garante | Estado | Nota |
 |---|---|---|---|
 | DefinicoesPorModuloPageTests.ComAsLeiturasAVoltaDaProducao_ODeltaNaoEEstimado | Com leituras à volta, delta não é estimado | OK |  |
-| DefinicoesPorModuloPageTests.SemLeiturasAVoltaDaProducao_ODeltaEstimaSePeloProduzido | Sem leituras, delta estima-se pelo produzido com ≈ | OK |  |
+| DefinicoesPorModuloPageTests.SemLeiturasAVoltaDaProducao_ODeltaEstimaSePeloProduzido | Sem leituras, delta estima-se pelo produzido com ≈; a explicação fica só na ajuda do título, sem quadro verde (DMO-668) | OK |  |
 
 ### `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs`
 
 | Teste | Garante | Estado | Nota |
 |---|---|---|---|
-| DefinicoesPorModuloPageTests.ODetalhesDaUtilizacao_MostraODeltaDeCadaProducaoEOTotal | Detalhe da utilização mostra delta e total | OK |  |
-| DefinicoesPorModuloPageTests.OHistoricoDeProducoes_DaODeltaDeGarrafasEAJanelaDoPeso | Histórico dá delta de garrafas e janela do peso | OK |  |
+| DefinicoesPorModuloPageTests.ODetalhesDaUtilizacao_MostraODeltaDeCadaProducaoEOTotal | Detalhe da utilização mostra delta e total, sem o quadro verde «Hoje» (DMO-668) | OK |  |
+| DefinicoesPorModuloPageTests.OHistoricoDeProducoes_DaODeltaDeGarrafasEAJanelaDoPeso | Histórico sem o Δ garrafas (só o bruto) e com a janela do peso (DMO-609) | OK |  |
 | DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraAsGarrafasOPesoEAPercentagemDeCadaJobOn | Histórico mostra garrafas, peso e % por Job On | OK |  |
 | DefinicoesPorModuloPageTests.ORelatorioDeFabrico_MostraOQueCadaJobOnDaFerramentaProduziu | Relatório de fabrico mostra o produzido por Job On | OK |  |
 | DefinicoesPorModuloPageTests.SemORelatorioDeFabrico_AProducaoFicaComTraco | Sem relatório de fabrico a produção fica com traço | OK |  |
@@ -2875,7 +2876,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 
 | Teste | Garante | Estado | Nota |
 |---|---|---|---|
-| DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraOArtigoDeCadaProducao | Histórico mostra o artigo de cada produção | OK |  |
+| DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraOArtigoDeCadaProducao | Histórico mostra o artigo de cada produção, sem o quadro «Referência (n)» (DMO-601) | OK |  |
 
 ### `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoUsoEstimado.cs`
 
@@ -2946,6 +2947,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | DefinicoesPorModuloPageTests.FerramentasDefinicoes_OnlyForWhoHasTheModule_AndLeftTheAdmin | Definições de Ferramentas só para quem tem o módulo | FRACO | Parte do teste só verifica ausência de textos. |
 | DefinicoesPorModuloPageTests.FerramentasDefinicoes_TotalsGrid_SavesWithGuardar | Definições dos totais gravam com Guardar | OK |  |
 | DefinicoesPorModuloPageTests.HoraDeViragem_CadaUmaNoSeuModulo_ComOsSeusHandlers | Hora de viragem de cada módulo com os seus handlers | OK |  |
+| DefinicoesPorModuloPageTests.FerramentasDefinicoes_Codificacao_SeletorDaB2 | Codificação por linha: B2 numa só fila com dropdown Dupla/Tripla; escolher grava o modo e mostra os nomes desse modo (DMO-578, DMO-670) | OK |  |
 
 ### `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaEnvioUnicoTests.cs`
 
@@ -3004,9 +3006,9 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | Teste | Garante | Estado | Nota |
 |---|---|---|---|
 | FerramentasPagesTests.BarraDasFerramentas_PesquisarERegistarReparacao_SemOsNomesAntigos | Barra com Pesquisar e Registar Reparação, sem Histórico | OK |  |
-| FerramentasPagesTests.Ficha_TemOBotaoHistorico_QueAbreOsJobOnDaFerramenta | Histórico mostra produções da ferramenta com % uso por id | OK | Inclui verificações de classes CSS. |
+| FerramentasPagesTests.Ficha_TemOBotaoHistorico_QueAbreOsJobOnDaFerramenta | Histórico mostra produções da ferramenta com % uso por id; menu com Job On e, sem acesso, Controlo apagado (DMO-668) | OK | Inclui verificações de classes CSS. |
 | FerramentasPagesTests.HistoricoSemFerramenta_VaiParaOPesquisar | Histórico sem ferramenta vai para Pesquisar | OK |  |
-| FerramentasPagesTests.Historico_ComControloERi_OMenuTemOsTresDestinos | Menu da linha com Controlo, Reparação e Folha; % uso | OK |  |
+| FerramentasPagesTests.Historico_ComControloERi_OMenuTemOsTresDestinos | Menu da linha com Job On, Controlo, Reparação (e Boquilhas, apagada sem BQ); % uso (DMO-668) | OK |  |
 | FerramentasPagesTests.Historico_SemAChaveDasFerramentas_NaoAbre | Histórico sem chave Ferramentas não abre | FRACO | Só exige código diferente de 200; um erro 500 passava. |
 
 ### `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.MfAssociada.cs`
@@ -5696,6 +5698,30 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 |---|---|---|---|
 | ReparacaoInternaConsultaCoberturaBTests.Consulta_ReferenciaPrimeiro_ProducaoLogoAseguir_ETodosOsFiltrosNumSoFormulario | Na Consulta RI a Referência vem primeiro e a Produção a seguir. | OK | DMO-577 |
 
+### `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs`
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| DefinicoesPorModuloPageTests.OCodigoSapDaFicha_GanhaATabela_EVazioVoltaAEla | Código SAP escrito na ficha ganha à tabela; vazio volta a ela; já não está no Opções (DMO-668) | OK |  |
+
+### `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoVoltar.cs`
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| DefinicoesPorModuloPageTests.AUtilizacaoPorProducao_TemOVoltarPorCimaESemQuadrosVerdes | Utilização por produção: «Voltar» por cima do título, sem «Fechar» nem quadros verdes (DMO-668) | OK |  |
+
+### `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoSoBruto.cs`
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| DefinicoesPorModuloPageTests.OHistoricoDeProducoes_SoGarrafasEmBruto_EOsDiasAFrenteDasDatas | Histórico: Produção, Datas com os dias, Garrafas em bruto, % uso, Peso, Cadência; sem Δ garrafas (DMO-609) | OK |  |
+
+### `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.GeralNumaLinha.cs`
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| FerramentasPagesTests.Ficha_Geral_LinhasNaVertical_EUtilizacaoNaMesmaLinha | Geral da ficha: Linhas uma por baixo da outra e Utilização no mesmo quadro; o browser confirma uma só linha (DMO-608) | OK |  |
+
 ### `tests/ShellProof/cobertura_a1_ficha-na-lista.test.cjs`
 
 | Teste | Garante | Estado | Correção |
@@ -5843,3 +5869,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 
 | ControloCapabilitiesCutHPageTests.Approve_BarraDosFiltrosNaoRepeteAEtiquetaPendente | A barra dos filtros do Aprovar não repete a etiqueta «Pendente» | OK | A-0335 (DMO-597) |
 | DefinicoesPorModuloPageTests.OPesoDoHistorico_DeltaSaltaAsProducoesAnterioresSemPeso | O Δ do peso por produção salta as anteriores sem peso | OK | A-0341 (DMO-602) |
+| JobOnFichaTests.Peso_ComparacaoTemOMaisEOMenosDentroDaCaixa | + e − dentro da caixa da Comparação | OK | A-0417 (DMO-672) |
+| PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_DiferencasFicamForaDaTroca_RegistarNaoVoltaAoTopo | As diferenças da produção anterior ficam fora da troca (registar não volta ao topo) | OK | A-0417 (DMO-672) |
+| tests/ShellProof/painel-gravou-sem-recarregar.test.cjs | Depois de gravar sem recarregar, o painel fecha sem aviso falso de alterações por guardar | OK | A-0417 (DMO-672) |
+| PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDaComparacao_AgrupaPorGrandeza_AtualAnteriorEDiferenca_ComAnteriorACinza | A tabela do Controlo anterior compara por grandeza, com o anterior a cinza | OK | A-0419 (DMO-672) |
