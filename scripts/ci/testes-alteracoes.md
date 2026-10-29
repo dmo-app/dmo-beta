@@ -5794,3 +5794,15 @@ Novos: 5 · mudaram: 0 · saíram: 0
 - novo: `tests/ShellProof/jobon-folha-linhas-contagem.test.cjs :: O número do botão «Linhas» fica num círculo com contorno, centrado com o texto`
 
 Selo depois: `d1db188e2d7bbb02`
+
+## A-0438 · 2026-10-29 · ok-do-diogo
+
+Porquê: Diogo 29/10 15:38: repor no PDF do Resumo as ligações «Ver detalhe →»/«Ver →»/«Abrir PDF das punções →» e o «← Voltar ao Resumo» nas folhas do Peso e dos Pegamentos; 3 testes voltam ao que diziam antes de DMO-515
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraLpRKn2Ee6HEGuUErfEpr1d
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosFolhaPorFerramentasTests.cs :: PegamentosFolhaPorFerramentasTests.ResumoPdfCompleto_FolhaDeFora_SemLigacao_ACardLigaAFolhaQueEntra`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosFolhaPorFerramentasTests.cs :: PegamentosFolhaPorFerramentasTests.ResumoPdf_TwoSheets_OneSectionPerSheet_TheAlertOfTheSecondIsNotHidden`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes`
+
+Selo depois: `83b9fedd9a164a8c`

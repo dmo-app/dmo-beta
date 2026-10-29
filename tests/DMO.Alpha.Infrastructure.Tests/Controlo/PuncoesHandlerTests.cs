@@ -256,8 +256,7 @@ public sealed class PuncoesHandlerTests : IDisposable
         });
         var withText = PdfText.Of(with);
         Assert.Contains("TOTAL PU VISTAS ARREF. VISTOS 2 2 2", withText);
-        // O PDF é para imprimir (DMO-515): sem setas; o título «PU NNPB» abre o ficheiro.
-        Assert.DoesNotContain("Abrir PDF das punções", withText);
+        Assert.Contains("Abrir PDF das punções →", withText);
         Assert.DoesNotContain("Registo de punções", withText);
         Assert.Contains("1 / 1", withText);
         using var document = UglyToad.PdfPig.PdfDocument.Open(with);

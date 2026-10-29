@@ -324,8 +324,8 @@ public sealed class PegamentosFolhaPorFerramentasTests : IDisposable
             PegamentosDetalhe: detalhes[0], PegamentosDetalhes: detalhes)));
 
         Assert.Contains("Existem medições fora das tolerâncias", text);
-        Assert.Contains("Folha 1 · CM 5447 · BQ T194 · MF 5810 1 medição(ões) · ± 0.20 mm", text);
-        Assert.Contains("Folha 2 · CM 5447 · BQ T195 · MF 5810 1 medição(ões) · 1 em alerta · ± 0.20 mm", text);
+        Assert.Contains("Folha 1 · CM 5447 · BQ T194 · MF 5810 Ver → 1 medição(ões) · ± 0.20 mm", text);
+        Assert.Contains("Folha 2 · CM 5447 · BQ T195 · MF 5810 Ver → 1 medição(ões) · 1 em alerta · ± 0.20 mm", text);
         Assert.Contains("Folha 1 de 2 · registada a 18/10/2026", text);
         Assert.Contains("Folha 2 de 2 · registada a 18/10/2026", text);
         Assert.Equal("pegamentos-2", ResumoPdfGenerator.PegamentosSection(2));
@@ -365,7 +365,7 @@ public sealed class PegamentosFolhaPorFerramentasTests : IDisposable
             sheet.ProductionNumber, sheet.Reference, sheet.Machine, null, null, [], null, summary, [], null,
             PegamentosDetalhe: segunda, PegamentosDetalhes: [segunda], PegamentosSecoes: ["pegamentos-2"])));
 
-        Assert.DoesNotContain("→", text);
+        Assert.Contains("Controlo Ver detalhe →", text);
         // Os títulos do PDF do Resumo (Diogo, 19/10/2026): «Controlo»,
         // «Ferramenta» e «Verificação».
         Assert.Contains("Ferramenta Sem ferramentas registadas", text);
@@ -374,10 +374,10 @@ public sealed class PegamentosFolhaPorFerramentasTests : IDisposable
         Assert.DoesNotContain("A combinação da produção", text);
         Assert.DoesNotContain("Estado do documento", text);
         Assert.Contains("Folha 1 · CM 5447 · BQ T194 · MF 5810 1 medição(ões)", text);
-        Assert.Contains("Folha 2 · CM 5447 · BQ T195 · MF 5810 1 medição(ões)", text);
+        Assert.Contains("Folha 2 · CM 5447 · BQ T195 · MF 5810 Ver → 1 medição(ões)", text);
         Assert.Contains("Folha 2 de 2 · registada a 18/10/2026", text);
         Assert.DoesNotContain("Folha 1 de 2", text);
-        Assert.DoesNotContain("Voltar ao Resumo", text);
+        Assert.Contains("← Voltar ao Resumo", text);
     }
 
     [Fact]

@@ -210,6 +210,7 @@ public sealed class PesoPdfGenerator
             page.Footer().PaddingTop(8).BorderTop(.6f).BorderColor(Line).PaddingTop(6).Row(row =>
             {
                 row.RelativeItem().Text(input.GeneratedBy is { } by ? "Gerado por " + by : "Gerado por: sem identificação").FontSize(7).FontColor(Muted);
+                if (combined) row.ConstantItem(80).AlignCenter().SectionLink("resumo").Text("← Voltar ao Resumo").FontSize(7).FontColor(Blue);
                 row.RelativeItem().AlignRight().DefaultTextStyle(x => x.FontSize(7).FontColor(Muted)).Text(t =>
                 {
                     t.Span(DmoBusinessTime.Now.ToString("g", Pt) + " · ");
