@@ -8,7 +8,7 @@
     var procura = ferramenta is null && !Model.FerramentaNaoExiste;
     // A coluna destacada: a ferramenta vista, ou o tipo escolhido no filtro.
     ToolType? destaque = ferramenta?.Tipo ?? Model.Tipo;
-    var temMenu = Model.AbreControlo || Model.AbreReparacao || Model.AbreJobOn;
+    var temMenu = Model.AbreControlo || Model.AbreReparacao || Model.AbreJobOn || Model.AbreBoquilhas;
 }
 @section Head {
 <style>
@@ -44,6 +44,7 @@ html body .hist-card .dmo-table tbody td{vertical-align:middle;line-height:1.35}
 .hist-menu>summary{font-weight:700;color:var(--dmo-brand-900)}
 .hist-menu .dmo-options-list{min-width:190px}
 .hist-menu .dmo-options-item{text-decoration:none}
+.hist-menu .hist-menu-off{opacity:.45;cursor:default;pointer-events:none}
 @@media (max-width:640px){
   .hist-card{padding:14px}
   html body .hist-filtros-card .dmo-filter-bar>.dmo-field{flex:1 1 140px;width:auto}
@@ -158,9 +159,12 @@ html body .hist-card .dmo-table tbody td{vertical-align:middle;line-height:1.35}
                   <details class="dmo-options hist-menu">
                     <summary aria-label="Abrir a produção @l.Referencia @producao"><span class="dmo-caret" aria-hidden="true"></span>@producao</summary>
                     <div class="dmo-options-list" role="menu">
-                      @if (Model.AbreControlo) { <a class="dmo-options-item" role="menuitem" href="@HistoricoModel.ControloUrl(l)">Controlo</a> }
-                      @if (Model.AbreReparacao) { <a class="dmo-options-item" role="menuitem" href="@HistoricoModel.ReparacaoUrl(l)">Reparação</a> }
-                      @if (Model.AbreJobOn) { <a class="dmo-options-item" role="menuitem" href="@HistoricoModel.JobOnUrl(l)">Folha do Job On</a> }
+                      @* Sempre as quatro, pela mesma ordem (Diogo, 29/10/2026: «aqui deve aparecer
+                         Job On, Controlo, Reparação e Boquilhas»); sem acesso, ou sem BQ, fica apagada. *@
+                      @if (Model.AbreJobOn) { <a class="dmo-options-item" role="menuitem" href="@HistoricoModel.JobOnUrl(l)">Job On</a> } else { <span class="dmo-options-item hist-menu-off" role="menuitem" aria-disabled="true">Job On</span> }
+                      @if (Model.AbreControlo) { <a class="dmo-options-item" role="menuitem" href="@HistoricoModel.ControloUrl(l)">Controlo</a> } else { <span class="dmo-options-item hist-menu-off" role="menuitem" aria-disabled="true">Controlo</span> }
+                      @if (Model.AbreReparacao) { <a class="dmo-options-item" role="menuitem" href="@HistoricoModel.ReparacaoUrl(l)">Reparação</a> } else { <span class="dmo-options-item hist-menu-off" role="menuitem" aria-disabled="true">Reparação</span> }
+                      @if (Model.AbreBoquilhas && HistoricoModel.BoquilhasUrl(l) is { } bqUrl) { <a class="dmo-options-item" role="menuitem" href="@bqUrl">Boquilhas</a> } else { <span class="dmo-options-item hist-menu-off" role="menuitem" aria-disabled="true">Boquilhas</span> }
                     </div>
                   </details>
                 }

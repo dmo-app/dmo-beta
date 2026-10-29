@@ -394,7 +394,7 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
                 <button type="submit" class="dmo-options-item" id="ferr-pedir-utilizacao-botao">Atualizar informação do SAP</button>
               </form>
               }
-              <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-codigo-sap-dialog">Código SAP</button>
+              @* Sem o «Código SAP» no Opções (Diogo, 29/10/2026: «remover este código SAP das opções»). *@
               <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-duplicate-dialog">Duplicar</button>
               <button type="button" class="dmo-options-item" data-dmo-dialog="ferr-delete-dialog">Eliminar</button>
             </div>
@@ -511,14 +511,18 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
     {
       var leituraJanela = Model.Utilizacao?.Ultima;
       <dialog id="ferrProducoes" class="dmo-dialog ferr-producoes-janela" aria-labelledby="ferr-producoes-title" data-dmo-dialog-aberta="@(Model.ProducoesAbertas ? "1" : null)">
-        <h3 id="ferr-producoes-title" title="Os Job On em que esta ferramenta foi a CM, o MF ou a BQ. O produzido é a produção bruta (o total, com que se calcula o uso) do relatório de fabrico da produção (a mesma referência, máquina e datas). O delta é quanto a utilização subiu nessa produção. Um clique na produção abre a ficha do Job On.">Utilização por produção</h3>
+        @* «Voltar» como link no canto superior esquerdo, por cima do título, no lugar
+           do «Fechar» (Diogo, 29/10/2026: «Voltar aparece em cima da utilização»). *@
+        <button type="button" class="ferr-cancel ferr-link-botao ferr-producoes-voltar" data-dmo-dialog-close id="ferrProducoesFechar">Voltar</button>
+        @* Sem os quadros verdes de comentário (Diogo, 29/10/2026: «remover os comentários
+           verdes»): a explicação fica só aqui, na ajuda do título. *@
+        <h3 id="ferr-producoes-title" title="Os Job On em que esta ferramenta foi a CM, o MF ou a BQ. Garrafas = a produção bruta (o total, com que se calcula o uso) do relatório de fabrico da produção (a mesma referência, máquina e datas). O delta é quanto a utilização subiu nessa produção; Um valor aproximado (sem leituras antes e depois da produção) é a parte do % de hoje pelo que ela produziu. O total é o % de hoje. Um clique na produção abre a ficha do Job On.">Utilização por produção</h3>
         <partial name="_UtilizacaoProducoes" model="new DMO.Alpha.Web.Presentation.UtilizacaoProducoesView(producoesTudo, leituraJanela)" />
         <div class="dmo-dialog-actions">
           <button type="button" class="ferr-cancel ferr-link-botao" id="ferrProducoesHistorico" aria-controls="ferrHistoricoProducoes">Ver o Histórico de produções</button>
-          <button type="button" class="dmo-button" data-dmo-dialog-close id="ferrProducoesFechar">Fechar</button>
         </div>
       </dialog>
-      @* A janela abre com o foco no «Fechar», não na ajuda (que abriria o balão). *@
+      @* A janela abre com o foco no «Voltar», não na ajuda (que abriria o balão). *@
       @* O % da Utilização leva também ao Histórico de produções (Diogo,
          27/10/2026): abre-o e desce até ele por trás da janela; ao fechar a
          janela fica-se lá. O «Ver o Histórico de produções» fecha a janela. *@
