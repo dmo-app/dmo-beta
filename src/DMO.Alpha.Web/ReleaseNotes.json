@@ -1,7 +1,5 @@
 {
   "fixes": [
-    { "id": "DMO-652", "module": "Job On", "description": "0.3.0-beta.238 no Planeamento sai o título grande «Planeamento» (o separador Job On já diz onde se está) e as linhas do dia ficam um pouco mais baixas, para as seis máquinas caberem sem deslizar a 1290×646." },
-    { "id": "DMO-603", "module": "Job On", "description": "0.3.0-beta.236 (A-0350): na gaveta Planeamento da folha do Job On, os cartões das produções ficam com as cores do Planeamento: em repouso o fundo claro da cor da linha com letra normal, no hover e no escolhido a cor da linha cheia com letra branca, no claro e no escuro." },
     { "id": "DMO-001", "module": "Aplicação", "description": "Página de erro com referência para diagnóstico, em vez de uma página inexistente." },
     { "id": "DMO-002", "module": "Aplicação", "description": "Configuração de persistência e autenticação coerente no arranque; sem registos voláteis fora de Development." },
     { "id": "DMO-003", "module": "Job On", "description": "Decimais de calote guardados corretamente ao criar e editar produções." },
@@ -608,7 +606,9 @@
     { "id": "DMO-621", "module": "Ferramentas", "description": "0.3.0-beta.239 (A-0361): a primeira leitura da pasta do SAP importava só os 10 ficheiros mais recentes; os mais antigos ficavam por ler. Importa-se agora a pasta inteira, do mais antigo para o mais novo." },
     { "id": "DMO-622", "module": "Ferramentas", "description": "0.3.0-beta.239 (A-0362): «Apagar lidos» podia apagar um ficheiro do SAP que nunca tinha sido mesmo importado (recusado pelo servidor, ou anterior a este browser ter confirmado nada). Passa a apagar só os que este browser confirmou gravados." },
     { "id": "DMO-623", "module": "Ferramentas", "description": "0.3.0-beta.239 (A-0363): um % de uso escrito à mão igual à última leitura do SAP arredondada (90,2 → 90) não gravava, mesmo sendo uma correção real." },
-    { "id": "DMO-624", "module": "Aplicação", "description": "0.3.0-beta.239 (A-0364): quatro dias por defeito (sem data escrita) usavam o relógio do servidor em vez do de Lisboa — à noite de verão podiam cair no dia errado." }
+    { "id": "DMO-624", "module": "Aplicação", "description": "0.3.0-beta.239 (A-0364): quatro dias por defeito (sem data escrita) usavam o relógio do servidor em vez do de Lisboa — à noite de verão podiam cair no dia errado." },
+    { "id": "DMO-603", "module": "Job On", "description": "0.3.0-beta.236 (A-0350): na gaveta Planeamento da folha do Job On, os cartões das produções ficam com as cores do Planeamento: em repouso o fundo claro da cor da linha com letra normal, no hover e no escolhido a cor da linha cheia com letra branca, no claro e no escuro." },
+    { "id": "DMO-652", "module": "Job On", "description": "0.3.0-beta.238 no Planeamento sai o título grande «Planeamento» (o separador Job On já diz onde se está) e as linhas do dia ficam um pouco mais baixas, para as seis máquinas caberem sem deslizar a 1290×646." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
