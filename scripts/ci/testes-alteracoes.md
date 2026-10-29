@@ -4990,36 +4990,26 @@ Novos: 5 · mudaram: 12 · saíram: 0
 
 Selo depois: `4cba7644ecb57f38`
 
+## A-0349 · 2026-10-29 · contagem-lista
+
+Porquê: Só entrou o ficheiro novo voltar-automatico.test.cjs na lista de testes (package.json); Diogo 29/10: «nos ja criamos o voltar para todas as paginas'?»
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra4mH2zZ2eTtEjgoducXvkiA
+Novos: 2 · mudaram: 1 · saíram: 0
+
+- novo: `tests/ShellProof/voltar-automatico.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/voltar-automatico.test.cjs :: a página sem Voltar escrito ganha-o no canto, só se vier de outra página`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `1667b4002ee21767`
+
 ## A-0350 · 2026-10-29 · ok-do-diogo
 
-Porquê: Lote .236: junta as impressões já aprovadas em A-0340/A-0348 (#302 DMO-601/608/609), A-0341 (#304 DMO-602), A-0343 (#305 DMO-605/606/607) e o #301 (DMO-603, sem testes)
-Referência: A-0340; A-0341; A-0343; A-0348
-Novos: 10 · mudaram: 15 · saíram: 0
+Porquê: Lote .236: junta as impressões já aprovadas em A-0340/A-0348 (#302 DMO-601/608/609), A-0341 (#304 DMO-602), A-0343 (#305 DMO-605/606/607), A-0349 (#306 DMO-610) e o #301 (DMO-603, sem testes)
+Referência: A-0340; A-0341; A-0343; A-0348; A-0349
+Novos: 2 · mudaram: 1 · saíram: 0
 
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.DuasLinhasComAMesmaChave_FicamColapsadasNumaSoSemApagarNada`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.UmaOrdemForaDaJanelaDoRelatorioNovo_NaoEApagada`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.UmaOrdemQueDeixaDeVirNoRelatorio_EApagadaDaJanelaDoRelatorio`
-- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoSoBruto.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoSoBruto.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_SoGarrafasEmBruto_EOsDiasAFrenteDasDatas`
-- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PesoPorProducao.cs :: DefinicoesPorModuloPageTests.OPesoDoHistorico_DeltaSaltaAsProducoesAnterioresSemPeso`
-- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.GeralNumaLinha.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.GeralNumaLinha.cs :: FerramentasPagesTests.Ficha_Geral_LinhasNaVertical_EUtilizacaoNaMesmaLinha`
-- novo: `tests/ShellProof/ferramentas-sap_feito-com-falha.test.cjs :: (resto do ficheiro)`
-- novo: `tests/ShellProof/ferramentas-sap_feito-com-falha.test.cjs :: Atualizar do SAP: quando o diário escreve «erro», o cartão mostra falha e não «feito»`
-- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.FabricoSap.cs :: PostgresMigrationIntegrationTests.FabricoSap_LerDuasVezesUmaSoLinha_NoPostgreSql`
-- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: (resto do ficheiro)`
-- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: HistoriaCenario.HistoriaDeUmaProducao_TodosOsModulosVeemOMesmo`
-- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoricoLote.cs :: PostgresMigrationIntegrationTests.HistoricoFerramentas_ProducoesEmLote_IguaisAUmaAUma_ComConsultasFixas`
-- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.SapFabricoCadencia.cs :: PostgresMigrationIntegrationTests.SapFabricoCadencia_GravaSoACadencia_NoPostgreSql`
-- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaPorProducaoTests.cs :: FabricoSapCadenciaPorProducaoTests.CadaProducaoDaFerramenta_TemASuaCadencia`
-- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaPorProducaoTests.cs :: FabricoSapCadenciaPorProducaoTests.OJobOnSemCadencia_FicaComADaProducaoAnteriorDaMesmaReferencia`
-- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaTests.cs :: FabricoSapCadenciaTests.Importar_GravaACadencia_ESemElaNaoApagaAJaGravada`
-- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: (resto do ficheiro)`
-- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: (resto do ficheiro)`
-- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AjudaSap.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_AAjudaDoSapAbreAPaginaDeAjuda`
-- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_DaODeltaDeGarrafasEAJanelaDoPeso`
-- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoComArtigo.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraOArtigoDeCadaProducao`
+- novo: `tests/ShellProof/voltar-automatico.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/voltar-automatico.test.cjs :: a página sem Voltar escrito ganha-o no canto, só se vier de outra página`
 - mudou: `tests/ShellProof/package.json`
-- mudou: `tests/visual/cobertura_a2_browser.py`
 
-Selo depois: `f9b66e35025b9b62`
+Selo depois: `48fb94b315990dac`
