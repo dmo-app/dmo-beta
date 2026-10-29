@@ -4601,3 +4601,14 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.OsNumerosComPercentagemOuEspacosEstranhos_LeemSe`
 
 Selo depois: `b53737140df2c16e`
+
+## A-0318 · 2026-10-29 · contagem-lista
+
+Porquê: C02 da auditoria do Codex de 28/10/2026 (DMO-581, #286): teste de browser novo tests/visual/cabecalho_nome_comprido_browser.py, que garante que com um nome e um título compridos a conta fica na fila dos módulos e a folha do Job On a 1290×646 não desliza; no ci-local.sh só se acrescenta o passo que o corre.
+Referência: PR #286
+Novos: 1 · mudaram: 1 · saíram: 0
+
+- novo: `tests/visual/cabecalho_nome_comprido_browser.py`
+- mudou: `scripts/ci/ci-local.sh`
+
+Selo depois: `0e6f198e89a387c4`
