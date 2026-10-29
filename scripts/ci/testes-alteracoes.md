@@ -6001,3 +6001,17 @@ Novos: 3 · mudaram: 2 · saíram: 0
 - mudou: `tests/ShellProof/peso-live.test.cjs :: (resto do ficheiro)`
 
 Selo depois: `8852030be24aa949`
+
+## A-0451 · 2026-10-29 · ok-do-diogo
+
+Porquê: Lote beta.251: junta #362, #364 e #363; impressão refeita sobre a integracao; os testes mudados são os explicados em A-0449
+Referência: Diogo 29/10 22:07 (ordem de juntar #362, #364, #363)
+Novos: 3 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_DatasDentroDaTabela_ComESemPeso`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_DiferencaIdentificaAtualMenosReferencia_ComSinalEPercentagem`
+- novo: `tests/ShellProof/peso-live.test.cjs :: DMO-689: previous production dates and named differences survive selection and live updates`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_MostraAMediaPelosDiasEAModaDoSap_EOCampoVemComAMedia`
+- mudou: `tests/ShellProof/peso-live.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `f7ab53c834bb7e35`
