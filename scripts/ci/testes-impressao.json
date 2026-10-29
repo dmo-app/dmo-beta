@@ -1,5 +1,5 @@
 {
-  "selo": "201be6b94f26e7e5",
+  "selo": "4390bbb2cbbcc0af",
   "unidades": {
     "scripts/ci/ci-local.sh": "b85e4195bb3ac186",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -3213,7 +3213,7 @@
     "tests/ShellProof/cobertura_a1_ficha-na-lista.test.cjs :: sem painel de apoio, o triângulo abre a ficha noutro separador sem escolher": "00c16eb96b9930fd",
     "tests/ShellProof/cobertura_a1_ficha-na-lista.test.cjs :: uma procura sem endereço de ficha não desenha triângulo": "b9b1ff2688190b25",
     "tests/ShellProof/cobertura_a1_folha-js.test.cjs :: (resto do ficheiro)": "79f7cc92aa282d81",
-    "tests/ShellProof/cobertura_a1_folha-js.test.cjs :: Calibres: «P 59.20 / M 58.60» quebra só na barra, em dois segmentos inteiros": "f761126787db93e4",
+    "tests/ShellProof/cobertura_a1_folha-js.test.cjs :: Calibres: «P 59.20 / M 58.60» quebra só na barra, em dois segmentos inteiros": "b25f0e0636fdf3fb",
     "tests/ShellProof/cobertura_a1_folha-js.test.cjs :: Dimensões compridas: só se pode quebrar depois de cada barra": "7dbdb445b028b551",
     "tests/ShellProof/cobertura_a1_folha-js.test.cjs :: Editar: a procura da CM dá à lista o endereço da ficha de cada ferramenta": "2025a38ae630040f",
     "tests/ShellProof/cobertura_a1_folha-js.test.cjs :: a Informação técnica abre de uma em uma, e o clique fora ou o Esc fecham-na": "de7c9044f34a78ea",
@@ -3320,6 +3320,9 @@
     "tests/ShellProof/jobon-dados-ferramentas.test.cjs :: a resposta de uma escolha anterior que chega depois da atual não escreve os dados nem os avisos dela": "4642cc8144e9e8e5",
     "tests/ShellProof/jobon-dados-ferramentas.test.cjs :: a resposta tardia de uma escolha anterior não apaga o aviso da escolha atual": "c3b8356616543afe",
     "tests/ShellProof/jobon-dados-ferramentas.test.cjs :: sem resposta ou com erro do servidor, saem os dados e os avisos da escolha anterior e a mesma escolha volta a ser pedida": "2452527d18ca22d9",
+    "tests/ShellProof/jobon-folha-avisos-canto.test.cjs :: (resto do ficheiro)": "a1217a4980295ac3",
+    "tests/ShellProof/jobon-folha-avisos-canto.test.cjs :: Editar: os avisos ficam onde estão": "3b0caf382a5780bd",
+    "tests/ShellProof/jobon-folha-avisos-canto.test.cjs :: Ver: avisos do CM e da BQ vão para o canto, com o botão e um × que fecha": "9bc89e910705b0f5",
     "tests/ShellProof/jobon-folha.test.cjs :: (resto do ficheiro)": "d14231c83bd9cb41",
     "tests/ShellProof/jobon-folha.test.cjs :: Bloqueada: um clique leva à ficha": "6664bf56aaa45dca",
     "tests/ShellProof/jobon-folha.test.cjs :: CS furos no Editar: um dígito de abertos e outro de fechados vão para o campo como «Abertos 4 / Fechados 2»": "5fc52b4cb0c4ad40",

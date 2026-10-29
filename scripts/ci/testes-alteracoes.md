@@ -5118,3 +5118,29 @@ Novos: 20 · mudaram: 8 · saíram: 0
 - mudou: `tests/ShellProof/jobon-folha.test.cjs :: (resto do ficheiro)`
 
 Selo depois: `201be6b94f26e7e5`
+
+## A-0384 · 2026-10-29 · ok-do-diogo
+
+Porquê: Avisos dos cartões no canto superior direito com × (teste novo, DMO-644); nos Calibres o «P / M» fica um por cima do outro sem a barra, como o Diogo pediu (DMO-645): o teste do Extrator passa a esperar os valores sem «/» e o texto escrito no título.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra8XrmodJiio6g6eC4ixneHQ
+Novos: 3 · mudaram: 1 · saíram: 0
+
+- novo: `tests/ShellProof/jobon-folha-avisos-canto.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/jobon-folha-avisos-canto.test.cjs :: Editar: os avisos ficam onde estão`
+- novo: `tests/ShellProof/jobon-folha-avisos-canto.test.cjs :: Ver: avisos do CM e da BQ vão para o canto, com o botão e um × que fecha`
+- mudou: `tests/ShellProof/cobertura_a1_folha-js.test.cjs :: Calibres: «P 59.20 / M 58.60» quebra só na barra, em dois segmentos inteiros`
+
+Selo depois: `7a4c93168414ea60`
+
+## A-0385 · 2026-10-29 · ok-do-diogo
+
+Porquê: Lote .236: junta as impressões do #301 (DMO-644/645/646) já explicadas em A-0384
+Referência: A-0384
+Novos: 3 · mudaram: 1 · saíram: 0
+
+- novo: `tests/ShellProof/jobon-folha-avisos-canto.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/jobon-folha-avisos-canto.test.cjs :: Editar: os avisos ficam onde estão`
+- novo: `tests/ShellProof/jobon-folha-avisos-canto.test.cjs :: Ver: avisos do CM e da BQ vão para o canto, com o botão e um × que fecha`
+- mudou: `tests/ShellProof/cobertura_a1_folha-js.test.cjs :: Calibres: «P 59.20 / M 58.60» quebra só na barra, em dois segmentos inteiros`
+
+Selo depois: `4390bbb2cbbcc0af`
