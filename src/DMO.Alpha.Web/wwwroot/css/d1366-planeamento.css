@@ -523,3 +523,12 @@ html:root body .jof2-gaveta .rail-item.dmo-linha-cor:not(.selected):not(:hover):
 html:root body .jof2-gaveta .rail-item.dmo-linha-cor:not(.selected):not(:hover):not(:focus-visible):not(#_) .mch.mch{color:var(--dmo-text)!important}
 html:root body .jof2-gaveta .rail-item.dmo-linha-cor:is(.selected,:hover,:focus-visible,:active):not(#_){background:var(--dmo-linha-cheia,var(--dmo-machine-color));color:var(--dmo-text-on-color,#fff);border:1px solid transparent;outline:0}
 html:root body .jof2-gaveta .rail-item.dmo-linha-cor:is(.selected,:hover,:focus-visible,:active):not(#_) :is(b,small,.mch.mch){color:var(--dmo-text-on-color,#fff)!important;opacity:1}
+/* O título do Planeamento só para os leitores de ecrã (Diogo, 29/10/2026). */
+html body main.beta-light-main h1.sr-only{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* A 1290×646 as seis linhas do dia cabem sem deslizar (Diogo, 29/10/2026): as zonas vazias dos avisos não ocupam
+   espaço, e as linhas ficam um pouco mais baixas e mais juntas. */
+html body main.beta-light-main:has(#jobonProducoes) .beta-light-view.active>div:empty:not(#_){display:none}
+html body main.beta-light-main:has(#jobonProducoes) .beta-light-view.active>[data-dmo-regiao]:not(:has(*)):not(#_){display:none}
+html body main.beta-light-main:has(#jobonProducoes) #jobonProducoes .beta-light-machine-row:not(#_){min-height:32px;height:32px}
+html body main.beta-light-main:has(#jobonProducoes) #jobonProducoes :has(>.beta-light-machine-row):not(#_){row-gap:3px}
+html body main.beta-light-main:has(#jobonProducoes) #lightProductionList:not(#_){overflow:clip}
