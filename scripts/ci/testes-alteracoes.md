@@ -4612,3 +4612,17 @@ Novos: 1 · mudaram: 1 · saíram: 0
 - mudou: `scripts/ci/ci-local.sh`
 
 Selo depois: `0e6f198e89a387c4`
+
+## A-0325 · 2026-10-29 · ok-do-diogo
+
+Porquê: A localização no cartão do Job On passa a negrito também quando não é uma posição («Sem registo»), como o Diogo pediu; o teste do reparador na linha passa a esperar <b>Sem registo</b>. Testes novos: localização abre a Entrada/Saída do Armazém; diâmetros só com um número (DMO-587, #288).
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraNidJsALf8gXwDKhAgYzVEb
+Novos: 4 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnDiametrosRecusaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnDiametrosRecusaTests.cs :: JobOnDiametrosRecusaTests.DoisNumerosNumDiametro_ERecusado`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.LocalizacaoArmazem.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.LocalizacaoArmazem.cs :: JobOnPageTests.Folha_LocalizacaoANegrito_AbreAEntradaSaidaDoArmazem`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReparadorNaLinha.cs :: JobOnPageTests.Folha_ReparadorDepoisDoEstadoEDaPosicao_SemLinhaAParte`
+
+Selo depois: `8f89f97f666856db`
