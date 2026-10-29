@@ -19,6 +19,24 @@ public static class UsoFerramenta
     // Como o Razor: sem escapar os acentos nem o «—».
     private static readonly HtmlEncoder Codificador = HtmlEncoder.Create(UnicodeRanges.All);
 
+    /// <summary>
+    /// As datas de uma produção com os dias à frente (Diogo, 29/10/2026: «metemos
+    /// quantidade de dias em frente às datas»): «19/10/2026 a 28/10/2026 · 10 dias».
+    /// Sem fim conta até hoje («em curso»); a que está na máquina hoje leva também
+    /// «em curso». O mesmo texto no Histórico da ficha e na Utilização por produção.
+    /// </summary>
+    public static string Datas(DateOnly? inicio, DateOnly? fim, DateOnly hoje)
+    {
+        var texto = (inicio?.ToString("dd/MM/yyyy") ?? "—") + " a " + (fim?.ToString("dd/MM/yyyy") ?? "em curso");
+        if (inicio is { } i)
+        {
+            var dias = (fim ?? hoje).DayNumber - i.DayNumber + 1;
+            if (dias > 0) texto += $" · {dias} {(dias == 1 ? "dia" : "dias")}";
+        }
+
+        return fim is { } f && inicio <= hoje && f >= hoje ? texto + " · em curso" : texto;
+    }
+
     public static string Href(string toolId) => Pagina + "?tool_id=" + Uri.EscapeDataString(toolId);
 
     /// <summary>

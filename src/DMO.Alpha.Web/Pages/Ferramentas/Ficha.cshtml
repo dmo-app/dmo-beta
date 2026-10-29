@@ -413,8 +413,13 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
           }
         </div>
       </div>
+      @* Numa só linha, também no painel (Diogo, 29/10/2026: «linhas passa a
+         ficar na vertical, reduzir quantidade, tentar meter alinhado»). *@
       <div class="dmo-facts">
-        <div class="dmo-fact"><span>Linhas</span><strong>@machineCodes</strong></div>
+        <div class="dmo-fact ferr-fact-linhas" id="ferrLinhas"><span>Linhas</span><strong>@if (sheet is null || sheet.Machines.Count == 0)
+        {@machineCodes}
+        else
+        {foreach (var maquinaFicha in sheet.Machines){<span>@maquinaFicha.Code</span>}}</strong></div>
         @* Só a CM com uma referência diferente da do MF (Diogo, 21/10/2026). *@
         @if (tool.Type == ToolType.Cm && !string.IsNullOrWhiteSpace(tool.AssociatedMfReference)
             && !string.Equals(tool.AssociatedMfReference.Trim(), tool.Reference.Trim(), StringComparison.OrdinalIgnoreCase))
@@ -422,9 +427,9 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
           <div class="dmo-fact"><span>Referência MF associada</span><strong>@tool.AssociatedMfReference</strong></div>
         }
         @* Com AN (Diogo, 28/10/2026): «24 BQ · 24 AN». *@
-        <div class="dmo-fact"><span>Quantidade</span><strong>@(tool.BqAccountedQuantity?.ToString(pt) ?? "—")@(tool.AnQuantity is int anFicha ? $" BQ · {anFicha.ToString(pt)} AN" : null)</strong></div>
+        <div class="dmo-fact ferr-fact-curto" id="ferrQuantidade"><span>Quantidade</span><strong>@(tool.BqAccountedQuantity?.ToString(pt) ?? "—")@(tool.AnQuantity is int anFicha ? $" BQ · {anFicha.ToString(pt)} AN" : null)</strong></div>
         @* A POSIÇÃO E O ESTADO (Diogo, 22/10/2026): do Armazém, a todos; «—» sem registo. *@
-        <div class="dmo-fact" id="ferrPosicao"><span>Posição</span><strong>@(Model.Armazem?.Posicao ?? "—")</strong></div>
+        <div class="dmo-fact ferr-fact-curto" id="ferrPosicao"><span>Posição</span><strong>@(Model.Armazem?.Posicao ?? "—")</strong></div>
         @{ var estadoTexto = Model.Armazem?.Estado is { } estadoFicha ? DMO.Alpha.Core.Armazem.ArmazemTextos.Estado(estadoFicha) : "—"; }
         <div class="dmo-fact" id="ferrEstadoArmazem"><span>Estado</span><strong>@if (Model.ArmazemGestao && Model.Armazem is { } armEstado)
         {<a class="ferr-armazem-link" href="@Url.Page("/Armazem/Movimentos", new { ferramenta = armEstado.ToolId })">@estadoTexto</a>}
@@ -649,7 +654,7 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
       var pecasHist = System.Globalization.CultureInfo.GetCultureInfo("pt-PT");
       <section class="dmo-card ferr-card dmo-card-dobravel" aria-labelledby="ferr-historico-title" id="ferrHistoricoProducoes" data-dmo-fica>
         <details>
-        <summary class="dmo-card-topo"><h3 id="ferr-historico-title" title="Os Job On em que esta ferramenta esteve, do mais recente para o mais antigo. Garrafas = produção bruta; Δ garrafas = contra a produção anterior; % = quanto o uso subiu nela. Um clique no peso médio abre o peso de todas as produções: a média, a moda e o Δ contra a anterior. A cadência é a moda do SAP em cada produção; um clique abre a média, a moda e o Δ de todas. O total soma as garrafas e mostra a % de hoje."><span class="dmo-caret" aria-hidden="true"></span>Histórico de produções</h3></summary>
+        <summary class="dmo-card-topo"><h3 id="ferr-historico-title" title="Os Job On em que esta ferramenta esteve, do mais recente para o mais antigo. Datas com os dias da produção; Garrafas = produção bruta; % = quanto o uso subiu nela. Um clique no peso médio abre o peso de todas as produções: a média, a moda e o Δ contra a anterior. A cadência é a moda do SAP em cada produção; um clique abre a média, a moda e o Δ de todas. O total soma as garrafas e mostra a % de hoje."><span class="dmo-caret" aria-hidden="true"></span>Histórico de produções</h3></summary>
         @if (historico.Pagina.TotalCount == 0)
         {
           <p class="ferr-nota">Esta ferramenta ainda não esteve em nenhum Job On.</p>
@@ -661,25 +666,23 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
           var hojeHist = DateOnly.FromDateTime(DMO.Alpha.Core.Runtime.DmoBusinessTime.Now);
           <div class="dmo-table-wrap">
             <table class="dmo-table" data-dmo-list="Histórico de produções">
-              <thead><tr><th>Produção</th><th>Datas</th><th>Garrafas (bruto)</th><th>Δ garrafas</th><th>% uso</th><th>Peso médio</th><th title="A cadência do SAP em cada produção (a moda: a das ordens com mais dias)">Cadência</th></tr></thead>
+              <thead><tr><th>Produção</th><th>Datas</th><th>Garrafas</th><th>% uso</th><th>Peso médio</th><th title="A cadência do SAP em cada produção (a moda: a das ordens com mais dias)">Cadência</th></tr></thead>
               <tbody>
                 @{ var itensHist = historico.Pagina.Items.ToList(); }
                 @for (var i = 0; i < itensHist.Count; i++)
                 {
                   var prod = itensHist[i];
                   var peso = Model.PesoProducoes.TryGetValue(prod.JobOnId, out var ps) ? ps : null;
-                  // Contra a produção anterior (a seguinte na lista, mais antiga).
-                  var brutaAnterior = i + 1 < itensHist.Count ? itensHist[i + 1].ProducaoBruta : null;
-                  var deltaGarrafas = prod.ProducaoBruta is { } b && brutaAnterior is { } ba ? b - ba : (long?)null;
                   <tr data-dmo-row data-id="@prod.JobOnId" data-dmo-open="@Url.Page("/JobOn/Index", new { jobon_id = prod.JobOnId })">
                     <td><a class="ferr-armazem-link" href="@Url.Page("/JobOn/Index", new { jobon_id = prod.JobOnId })"><strong>@prod.Producao</strong></a> @* O artigo de cada produção: a mesma ferramenta
                        serve vários artigos e o nº de produção repete-se entre eles
                        (Diogo, 28/10/2026: «produção não faz sentido»). *@<small class="ferr-producao-maquina">@prod.Referencia · @prod.Maquina</small></td>
                     @* «em curso» também na produção que está na máquina hoje, com o fim
                        previsto (Diogo, 28/10/2026: «o que está em curso é o 202605»). *@
-                    <td>@(prod.InicioEm?.ToString("dd/MM/yyyy") ?? "—") a @(prod.FimEm?.ToString("dd/MM/yyyy") ?? "em curso")@(prod.FimEm is { } fimHist && prod.InicioEm <= hojeHist && fimHist >= hojeHist ? " · em curso" : null)</td>
+                    <td>@DMO.Alpha.Web.Presentation.UsoFerramenta.Datas(prod.InicioEm, prod.FimEm, hojeHist)</td>
                     <td><strong>@(prod.ProducaoBruta?.ToString("#,0", pecasHist) ?? "—")</strong></td>
-                    <td><strong>@(deltaGarrafas is { } dg ? (dg >= 0 ? "+" : "−") + Math.Abs(dg).ToString("#,0", pecasHist) : "—")</strong></td>
+                    @* Só as garrafas em bruto, sem o Δ contra a anterior (Diogo, 29/10/2026:
+                       «o delta das garrafas é confuso, vamos deixar apenas o bruto»). *@
                     @* Um clique no % uso abre a Utilização por produção (Diogo, 27/10/2026:
                        «qualquer % uso de uma ferramenta abre um slide com esse historial»). *@
                     @* Sem as leituras antes e depois, o «≈» da janela da utilização (a parte
@@ -720,7 +723,6 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
                 <tr>
                   <th scope="row" colspan="2">Total · @historico.Pagina.TotalCount @(historico.Pagina.TotalCount == 1 ? "produção" : "produções")</th>
                   <td><strong>@(historico.TotalBruta?.ToString("#,0", pecasHist) ?? "—")</strong></td>
-                  <td></td>
                   <td>@if (Model.Utilizacao?.Ultima is { } atualHist) {<button type="button" class="ferr-utilizacao-abrir" aria-label="Utilização por produção" data-dmo-dialog="ferrProducoes"><strong>@(DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(atualHist.Percentagem) + " %")</strong></button>} else {<strong>—</strong>}</td>
                   <td></td>
                   <td></td>

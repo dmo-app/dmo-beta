@@ -83,6 +83,13 @@ html body main.ferr-page #ferrGeral .dmo-fact{padding:2px 16px;min-height:0}
 html body main.ferr-page #ferrGeral .dmo-fact>span{font-size:12px}
 html body main.ferr-page #ferrGeral .dmo-fact>strong,html body main.ferr-page #ferrGeral .dmo-fact>.ferr-utilizacao-abrir{display:block;margin-top:3px;font-size:17px;line-height:1.3}
 html body main.ferr-page #ferrGeral :is(.dmo-aviso,.ferr-aviso,.ferr-nota){margin-top:8px}
+/* O Geral numa só linha, também no painel lateral (Diogo, 29/10/2026): as Linhas
+   na vertical (B1 por cima de C3), a Quantidade e a Posição estreitas, a Utilização
+   na mesma linha. */
+html body main.ferr-page #ferrGeral>.dmo-facts{display:flex;flex-wrap:nowrap;align-items:stretch}
+html body main.ferr-page #ferrGeral>.dmo-facts>.dmo-fact{flex:1 1 0;min-width:0}
+html body main.ferr-page #ferrGeral>.dmo-facts>:is(.ferr-fact-linhas,.ferr-fact-curto){flex:0 0 auto}
+html body main.ferr-page #ferrGeral .ferr-fact-linhas>strong>span{display:block}
 html body main.ferr-page #ferrEditar .ferr-create-row-machines{margin-top:0}
 /* A «Guardar» da Informação técnica só aparece com a secção aberta. */
 html body main.ferr-page .dmo-card-dobravel:has(>details:not([open])) #ferr-tech-guardar{display:none}
