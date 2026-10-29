@@ -20,10 +20,11 @@ Const HORA = {{HORA}}
 Const URL = "{{URL}}"
 Const CHAVE = "{{CHAVE}}"
 
-Dim fso, shell, pasta, pedido, modo, inicio, fim, comecoGeral
+Dim fso, shell, pasta, pedido, modo, inicio, fim, comecoGeral, erroGeral
 Set fso = CreateObject("Scripting.FileSystemObject")
 Set shell = CreateObject("WScript.Shell")
 pasta = fso.GetParentFolderName(WScript.ScriptFullName)
+erroGeral = ""
 
 pedido = ""
 If WScript.Arguments.Count > 0 Then pedido = WScript.Arguments(0)
@@ -66,16 +67,31 @@ Select Case modo
         Correr "DMO_USO_SAP.vbs", ""
 End Select
 
-Enviar "dmo-fabrico-sap.txt"
-Enviar "dmo-uso-sap.csv"
-EscreverFicheiro "dmo-sap-estado.txt", "feito " & Agora()
+' O nome tem a hora da corrida que o escreveu (SAP-02): manda todos os que
+' ainda não foram enviados, não só o último.
+EnviarNovos "dmo-fabrico-sap-", ".txt"
+EnviarNovos "dmo-uso-sap-", ".csv"
+If erroGeral = "" Then
+    EscreverFicheiro "dmo-sap-estado.txt", "feito " & Agora()
+Else
+    EscreverFicheiro "dmo-sap-estado.txt", "erro " & Trim(erroGeral) & " " & Agora()
+End If
 Registo "fim, modo " & modo
+
+' Acrescenta um motivo a erroGeral: só quando tudo correu sem isto é que se
+' escreve «feito» (DMO Codex 29/10/2026, SAP-01: o diário dizia «feito» com
+' o script preso ou a sair com erro, e o browser mostrava sucesso).
+Sub Falhar(ByVal nome, ByVal motivo)
+    erroGeral = erroGeral & nome & ":" & motivo & " "
+    Registo nome & " falhou: " & motivo
+End Sub
 
 Sub Correr(ByVal nome, ByVal extra)
     Dim caminho, processo, comeco
     caminho = fso.BuildPath(pasta, nome)
     If Not fso.FileExists(caminho) Then
         Registo "falta " & nome
+        Falhar nome, "falta"
         Exit Sub
     End If
     Registo "a correr " & nome & extra
@@ -88,10 +104,12 @@ Sub Correr(ByVal nome, ByVal extra)
         If DateDiff("n", comeco, Now) >= LIMITE_MINUTOS Then
             processo.Terminate
             Registo nome & " fechado: passou " & LIMITE_MINUTOS & " minutos"
+            Falhar nome, "tempo"
             Exit Sub
         End If
     Loop
     Registo nome & " acabou (código " & processo.ExitCode & ")"
+    If processo.ExitCode <> 0 Then Falhar nome, "codigo" & processo.ExitCode
 End Sub
 
 ' O dmo-codigos.txt com todas as ferramentas com nome técnico (/sap/codigos).
@@ -114,6 +132,22 @@ Sub BaixarCodigos()
     Else
         Registo "não foi possível pedir os códigos ao DMO: " & Err.Description
     End If
+    Err.Clear
+    On Error GoTo 0
+End Sub
+
+' Manda os ficheiros desta pasta com este prefixo e extensão escritos nesta
+' corrida: o nome agora tem a hora (SAP-02), por isso já não é um nome fixo
+' só; o Enviar (abaixo) só manda os mais novos do que o início desta corrida.
+Sub EnviarNovos(ByVal prefixo, ByVal extensao)
+    Dim ficheiro
+    On Error Resume Next
+    For Each ficheiro In fso.GetFolder(pasta).Files
+        If LCase(Left(ficheiro.Name, Len(prefixo))) = LCase(prefixo) _
+            And LCase(Right(ficheiro.Name, Len(extensao))) = LCase(extensao) Then
+            Enviar ficheiro.Name
+        End If
+    Next
     Err.Clear
     On Error GoTo 0
 End Sub

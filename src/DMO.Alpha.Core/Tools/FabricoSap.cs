@@ -279,8 +279,12 @@ public sealed record CadenciaDoJobOn(CadenciaSapResumo Resumo, int? AnteriorJobO
     public bool DaAnterior => AnteriorJobOnId.HasValue;
 }
 
-/// <summary>O que se leu do relatório de fabrico: as linhas e quantas eram novas.</summary>
-public sealed record ImportarFabricoSapOutcome(int Linhas, int Novas);
+/// <summary>
+/// O que se leu do relatório de fabrico: as linhas, quantas eram novas e
+/// quantas ordens da janela do relatório deixaram de lá vir e foram retiradas
+/// (SAP-03: uma ordem anulada ou corrigida no SAP já não fica para sempre).
+/// </summary>
+public sealed record ImportarFabricoSapOutcome(int Linhas, int Novas, int Retiradas = 0);
 
 /// <summary>
 /// Uma produção (Job On) em que a ferramenta esteve, com o que o SAP diz que

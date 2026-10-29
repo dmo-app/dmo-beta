@@ -21,12 +21,12 @@ public sealed partial class PostgresMigrationIntegrationTests
         {
             await using (var db = CreateContext())
             {
-                Assert.Equal(new ImportarFabricoSapOutcome(1, 1), await new FerramentasFabricoSap(db, new SessaoUsoSap()).ImportarAsync([linha], "fabrico.txt", DateTime.UtcNow));
+                Assert.Equal(new ImportarFabricoSapOutcome(1, 1), await new FerramentasFabricoSap(db, new SessaoUsoSap(), Microsoft.Extensions.Logging.Abstractions.NullLogger<DMO.Alpha.Infrastructure.Tools.FerramentasFabricoSap>.Instance).ImportarAsync([linha], "fabrico.txt", DateTime.UtcNow));
             }
 
             await using (var db = CreateContext())
             {
-                Assert.Equal(new ImportarFabricoSapOutcome(1, 0), await new FerramentasFabricoSap(db, new SessaoUsoSap()).ImportarAsync([linha with { ProducaoLiquida = 1_300_000 }], "fabrico.txt", DateTime.UtcNow));
+                Assert.Equal(new ImportarFabricoSapOutcome(1, 0), await new FerramentasFabricoSap(db, new SessaoUsoSap(), Microsoft.Extensions.Logging.Abstractions.NullLogger<DMO.Alpha.Infrastructure.Tools.FerramentasFabricoSap>.Instance).ImportarAsync([linha with { ProducaoLiquida = 1_300_000 }], "fabrico.txt", DateTime.UtcNow));
             }
 
             await using var leitura = CreateContext();

@@ -78,7 +78,7 @@ public sealed partial class PostgresMigrationIntegrationTests
             await using var db = CreateContext();
 
             // A ficha da CM: o Job On, o estado e a posição do Armazém.
-            var producoes = await new FerramentasFabricoSap(db, new SemSessao()).ProducoesAsync(c.Cm, null, 50);
+            var producoes = await new FerramentasFabricoSap(db, new SemSessao(), Microsoft.Extensions.Logging.Abstractions.NullLogger<DMO.Alpha.Infrastructure.Tools.FerramentasFabricoSap>.Instance).ProducoesAsync(c.Cm, null, 50);
             var naFicha = Assert.Single(producoes.Pagina.Items, p => p.JobOnId == c.JobOn1);
             Assert.Equal(("5612T173", "202601", "B1", (DateOnly?)HistoriaInicio, (DateOnly?)HistoriaFim),
                 (naFicha.Referencia, naFicha.Producao, naFicha.Maquina, naFicha.InicioEm, naFicha.FimEm));
@@ -337,7 +337,7 @@ public sealed partial class PostgresMigrationIntegrationTests
         var bq = (await new BqToolHistoryQuery(db).ListMovementsAsync(null, null, null, null, null, null, toolId: c.Bq)).Count;
         var armazem = (await new ArmazemHistorico(db).ListarAsync(new ArmazemHistoricoFiltro(ToolId: c.Cm), 1)).TotalCount
             + (await new ArmazemHistorico(db).ListarAsync(new ArmazemHistoricoFiltro(ToolId: c.Mf), 1)).TotalCount;
-        var producoes = (await new FerramentasFabricoSap(db, new SemSessao()).ProducoesAsync(c.Cm, null, 50)).Pagina.TotalCount;
+        var producoes = (await new FerramentasFabricoSap(db, new SemSessao(), Microsoft.Extensions.Logging.Abstractions.NullLogger<DMO.Alpha.Infrastructure.Tools.FerramentasFabricoSap>.Instance).ProducoesAsync(c.Cm, null, 50)).Pagina.TotalCount;
         var jobs = (await new BqToolHistoryQuery(db).ListJobHistoryAsync(c.Bq, null)).TotalCount;
         return new HistoriaContagens(ri, pesos, pegamentos, bq, armazem, producoes, jobs);
     }

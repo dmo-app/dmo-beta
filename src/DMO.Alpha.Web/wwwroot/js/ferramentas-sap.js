@@ -338,6 +338,11 @@
           mensagem("ok", "Leitura do SAP feita e gravada.");
           return;
         }
+        if (estadoSap.texto.startsWith("erro")) {
+          mensagem("erro", "A leitura do SAP falhou: veja o dmo-sap.log na pasta.");
+          mostrarEstado("«" + pasta.name + "» · a leitura do SAP falhou");
+          return;
+        }
       }
       mensagem("aviso", "A leitura do SAP passou de 70 minutos. Veja o dmo-sap.log na pasta.");
     } finally {

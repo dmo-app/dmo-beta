@@ -49,7 +49,7 @@ public sealed class FabricoSapCadenciaTests
         using var db = new DmoDbContext(new DbContextOptionsBuilder<DmoDbContext>()
             .UseInMemoryDatabase("dmo-fabrico-cadencia-" + Guid.NewGuid().ToString("N"))
             .Options);
-        var servico = new FerramentasFabricoSap(db, new Sessao());
+        var servico = new FerramentasFabricoSap(db, new Sessao(), Microsoft.Extensions.Logging.Abstractions.NullLogger<DMO.Alpha.Infrastructure.Tools.FerramentasFabricoSap>.Instance);
         var leitura = FabricoSapExportacao.Ler(Zfmd);
 
         await servico.ImportarAsync(leitura.Linhas, "dmo-fabrico-sap.txt", DateTime.UtcNow, leitura.Detalhes);

@@ -28,6 +28,11 @@ public sealed partial class DefinicoesPorModuloPageTests
         Assert.Contains("DMO_USO_SAP.vbs", texto, StringComparison.Ordinal);
         Assert.Contains("dmo-codigos.txt", texto, StringComparison.Ordinal);
         Assert.Contains("Se alguma coisa mudar no SAP", texto, StringComparison.Ordinal);
+
+        // A1/SEC-01: a senha fica embebida nos scripts gerados (Services/SapScripts.cs);
+        // a ajuda não pode dizer o contrário.
+        Assert.DoesNotContain("Nenhuma palavra-passe fica nos ficheiros", texto, StringComparison.Ordinal);
+        Assert.Contains("senha do SAP fica cifrada", texto, StringComparison.Ordinal);
     }
 
     // Uma só pasta do SAP, corrida às 18:00 e «Apagar lidos» (Diogo,

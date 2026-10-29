@@ -5,6 +5,7 @@ using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Infrastructure.Controlo;
 using DMO.Alpha.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace DMO.Alpha.Infrastructure.Tools;
 
@@ -15,7 +16,7 @@ namespace DMO.Alpha.Infrastructure.Tools;
 /// ela foi a CM, o MF ou a BQ (também os em que foi trocada), com a soma das
 /// linhas do SAP da mesma referência, máquina e datas.
 /// </summary>
-public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContext account) : IFerramentasFabricoSap
+public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContext account, ILogger<FerramentasFabricoSap> logger) : IFerramentasFabricoSap
 {
     public async Task<ImportarFabricoSapOutcome> ImportarAsync(IReadOnlyList<FabricoSapLinha> linhas, string? ficheiro, DateTime? ficheiroModificadoEmUtc,
         IReadOnlyList<FabricoSapDetalhe>? detalhes = null, CancellationToken cancellationToken = default)
@@ -27,10 +28,18 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
         var actor = account.Current;
         var autor = actor.IsAuthenticated ? (string.IsNullOrWhiteSpace(actor.DisplayName) ? actor.OperatorId : actor.DisplayName) : null;
         var nome = ficheiro is { Length: > 0 } f ? f[..Math.Min(f.Length, FerramentaUtilizacao.FicheiroMaxLength)] : null;
-        var unicas = linhas
-            .GroupBy(l => (l.Material, l.Linha, l.InicioEm, l.FimEm))
-            .Select(g => g.Last())
-            .ToList();
+        var agrupadas = linhas.GroupBy(l => (l.Material, l.Linha, l.InicioEm, l.FimEm)).ToList();
+        var unicas = agrupadas.Select(g => g.Last()).ToList();
+        foreach (var grupo in agrupadas)
+        {
+            if (grupo.Count() > 1)
+            {
+                logger.LogWarning(
+                    "SAP fabrico: {Count} linhas do mesmo material {Material}, linha {Linha}, {Inicio}..{Fim} colapsadas numa só (ficheiro {Ficheiro}).",
+                    grupo.Count(), grupo.Key.Material, grupo.Key.Linha, grupo.Key.InicioEm, grupo.Key.FimEm, nome);
+            }
+        }
+
         var materiais = unicas.Select(l => l.Material).Distinct().ToList();
         var existentes = await db.SapFabricos
             .Where(s => materiais.Contains(s.Material))
@@ -61,8 +70,36 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
             existente.FicheiroModificadoEmUtc = ficheiroModificadoEmUtc;
         }
 
+        // SAP-03: o relatório é o retrato da sua janela (início..fim de todas
+        // as linhas lidas); uma ordem que lá estava e já não vem foi anulada
+        // ou corrigida no SAP e não pode continuar a contar para sempre. A
+        // janela vem só das linhas devolvidas (o relatório não diz que datas
+        // pediu ao SAP): se a ordem retirada for a mais antiga ou a mais
+        // recente do conjunto, a janela encolhe com ela e essa ordem não é
+        // detetada. Isso cobre o caso comum (uma ordem a meio desaparece,
+        // com outras antes e depois dela no mesmo relatório).
+        var retiradas = 0;
+        if (unicas.Count > 0)
+        {
+            var desde = unicas.Min(l => l.InicioEm);
+            var ate = unicas.Max(l => l.FimEm);
+            var chaves = unicas.Select(l => (l.Material, l.Linha, l.InicioEm, l.FimEm)).ToHashSet();
+            var naJanela = await db.SapFabricos
+                .Where(s => s.InicioEm >= desde && s.FimEm <= ate)
+                .ToListAsync(cancellationToken);
+            var fora = naJanela.Where(s => !chaves.Contains((s.Material, s.Linha, s.InicioEm, s.FimEm))).ToList();
+            if (fora.Count > 0)
+            {
+                logger.LogWarning(
+                    "SAP fabrico: {Count} ordens retiradas (já não vêm no relatório {Ficheiro}, janela {Desde}..{Ate}): {Chaves}.",
+                    fora.Count, nome, desde, ate, string.Join(", ", fora.Select(s => $"{s.Material}/{s.Linha}/{s.InicioEm}..{s.FimEm}")));
+                db.SapFabricos.RemoveRange(fora);
+                retiradas = fora.Count;
+            }
+        }
+
         await db.SaveChangesAsync(cancellationToken);
-        return new ImportarFabricoSapOutcome(unicas.Count, novas);
+        return new ImportarFabricoSapOutcome(unicas.Count, novas, retiradas);
     }
 
     public Task<DateTime?> UltimoFicheiroAsync(CancellationToken cancellationToken = default) =>
