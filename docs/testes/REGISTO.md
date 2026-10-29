@@ -1113,7 +1113,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | ControloCapabilitiesCutHPageTests.AreaState_OperacionalSavesOkNokAndComment_ChefeIsRefusedTyped | Operador grava OK/NOK e comentário; o chefe é recusado | OK |  |
 | ControloCapabilitiesCutHPageTests.ChefeApproveOnly_CreateRefusedTyped_ApproveSucceeds | Chefe: criar é recusado, aprovar funciona | OK |  |
 | ControloCapabilitiesCutHPageTests.ChefeApproveOnly_UsesDistinctReviewPages_WithoutOperationalForms | Chefe só com Aprovar vê a Revisão, sem formulários operacionais | OK |  |
-| ControloCapabilitiesCutHPageTests.McaliperLink_CreateAssociatesOnToolSheet_ApproveCopiesIt | Link mcaliper associa-se à ferramenta; a Revisão copia | OK |  |
+| ControloCapabilitiesCutHPageTests.McaliperLink_CreateAssociatesOnToolSheet_ApproveCopiesIt | Link mcaliper associa-se à ferramenta; na Revisão o botão abre-o num separador novo (DMO-678, Diogo 29/10: «eu pedi um botao para abrir o link») | OK | A-0430 |
 | ControloCapabilitiesCutHPageTests.PesoAssociation_PrePesoWithJobOnCm_IsOfferedAndAssociatedOnlyByExplicitCreatePost | Peso solto só se associa por pedido explícito | OK |  |
 | ControloCapabilitiesCutHPageTests.PesoCreation_ReadableNominal_NoWarning | Nominal legível cria o Peso sem aviso | OK |  |
 | ControloCapabilitiesCutHPageTests.PesoCreation_UnreadableOrNonPositiveOptionalNominal_CreatesWithoutNominalAndWarns | Nominal ilegível cria o Peso sem ele e avisa | OK |  |
