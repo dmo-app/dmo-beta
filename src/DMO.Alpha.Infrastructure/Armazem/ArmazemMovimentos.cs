@@ -303,8 +303,10 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
         }
 
         // A Linha, o reparador e o Job On com que a ferramenta vem: os da
-        // última Saída (a pessoa pode mudar a Linha e o reparador no formulário).
-        var vinda = await UltimoMovimentoAsync(tool.ToolId, cancellationToken) is { Tipo: ArmazemMovimentoTipo.Saida } ultimaSaida ? ultimaSaida : null;
+        // última Saída (a pessoa pode mudar a Linha e o reparador no
+        // formulário) — salta um Corrigir no meio (BQ-B04: um Corrigir não é
+        // uma Saída real e não deve apagar a Linha/Job On da Saída anterior).
+        var vinda = await UltimoMovimentoRealAsync(tool.ToolId, cancellationToken) is { Tipo: ArmazemMovimentoTipo.Saida } ultimaSaida ? ultimaSaida : null;
         int? linha;
         string? reparadorDaVinda;
         if (pedido.LinhaEReparadorDoFormulario)
@@ -485,7 +487,8 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
                 ? await JobOnAtivoAsync(tool.ToolId, tool.Type, linhaDaSaida, ocorrido, cancellationToken)
                 : null;
         }
-        else if (await UltimoMovimentoAsync(tool.ToolId, cancellationToken) is { Tipo: ArmazemMovimentoTipo.Entrada } entrou)
+        // Salta um Corrigir no meio (BQ-B04: o mesmo que na Entrada acima).
+        else if (await UltimoMovimentoRealAsync(tool.ToolId, cancellationToken) is { Tipo: ArmazemMovimentoTipo.Entrada } entrou)
         {
             movimento.MachineId = entrou.MachineId;
             movimento.JobOnId = entrou.JobOnId;
@@ -676,9 +679,14 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
             ? Task.FromResult<Tool?>(null)
             : db.Tools.AsNoTracking().FirstOrDefaultAsync(t => t.ToolId == toolId, cancellationToken);
 
-    private Task<ArmazemMovimento?> UltimoMovimentoAsync(string toolId, CancellationToken cancellationToken) =>
+    /// <summary>
+    /// O último movimento REAL (Entrada ou Saída, nunca um Corrigir) desta
+    /// ferramenta — para a Linha/Job On herdarem do movimento real anterior
+    /// mesmo quando um Corrigir aconteceu depois dele (BQ-B04).
+    /// </summary>
+    private Task<ArmazemMovimento?> UltimoMovimentoRealAsync(string toolId, CancellationToken cancellationToken) =>
         db.ArmazemMovimentos.AsNoTracking()
-            .Where(m => m.ToolId == toolId)
+            .Where(m => m.ToolId == toolId && m.Tipo != ArmazemMovimentoTipo.Corrigir)
             .OrderByDescending(m => m.Id)
             .FirstOrDefaultAsync(cancellationToken);
 

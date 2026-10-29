@@ -1,5 +1,6 @@
 using System.Globalization;
 using DMO.Alpha.Core.Boquilhas;
+using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,7 +19,19 @@ public sealed class BqExcelBoquilhas(DmoDbContext db, IBqToolHistoryQuery histor
         var total = await movimentos.CountAsync(cancellationToken);
         var maiorId = total == 0 ? 0 : await movimentos.MaxAsync(m => m.Id, cancellationToken);
         var corrigido = await movimentos.MaxAsync(m => (DateTime?)m.CorrectedAtUtc, cancellationToken);
-        return string.Create(CultureInfo.InvariantCulture, $"{total}.{maiorId}.{corrigido?.Ticks ?? 0}");
+        // BQ-B05: editar a referência ou o lote de uma BQ (Ferramentas) não
+        // cria movimento nenhum, por isso a versão também conta a Tool BQ
+        // (a soma do RowVersion de todas): uma edição muda o RowVersion dessa
+        // Tool e a soma muda, sem depender de um movimento novo.
+        var bqTools = db.Tools.AsNoTracking().Where(t => t.Type == ToolType.Bq);
+        var totalBq = await bqTools.CountAsync(cancellationToken);
+        // Somar no SQL exigiria um CAST de xid para bigint, que o PostgreSQL
+        // não tem; lê-se o xmin tal como está e soma-se em memória.
+        var versoesBq = totalBq == 0
+            ? []
+            : await bqTools.Select(t => EF.Property<uint>(t, DmoDbContext.RowVersion)).ToListAsync(cancellationToken);
+        var versaoBq = versoesBq.Sum(v => (long)v);
+        return string.Create(CultureInfo.InvariantCulture, $"{total}.{maiorId}.{corrigido?.Ticks ?? 0}.{totalBq}.{versaoBq}");
     }
 
     public byte[] Novo(DateOnly dia) => BqExcelLivro.Novo(dia.Year, dia.Month);
