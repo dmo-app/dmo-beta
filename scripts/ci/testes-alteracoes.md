@@ -4852,3 +4852,13 @@ Novos: 0 · mudaram: 3 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Editar_LoteDoAnVazioMostraODaBqComoSugestao_EGuardarOutraCoisaNaoOCopiaParaABase`
 
 Selo depois: `3f7b0c747f3b0cec`
+
+## A-0340 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-601: o Histórico de produções da ficha deixa de ter o quadro «Referência: … (n)»; o teste garante que não aparece
+Referência: Diogo cmsg_01K75FTs9bQnbhhH7qttpgraKAikKZHUHqxozwSr6bXXZT, sim cmsg_01K75FTs9bQnbhhH7qttpgraBdSHRV6GZHaqDPaN7n3ZfT
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoComArtigo.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraOArtigoDeCadaProducao`
+
+Selo depois: `2ea04e4a0c3694fb`
