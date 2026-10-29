@@ -1855,6 +1855,8 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | Saida_ODestinoEscolheOsCamposEDepoisAEntradaPropoe | Destino escolhe os campos; entrada seguinte propõe origem e estado | OK |  |
 | Saida_ParaReparacaoSemReparador_RecusaComOFormularioPreenchido | Saída para reparação sem reparador é recusada, mantém o escrito e nada grava | OK |  |
 | SemAChave_NaoEntra | Sem a chave do Armazém a página não abre | OK |  |
+| Registo_VoltarFicaPorCimaDoTitulo_EAFabricaDoEmprestimoEUmaLista | «Voltar» fica por cima do título e a Fábrica do Empréstimo é uma lista das Definições, nunca texto livre | OK | A-0412 (DMO-667) |
+| Saida_DeBq_ParaReparacao_OferecePorGruposOsReparadoresDasBqEDoArmazem | Na Saída de uma BQ há os reparadores das BQ e, a seguir, os do Armazém | OK | A-0421 (DMO-667) |
 
 ### `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPaginasTests.cs`
 
@@ -1877,6 +1879,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | SemRegistoNoArmazem_AFichaDizSemRegisto_ENaoFabrico | Ferramenta sem registo no Armazém diz «Sem registo», não «Fabrico» | OK |  |
 | Ultimas_OsFiltros | Filtros por dia, tipo, referência, lote e reparador; vazio com aviso | OK |  |
 | Ultimas_Todas_DoMaisRecente_BqIncluida_PosicaoSoNaEntrada | Últimas entradas e saídas com o último em cima, BQ incluída, sem botões | OK |  |
+| Ultimas_OFormularioTemUmEnvioEscondido_ParaOEnterNoLote | O Enter no campo Lote das Últimas entradas e saídas aplica o filtro | OK | A-0387 (DMO-649) |
 
 ### `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs`
 
@@ -1907,6 +1910,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | PdfHistorico_WithoutTheMachine_ExportsAllMachines | PDF sem máquina exporta todas | FRACO | Só %PDF e nome; não verifica o conteúdo |
 | Sidepanel_SurvivesTheHistoryViews | Painel das produções correntes mantém-se nas vistas do histórico | OK |  |
 | ViewDropdown_AndContextualPdfButton_AreWiredToTheGenerators | Dropdown de vistas e um só botão «Imprimir / PDF» ligado aos filtros | OK |  |
+| ReferenciaExistente_ComLoteInexistente_MostraMensagemClara_NaListaENoPdf | Referência com lote que não existe mostra mensagem clara, na lista e no PDF, sem erro | OK | A-0387 (DMO-648) |
 
 ### `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasRegistoConsultasTests.cs`
 
