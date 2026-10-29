@@ -60,4 +60,18 @@ public sealed class SapScriptsVbsTests
 
         Assert.Matches(new Regex(@"If total = 0 Then(\s+'[^\n]*)*\s+If Not automatico Then MsgBox[^\n]*\s+WScript\.Quit 0"), vbs);
     }
+
+    // Diogo, 29/10/2026: «Função impossível» (DMO-677): sem caixa da senha (código 3) o
+    // teclado não escreve na janela do SAP que está em uso.
+    [Theory]
+    [InlineData("Sap.DMO_USO_SAP.vbs")]
+    [InlineData("Sap.DMO_FABRICO_SAP.vbs")]
+    public void SemCaixaDaSenha_NaoEscrevePeloTeclado(string nome)
+    {
+        using var stream = typeof(SapScripts).Assembly.GetManifestResourceStream(nome)!;
+        var vbs = new StreamReader(stream).ReadToEnd();
+
+        Assert.Contains("If codigo <> 0 And codigo <> 3 Then", vbs);
+        Assert.DoesNotContain("If codigo <> 0 Then", vbs);
+    }
 }

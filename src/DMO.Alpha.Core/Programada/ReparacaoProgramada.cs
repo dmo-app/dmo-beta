@@ -80,7 +80,11 @@ public sealed record ProgramadaProcura(
         && string.IsNullOrWhiteSpace(Linha) && Estado is null;
 }
 
-/// <summary>Uma ferramenta encontrada: onde está agora e se já está numa lista ativa.</summary>
+/// <summary>
+/// Uma ferramenta encontrada: onde está agora e se já está numa lista ativa. O Artigo é a
+/// referência completa da última produção em que trabalhou (Diogo, 29/10/2026: «em frente
+/// à ferramenta mete referência completa»).
+/// </summary>
 public sealed record ProgramadaCandidata(
     string ToolId,
     ToolType Tipo,
@@ -91,7 +95,8 @@ public sealed record ProgramadaCandidata(
     string? Posicao,
     string OndeEsta,
     FerramentaEstadoTipo? Estado,
-    string? EmLista);
+    string? EmLista,
+    string? Artigo = null);
 
 /// <summary>Uma lista, como o seletor a mostra.</summary>
 public sealed record ProgramadaListaResumo(int Id, string Reparador, DateTime CriadaEmUtc, string? CriadaPor, DateTime? FechadaEmUtc)
@@ -113,7 +118,8 @@ public sealed record ProgramadaLinha(
     DateTime? SaidaEmUtc,
     DateTime? EntradaEmUtc,
     string? EntradaPosicao,
-    string? EntradaPor)
+    string? EntradaPor,
+    string? Artigo = null)
 {
     public bool Entrou => EntradaEmUtc is not null;
 

@@ -1,0 +1,6 @@
+.ferr-sap-avisos { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.ferr-sap-aviso { position: relative; box-sizing: border-box; max-width: min(380px, 100%); padding: 12px 28px 12px 12px; background: var(--dmo-card); border: 1px solid var(--dmo-border); }
+.ferr-sap-aviso[hidden] { display: none; }
+.ferr-sap-fechar { position: absolute; top: 2px; right: 6px; }
+.ferr-sap-aviso form { display: flex; gap: 8px; margin-top: 8px; }
+.ferr-opcional [id$="-sap-fornecedor"] { max-width: 22ch; overflow-wrap: anywhere; }

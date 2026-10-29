@@ -2974,6 +2974,12 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | ReparacaoProgramadaPaginaTests.Ferramentas_VeOSeparador_AProcuraAbreVazia_EAssociaAUmaListaNova | Procura abre vazia e associa a lista nova | OK | Algumas verificações são de classes CSS (dmo-com-ajuda); o essencial lê a base. |
 | ReparacaoProgramadaPaginaTests.SemFerramentas_NaoEntra_NemAssocia_NemImprime | Sem módulo Ferramentas não entra nem associa | OK |  |
 
+### `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.Artigo.cs`
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| ReparacaoProgramadaPaginaTests.ListaEProcura_MostramAReferenciaCompletaAFrenteDaFerramenta | Registar Reparação: em frente à ferramenta, a referência completa do artigo da última produção, na lista e na procura; exporta rp-lista.html para o browser (DMO-674) | OK |  |
+
 ### `tests/DMO.Alpha.Web.Tests/FerramentasFichaTrocaTests.cs`
 
 | Teste | Garante | Estado | Nota |
@@ -5860,6 +5866,12 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | cobertura_c_browser.login | Login: botão Reparação, logótipo e cores certas a 1366 e 1290 | OK | DMO-436 |
 | cobertura_c_browser.topo_e_ecras | Topo e ecrãs cabem a 1366x768, sem sublinhados | OK | DMO-481 |
 
+### `tests/visual/rp_botoes_browser.py`
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| rp_botoes_browser.py (script, 1366 px) | Imprimir, Listas, Histórico, Adicionar e Limpar filtros com o mesmo espaço entre si (DMO-674) | OK |  |
+
 
 ### Peso › aviso «O Job On mudou» e Approve › diferença da produção (DMO-594, DMO-595)
 
@@ -5900,9 +5912,30 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | PostoSoRiTests.PeloPosto_DentroDoLimite_OsPedidosContinuam | AUTH-B05 (DMO-657): cookie próprio do Posto sem deslizar; o endpoint /posto/ativo (só a partir de uma ação real da pessoa) renova o limite, outros pedidos não renovam | OK | A-0406 |
 | PostoSoRiTests.PeloPosto_PedidoQueNaoPassaPorAtivo_NaoRenova | AUTH-B05 (DMO-657): cookie próprio do Posto sem deslizar; o endpoint /posto/ativo (só a partir de uma ação real da pessoa) renova o limite, outros pedidos não renovam | OK | A-0406 |
 | SapScriptsVbsTests.SemCodigosAEspera_OUsoAcabaSemErro | DMO-664: sem ferramentas à espera o uso do SAP acaba sem erro (Diogo 29/10, «A leitura do SAP falhou») | OK | A-0409 |
+| SapScriptsVbsTests.SemCaixaDaSenha_NaoEscrevePeloTeclado | DMO-677: com o SAP já aberto, sem caixa da senha o script não escreve pelo teclado na janela do SAP em uso (Diogo 29/10, «Função impossível») | OK | A-0428 |
 | DefinicoesPorModuloPageTests.AJanelaDoSap_EscondeAsPartesQueNaoEstaoEscolhidas | DMO-665: a janela Atualizar do SAP mostra só a parte escolhida (Diogo 29/10) | OK | A-0410 |
 | ArmazemMovimentosPaginaTests.Registo_VoltarFicaPorCimaDoTitulo_EAFabricaDoEmprestimoEUmaLista | DMO-667/A-0412 (Diogo 29/10): no Registo do Armazém, «Voltar» por cima do título e a Fábrica do Empréstimo sempre em lista (Definições). 1 teste novo; nenhum antigo mudou | OK | A-0412 |
 | JobOnPageTests.Folha_PainelDasLinhas_SoOQueEntraNosProximosCincoDias | Teste novo: o painel das linhas da Folha só mostra o que entra nos próximos 5 dias (DMO-671) | OK | A-0416 |
+| PesoCapSupportPageTests.ProductionMode_DadosTecnicos_FicamNumDobravelFechadoPorOmissao | Teste novo: os dados técnicos do Peso (volumes, densidade, TP/calote) ficam num dobrável com triângulo, fechado por omissão (DMO-675, Diogo 29/10) | OK | A-0425 |
+## DMO-663 · A-0408 · 29/10/2026
+
+| Teste | O que garante | Estado | Registo |
+|---|---|---|---|
+| `Zppg_LeAPrimeiraQuantidadeOFornecedorEADataPurchase` | Lê a primeira quantidade da ZPPG, o fornecedor e a aquisição, incluindo zero, limite inteiro e valores inválidos. | OK | A-0408 |
+| `Sap_SimGravaNaQuantidadeDoTipoCertoESoNoToolIdEscolhido` | O Sim grava a quantidade na BQ, CM ou MF escolhida, sem alterar outra ferramenta com os mesmos factos. | OK | A-0408 |
+| `Sap_NaoMantemQuantidadeEUsoManual_NaoRepeteMesmoValorEMostraNovoValor` | O Não conserva quantidade e uso manual, cala o valor recusado e volta a avisar se o SAP trouxer outro valor. | OK | A-0408 |
+| `Sap_SimUsaOPercentDoServidorEDepoisVoltaAAplicarAutomaticamente` | O Sim aceita a percentagem guardada no servidor e permite atualizações automáticas posteriores. | OK | A-0408 |
+| `Sap_UmaDecisaoAntigaNaoSubstituiUmaImportacaoMaisRecente` | Uma decisão enviada de uma ficha antiga não aplica dados SAP alterados entretanto. | OK | A-0408 |
+| `Sap_AMigracaoSoAcrescentaColunasOpcionais` | A migração só acrescenta colunas opcionais, sem mudar ou apagar dados existentes. | OK | A-0408 |
+| `Sap_DuasDecisoesDaMesmaFicha_SoUmaGrava` | Duas decisões simultâneas da mesma ficha só deixam uma gravar no PostgreSQL. | OK | A-0408 |
+| `Sap_EditarOutrosFactosDaCmNaoApagaAQuantidadeAceite` | Editar outros factos da CM conserva a quantidade aceite do SAP. | OK | A-0408 |
+| `Sap_UmValorManualIgualAoSapContinuaProtegidoQuandoOSapMuda` | Uma percentagem manual igual à do SAP mantém a origem manual; escrever depois de outra importação conserva o retrato mais recente. | OK | A-0408 |
+| `Sap_AFichaMostraFornecedorECompraNaInformacaoOpcional_EOSimGravaAPeca` | A ficha mostra fornecedor/aquisição em Informação opcional e o formulário Sim grava a quantidade. | OK | A-0408 |
+| `Sap_ONaoMantemAQuantidadeENaoVoltaAMostrarOMesmoAviso` | O formulário Não mantém a quantidade e retira o aviso do mesmo valor. | OK | A-0408 |
+| `Sap_UmaDecisaoSemAntiforgeryNaoGrava` | Uma decisão sem o token de antifalsificação é recusada. | OK | A-0408 |
+| `O × fecha só o aviso escolhido, sem decidir «Não» nem enviar o formulário` | O × fecha apenas o aviso escolhido, sem enviar uma decisão ao servidor. | OK | A-0408 |
+| `Os avisos carregados depois de uma troca parcial também se podem fechar` | O × continua a funcionar nos avisos recebidos numa troca parcial. | OK | A-0408 |
+
 
 ## Filtros dependentes da referência — 29/10/2026
 
