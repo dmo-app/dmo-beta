@@ -5606,7 +5606,7 @@ Novos: 1 · mudaram: 1 · saíram: 0
 
 Selo depois: `ffd1b58d9d7cece0`
 
-## A-0424 · 2026-10-29 · teste-novo
+## A-0425 · 2026-10-29 · teste-novo
 
 Porquê: Teste novo: os dados técnicos do Peso (volumes, densidade, TP/calote) ficam num dobrável fechado por omissão
 Referência: cmsg_01K75FTs9bQnbhhH7qttpgraEivdTWrHp8gVA2VQQjDEY5
