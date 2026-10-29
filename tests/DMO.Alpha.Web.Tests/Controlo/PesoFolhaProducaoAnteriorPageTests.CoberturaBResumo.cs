@@ -39,6 +39,8 @@ public partial class PesoFolhaProducaoAnteriorPageTests
 
         Assert.Contains("<th scope=\"col\">Valor</th><th scope=\"col\" title=\"Diferença em gramas\">g</th><th scope=\"col\" title=\"Diferença em %\">%</th>", tabela, StringComparison.Ordinal);
         Assert.Matches("Produção anterior · média<small> 202604</small></th>\\s*<td>181\\.67 g</td>\\s*<td>[+−]\\d+\\.\\d{2}</td>\\s*<td>[+−]\\d+\\.\\d{2}</td>", tabela);
-        Assert.Matches("Produção anterior · moda<small> 202604</small></th>\\s*<td>181\\.00 g</td>\\s*<td>[+−]\\d+\\.\\d{2}</td>\\s*<td>[+−]\\d+\\.\\d{2}</td>", tabela);
+        // A moda não tem diferença: mostra os dias em que esse peso se usou e o total (Diogo, 29/10/2026,
+        // cmsg_01K75FTs9bQnbhhH7qttpgraNcW9mHhJSnZJCL1agH5hsi).
+        Assert.Matches("Produção anterior · moda<small> 202604</small></th>\\s*<td>181\\.00 g</td>\\s*<td colspan=\"2\" data-resumo-moda-dias>\\d+ de \\d+ dias</td>", tabela);
     }
 }

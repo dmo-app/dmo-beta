@@ -111,7 +111,8 @@ public sealed partial class DefinicoesPorModuloPageTests
         Assert.Contains("Total · 1 produção", total, StringComparison.Ordinal);
         Assert.Contains(1_404_234.ToString("#,0", System.Globalization.CultureInfo.GetCultureInfo("pt-PT")), total, StringComparison.Ordinal);
         Assert.Contains("47.5 %", total, StringComparison.Ordinal);
-        Assert.Contains("Hoje 47.5 %", WebUtility.HtmlDecode(Regex.Replace(ZonaUsoSap(quadro, "ferrProducoesHoje"), "<[^>]+>", "")), StringComparison.Ordinal);
+        // Sem o quadro verde «Hoje …» (Diogo, 29/10/2026: «remover os comentários verdes»); o total diz o % de hoje.
+        Assert.DoesNotContain("ferrProducoesHoje", quadro, StringComparison.Ordinal);
     }
 
     [Fact]

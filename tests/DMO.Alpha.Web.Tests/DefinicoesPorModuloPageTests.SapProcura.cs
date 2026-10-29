@@ -62,7 +62,8 @@ public sealed partial class DefinicoesPorModuloPageTests
         var client = await LoginOperatorAsync("7192", DmoCapabilities.Ferramentas);
         var ficha = await (await client.GetAsync($"/Ferramentas/Ficha?tool_id={toolId}")).Content.ReadAsStringAsync();
         Assert.Contains(nome + "08", ficha);
-        Assert.Contains("data-dmo-dialog=\"ferr-codigo-sap-dialog\"", ficha);
+        // O Opções já não tem o «Código SAP» (Diogo, 29/10/2026: «remover este código SAP das opções»).
+        Assert.DoesNotContain("data-dmo-dialog=\"ferr-codigo-sap-dialog\"", ficha);
         var token = HtmlFormHelpers.ExtractRequestVerificationToken(ficha)!;
 
         var gravado = await client.PostAsync("/Ferramentas/Ficha?handler=CodigoSap", HtmlFormHelpers.BuildFormPost(

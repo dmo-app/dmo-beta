@@ -5558,3 +5558,50 @@ Novos: 3 · mudaram: 3 · saíram: 1
 - saiu: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBAgrupamento.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDaComparacao_AgrupaEsteControlo_ControloAnterior_EDiferenca_PorEstaOrdem`
 
 Selo depois: `188b67503f0e65e6`
+
+## A-0415 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-668: Utilização por produção com Voltar e sem quadros verdes, Opções sem Código SAP, menu do Histórico com Job On/Controlo/Reparação/Boquilhas; DMO-670: B2 numa fila com dropdown Dupla/Tripla
+Referência: Diogo cmsg_01K75FTs9bQnbhhH7qttpgraGcthVpKtU8Ve3YXaFzFA1E, cmsg_01K75FTs9bQnbhhH7qttpgraDA13z7kmRhF33cV1uyAvMN, cmsg_01K75FTs9bQnbhhH7qttpgra9Cd53tmPP3qFHv2eV5p2vE, cmsg_01K75FTs9bQnbhhH7qttpgra2qWamwB946ubLpHqDngTxe, sim cmsg_01K75FTs9bQnbhhH7qttpgraABfYgJtLFVf7Q5F9METyuZ
+Novos: 2 · mudaram: 6 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoVoltar.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoVoltar.cs :: DefinicoesPorModuloPageTests.AUtilizacaoPorProducao_TemOVoltarPorCimaESemQuadrosVerdes`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.DeltaPeloProduzido.cs :: DefinicoesPorModuloPageTests.SemLeiturasAVoltaDaProducao_ODeltaEstimaSePeloProduzido`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.ODetalhesDaUtilizacao_MostraODeltaDeCadaProducaoEOTotal`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.OCodigoSapDaFicha_GanhaATabela_EVazioVoltaAEla`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_Codificacao_SeletorDaB2`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.Ficha_TemOBotaoHistorico_QueAbreOsJobOnDaFerramenta`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.Historico_ComControloERi_OMenuTemOsTresDestinos`
+
+Selo depois: `ec9ba3ad5cec76c3`
+
+## A-0421 · 2026-10-29 · teste-novo
+
+Porquê: DMO-667/A-0412 (parte 2, Diogo 29/10): na Saída de uma BQ há a opção dos reparadores das BQ e, a seguir, os do Armazém. 1 teste novo; nenhum antigo mudou.
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Saida_DeBq_ParaReparacao_OferecePorGruposOsReparadoresDasBqEDoArmazem`
+
+Selo depois: `b7ee30734ac3ae0f`
+
+## A-0422 · 2026-10-29 · ok-do-diogo
+
+Porquê: Moda no Resumo mostra dias e não diferença (DMO-673)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraJPtT8ohDC782LcHjvY4Xhg
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBResumo.cs :: PesoFolhaProducaoAnteriorPageTests.Resumo_TabelaDoPeso_TemAsColunasValorGEPercentagem_EACadaLinhaAsDuasDiferencas`
+
+Selo depois: `d29f1065cfbc8c48`
+
+## A-0423 · 2026-10-29 · ok-do-diogo
+
+Porquê: Lote .244: junta #336, #340, #341 e a lista de testes em dia; as entradas A-0415, A-0421 e A-0422 explicam os testes.
+Referência: lote .244
+Novos: 1 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Saida_DeBq_ParaReparacao_OferecePorGruposOsReparadoresDasBqEDoArmazem`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBResumo.cs :: PesoFolhaProducaoAnteriorPageTests.Resumo_TabelaDoPeso_TemAsColunasValorGEPercentagem_EACadaLinhaAsDuasDiferencas`
+
+Selo depois: `ffd1b58d9d7cece0`

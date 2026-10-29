@@ -12,10 +12,6 @@
     var leituraJanela = Model.Leitura;
     var usoDepois = DMO.Alpha.Web.Presentation.UsoFerramenta.UsoDepois(producoesTudo, leituraJanela?.Percentagem);
 }
-@if (leituraJanela is not null)
-{
-  <p class="ferr-nota" id="ferrProducoesHoje">Hoje <strong>@leituraJanela.Percentagem.ToString("0.##", pt) %</strong>@(leituraJanela is { Consumo: { } feitas, VidaPrevista: { } vida } ? $" · {feitas.ToString("#,0", pecasProd)} de {vida.ToString("#,0", pecasProd)} peças" : null) · @(leituraJanela.Origem == DMO.Alpha.Core.Tools.FerramentaUtilizacao.OrigemSap ? "produção" : leituraJanela.Origem), @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(leituraJanela.RegistadaEmUtc).ToString("dd/MM/yyyy", pt)</p>
-}
 @if (producoesFerr.TotalCount == 0)
 {
   <p class="ferr-nota" id="ferrProducoesVazio">Esta ferramenta ainda não esteve em nenhum Job On.</p>
@@ -60,10 +56,6 @@ else
       </tfoot>
     </table>
   </div>
-  @if (producoesFerr.Items.Any(p => p.DeltaUtilizacao is null && producoesTudo.DeltaPeloProduzido(p, leituraJanela?.Percentagem) is not null))
-  {
-    <p class="ferr-nota" id="ferrProducoesEstimado">«≈»: sem leituras antes e depois da produção, é a parte do % de hoje pelo que ela produziu.</p>
-  }
   @if (producoesFerr.Items.Any(p => p.LinhasSap == 0))
   {
     <p class="ferr-nota" id="ferrProducoesSemSap">«—» no produzido: ainda não há o produzido dessa produção. <a class="ferr-cancel" href="/Definicoes?secao=computador">Ler a pasta da produção</a></p>

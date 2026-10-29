@@ -44,7 +44,9 @@ public sealed partial class DefinicoesPorModuloPageTests
         Assert.Contains("≈ +4 %", quadro, StringComparison.Ordinal);
         Assert.Contains("≈ +12 %", quadro, StringComparison.Ordinal);
         Assert.Contains("16 %", WebUtility.HtmlDecode(ZonaUsoSap(quadro, "ferrProducoesTotal")), StringComparison.Ordinal);
-        Assert.Contains("é a parte do % de hoje pelo que ela produziu", ZonaUsoSap(quadro, "ferrProducoesEstimado"), StringComparison.Ordinal);
+        // A explicação do «≈» fica só na ajuda do título, sem o quadro verde (Diogo, 29/10/2026).
+        Assert.DoesNotContain("ferrProducoesEstimado", quadro, StringComparison.Ordinal);
+        Assert.Contains("é a parte do % de hoje pelo que ela produziu", ZonaUsoSap(quadro, "ferr-producoes-title"), StringComparison.Ordinal);
     }
 
     [Fact]

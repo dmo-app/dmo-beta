@@ -82,7 +82,9 @@ public partial class FerramentasPagesTests
         Assert.DoesNotContain("/Controlo/Resumo?jobon_id=", html);
         Assert.DoesNotContain(">Reparação</a>", html);
         Assert.Contains($"/JobOn?jobon_id={jobOnId}", html);
-        Assert.Contains("Folha do Job On", html);
+        // As quatro sempre, pela mesma ordem; sem acesso ficam apagadas (Diogo, 29/10/2026).
+        Assert.Contains($"href=\"/JobOn?jobon_id={jobOnId}\">Job On</a>", html);
+        Assert.Contains("aria-disabled=\"true\">Controlo</span>", html);
         Assert.DoesNotContain("<button", html.Split("id=\"histLista\"")[1].Split("</table>")[0]);
     }
 
@@ -150,7 +152,7 @@ public partial class FerramentasPagesTests
 
         Assert.Contains($"href=\"/Controlo/Resumo?jobon_id={jobOnId}\">Controlo</a>", html);
         Assert.Contains($"href=\"/ReparacaoInterna/Consultar?referencia=5447T173&producao={jobOnId}\">Reparação</a>", html);
-        Assert.Contains($"href=\"/JobOn?jobon_id={jobOnId}\">Folha do Job On</a>", html);
+        Assert.Contains($"href=\"/JobOn?jobon_id={jobOnId}\">Job On</a>", html);
         // A % de uso das três ferramentas, cada uma na sua célula; um clique na % abre o histórico do uso (Diogo, 27/10/2026).
         Assert.Matches("CM 5447 · Lote 3<span class=\"hist-uso\"> · <a class=\"dmo-uso-link\" href=\"/Ferramentas/Utilizacao\\?tool_id=[^\"]+\"[^>]*>8 %</a></span>", html);
         Assert.Matches("MF 5447 · Lote 7<span class=\"hist-uso\"> · <a class=\"dmo-uso-link\" href=\"/Ferramentas/Utilizacao\\?tool_id=[^\"]+\"[^>]*>5.5 %</a></span>", html);

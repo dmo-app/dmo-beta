@@ -26,13 +26,10 @@
 .ferr-totais-maquina.mch-C2{--dmo-machine-color:var(--dmo-machine-c2)}
 .ferr-totais-maquina.mch-C3{--dmo-machine-color:var(--dmo-machine-c3)}
 /* O seletor da B2 (Diogo, 28/10/2026: «como nos Templates»): o escolhido invertido, o hover só na letra. */
-.ferr-cod-modo{display:flex;align-items:center;gap:8px;height:34px;padding:0 10px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);font-size:15px;font-weight:700;color:var(--dmo-text);cursor:pointer;white-space:nowrap}
-.ferr-cod-modo input{position:absolute;opacity:0;pointer-events:none}
-.ferr-cod-modo:hover{color:var(--dmo-brand-600)}
-.ferr-cod-modo:has(input:checked){background:var(--dmo-text);color:var(--dmo-card);border-color:var(--dmo-text)}
-.ferr-cod-modo:has(input:focus-visible){box-shadow:0 0 0 3px var(--dmo-focus-ring)}
 .ferr-cod input[type=text],.ferr-cod input:not([type]){box-sizing:border-box;height:34px;padding:4px 6px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-card);color:var(--dmo-text);font:inherit;font-size:13.5px;font-variant-numeric:tabular-nums}
 .ferr-cod .ferr-cod-nome{width:128px}
+.ferr-cod-b2{display:inline-flex;align-items:center;gap:6px}
+.ferr-cod-b2 select{height:30px;padding:2px 6px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-card);color:var(--dmo-text);font:inherit;font-size:13px}
 .ferr-cod .ferr-cod-qtd{width:56px;text-align:center}
 .ferr-cod input:focus{border-color:var(--dmo-brand-600);outline:none;box-shadow:0 0 0 3px var(--dmo-focus-ring)}
 .ferr-cod input::placeholder{font-size:11.5px;color:var(--dmo-muted)}
@@ -40,7 +37,7 @@
   <section id="ferrDefTotais" class="dmo-card ferr-def-card" aria-labelledby="tool-quantities-title" data-dmo-regiao data-dmo-parcial>
     <div class="dmo-card-topo">
       @* A codificação dos moldes e acessórios por linha (Diogo, 28/10/2026); a bola de ajuda explica (o cartão «Ao criar ou associar» saiu). *@
-      <h3 id="tool-quantities-title">Codificação por linha <partial name="_DmoHelp" model="@("Para cada linha: o nome técnico de CM, MF e BQ (xxxx é a referência) e a quantidade do lote de CM, MF, BQ e AN. Ao criar uma ferramenta, a linha escolhida preenche o nome técnico e a quantidade; a quantidade do SAP, quando existe, manda. Na B2 escolha B2 Dupla ou B2 Tripla: no Job On da B2 só aparecem as ferramentas desse modo. «Guardar» grava a tabela; «Atualizar» aplica-a às ferramentas já registadas (nome técnico vazio ou vindo da tabela anterior, quantidades vazias).")" /></h3>
+      <h3 id="tool-quantities-title">Codificação por linha <partial name="_DmoHelp" model="@("Para cada linha: o nome técnico de CM, MF e BQ (xxxx é a referência) e a quantidade do lote de CM, MF, BQ e AN. Ao criar uma ferramenta, a linha escolhida preenche o nome técnico e a quantidade; a quantidade do SAP, quando existe, manda. Na B2 escolha Dupla ou Tripla no dropdown: a fila mostra os nomes e as quantidades desse modo, que passa a ser o ativo, e no Job On da B2 só aparecem as ferramentas desse modo. «Guardar» grava a tabela; «Atualizar» aplica-a às ferramentas já registadas (nome técnico vazio ou vindo da tabela anterior, quantidades vazias).")" /></h3>
       @if (tabela is not null)
       {
         <div class="dmo-card-topo-acoes">
@@ -81,11 +78,23 @@
           {
             var linha = fila.Linha;
             var sufixo = linha.Chave.Replace(":", "-");
-            if (linha.Modo is { } modo)
+            @* Uma só fila da B2, com o modo num dropdown (Diogo, 29/10/2026: «meter drop down
+               selecionar dupla ou tripla; a que estiver selecionada aparece os nomes e assume
+               como está ativo»); a fila do outro modo fica guardada, sem aparecer. *@
+            if (linha.Modo is { } modo && modo != tabela.ModoB2)
             {
-              <label class="ferr-cod-modo ferr-totais-maquina mch-B2" title="@linha.Nome: no Job On da B2 só aparecem as ferramentas deste modo">
-                <input type="radio" name="modo" value="@modo" form="ferrDefModoB2Form" data-dmo-autosubmit checked="@(tabela.ModoB2 == modo)" />@linha.Nome
-              </label>
+              continue;
+            }
+            if (linha.Modo is not null)
+            {
+              <span class="ferr-totais-maquina mch-B2 ferr-cod-b2">B2
+                <select name="modo" id="ferrDefModoB2" form="ferrDefModoB2Form" data-dmo-autosubmit aria-label="Modo da B2: no Job On da B2 só aparecem as ferramentas deste modo">
+                  @foreach (var opcao in new[] { B2Modo.Dupla, B2Modo.Tripla })
+                  {
+                    <option value="@opcao" selected="@(tabela.ModoB2 == opcao)">@opcao</option>
+                  }
+                </select>
+              </span>
             }
             else
             {

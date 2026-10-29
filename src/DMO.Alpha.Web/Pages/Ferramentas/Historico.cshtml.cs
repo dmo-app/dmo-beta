@@ -16,7 +16,7 @@ namespace DMO.Alpha.Web.Pages.Ferramentas;
 /// On em que a ferramenta trabalhou (produção, datas, % de uso e as OUTRAS
 /// duas ferramentas desse Job On, com o lote); sem ferramenta, o «Histórico
 /// das Ferramentas»: abre vazio e procura pela referência e pelos filtros.
-/// Clicar numa linha abre o menu Controlo · Reparação · Folha do Job On.
+/// Clicar numa linha abre o menu Job On · Controlo · Reparação · Boquilhas.
 /// Só leitura; a mesma chave da ficha.
 /// </summary>
 [Authorize]
@@ -69,6 +69,8 @@ public sealed class HistoricoModel(
 
     public bool AbreJobOn { get; private set; }
 
+    public bool AbreBoquilhas { get; private set; }
+
     public ToolType? Tipo => TipoDe(TipoTexto);
 
     public string? Referencia => string.IsNullOrWhiteSpace(ReferenciaTexto) ? null : ReferenciaTexto.Trim().ToUpperInvariant();
@@ -116,6 +118,10 @@ public sealed class HistoricoModel(
 
     public static string JobOnUrl(HistoricoLinha l) => $"/JobOn?jobon_id={l.JobOnId}";
 
+    // Os movimentos da BQ dessa produção; sem BQ não há para onde ir.
+    public static string? BoquilhasUrl(HistoricoLinha l) =>
+        l.Bq.Count == 0 ? null : $"/Boquilhas?historico=1&bq_ferramenta={Uri.EscapeDataString(l.Bq[0].ToolId)}";
+
     public async Task<IActionResult> OnGetAsync()
     {
         var cancelar = HttpContext.RequestAborted;
@@ -123,6 +129,7 @@ public sealed class HistoricoModel(
         AbreControlo = podes.Contains(DmoCapabilities.ControloCreate, StringComparer.Ordinal);
         AbreReparacao = podes.Contains(DmoCapabilities.ReparacaoInterna, StringComparer.Ordinal);
         AbreJobOn = podes.Contains(DmoCapabilities.JobOnCreate, StringComparer.Ordinal);
+        AbreBoquilhas = podes.Contains(DmoCapabilities.Boquilhas, StringComparer.Ordinal) || podes.Contains(DmoCapabilities.BoquilhasView, StringComparer.Ordinal);
 
         if (!string.IsNullOrWhiteSpace(ToolId))
         {

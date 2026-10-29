@@ -533,3 +533,6 @@ html body main.ferr-page #ferr-create-form>.ferr-create-tech>summary:is(:hover,:
 @media (min-width:1100px){
   html:root body .beta-bq-layout section#historico #bqHistDia:not(#_){height:108px;max-height:108px;box-sizing:border-box;align-content:start}
 }
+/* O «Voltar» da Utilização por produção: link no canto superior esquerdo, por cima do título (Diogo, 29/10/2026). */
+html body .ferr-producoes-janela>.ferr-producoes-voltar:not(#_){display:block;margin:0 0 4px;padding:0;color:var(--dmo-muted);font-size:13px;font-weight:500}
+html body .ferr-producoes-janela>.ferr-producoes-voltar:is(:hover,:focus-visible):not(#_){color:var(--dmo-text)}

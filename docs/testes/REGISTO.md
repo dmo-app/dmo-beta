@@ -1855,6 +1855,8 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | Saida_ODestinoEscolheOsCamposEDepoisAEntradaPropoe | Destino escolhe os campos; entrada seguinte propõe origem e estado | OK |  |
 | Saida_ParaReparacaoSemReparador_RecusaComOFormularioPreenchido | Saída para reparação sem reparador é recusada, mantém o escrito e nada grava | OK |  |
 | SemAChave_NaoEntra | Sem a chave do Armazém a página não abre | OK |  |
+| Registo_VoltarFicaPorCimaDoTitulo_EAFabricaDoEmprestimoEUmaLista | «Voltar» fica por cima do título e a Fábrica do Empréstimo é uma lista das Definições, nunca texto livre | OK | A-0412 (DMO-667) |
+| Saida_DeBq_ParaReparacao_OferecePorGruposOsReparadoresDasBqEDoArmazem | Na Saída de uma BQ há os reparadores das BQ e, a seguir, os do Armazém | OK | A-0421 (DMO-667) |
 
 ### `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPaginasTests.cs`
 
@@ -1877,6 +1879,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | SemRegistoNoArmazem_AFichaDizSemRegisto_ENaoFabrico | Ferramenta sem registo no Armazém diz «Sem registo», não «Fabrico» | OK |  |
 | Ultimas_OsFiltros | Filtros por dia, tipo, referência, lote e reparador; vazio com aviso | OK |  |
 | Ultimas_Todas_DoMaisRecente_BqIncluida_PosicaoSoNaEntrada | Últimas entradas e saídas com o último em cima, BQ incluída, sem botões | OK |  |
+| Ultimas_OFormularioTemUmEnvioEscondido_ParaOEnterNoLote | O Enter no campo Lote das Últimas entradas e saídas aplica o filtro | OK | A-0387 (DMO-649) |
 
 ### `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs`
 
@@ -1907,6 +1910,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | PdfHistorico_WithoutTheMachine_ExportsAllMachines | PDF sem máquina exporta todas | FRACO | Só %PDF e nome; não verifica o conteúdo |
 | Sidepanel_SurvivesTheHistoryViews | Painel das produções correntes mantém-se nas vistas do histórico | OK |  |
 | ViewDropdown_AndContextualPdfButton_AreWiredToTheGenerators | Dropdown de vistas e um só botão «Imprimir / PDF» ligado aos filtros | OK |  |
+| ReferenciaExistente_ComLoteInexistente_MostraMensagemClara_NaListaENoPdf | Referência com lote que não existe mostra mensagem clara, na lista e no PDF, sem erro | OK | A-0387 (DMO-648) |
 
 ### `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasRegistoConsultasTests.cs`
 
@@ -2563,6 +2567,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | ReparacaoProgramadaTests.Lista_FechaSozinha_QuandoAUltimaFerramentaDaEntrada | Lista fecha sozinha quando a última ferramenta entra | OK |  |
 | ReparacaoProgramadaTests.Procurar_SemFiltros_AbreVazia_EComFiltros_MostraCmEMfComAPosicao | Reparação programada abre vazia e procura CM/MF com posição e % uso | OK |  |
 | ReparacaoProgramadaTests.SaidaEEntrada_AtualizamALista_EALinhaQueEntrouMostraDiaPosicaoENome | Saída e entrada no Armazém atualizam a lista programada | OK |  |
+| ReparacaoProgramadaTests.Procurar_PelaReferenciaToda_OuPeloNomeTecnico_EncontraACmEOMf | Registar Reparação: a referência toda e o nome técnico encontram a CM e o MF (DMO-579) | OK |  |
 
 ### `tests/DMO.Alpha.Infrastructure.Tests/Search/ReferenceMatchTests.ParteBq.cs`
 
@@ -2851,14 +2856,14 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | Teste | Garante | Estado | Nota |
 |---|---|---|---|
 | DefinicoesPorModuloPageTests.ComAsLeiturasAVoltaDaProducao_ODeltaNaoEEstimado | Com leituras à volta, delta não é estimado | OK |  |
-| DefinicoesPorModuloPageTests.SemLeiturasAVoltaDaProducao_ODeltaEstimaSePeloProduzido | Sem leituras, delta estima-se pelo produzido com ≈ | OK |  |
+| DefinicoesPorModuloPageTests.SemLeiturasAVoltaDaProducao_ODeltaEstimaSePeloProduzido | Sem leituras, delta estima-se pelo produzido com ≈; a explicação fica só na ajuda do título, sem quadro verde (DMO-668) | OK |  |
 
 ### `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs`
 
 | Teste | Garante | Estado | Nota |
 |---|---|---|---|
-| DefinicoesPorModuloPageTests.ODetalhesDaUtilizacao_MostraODeltaDeCadaProducaoEOTotal | Detalhe da utilização mostra delta e total | OK |  |
-| DefinicoesPorModuloPageTests.OHistoricoDeProducoes_DaODeltaDeGarrafasEAJanelaDoPeso | Histórico dá delta de garrafas e janela do peso | OK |  |
+| DefinicoesPorModuloPageTests.ODetalhesDaUtilizacao_MostraODeltaDeCadaProducaoEOTotal | Detalhe da utilização mostra delta e total, sem o quadro verde «Hoje» (DMO-668) | OK |  |
+| DefinicoesPorModuloPageTests.OHistoricoDeProducoes_DaODeltaDeGarrafasEAJanelaDoPeso | Histórico sem o Δ garrafas (só o bruto) e com a janela do peso (DMO-609) | OK |  |
 | DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraAsGarrafasOPesoEAPercentagemDeCadaJobOn | Histórico mostra garrafas, peso e % por Job On | OK |  |
 | DefinicoesPorModuloPageTests.ORelatorioDeFabrico_MostraOQueCadaJobOnDaFerramentaProduziu | Relatório de fabrico mostra o produzido por Job On | OK |  |
 | DefinicoesPorModuloPageTests.SemORelatorioDeFabrico_AProducaoFicaComTraco | Sem relatório de fabrico a produção fica com traço | OK |  |
@@ -2875,7 +2880,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 
 | Teste | Garante | Estado | Nota |
 |---|---|---|---|
-| DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraOArtigoDeCadaProducao | Histórico mostra o artigo de cada produção | OK |  |
+| DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraOArtigoDeCadaProducao | Histórico mostra o artigo de cada produção, sem o quadro «Referência (n)» (DMO-601) | OK |  |
 
 ### `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoUsoEstimado.cs`
 
@@ -2946,6 +2951,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | DefinicoesPorModuloPageTests.FerramentasDefinicoes_OnlyForWhoHasTheModule_AndLeftTheAdmin | Definições de Ferramentas só para quem tem o módulo | FRACO | Parte do teste só verifica ausência de textos. |
 | DefinicoesPorModuloPageTests.FerramentasDefinicoes_TotalsGrid_SavesWithGuardar | Definições dos totais gravam com Guardar | OK |  |
 | DefinicoesPorModuloPageTests.HoraDeViragem_CadaUmaNoSeuModulo_ComOsSeusHandlers | Hora de viragem de cada módulo com os seus handlers | OK |  |
+| DefinicoesPorModuloPageTests.FerramentasDefinicoes_Codificacao_SeletorDaB2 | Codificação por linha: B2 numa só fila com dropdown Dupla/Tripla; escolher grava o modo e mostra os nomes desse modo (DMO-578, DMO-670) | OK |  |
 
 ### `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaEnvioUnicoTests.cs`
 
@@ -3004,9 +3010,9 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | Teste | Garante | Estado | Nota |
 |---|---|---|---|
 | FerramentasPagesTests.BarraDasFerramentas_PesquisarERegistarReparacao_SemOsNomesAntigos | Barra com Pesquisar e Registar Reparação, sem Histórico | OK |  |
-| FerramentasPagesTests.Ficha_TemOBotaoHistorico_QueAbreOsJobOnDaFerramenta | Histórico mostra produções da ferramenta com % uso por id | OK | Inclui verificações de classes CSS. |
+| FerramentasPagesTests.Ficha_TemOBotaoHistorico_QueAbreOsJobOnDaFerramenta | Histórico mostra produções da ferramenta com % uso por id; menu com Job On e, sem acesso, Controlo apagado (DMO-668) | OK | Inclui verificações de classes CSS. |
 | FerramentasPagesTests.HistoricoSemFerramenta_VaiParaOPesquisar | Histórico sem ferramenta vai para Pesquisar | OK |  |
-| FerramentasPagesTests.Historico_ComControloERi_OMenuTemOsTresDestinos | Menu da linha com Controlo, Reparação e Folha; % uso | OK |  |
+| FerramentasPagesTests.Historico_ComControloERi_OMenuTemOsTresDestinos | Menu da linha com Job On, Controlo, Reparação (e Boquilhas, apagada sem BQ); % uso (DMO-668) | OK |  |
 | FerramentasPagesTests.Historico_SemAChaveDasFerramentas_NaoAbre | Histórico sem chave Ferramentas não abre | FRACO | Só exige código diferente de 200; um erro 500 passava. |
 
 ### `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.MfAssociada.cs`
@@ -4797,7 +4803,6 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | Teste | Garante | Estado | Nota |
 |---|---|---|---|
 | PostoSoRiTests.PeloPosto_ComOTempoDasDefinicoes_ASessaoDuraEsseTempo | O tempo do Posto vem das Definições | OK |  |
-| PostoSoRiTests.PeloPosto_EmUso_ASessaoContinua | Em uso a sessão do Posto continua | OK |  |
 | PostoSoRiTests.PeloPosto_SemUsoDurante3Minutos_ASessaoFecha | Sem uso 3 minutos a sessão do Posto fecha | OK |  |
 | PostoSoRiTests.PeloPosto_SoAReparacaoInterna_PeloLoginTodosOsModulos | Pelo Posto só vê a RI; pelo login vê tudo | OK | IPostoRi simulado; PIN real em PostgresMigrationIntegrationTests.PostoRi. |
 | PostoSoRiTests.SairDoPosto_VoltaAoPosto_PeloLoginNaoHaTempo | Sair do Posto volta ao Posto; pelo login não há limite | OK |  |
@@ -5570,7 +5575,6 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 
 | Teste | Garante | Estado | Correção |
 |---|---|---|---|
-| PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDaComparacao_AgrupaEsteControlo_ControloAnterior_EDiferenca_PorEstaOrdem | A tabela agrupa Este controlo, Controlo anterior e Diferença por esta ordem. | OK | DMO-491 |
 
 ### `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBCartao.cs`
 
@@ -5588,7 +5592,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 
 | Teste | Garante | Estado | Correção |
 |---|---|---|---|
-| PesoFolhaProducaoAnteriorPageTests.Resumo_TabelaDoPeso_TemAsColunasValorGEPercentagem_EACadaLinhaAsDuasDiferencas | A tabela do Peso no Resumo tem as colunas Valor, g e %. | OK | DMO-496 |
+| PesoFolhaProducaoAnteriorPageTests.Resumo_TabelaDoPeso_TemAsColunasValorGEPercentagem_EACadaLinhaAsDuasDiferencas | A tabela do Peso no Resumo tem as colunas Valor, g e %; a linha da moda mostra «X de Y dias» em vez da diferença (mudado a 29/10/2026, DMO-673). | OK | DMO-496, DMO-673 |
 
 ### `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.CoberturaA1Aspeto.cs`
 
@@ -5695,6 +5699,30 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | Teste | Garante | Estado | Correção |
 |---|---|---|---|
 | ReparacaoInternaConsultaCoberturaBTests.Consulta_ReferenciaPrimeiro_ProducaoLogoAseguir_ETodosOsFiltrosNumSoFormulario | Na Consulta RI a Referência vem primeiro e a Produção a seguir. | OK | DMO-577 |
+
+### `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs`
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| DefinicoesPorModuloPageTests.OCodigoSapDaFicha_GanhaATabela_EVazioVoltaAEla | Código SAP escrito na ficha ganha à tabela; vazio volta a ela; já não está no Opções (DMO-668) | OK |  |
+
+### `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoVoltar.cs`
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| DefinicoesPorModuloPageTests.AUtilizacaoPorProducao_TemOVoltarPorCimaESemQuadrosVerdes | Utilização por produção: «Voltar» por cima do título, sem «Fechar» nem quadros verdes (DMO-668) | OK |  |
+
+### `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoSoBruto.cs`
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| DefinicoesPorModuloPageTests.OHistoricoDeProducoes_SoGarrafasEmBruto_EOsDiasAFrenteDasDatas | Histórico: Produção, Datas com os dias, Garrafas em bruto, % uso, Peso, Cadência; sem Δ garrafas (DMO-609) | OK |  |
+
+### `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.GeralNumaLinha.cs`
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| FerramentasPagesTests.Ficha_Geral_LinhasNaVertical_EUtilizacaoNaMesmaLinha | Geral da ficha: Linhas uma por baixo da outra e Utilização no mesmo quadro; o browser confirma uma só linha (DMO-608) | OK |  |
 
 ### `tests/ShellProof/cobertura_a1_ficha-na-lista.test.cjs`
 
@@ -5847,3 +5875,31 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_DiferencasFicamForaDaTroca_RegistarNaoVoltaAoTopo | As diferenças da produção anterior ficam fora da troca (registar não volta ao topo) | OK | A-0417 (DMO-672) |
 | tests/ShellProof/painel-gravou-sem-recarregar.test.cjs | Depois de gravar sem recarregar, o painel fecha sem aviso falso de alterações por guardar | OK | A-0417 (DMO-672) |
 | PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDaComparacao_AgrupaPorGrandeza_AtualAnteriorEDiferenca_ComAnteriorACinza | A tabela do Controlo anterior compara por grandeza, com o anterior a cinza | OK | A-0419 (DMO-672) |
+
+| JobOnPageTests.JobOnCriar_HandlersAjax_ContinuamAFuncionar | Lote .241: junta os testes novos do #327 (A-0395) e do #328 (A-0401) | OK | A-0402 |
+| JobOnPageTests.JobOnVer_HandlerProcurarProducao_EhRedirecionado | Lote .241: junta os testes novos do #327 (A-0395) e do #328 (A-0401) | OK | A-0402 |
+| JobOnPageTests.JobOnVer_HandlerToolCandidates_EhRedirecionado | Lote .241: junta os testes novos do #327 (A-0395) e do #328 (A-0401) | OK | A-0402 |
+| JobOnPageTests.JobOnVer_HandlerToolFacts_EhRedirecionado | Lote .241: junta os testes novos do #327 (A-0395) e do #328 (A-0401) | OK | A-0402 |
+| PostoFerramentasUtilizacaoTests.PeloPosto_FerramentasUtilizacao_EhRecusada_PeloLoginContinuaAAbrir | Lote .241: junta os testes novos do #327 (A-0395) e do #328 (A-0401) | OK | A-0402 |
+| DefinicoesNumSoSitioTests.SemSenhaDoSap_OsScriptsNaoSeDao | DMO-661: sem senha do SAP os scripts param logo e o Instalar recusa; com o SAP aberto a senha ainda se escreve (Diogo 29/10: «prendeu na pass», PC bloqueado) | OK | A-0403 |
+| SapScriptsVbsTests.SemSenha_OScriptParaLogo | DMO-661: sem senha do SAP os scripts param logo e o Instalar recusa; com o SAP aberto a senha ainda se escreve (Diogo 29/10: «prendeu na pass», PC bloqueado) | OK | A-0403 |
+| tests/ShellProof/jobon-folha-avisos-alerta.test.cjs | Teste novo: os avisos dos cartões da folha do Job On vão para a pilha dos alertas da app (DMO-666) | OK | A-0411 |
+| JobOnDiametrosSepararTests.DoisNumeros_VaiOSegundoParaATolVazia_EOGuardarPassa | Teste novo: diâmetros antigos com dois números separam-se em valor e Tol. e o Guardar passa (DMO-669) | OK | A-0414 |
+| JobOnDiametrosSepararTests.TolJaEscrita_FicaComoEsta | Teste novo: diâmetros antigos com dois números separam-se em valor e Tol. e o Guardar passa (DMO-669) | OK | A-0414 |
+| JobOnDiametrosSepararTests.UmNumero_NaoMuda | Teste novo: diâmetros antigos com dois números separam-se em valor e Tol. e o Guardar passa (DMO-669) | OK | A-0414 |
+| AuthB03B04UserAdminServiceTests.ResetUserAccessAsync_ApagaOPinDoPosto | AUTH-B03 (DMO-655): o reset de acesso apaga o PIN do Posto; o rollback do provider repõe o PIN apagado | OK | A-0404 |
+| AuthB03B04UserAdminServiceTests.ResetUserAccessAsync_OProviderRecusa_OPinDoPostoVoltaAFicar | AUTH-B03 (DMO-655): o reset de acesso apaga o PIN do Posto; o rollback do provider repõe o PIN apagado | OK | A-0404 |
+| AuthB03B04B05Tests.ComRequiresPasswordChange_AEntradaPeloPostoRecusaMesmoComOPinCerto | AUTH-B03 (DMO-655): o reset de acesso apaga o PIN do Posto; o rollback do provider repõe o PIN apagado | OK | A-0404 |
+| AuthB03B04B05Tests.MudarOPin_FechaAsSessoesDoPostoAbertasComOPinAnterior | AUTH-B03 (DMO-655): o reset de acesso apaga o PIN do Posto; o rollback do provider repõe o PIN apagado | OK | A-0404 |
+| AuthB03B04B05Tests.ResetDeAcesso_ApagaOPinDoPosto_OPinAntigoJaNaoEntra | AUTH-B03 (DMO-655): o reset de acesso apaga o PIN do Posto; o rollback do provider repõe o PIN apagado | OK | A-0404 |
+| AuthB03B04UserAdminServiceTests.SetUserStandByAsync_ArquivarEReativar_SobeAVersaoNasDuasVezes | AUTH-B04 (DMO-656): arquivar e reativar um utilizador sobem o SessionVersion nas duas mudanças, para uma cookie antiga não voltar a valer depois de reativar | OK | A-0405 |
+| AuthB03B04UserAdminServiceTests.SetUserStandByAsync_Arquivar_SobeAVersaoDaSessao | AUTH-B04 (DMO-656): arquivar e reativar um utilizador sobem o SessionVersion nas duas mudanças, para uma cookie antiga não voltar a valer depois de reativar | OK | A-0405 |
+| AuthB03B04UserAdminServiceTests.SetUserStandByAsync_SemMudarOEstado_NaoSobeAVersao | AUTH-B04 (DMO-656): arquivar e reativar um utilizador sobem o SessionVersion nas duas mudanças, para uma cookie antiga não voltar a valer depois de reativar | OK | A-0405 |
+| AuthB03B04B05Tests.ArquivarEReativar_ACookieAntigaContinuaRecusadaDepoisDeReativar | AUTH-B04 (DMO-656): arquivar e reativar um utilizador sobem o SessionVersion nas duas mudanças, para uma cookie antiga não voltar a valer depois de reativar | OK | A-0405 |
+| PostoSoRiTests.PeloPosto_ChamarAtivo_RenovaOLimitePorMaisNMinutos | AUTH-B05 (DMO-657): cookie próprio do Posto sem deslizar; o endpoint /posto/ativo (só a partir de uma ação real da pessoa) renova o limite, outros pedidos não renovam | OK | A-0406 |
+| PostoSoRiTests.PeloPosto_DentroDoLimite_OsPedidosContinuam | AUTH-B05 (DMO-657): cookie próprio do Posto sem deslizar; o endpoint /posto/ativo (só a partir de uma ação real da pessoa) renova o limite, outros pedidos não renovam | OK | A-0406 |
+| PostoSoRiTests.PeloPosto_PedidoQueNaoPassaPorAtivo_NaoRenova | AUTH-B05 (DMO-657): cookie próprio do Posto sem deslizar; o endpoint /posto/ativo (só a partir de uma ação real da pessoa) renova o limite, outros pedidos não renovam | OK | A-0406 |
+| SapScriptsVbsTests.SemCodigosAEspera_OUsoAcabaSemErro | DMO-664: sem ferramentas à espera o uso do SAP acaba sem erro (Diogo 29/10, «A leitura do SAP falhou») | OK | A-0409 |
+| DefinicoesPorModuloPageTests.AJanelaDoSap_EscondeAsPartesQueNaoEstaoEscolhidas | DMO-665: a janela Atualizar do SAP mostra só a parte escolhida (Diogo 29/10) | OK | A-0410 |
+| ArmazemMovimentosPaginaTests.Registo_VoltarFicaPorCimaDoTitulo_EAFabricaDoEmprestimoEUmaLista | DMO-667/A-0412 (Diogo 29/10): no Registo do Armazém, «Voltar» por cima do título e a Fábrica do Empréstimo sempre em lista (Definições). 1 teste novo; nenhum antigo mudou | OK | A-0412 |
+| JobOnPageTests.Folha_PainelDasLinhas_SoOQueEntraNosProximosCincoDias | Teste novo: o painel das linhas da Folha só mostra o que entra nos próximos 5 dias (DMO-671) | OK | A-0416 |
