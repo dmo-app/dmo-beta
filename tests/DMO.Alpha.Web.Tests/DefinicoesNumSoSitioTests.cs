@@ -320,13 +320,16 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         var (client, _) = await LoginOperatorAsync("7314", DmoCapabilities.Boquilhas, DmoCapabilities.ControloCreate, DmoCapabilities.Ferramentas);
         var html = WebUtility.HtmlDecode(await GetOkAsync(client, "/Definicoes"));
 
-        // Ferramentas: «Utilização pela produção» no Geral; só «Atualizar do SAP» fica ativo.
+        // Ferramentas: «Utilização pela produção» no Geral; «Atualizar do SAP» e
+        // «Instalar» saíram para o Admin (SEC-01, 29/10/2026): levavam a senha
+        // do SAP a quem só tem as Ferramentas. Só as opções sem senha ficam.
         var producao = Regex.Match(html, "<section id=\"ferrDefSap\"[\\s\\S]*?</section>").Value;
         Assert.Contains("Utilização pela produção", producao);
         Assert.DoesNotContain("SAP</h3>", Regex.Match(producao, "<h3 id=\"ferr-sap-title\"[\\s\\S]*?</h3>").Value);
         Assert.Contains("data-ferr-sap-codigos disabled=\"disabled\"", producao);
-        // Um só botão, «Atualizar do SAP»; «Ligar pasta» e «Ler pasta» saíram das Opções (Diogo, 28/10/2026).
-        Assert.Contains("data-ferr-sap-atualizar>Atualizar do SAP", producao);
+        Assert.DoesNotContain("data-ferr-sap-atualizar", producao);
+        Assert.DoesNotContain("data-ferr-sap-instalar", producao);
+        Assert.DoesNotContain("data-ferr-sap-janela", producao);
         Assert.DoesNotContain("data-ferr-sap-ler", producao);
         Assert.DoesNotContain("data-ferr-sap-pasta", producao);
         // As pastas juntas em Este computador (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP).
@@ -470,9 +473,10 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
             Assert.DoesNotContain("9zQ", valor);
         }
 
-        // Os scripts que o «Atualizar do SAP» grava na pasta.
-        var (client, _) = await LoginOperatorAsync("7324", DmoCapabilities.Ferramentas);
-        var scripts = await ScriptsAsync(client);
+        // Os scripts que o «Atualizar do SAP» grava na pasta: só o Admin
+        // chega a eles (SEC-01, 29/10/2026); um operador das Ferramentas,
+        // que antes os via com a senha em claro, agora não tem o handler.
+        var scripts = await ScriptsAsync(admin);
         Assert.Equal(SapScriptsRegras.Nomes.Order(), scripts.Keys.Order());
         Assert.Contains("Const SENHA = \"Ab\"\"9zQ\"", scripts[SapScriptsRegras.Uso]);
         Assert.Contains("Const UTILIZADOR = \"USERX\"", scripts[SapScriptsRegras.Fabrico]);
@@ -482,16 +486,23 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         Assert.Contains("dmo-sap\\shell\\open\\command", scripts[SapScriptsRegras.Instalar]);
         Assert.DoesNotContain("{{", string.Concat(scripts.Values));
 
+        // Sem o handler, o ASP.NET Core ignora o «handler» desconhecido e cai no
+        // OnGet da página (redireciona para /Definicoes): nunca a senha.
+        var (operador, _) = await LoginOperatorAsync("7324", DmoCapabilities.Ferramentas);
+        var semHandler = await operador.GetAsync("/Ferramentas/Definicoes?handler=ScriptsSap");
+        Assert.Equal(System.Net.HttpStatusCode.Redirect, semHandler.StatusCode);
+        Assert.DoesNotContain("9zQ", await (await operador.GetAsync(semHandler.Headers.Location!)).Content.ReadAsStringAsync());
+
         // Abrir, mudar e guardar o script; «Repor» volta ao da app.
         var mudado = await admin.PostAsync("/Admin/Definicoes?handler=SaveSapScript", HtmlFormHelpers.BuildFormPost(
             ("sap_script", SapScriptsRegras.Diario), ("sap_texto", "' marca do Admin\nConst HORA = {{HORA}}\n"), ("__RequestVerificationToken", token)));
         Assert.EndsWith("sap=ok-script", mudado.Headers.Location!.OriginalString);
-        Assert.Contains("' marca do Admin\r\nConst HORA = 7", (await ScriptsAsync(client))[SapScriptsRegras.Diario]);
+        Assert.Contains("' marca do Admin\r\nConst HORA = 7", (await ScriptsAsync(admin))[SapScriptsRegras.Diario]);
         Assert.Contains("mudado no Admin", await GetOkAsync(admin, "/Definicoes?secao=admin&sub=sap"));
         var reposto = await admin.PostAsync("/Admin/Definicoes?handler=SaveSapScript", HtmlFormHelpers.BuildFormPost(
             ("sap_script", SapScriptsRegras.Diario), ("sap_texto", "x"), ("sap_repor", "1"), ("__RequestVerificationToken", token)));
         Assert.EndsWith("sap=ok-repor", reposto.Headers.Location!.OriginalString);
-        Assert.DoesNotContain("marca do Admin", (await ScriptsAsync(client))[SapScriptsRegras.Diario]);
+        Assert.DoesNotContain("marca do Admin", (await ScriptsAsync(admin))[SapScriptsRegras.Diario]);
         var desconhecido = await admin.PostAsync("/Admin/Definicoes?handler=SaveSapScript", HtmlFormHelpers.BuildFormPost(
             ("sap_script", "outro.vbs"), ("sap_texto", "x"), ("__RequestVerificationToken", token)));
         Assert.EndsWith("sap=ScriptDesconhecido", desconhecido.Headers.Location!.OriginalString);
@@ -499,7 +510,7 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
 
     private static async Task<Dictionary<string, string>> ScriptsAsync(HttpClient client)
     {
-        using var json = System.Text.Json.JsonDocument.Parse(await GetOkAsync(client, "/Ferramentas/Definicoes?handler=ScriptsSap"));
+        using var json = System.Text.Json.JsonDocument.Parse(await GetOkAsync(client, "/Admin/Definicoes?handler=ScriptsSap"));
         return json.RootElement.EnumerateArray().ToDictionary(
             f => f.GetProperty("nome").GetString()!,
             f =>

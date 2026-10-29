@@ -4929,3 +4929,16 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelMedio_AbreMaisLargo`
 
 Selo depois: `c07be0113f2cf44c`
+
+## A-0344 · 2026-10-29 · contagem-lista
+
+Porquê: SEC-01 (auditoria Codex 29/10/2026): «Atualizar do SAP» e «Instalar», que escreviam a senha do SAP nos scripts, saem da página Ferramentas (qualquer conta com o módulo chegava-lhes); ficam só em Admin › Definições › SAP. Teste novo confirma que o operador perde o handler (ScriptsSap) e o Admin mantém a senha; teste novo do browser confirma que o cartão sem esses botões não rebenta e «Apagar lidos» continua.
+Novos: 1 · mudaram: 4 · saíram: 0
+
+- novo: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: Sem «Atualizar do SAP» no cartão (Admin ficou com ele), o script não rebenta e «Apagar lidos» continua a funcionar`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.AsPastas_SaoGerais_SoAsAcoesFicamParaTodos`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OAdmin_MudaOSap_EOsScriptsDaPastaLevamAsDefinicoes`
+- mudou: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `07d1b1e410dc2fdb`

@@ -420,7 +420,7 @@
     if (await permissao(pasta, false)) {
       await sincronizar(pasta, false);
     } else {
-      mostrarEstado("«" + pasta.name + "» · carregue em «Atualizar do SAP» para dar acesso outra vez");
+      mostrarEstado("«" + pasta.name + "» · peça a um admin para ligar a pasta outra vez em Admin › Definições › SAP");
     }
   }
 
@@ -451,6 +451,9 @@
   }
 
   if (cartao) {
+    // O cartão das Ferramentas (SEC-01, 29/10/2026) já não tem «Atualizar do
+    // SAP» nem «Instalar»: só o Admin › Definições › SAP tem os botões que
+    // escrevem a senha nos scripts.
     const atualizarBotao = cartao.querySelector("[data-ferr-sap-atualizar]");
     const janela = cartao.querySelector("[data-ferr-sap-janela]");
     const instalarBotao = cartao.querySelector("[data-ferr-sap-instalar]");
@@ -460,51 +463,53 @@
     const remover = cartao.querySelector("[data-ferr-sap-remover]");
     if (copiar) copiar.addEventListener("click", () => copiarCodigos().catch(falhou));
     if (!suportado) {
-      atualizarBotao.disabled = true;
-      instalarBotao.disabled = true;
+      if (atualizarBotao) atualizarBotao.disabled = true;
+      if (instalarBotao) instalarBotao.disabled = true;
       if (apagar) apagar.disabled = true;
       if (todas) todas.disabled = true;
       mostrarEstado("este browser não liga pastas (use o Chrome ou o Edge); o «Copiar códigos» funciona na mesma");
       return;
     }
-    let modo = "normal";
-    let datas = "entre";
-    const escolher = (grupo, valor) => {
-      janela.querySelectorAll("[" + grupo + "]").forEach((b) => {
-        const ativo = b.getAttribute(grupo) === valor;
-        b.classList.toggle("rp-modo-ativo", ativo);
-        b.setAttribute("aria-pressed", ativo ? "true" : "false");
-      });
-    };
-    janela.querySelectorAll("[data-ferr-sap-modo]").forEach((b) => b.addEventListener("click", () => {
-      modo = b.getAttribute("data-ferr-sap-modo");
-      escolher("data-ferr-sap-modo", modo);
-      janela.querySelectorAll("[data-ferr-sap-parte]").forEach((p) => { p.hidden = p.getAttribute("data-ferr-sap-parte") !== modo; });
-    }));
-    janela.querySelectorAll("[data-ferr-sap-datas]").forEach((b) => b.addEventListener("click", () => {
-      datas = b.getAttribute("data-ferr-sap-datas");
-      escolher("data-ferr-sap-datas", datas);
-      janela.querySelector("[data-ferr-sap-fim-campo]").hidden = datas === "desde";
-    }));
-    atualizarBotao.addEventListener("click", () => janela.showModal());
-    janela.querySelector("[data-ferr-sap-correr]").addEventListener("click", () => {
-      const pedido = {
-        modo: modo,
-        inicio: janela.querySelector("[data-ferr-sap-inicio]").value,
-        fim: datas === "desde" ? "" : janela.querySelector("[data-ferr-sap-fim]").value,
-        referencia: janela.querySelector("[data-ferr-sap-referencia]").value.trim(),
-        tipo: janela.querySelector("[data-ferr-sap-tipo]").value
+    if (atualizarBotao && janela && instalarBotao) {
+      let modo = "normal";
+      let datas = "entre";
+      const escolher = (grupo, valor) => {
+        janela.querySelectorAll("[" + grupo + "]").forEach((b) => {
+          const ativo = b.getAttribute(grupo) === valor;
+          b.classList.toggle("rp-modo-ativo", ativo);
+          b.setAttribute("aria-pressed", ativo ? "true" : "false");
+        });
       };
-      if (modo === "ref" && !pedido.referencia) {
-        mensagem("aviso", "Escreva a referência.");
-        return;
-      }
-      janela.close();
-      pastaComAcesso()
-        .then((pasta) => pasta && atualizar(pasta, pedido))
-        .catch(cancelado);
-    });
-    instalarBotao.addEventListener("click", () => instalar().catch(cancelado));
+      janela.querySelectorAll("[data-ferr-sap-modo]").forEach((b) => b.addEventListener("click", () => {
+        modo = b.getAttribute("data-ferr-sap-modo");
+        escolher("data-ferr-sap-modo", modo);
+        janela.querySelectorAll("[data-ferr-sap-parte]").forEach((p) => { p.hidden = p.getAttribute("data-ferr-sap-parte") !== modo; });
+      }));
+      janela.querySelectorAll("[data-ferr-sap-datas]").forEach((b) => b.addEventListener("click", () => {
+        datas = b.getAttribute("data-ferr-sap-datas");
+        escolher("data-ferr-sap-datas", datas);
+        janela.querySelector("[data-ferr-sap-fim-campo]").hidden = datas === "desde";
+      }));
+      atualizarBotao.addEventListener("click", () => janela.showModal());
+      janela.querySelector("[data-ferr-sap-correr]").addEventListener("click", () => {
+        const pedido = {
+          modo: modo,
+          inicio: janela.querySelector("[data-ferr-sap-inicio]").value,
+          fim: datas === "desde" ? "" : janela.querySelector("[data-ferr-sap-fim]").value,
+          referencia: janela.querySelector("[data-ferr-sap-referencia]").value.trim(),
+          tipo: janela.querySelector("[data-ferr-sap-tipo]").value
+        };
+        if (modo === "ref" && !pedido.referencia) {
+          mensagem("aviso", "Escreva a referência.");
+          return;
+        }
+        janela.close();
+        pastaComAcesso()
+          .then((pasta) => pasta && atualizar(pasta, pedido))
+          .catch(cancelado);
+      });
+      instalarBotao.addEventListener("click", () => instalar().catch(cancelado));
+    }
     if (apagar) apagar.addEventListener("click", () => apagarLidos().catch(falhou));
     if (todas) todas.addEventListener("click", () => alternarTodas().catch(falhou));
     if (remover) remover.addEventListener("click", () => esquecerPasta().then(() => {

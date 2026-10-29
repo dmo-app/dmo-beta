@@ -61,13 +61,18 @@ async function ate(condicao) {
   throw new Error('a condição nunca se cumpriu');
 }
 
-async function pagina({ ficheiros, ficheiroModificadoEm = null, codigos = [], confirma = true }) {
+async function pagina({ ficheiros, ficheiroModificadoEm = null, codigos = [], confirma = true, semAtualizar = false }) {
   const pasta = pastaFalsa(ficheiros);
-  const dom = new JSDOM(`<!doctype html><body><section data-ferr-sap>
-    <p data-ferr-sap-estado></p>
+  // SEC-01 (29/10/2026): a página /Ferramentas/Definicoes já não tem
+  // «Atualizar do SAP», a janela nem «Instalar» (só o Admin os tem agora,
+  // com a senha); o resto do cartão (Copiar códigos, Apagar lidos, Pedir
+  // todas) continua lá, e o script não pode rebentar com esses botões ausentes.
+  const botoesAtualizar = semAtualizar ? '' : `
     <button data-ferr-sap-atualizar>Atualizar do SAP</button>
     <div data-ferr-sap-janela><button data-ferr-sap-correr></button></div>
-    <button data-ferr-sap-instalar></button>
+    <button data-ferr-sap-instalar></button>`;
+  const dom = new JSDOM(`<!doctype html><body><section data-ferr-sap>
+    <p data-ferr-sap-estado></p>${botoesAtualizar}
     <button data-ferr-sap-codigos></button>
     <button data-ferr-sap-apagar>Apagar lidos</button>
     <button data-ferr-sap-todas></button>
@@ -179,5 +184,24 @@ test('Apagar lidos: sem nada lido ainda, avisa e não apaga nem pergunta', async
   assert.match(mensagens[mensagens.length - 1], /Não há ficheiros lidos para apagar na pasta «SAP»/);
   assert.equal(confirmacoes.length, 0);
   assert.ok(pasta.mapa.has('a.html'));
+  w.close();
+});
+
+// SEC-01 (29/10/2026): sem «Atualizar do SAP», a janela e «Instalar» no
+// cartão (saíram para o Admin), o script não pode rebentar a ler esses
+// botões, e «Apagar lidos» continua a funcionar.
+test('Sem «Atualizar do SAP» no cartão (Admin ficou com ele), o script não rebenta e «Apagar lidos» continua a funcionar', async () => {
+  const { w, doc, pasta, enviados, confirmacoes } = await pagina({
+    ficheiros: { 'lida.html': 2000, 'nova.html': 3000 }, ficheiroModificadoEm: 2000, semAtualizar: true
+  });
+  assert.equal(doc.querySelector('[data-ferr-sap-atualizar]'), null);
+  assert.equal(doc.querySelector('[data-ferr-sap-janela]'), null);
+  assert.equal(doc.querySelector('[data-ferr-sap-instalar]'), null);
+  await ate(() => enviados.length === 1);
+  await espera(50);
+  doc.querySelector('[data-ferr-sap-apagar]').click();
+  await ate(() => confirmacoes.length === 1);
+  assert.equal(confirmacoes[0], 'Apagar 1 ficheiro já lido da pasta «SAP»?');
+  await ate(() => !pasta.mapa.has('lida.html'));
   w.close();
 });

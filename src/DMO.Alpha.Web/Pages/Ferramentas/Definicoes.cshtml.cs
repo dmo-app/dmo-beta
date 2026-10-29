@@ -23,11 +23,8 @@ namespace DMO.Alpha.Web.Pages.Ferramentas;
 // ASP.NET ignora-os (aviso MVC1001) e o conteúdo ficava nos 4 MB.
 [RequestFormLimits(ValueLengthLimit = 16 * 1024 * 1024)]
 [RequestSizeLimit(20 * 1024 * 1024)]
-public sealed class DefinicoesModel(ICodificacaoFerramentas codificacao, IFerramentasUsoSap usoSap, IFerramentasFabricoSap fabricoSap, SapScripts sapScripts) : PageModel
+public sealed class DefinicoesModel(ICodificacaoFerramentas codificacao, IFerramentasUsoSap usoSap, IFerramentasFabricoSap fabricoSap) : PageModel
 {
-    /// <summary>A última lista do SAP lida (o cartão «Utilização pelo SAP»); nenhuma ainda.</summary>
-    public UsoSapUltimaLeitura? UltimaLeituraSap { get; private set; }
-
     /// <summary>
     /// GET (o ficheiro ferramentas-sap.js): os códigos a pedir ao SAP (o nome
     /// técnico e o lote de cada ferramenta) e a data do último ficheiro lido
@@ -50,18 +47,8 @@ public sealed class DefinicoesModel(ICodificacaoFerramentas codificacao, IFerram
         });
     }
 
-    /// <summary>
-    /// GET (o ficheiro ferramentas-sap.js): os scripts do SAP com as definições
-    /// do Admin › SAP lá dentro, para o browser os gravar na pasta ligada antes
-    /// de cada «Atualizar do SAP» (Diogo, 28/10/2026: «o script passa a ser
-    /// função interna da app»).
-    /// </summary>
-    public async Task<IActionResult> OnGetScriptsSapAsync()
-    {
-        var ficheiros = await sapScripts.FicheirosAsync($"{Request.Scheme}://{Request.Host}{Request.PathBase}", HttpContext.RequestAborted);
-        Response.Headers.CacheControl = "no-store";
-        return new JsonResult(ficheiros.Select(f => new { nome = f.Nome, base64 = Convert.ToBase64String(f.Conteudo) }));
-    }
+    /// <summary>A última lista do SAP lida (o cartão «Utilização pelo SAP»); nenhuma ainda.</summary>
+    public UsoSapUltimaLeitura? UltimaLeituraSap { get; private set; }
 
     /// <summary>
     /// GET: os códigos das ferramentas de uma referência, só de um tipo
