@@ -126,7 +126,9 @@ public sealed class EditToolFactsHandler : IEditToolFactsHandler
         tool.AssociatedMfReference = associatedMfReference;
         tool.BqAccountedQuantity = command.BqAccountedQuantity;
         // Os AN do lote só existem na BQ (Diogo, 28/10/2026).
-        tool.AnQuantity = type == ToolType.Bq ? command.AnQuantity : null;
+        // DMO-663: nas CM/MF a quantidade recebida do SAP vive no AnQuantity.
+        // O formulário não a envia: editar outros factos não a pode apagar.
+        tool.AnQuantity = type == ToolType.Bq ? command.AnQuantity : previousType == type ? tool.AnQuantity : null;
         if (command.TechnicalName is not null)
         {
             tool.TechnicalName = TrimToNull(command.TechnicalName);

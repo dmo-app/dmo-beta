@@ -263,6 +263,21 @@ else
 fi
 
 echo
+echo "== Browser nos botões do Registar Reparação"
+echo "   Com uma lista aberta, Imprimir, Listas, Histórico, Adicionar e Limpar filtros ficam com o mesmo espaço entre si."
+if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then
+  echo "   não corrido (CI_SEM_BROWSER=1)"
+  summary+=("--      Browser nos botões do Registar Reparação (CI_SEM_BROWSER=1)")
+elif python3 tests/visual/rp_botoes_browser.py "$ui" >"$logs/ui-rp-botoes.log" 2>&1; then
+  echo "   passaram"
+  summary+=("OK      Browser nos botões do Registar Reparação")
+else
+  tail -30 "$logs/ui-rp-botoes.log"
+  summary+=("FALHOU  Browser nos botões do Registar Reparação")
+  failed=1
+fi
+
+echo
 echo "== Browser na hora da Reparação Interna"
 echo "   No Registar Reparação, o campo «Hora» fica à direita do «Dia», na mesma linha, com a hora HH:mm, e vai com o registo."
 if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then

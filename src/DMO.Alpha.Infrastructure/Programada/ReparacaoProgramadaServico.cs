@@ -89,7 +89,7 @@ public sealed class ReparacaoProgramadaServico(DmoDbContext db, ICurrentAccountC
         {
             var f = factos[t.ToolId];
             return new ProgramadaCandidata(t.ToolId, t.Type, t.Reference, t.Lot, f.Utilizacao, f.Linhas, f.Posicao, f.OndeEsta, f.Estado,
-                listas.GetValueOrDefault(t.ToolId));
+                listas.GetValueOrDefault(t.ToolId), f.Artigo);
         }).ToList();
     }
 
@@ -284,7 +284,7 @@ public sealed class ReparacaoProgramadaServico(DmoDbContext db, ICurrentAccountC
             var saida = i.SaidaMovimentoId is { } s ? movimentos.GetValueOrDefault(s) : null;
             var entrada = i.EntradaMovimentoId is { } e ? movimentos.GetValueOrDefault(e) : null;
             return new ProgramadaLinha(i.Id, removida ? null : i.ToolId, i.Tipo, i.Referencia, i.Lote, i.Utilizacao, i.Linhas,
-                f?.OndeEsta ?? "Eliminada", f?.Estado, saida?.OcorridoEmUtc, entrada?.OcorridoEmUtc, entrada?.Posicao, entrada?.RegistadoPor);
+                f?.OndeEsta ?? "Eliminada", f?.Estado, saida?.OcorridoEmUtc, entrada?.OcorridoEmUtc, entrada?.Posicao, entrada?.RegistadoPor, f?.Artigo);
         }).ToList();
         return new(lista, linhas);
     }
@@ -299,7 +299,7 @@ public sealed class ReparacaoProgramadaServico(DmoDbContext db, ICurrentAccountC
     public async Task<IReadOnlyList<string>> LinhasAsync(CancellationToken cancellationToken = default) =>
         await db.Machines.AsNoTracking().Select(m => m.Code).OrderBy(c => c).ToListAsync(cancellationToken);
 
-    private sealed record Factos(decimal? Utilizacao, string? Linhas, string? Posicao, string OndeEsta, FerramentaEstadoTipo? Estado);
+    private sealed record Factos(decimal? Utilizacao, string? Linhas, string? Posicao, string OndeEsta, FerramentaEstadoTipo? Estado, string? Artigo);
 
     /// <summary>O que se sabe agora de cada ferramenta: o % de uso, as Linhas, onde está e o estado.</summary>
     private async Task<Dictionary<string, Factos>> FactosAsync(List<string> ids, CancellationToken cancellationToken)
@@ -334,6 +334,19 @@ public sealed class ReparacaoProgramadaServico(DmoDbContext db, ICurrentAccountC
             .GroupBy(u => u.ToolId)
             .ToDictionary(g => g.Key, g => (decimal?)g.MaxBy(u => u.Id)!.Percentagem);
 
+        // A referência completa da última produção em que a CM ou o MF trabalhou.
+        var producoes = (await db.CmContexts.AsNoTracking()
+                .Where(c => ids.Contains(c.ToolId) && (c.JobOn != null || c.ReplacedJobOn != null))
+                .Select(c => new { c.ToolId, Id = (c.JobOn ?? c.ReplacedJobOn)!.Id, InicioEm = (c.JobOn ?? c.ReplacedJobOn)!.InicioEm, Reference = (c.JobOn ?? c.ReplacedJobOn)!.Reference })
+                .ToListAsync(cancellationToken))
+            .Concat(await db.MfContexts.AsNoTracking()
+                .Where(c => ids.Contains(c.ToolId) && (c.JobOn != null || c.ReplacedJobOn != null))
+                .Select(c => new { c.ToolId, Id = (c.JobOn ?? c.ReplacedJobOn)!.Id, InicioEm = (c.JobOn ?? c.ReplacedJobOn)!.InicioEm, Reference = (c.JobOn ?? c.ReplacedJobOn)!.Reference })
+                .ToListAsync(cancellationToken));
+        var artigos = producoes
+            .GroupBy(p => p.ToolId)
+            .ToDictionary(g => g.Key, g => g.OrderByDescending(p => p.InicioEm).ThenByDescending(p => p.Id).First().Reference);
+
         return ids.ToDictionary(id => id, id =>
         {
             var posicao = posicoes.GetValueOrDefault(id);
@@ -343,7 +356,7 @@ public sealed class ReparacaoProgramadaServico(DmoDbContext db, ICurrentAccountC
                     ? ArmazemTextos.Localizacao(l.Localizacao, pormenores[id])
                     : ArmazemTextos.SemRegisto;
             return new Factos(usos.GetValueOrDefault(id), linhas.GetValueOrDefault(id), posicao, onde,
-                estados.TryGetValue(id, out var e) ? e : null);
+                estados.TryGetValue(id, out var e) ? e : null, artigos.GetValueOrDefault(id));
         });
     }
 

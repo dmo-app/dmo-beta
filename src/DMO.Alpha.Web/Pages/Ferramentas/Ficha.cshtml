@@ -361,6 +361,14 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
     </div>
 
     <section id="ferrGeral" class="dmo-card ferr-card" aria-labelledby="ferr-facts-title" data-dmo-regiao>
+      @if (TempData["SapAviso"] is string sapMensagem)
+      {
+        <p role="status" id="sap-decisao">@sapMensagem</p>
+      }
+      @if (Model.AvisosSap is { } sapAvisos && (sapAvisos.Pecas is not null || sapAvisos.Uso is not null))
+      {
+        <partial name="_AvisosSap" model="sapAvisos" />
+      }
       <div class="dmo-card-topo">
         @* SEM REPETIR O TÍTULO (Diogo, 26/10/2026: «tínhamos decidido retirar
            estes porque repete a informação de cima»): o tipo, a referência e o
@@ -427,7 +435,10 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
           <div class="dmo-fact"><span>Referência MF associada</span><strong>@tool.AssociatedMfReference</strong></div>
         }
         @* Com AN (Diogo, 28/10/2026): «24 BQ · 24 AN». *@
-        <div class="dmo-fact ferr-fact-curto" id="ferrQuantidade"><span>Quantidade</span><strong>@(tool.BqAccountedQuantity?.ToString(pt) ?? "—")@(tool.AnQuantity is int anFicha ? $" BQ · {anFicha.ToString(pt)} AN" : null)</strong></div>
+        <div class="dmo-fact ferr-fact-curto" id="ferrQuantidade"><span>Quantidade</span><strong>@if (tool.Type == ToolType.Bq)
+        {@(tool.BqAccountedQuantity?.ToString(pt) ?? "—")@(tool.AnQuantity is int anFicha ? $" BQ · {anFicha.ToString(pt)} AN" : null)}
+        else
+        {@(tool.AnQuantity?.ToString(pt) ?? "—")}</strong></div>
         @* A POSIÇÃO E O ESTADO (Diogo, 22/10/2026): do Armazém, a todos; «—» sem registo. *@
         <div class="dmo-fact ferr-fact-curto" id="ferrPosicao"><span>Posição</span><strong>@(Model.Armazem?.Posicao ?? "—")</strong></div>
         @{ var estadoTexto = Model.Armazem?.Estado is { } estadoFicha ? DMO.Alpha.Core.Armazem.ArmazemTextos.Estado(estadoFicha) : "—"; }
@@ -584,7 +595,7 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
             Model.FactsFabricaOrigem(tool.FabricaOrigem),
             Model.FactsUso(Model.Utilizacao?.Ultima?.Percentagem),
             Model.Utilizacao?.Ultima is { } usoData ? DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(usoData.RegistadaEmUtc).ToString("dd/MM/yyyy", pt) : null,
-            Model.FactsAnQuantity(tool.AnQuantity), Model.Fabricas, tool.B2Modo?.ToString()))" />
+            Model.FactsAnQuantity(tool.AnQuantity), Model.Fabricas, tool.B2Modo?.ToString(), Model.AvisosSap))" />
       </form>
 
     </section>
@@ -883,3 +894,5 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
   }
 
 </dmo-pagina>
+<link rel="stylesheet" href="~/css/ferramentas-avisos-sap.css" asp-append-version="true" />
+<script src="~/js/ferramentas-avisos-sap.js" asp-append-version="true"></script>

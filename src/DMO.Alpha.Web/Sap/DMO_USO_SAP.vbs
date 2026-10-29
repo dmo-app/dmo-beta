@@ -51,6 +51,7 @@ Dim SapGuiAuto, application, connection, session
 Dim searchField, grid, outFile
 Dim codigo, linha, i, r, startedAt, encontrados
 Dim equipment, percentUse, lastProduction, batchDesc, statusText, errorText, consumo, vida, pecas, colConsumo, colVida, colPecas
+Dim fornecedor, compra, colFornecedor, colCompra
 
 ' Com /auto (o Agendador de Tarefas, ao fim do dia) não mostra a mensagem final.
 ' /codigos:<ficheiro>: os códigos de outro ficheiro desta pasta (o «Atualizar do
@@ -183,8 +184,12 @@ Err.Clear
 On Error GoTo 0
 
 ' Grava primeiro num ficheiro à parte: o DMO só vê a lista quando estiver completa.
-Set outFile = fso.CreateTextFile(temporario, True)
-outFile.WriteLine "search,equipment,percent_use,last_production,batch_description,status,error,consumption,expected life,pieces"
+' UTF-8: os nomes dos fornecedores podem ter acentos. O leitor já aceita BOM.
+Set outFile = CreateObject("ADODB.Stream")
+outFile.Type = 2
+outFile.Charset = "utf-8"
+outFile.Open
+outFile.WriteText "search,equipment,percent_use,last_production,batch_description,status,error,consumption,expected life,pieces,supplier,purchase", 1
 encontrados = 0
 
 For i = 0 To total - 1
@@ -240,6 +245,9 @@ For i = 0 To total - 1
             colConsumo = ColunaPorTitulo(grid, "consumption")
             colVida = ColunaPorTitulo(grid, "expected life")
             colPecas = ColunaPorTitulo(grid, "no. of pieces")
+            ' Títulos confirmados na exportação ZPPG do proprietário: Supplier e Purchase.
+            colFornecedor = ColunaPorTitulo(grid, "supplier")
+            colCompra = ColunaPorTitulo(grid, "purchase")
             For r = 0 To grid.RowCount - 1
                 ' Numa lista grande o SAP só carrega as linhas à vista: desce a lista.
                 If r Mod 20 = 0 Then
@@ -264,9 +272,13 @@ For i = 0 To total - 1
                 consumo = ""
                 vida = ""
                 pecas = ""
+                fornecedor = ""
+                compra = ""
                 If Len(colConsumo) > 0 Then consumo = Trim(CStr(grid.GetCellValue(r, colConsumo)))
                 If Len(colVida) > 0 Then vida = Trim(CStr(grid.GetCellValue(r, colVida)))
                 If Len(colPecas) > 0 Then pecas = Trim(CStr(grid.GetCellValue(r, colPecas)))
+                If Len(colFornecedor) > 0 Then fornecedor = Trim(CStr(grid.GetCellValue(r, colFornecedor)))
+                If Len(colCompra) > 0 Then compra = Trim(CStr(grid.GetCellValue(r, colCompra)))
                 If Err.Number <> 0 Then
                     statusText = "ERROR"
                     errorText = Err.Description
@@ -275,16 +287,18 @@ For i = 0 To total - 1
                 On Error GoTo 0
 
                 If statusText = "FOUND" Then encontrados = encontrados + 1
-                outFile.WriteLine CsvValue(codigo) & "," & CsvValue(equipment) & "," & CsvValue(percentUse) & "," & _
+                outFile.WriteText CsvValue(codigo) & "," & CsvValue(equipment) & "," & CsvValue(percentUse) & "," & _
                                   CsvValue(lastProduction) & "," & CsvValue(batchDesc) & "," & _
                                   CsvValue(statusText) & "," & CsvValue(errorText) & "," & _
-                                  CsvValue(consumo) & "," & CsvValue(vida) & "," & CsvValue(pecas)
+                                  CsvValue(consumo) & "," & CsvValue(vida) & "," & CsvValue(pecas) & "," & _
+                                  CsvValue(fornecedor) & "," & CsvValue(compra), 1
             Next
             GoBackToSearch session
         End If
     End If
 Next
 
+outFile.SaveToFile temporario, 2
 outFile.Close
 ' «saida» tem a hora desta corrida: nunca existe já, por isso não se apaga
 ' nada antes do MoveFile (SAP-02: apagar antes de mover perdia o ficheiro
@@ -440,7 +454,7 @@ Sub FecharAvisoSap(ByVal sapSession)
 End Sub
 
 Sub WriteErrorRow(ByVal fileHandle, ByVal procura, ByVal message)
-    fileHandle.WriteLine CsvValue(procura) & ",,,,," & CsvValue("ERROR") & "," & CsvValue(message)
+    fileHandle.WriteText CsvValue(procura) & ",,,,," & CsvValue("ERROR") & "," & CsvValue(message), 1
 End Sub
 
 ' O id da coluna da lista cujo título começa por «inicio» (vazio se não houver).
@@ -584,7 +598,11 @@ Sub EscreverSenha()
     ' Sem o Windows: pelo teclado. A janela abre com o cursor na caixa do nome
     ' (Diogo, 28/10/2026: a senha ia parar lá): o nome por cima do que lá
     ' estiver, Tab, a senha e Enter.
-    If codigo <> 0 Then
+    ' Código 3: a janela «Moldes Existentes» não tem a caixa da senha (o SAP
+    ' já está aberto). Pelo teclado escrevia-se na janela do SAP em uso
+    ' (Diogo, 29/10/2026: «Função impossível», DMO-677): não se escreve nada.
+    If codigo = 3 Then Registo "janela sem caixa da senha: nada escrito"
+    If codigo <> 0 And codigo <> 3 Then
         shell.AppActivate JANELA_LOGON
         WScript.Sleep 300
         shell.SendKeys "^a" & ParaSendKeys(UTILIZADOR) & "{TAB}" & ParaSendKeys(SENHA) & "{ENTER}"

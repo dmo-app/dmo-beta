@@ -426,6 +426,9 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.Property(t => t.DuplicateWarningByNameFrozen).HasMaxLength(254);
             entity.Property(t => t.FabricaOrigem).HasMaxLength(32);
             entity.Property(t => t.SapCodigo).HasMaxLength(FerramentaUtilizacao.CodigoMaxLength);
+            entity.Property(t => t.SapFornecedor).HasMaxLength(254);
+            entity.Property(t => t.SapPercentagem).HasPrecision(9, 2);
+            entity.Property(t => t.SapPercentagemIgnorada).HasPrecision(9, 2);
         });
 
         // Contexto técnico estável das Tools (regra Ferramentas «Tool-owned
