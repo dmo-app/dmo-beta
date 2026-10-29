@@ -5235,3 +5235,111 @@ Novos: 3 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OsScriptsDoSap_NaoUsamOLikeDoVba`
 
 Selo depois: `9b47efa82c4e2c2f`
+
+## A-0380 · 2026-10-29 · ok-do-diogo
+
+Porquê: DEL-01 (2.ª passagem do sweep .230, commit ef98da5): eliminar um Job On com uma CM «Colocar de parte» na comparação do Peso falhava no PostgreSQL pela FK Restrict de PesoComparacaoCmDecisoes; o cenário de EliminarJobOn passa a semear essa decisão e a prova fica no teste real (DMO-640).
+Referência: dmo-Improvements versoes/0.3.0-beta.230/sweep-bugs-2026-10-29/DADOS-E-ELIMINACAO.md
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/EliminarJobOnCenario.cs :: (resto do ficheiro)`
+
+Selo depois: `6a17a94d909e4104`
+
+## A-0365 · 2026-10-29 · contagem-lista
+
+Porquê: PESO-B01/B04/B05 (sweep 2): testes novos para o emparelhamento do CM com zeros à esquerda, a revalidação da produção anterior e o corte das últimas 5 por produção; o 'resto do ficheiro' de PesoComparisonQueryTests.cs só ganhou o ajudante SeedPesoVazioAsync, sem mudar o que os testes existentes verificam.
+Novos: 8 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparacaoCalculationTests.cs :: PesoComparacaoCalculationTests.Pares_CmComLetraEZeros_NuncaNumerico_FicaSemContraparte`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparacaoCalculationTests.cs :: PesoComparacaoCalculationTests.Pares_CmComZerosAEsquerda_EmparelhaComOMesmoNumero`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparacaoCalculationTests.cs :: PesoComparacaoCalculationTests.Pares_CmDigitosDiferentes_NuncaEmparelham`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparacaoCalculationTests.cs :: PesoComparacaoCalculationTests.Pares_CmIguais_Emparelham`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparisonQueryTests.cs :: PesoComparisonQueryTests.FindCandidates_PesoVazioCriadoDepois_NaoEscondeAProducaoComLeituras`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoProducaoAnteriorQueryTests.cs :: PesoProducaoAnteriorQueryTests.AindaValida_DepoisDeMudarAsDatas_DeixaDeSerAnterior_Falso`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoProducaoAnteriorQueryTests.cs :: PesoProducaoAnteriorQueryTests.AindaValida_ProducaoAindaAnterior_Verdadeiro`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoProducaoAnteriorQueryTests.cs :: PesoProducaoAnteriorQueryTests.AindaValida_SemProducaoAtual_Falso`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparisonQueryTests.cs :: (resto do ficheiro)`
+
+Selo depois: `93ff394fb2507cde`
+
+## A-0339 · 2026-10-29 · contagem-lista
+
+Porquê: DMO-634/635/636/637: adiciona testes para 4 fixes JS (espelho na recusa, Escape na lista de sugestões, link Por associar com data-dmo-dialog, CS furos limpa cs_furos); as mudanças nos ficheiros de teste são só os ajudantes (espelho na página de reparadores) à volta dos novos testes.
+Novos: 4 · mudaram: 3 · saíram: 0
+
+- novo: `tests/ShellProof/dmo-suggest.test.cjs :: DMO-635: Escape com a lista de sugestões aberta não sobe até ao painel/janela`
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: CS furos no Editar: apagar abertos e depois fechados limpa o campo escondido cs_furos`
+- novo: `tests/ShellProof/troca-parcial.test.cjs :: DMO-634: uma recusa ao editar no sítio também repõe o espelho da linha`
+- novo: `tests/ShellProof/troca-parcial.test.cjs :: DMO-636: um link «Por associar» que também abre uma janela não pede a página nem cria histórico`
+- mudou: `tests/ShellProof/dmo-suggest.test.cjs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/jobon-folha.test.cjs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/troca-parcial.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `c195df72148d3ca9`
+
+## A-0386 · 2026-10-29 · teste-novo
+
+Porquê: BQ-B02..B06 (2.ª passagem do sweep .230): testes novos para o Saldo de BQs eliminadas, o meter-a-zero no Histórico/PDF, o Corrigir no Armazém, a versão do Excel e o filtro do reparador.
+Novos: 9 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemHistoricoTests.cs :: ArmazemHistoricoTests.OFiltroDoReparador_UsaOMesmoValorQueALinhaMostra_BQ_B06`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMovimentosTests.cs :: ArmazemMovimentosTests.Saida_DepoisDeUmCorrigir_HerdaALinhaDaEntradaAnterior_BQ_B04`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelBoquilhasTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelBoquilhasTests.cs :: BqExcelBoquilhasTests.VersaoAsync_IgualSemNenhumaMudanca`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqHistoryDiscrepancyTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqHistoryDiscrepancyTests.cs :: BqHistoryDiscrepancyTests.DuasBqsEliminadas_TemSaldosSeparados_BQ_B02`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqHistoryDiscrepancyTests.cs :: BqHistoryDiscrepancyTests.MeterAZero_EscondeOSaldoDasLinhasDeAntes_BQ_B03`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BqExcelVersao.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BqExcelVersao.cs :: PostgresMigrationIntegrationTests.VersaoAsync_MudaQuandoSeEditaOLoteDaBQ_SemNovoMovimento_BQ_B05`
+
+Selo depois: `4866d9b665f0f44a`
+
+## A-0394 · 2026-10-29 · ok-do-diogo
+
+Porquê: Lote .239: junta os testes (novos, mudados e os dois antigos do SAP-B04/B05 que saíram) já explicados em A-0339 (#318), A-0365 (#317), A-0380 (#315), A-0386 (#319) e os do #321
+Referência: A-0339; A-0365; A-0380; A-0386
+Novos: 26 · mudaram: 12 · saíram: 2
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemHistoricoTests.cs :: ArmazemHistoricoTests.OFiltroDoReparador_UsaOMesmoValorQueALinhaMostra_BQ_B06`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMovimentosTests.cs :: ArmazemMovimentosTests.Saida_DepoisDeUmCorrigir_HerdaALinhaDaEntradaAnterior_BQ_B04`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelBoquilhasTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelBoquilhasTests.cs :: BqExcelBoquilhasTests.VersaoAsync_IgualSemNenhumaMudanca`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqHistoryDiscrepancyTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqHistoryDiscrepancyTests.cs :: BqHistoryDiscrepancyTests.DuasBqsEliminadas_TemSaldosSeparados_BQ_B02`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqHistoryDiscrepancyTests.cs :: BqHistoryDiscrepancyTests.MeterAZero_EscondeOSaldoDasLinhasDeAntes_BQ_B03`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparacaoCalculationTests.cs :: PesoComparacaoCalculationTests.Pares_CmComLetraEZeros_NuncaNumerico_FicaSemContraparte`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparacaoCalculationTests.cs :: PesoComparacaoCalculationTests.Pares_CmComZerosAEsquerda_EmparelhaComOMesmoNumero`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparacaoCalculationTests.cs :: PesoComparacaoCalculationTests.Pares_CmDigitosDiferentes_NuncaEmparelham`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparacaoCalculationTests.cs :: PesoComparacaoCalculationTests.Pares_CmIguais_Emparelham`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparisonQueryTests.cs :: PesoComparisonQueryTests.FindCandidates_PesoVazioCriadoDepois_NaoEscondeAProducaoComLeituras`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoProducaoAnteriorQueryTests.cs :: PesoProducaoAnteriorQueryTests.AindaValida_DepoisDeMudarAsDatas_DeixaDeSerAnterior_Falso`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoProducaoAnteriorQueryTests.cs :: PesoProducaoAnteriorQueryTests.AindaValida_ProducaoAindaAnterior_Verdadeiro`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoProducaoAnteriorQueryTests.cs :: PesoProducaoAnteriorQueryTests.AindaValida_SemProducaoAtual_Falso`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BqExcelVersao.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BqExcelVersao.cs :: PostgresMigrationIntegrationTests.VersaoAsync_MudaQuandoSeEditaOLoteDaBQ_SemNovoMovimento_BQ_B05`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CreateJobOnHandlerTests.cs :: CreateJobOnHandlerTests.Experiencia_SemData_UsaODiaDeLisboaNaoOUtc_NaMadrugadaDeVerao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: Sessao.OPercentManual_IgualAoValorExatoDaUltimaLeituraSap_NaoGrava_MasDiferenteDoArredondadoGrava`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaBExperiencia.cs :: JobOnPageTests.FolhaNova_Experiencia_SemData_UsaODiaDeLisboaNaoOUtc_NaMadrugadaDeVerao`
+- novo: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: SAP-B04: numa pasta com mais de dez listas por ler na primeira leitura, vão todas, da mais antiga para a mais nova`
+- novo: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: SAP-B05: Apagar lidos apaga só os ficheiros confirmados gravados, nunca um recusado só por estar antes do corte`
+- novo: `tests/ShellProof/dmo-suggest.test.cjs :: DMO-635: Escape com a lista de sugestões aberta não sobe até ao painel/janela`
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: CS furos no Editar: apagar abertos e depois fechados limpa o campo escondido cs_furos`
+- novo: `tests/ShellProof/troca-parcial.test.cjs :: DMO-634: uma recusa ao editar no sítio também repõe o espelho da linha`
+- novo: `tests/ShellProof/troca-parcial.test.cjs :: DMO-636: um link «Por associar» que também abre uma janela não pede a página nem cria histórico`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoComparisonQueryTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/CreateJobOnHandlerTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/EliminarJobOnCenario.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: Sessao.OPercentManual_GravaUmaLeituraEFechaOLembrete_IgualNaoGrava`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Ficha_PercentagemDeUso_NoEditar_GravaComOGuardar_SoAvisos`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaBExperiencia.cs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: Apagar lidos: sem nada lido ainda, avisa e não apaga nem pergunta`
+- mudou: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: Sem «Atualizar do SAP» no cartão (Admin ficou com ele), o script não rebenta e «Apagar lidos» continua a funcionar`
+- mudou: `tests/ShellProof/dmo-suggest.test.cjs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/jobon-folha.test.cjs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/troca-parcial.test.cjs :: (resto do ficheiro)`
+- saiu: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: Apagar lidos: pergunta antes e apaga só os ficheiros do SAP já lidos`
+- saiu: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: Numa pasta com mais de dez listas por ler, vão as dez mais recentes`
+
+Selo depois: `526996f9f225191c`
