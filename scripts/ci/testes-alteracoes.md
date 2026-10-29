@@ -4560,9 +4560,9 @@ Novos: 1 · mudaram: 2 · saíram: 27
 
 Selo depois: `5c318483048cbfe4`
 
-## A-0334 · 2026-10-29 · contagem-lista
+## A-0334 · 2026-10-29 · ok-do-diogo
 
-Porquê: DMO-596: o quadro Saídas/Entradas saiu a pedido do Diogo; testes de browser novos
+Porquê: DMO-596: o quadro Saídas/Entradas saiu e 5 testes deixam de o exigir; Diogo disse «sim» na thread (cmsg_01K75FTs9bQnbhhH7qttpgra9QKtyXnRyQfgfVzCYpBW2R)
 Novos: 2 · mudaram: 5 · saíram: 1
 
 - novo: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.Movimentos_SemOQuadroDeTotais_SoAContagem`
