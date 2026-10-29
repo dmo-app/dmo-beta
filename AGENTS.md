@@ -1,6 +1,20 @@
 # AGENTS.md — regras para os agentes de fora (Codex e outros)
 
-**Para qualquer IA:** começar em [PARA-AS-IAS.md](PARA-AS-IAS.md) e no [guia comum](https://github.com/dmo-app/dmo-Improvements/blob/main/GUIA-DAS-IAS.md). Os papéis abaixo são responsabilidades da tarefa, não exclusividades de um modelo.
+Este AGENTS.md aplica-se a qualquer IA, independentemente da ferramenta. O [AGENTS universal da DMO](https://github.com/dmo-app/dmo-Improvements/blob/main/AGENTS.md) contém o processo comum; abaixo ficam as instruções deste repositório.
+
+## Onde continuar
+
+- [Regras de implementação](docs/architecture/REGRAS-DE-CODIGO.md).
+- [Garantias e alterações dos testes](docs/architecture/REGRAS-DOS-TESTES.md).
+- [Entrega do PR](.github/pull_request_template.md).
+- [Versão do código local](version.props).
+
+## O que entregar
+
+Trabalhar no âmbito do pedido e entregar o PR para integracao segundo AGENTS.md. A lista, o histórico e os relatórios de testes consultam-se no dmo-ci; os testes executáveis permanecem aqui até uma migração técnica validada. Não atribuir versões nem publicar.
+
+
+
 
 Vale para qualquer agente que trabalhe neste repositório. Junta-se a
 [docs/architecture/REGRAS-DE-CODIGO.md](docs/architecture/REGRAS-DE-CODIGO.md) e

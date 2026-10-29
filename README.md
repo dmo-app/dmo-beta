@@ -1,6 +1,6 @@
 # DMO — aplicação
 
-**Começar aqui, qualquer IA:** [mapa e instruções](PARA-AS-IAS.md).
+**Começar aqui, qualquer IA:** [mapa e instruções](AGENTS.md).
 
 Código da aplicação DMO. Para a organização do trabalho, seguir AGENTS.md e o guia comum. A versão do checkout está em version.props; publicação e validação têm de ser confirmadas separadamente.
 
