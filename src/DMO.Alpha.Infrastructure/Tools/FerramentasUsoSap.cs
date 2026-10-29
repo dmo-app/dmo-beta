@@ -22,6 +22,8 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
             return new ImportarUsoSapOutcome(ImportarUsoSapResultado.NaoELista, 0, 0, []);
         }
 
+        await using var transacao = db.Database.IsRelational() ? await db.Database.BeginTransactionAsync(cancellationToken) : null;
+
         var ferramentas = await db.Tools.AsNoTracking()
             .Where(t => t.TechnicalName != null && t.TechnicalName != "" && t.ToolId != ToolRegistryConstants.RemovedToolId)
             .Select(t => new { t.ToolId, t.TechnicalName, t.Lot })
@@ -37,8 +39,8 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
         var semFerramenta = new List<string>();
         var novas = new List<(FerramentaUtilizacao Leitura, List<FerramentaLembreteUtilizacao> Lembretes)>();
         var vistas = new HashSet<string>(StringComparer.Ordinal);
-        var aLer = new List<(UsoSapLinha Linha, string ToolId)>();
-        foreach (var linha in leitura.Linhas)
+        var aLer = new List<(UsoSapLinha Linha, UsoSapInformacao Info, string ToolId)>();
+        foreach (var (linha, indice) in leitura.Linhas.Select((linha, indice) => (linha, indice)))
         {
             var daLinha = ferramentas.Where(t => UsoSapCodigo.Corresponde(linha.CodigoEquipamento, t.TechnicalName, t.Lot)).Select(t => t.ToolId).ToList();
             if (daLinha.Count == 0)
@@ -52,30 +54,62 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
                 continue;
             }
 
-            aLer.AddRange(daLinha.Where(id => vistas.Add(id)).Select(id => (linha, id)));
+            aLer.AddRange(daLinha.Where(id => vistas.Add(id)).Select(id => (linha, leitura.Informacao[indice], id)));
         }
 
         // Os lembretes abertos e a última percentagem de todas as ferramentas
         // do ficheiro em duas consultas, seja qual for o número de linhas
         // (antes eram duas por ferramenta; vistoria ao backend, 27/10/2026).
         var ids = aLer.Select(a => a.ToolId).ToList();
+        var retratos = db.Database.IsNpgsql()
+            ? await db.Tools.FromSqlInterpolated($"SELECT *, xmin FROM \"Tools\" WHERE \"ToolId\" = ANY({ids.ToArray()}) ORDER BY \"ToolId\" FOR UPDATE").ToDictionaryAsync(t => t.ToolId, cancellationToken)
+            : await db.Tools.Where(t => ids.Contains(t.ToolId)).ToDictionaryAsync(t => t.ToolId, cancellationToken);
         List<FerramentaLembreteUtilizacao> abertos = ids.Count == 0
             ? []
             : await db.FerramentaLembretesUtilizacao
                 .Where(l => ids.Contains(l.ToolId) && l.FechadoEmUtc == null)
                 .ToListAsync(cancellationToken);
         var ultimas = ids.Count == 0
-            ? new Dictionary<string, decimal>()
+            ? new Dictionary<string, FerramentaUtilizacao>()
             : await db.FerramentaUtilizacoes.AsNoTracking()
                 .Where(u => ids.Contains(u.ToolId)
                     && u.Id == db.FerramentaUtilizacoes.Where(o => o.ToolId == u.ToolId).Max(o => o.Id))
-                .ToDictionaryAsync(u => u.ToolId, u => u.Percentagem, StringComparer.Ordinal, cancellationToken);
-        foreach (var (linha, toolId) in aLer)
+                .ToDictionaryAsync(u => u.ToolId, StringComparer.Ordinal, cancellationToken);
+        var propostas = 0;
+        foreach (var (linha, info, toolId) in aLer)
         {
             var lembretes = abertos.Where(l => l.ToolId == toolId).ToList();
-            decimal? ultima = ultimas.TryGetValue(toolId, out var percentagem) ? percentagem : null;
+            var retrato = retratos[toolId];
+            var ultimaLeitura = ultimas.GetValueOrDefault(toolId);
+            decimal? ultima = ultimaLeitura?.Percentagem;
+            var mudou = retrato.SapPercentagem != linha.PercentagemUso;
+            var mudouDados = (info.Pecas is not null && retrato.SapPecas != info.Pecas)
+                || (info.Fornecedor is not null && retrato.SapFornecedor != info.Fornecedor)
+                || (info.DataAquisicao is not null && retrato.SapDataAquisicao != info.DataAquisicao);
+            retrato.SapPercentagem = linha.PercentagemUso;
+            // Exportações antigas sem estas colunas não apagam informação já lida.
+            if (info.Pecas is { } pecas) retrato.SapPecas = pecas;
+            if (info.Fornecedor is { } fornecedor) retrato.SapFornecedor = fornecedor;
+            if (info.DataAquisicao is { } compra) retrato.SapDataAquisicao = compra;
+            if (ultimaLeitura?.Origem == FerramentaUtilizacao.OrigemManual)
+            {
+                if ((mudou && ultima != linha.PercentagemUso) || mudouDados)
+                {
+                    retrato.SapAvisosAlteradosEmUtc = agora;
+                    propostas++;
+                }
+                // A origem continua manual até à escolha «Sim»; fecha-se o lembrete
+                // porque o SAP já respondeu, sem fabricar uma leitura aplicada.
+                foreach (var lembrete in lembretes)
+                {
+                    lembrete.FechadoEmUtc = agora;
+                    lembrete.UtilizacaoId = ultimaLeitura.Id;
+                }
+                continue;
+            }
             if (lembretes.Count == 0 && ultima == linha.PercentagemUso)
             {
+                if (mudouDados) propostas++;
                 continue;
             }
 
@@ -96,7 +130,6 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
             novas.Add((nova, lembretes));
         }
 
-        await using var transacao = db.Database.IsRelational() ? await db.Database.BeginTransactionAsync(cancellationToken) : null;
         await db.SaveChangesAsync(cancellationToken);
         foreach (var (nova, lembretes) in novas)
         {
@@ -113,7 +146,7 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
             await transacao.CommitAsync(cancellationToken);
         }
 
-        return new ImportarUsoSapOutcome(ImportarUsoSapResultado.Gravado, leitura.Linhas.Count, novas.Count, semFerramenta.Distinct().ToList());
+        return new ImportarUsoSapOutcome(ImportarUsoSapResultado.Gravado, leitura.Linhas.Count, novas.Count + propostas, semFerramenta.Distinct().ToList());
     }
 
     public Task<IReadOnlyList<string>> CodigosAsync(CancellationToken cancellationToken = default) =>
@@ -241,6 +274,14 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
             return false;
         }
 
+        await using var transacao = db.Database.IsRelational() ? await db.Database.BeginTransactionAsync(cancellationToken) : null;
+        var tool = db.Database.IsNpgsql()
+            ? await db.Tools.FromSqlInterpolated($"SELECT *, xmin FROM \"Tools\" WHERE \"ToolId\" = {toolId} FOR UPDATE").SingleAsync(cancellationToken)
+            : await db.Tools.SingleAsync(t => t.ToolId == toolId, cancellationToken);
+        // A ficha pode já ter esta Tool em tracking desde o Editar. Depois
+        // do trinco, recarregar também o xmin e o retrato que outra importação gravou.
+        if (db.Database.IsNpgsql()) await db.Entry(tool).ReloadAsync(cancellationToken);
+
         var anterior = await db.FerramentaUtilizacoes.AsNoTracking()
             .Where(u => u.ToolId == toolId)
             .OrderByDescending(u => u.Id)
@@ -255,6 +296,7 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
         }
 
         var agora = DateTime.UtcNow;
+        tool.SapAvisosAlteradosEmUtc = agora;
         var nova = new FerramentaUtilizacao
         {
             ToolId = toolId,
@@ -264,7 +306,6 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
             RegistadoPor = Autor()
         };
         db.FerramentaUtilizacoes.Add(nova);
-        await using var transacao = db.Database.IsRelational() ? await db.Database.BeginTransactionAsync(cancellationToken) : null;
         await db.SaveChangesAsync(cancellationToken);
         foreach (var lembrete in await db.FerramentaLembretesUtilizacao.Where(l => l.ToolId == toolId && l.FechadoEmUtc == null).ToListAsync(cancellationToken))
         {

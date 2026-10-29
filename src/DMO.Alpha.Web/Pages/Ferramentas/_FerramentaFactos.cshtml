@@ -111,6 +111,11 @@
   @* O triângulo abre e fecha o bloco (Diogo, 27/10/2026: «adiciona o triângulo de minimizar»). *@
   <legend class="ferr-tech-titulo ferr-opcional-titulo" role="button" tabindex="0" aria-expanded="true" aria-controls="@(p)-opcional-campos"><span class="dmo-caret" aria-hidden="true"></span>Informação opcional</legend>
   <div class="ferr-tech-campos" id="@(p)-opcional-campos">
+    @if (Model.Sap is { } sap && (sap.Fornecedor is not null || sap.DataAquisicao is not null))
+    {
+      <div class="dmo-field" id="@(p)-sap-fornecedor"><span class="dmo-label">Fornecedor (SAP)</span><span>@(sap.Fornecedor ?? "—")</span></div>
+      <div class="dmo-field" id="@(p)-sap-compra"><span class="dmo-label">Data de aquisição (SAP)</span><span>@(sap.DataAquisicao?.ToString("dd/MM/yyyy") ?? "—")</span></div>
+    }
     <div class="dmo-field ferr-w-ref" id="@(p)-mf-field" hidden="@(Model.Tipo != "CM")">
       <label for="@(p)-mf">Ref. MF associada</label>
       <input id="@(p)-mf" data-dmo-maiusculas autocapitalize="characters" name="mf_reference" value="@Model.RefMf" title="Só quando difere da referência MF em que encaixa" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="mf" />

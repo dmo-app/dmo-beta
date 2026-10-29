@@ -2846,9 +2846,33 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<DateTime?>("RegisteredAtUtc")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("SapAvisosAlteradosEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("SapCodigo")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
+
+                    b.Property<DateOnly?>("SapDataAquisicao")
+                        .HasColumnType("date");
+
+                    b.Property<string>("SapFornecedor")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<int?>("SapPecas")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("SapPecasIgnoradas")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal?>("SapPercentagem")
+                        .HasPrecision(9, 2)
+                        .HasColumnType("numeric(9,2)");
+
+                    b.Property<decimal?>("SapPercentagemIgnorada")
+                        .HasPrecision(9, 2)
+                        .HasColumnType("numeric(9,2)");
 
                     b.Property<string>("TechnicalName")
                         .HasColumnType("text");

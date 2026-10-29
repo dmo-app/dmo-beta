@@ -116,11 +116,13 @@ public sealed class FichaModel : PageModel
         IFerramentasUsoSap usoSap,
         IFerramentasFabricoSap fabricoSap,
         DMO.Alpha.Core.Armazem.IFabricasBa fabricasBa,
-        ISapProcuraRegras sapProcura)
+        ISapProcuraRegras sapProcura,
+        IFerramentasAvisosSap avisosSap)
     {
         _sapProcura = sapProcura;
         _fabricasBa = fabricasBa;
         _usoSap = usoSap;
+        _avisosSap = avisosSap;
         _fabricoSap = fabricoSap;
         _armazem = armazem;
         _capabilities = capabilities;
@@ -137,6 +139,7 @@ public sealed class FichaModel : PageModel
     private readonly DMO.Alpha.Core.Armazem.IArmazemMovimentos _armazem;
     private readonly CurrentUserCapabilities _capabilities;
     private readonly IFerramentasUsoSap _usoSap;
+    private readonly IFerramentasAvisosSap _avisosSap;
     private readonly IFerramentasFabricoSap _fabricoSap;
     private readonly DMO.Alpha.Core.Armazem.IFabricasBa _fabricasBa;
     private readonly ISapProcuraRegras _sapProcura;
@@ -181,6 +184,7 @@ public sealed class FichaModel : PageModel
 
     /// <summary>A utilização (a última leitura, do SAP) e o lembrete aberto.</summary>
     public FerramentaUtilizacaoAtual? Utilizacao { get; private set; }
+    public AvisosSap? AvisosSap { get; private set; }
 
     /// <summary>
     /// Onde está a ferramenta e o estado, pelo Armazém: só para quem tem o
@@ -570,6 +574,7 @@ public sealed class FichaModel : PageModel
         if (Sheet is not null)
         {
             Utilizacao = await _usoSap.DaFerramentaAsync(Sheet.ToolId, HttpContext.RequestAborted);
+            AvisosSap = await _avisosSap.LerAsync(Sheet.ToolId, HttpContext.RequestAborted);
             CodigoSap = await _sapProcura.DaFerramentaAsync(Sheet.ToolId, HttpContext.RequestAborted);
             Producoes = await _fabricoSap.ProducoesAsync(Sheet.ToolId, paginaJobOn, ProducoesPorPagina, HttpContext.RequestAborted);
             ProducoesAbertas = jobOn == "1";

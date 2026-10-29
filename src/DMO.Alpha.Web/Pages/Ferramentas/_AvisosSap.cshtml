@@ -1,0 +1,21 @@
+@using DMO.Alpha.Core.Runtime
+@model DMO.Alpha.Core.Tools.AvisosSap
+<div class="ferr-sap-avisos" aria-label="Avisos do SAP">
+@foreach (var campo in new[] { "pecas", "uso" })
+{
+    var recebido = campo == "pecas" ? Model.Pecas?.ToString() : Model.Uso is { } uso ? DmoNumberFormat.Decimal2SemPerda(uso) + " %" : null;
+    var atual = campo == "pecas" ? Model.QuantidadeAtual?.ToString() ?? "sem quantidade" : Model.UsoAtual is { } valor ? DmoNumberFormat.Decimal2SemPerda(valor) + " %" : "sem utilização";
+    if (recebido is null) { continue; }
+    <div class="ferr-aviso warn ferr-sap-aviso" data-sap-aviso role="status" id="sap-aviso-@campo">
+      <button type="button" class="ferr-cancel ferr-sap-fechar" data-sap-fechar aria-label="Fechar aviso do SAP">×</button>
+      <span>SAP tem @recebido em vez de @atual@(campo == "pecas" ? " peças" : "")… substituir?</span>
+      <form method="post" asp-page="/Ferramentas/AvisosSap" data-dmo-parcial>
+        <input type="hidden" name="tool_id" value="@Model.ToolId" />
+        <input type="hidden" name="versao" value="@Model.Versao" />
+        <input type="hidden" name="campo" value="@campo" />
+        <button type="submit" class="dmo-button" name="decisao" value="sim" id="sap-@campo-sim">Sim</button>
+        <button type="submit" class="dmo-button" name="decisao" value="nao" id="sap-@campo-nao">Não</button>
+      </form>
+    </div>
+}
+</div>

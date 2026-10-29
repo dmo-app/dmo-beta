@@ -5843,3 +5843,23 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 
 | ControloCapabilitiesCutHPageTests.Approve_BarraDosFiltrosNaoRepeteAEtiquetaPendente | A barra dos filtros do Aprovar não repete a etiqueta «Pendente» | OK | A-0335 (DMO-597) |
 | DefinicoesPorModuloPageTests.OPesoDoHistorico_DeltaSaltaAsProducoesAnterioresSemPeso | O Δ do peso por produção salta as anteriores sem peso | OK | A-0341 (DMO-602) |
+
+
+## DMO-663 · A-0408 · 29/10/2026
+
+| Teste | O que garante | Estado | Registo |
+|---|---|---|---|
+| `Zppg_LeAPrimeiraQuantidadeOFornecedorEADataPurchase` | Lê a primeira quantidade da ZPPG, o fornecedor e a aquisição, incluindo zero, limite inteiro e valores inválidos. | OK | A-0408 |
+| `Sap_SimGravaNaQuantidadeDoTipoCertoESoNoToolIdEscolhido` | O Sim grava a quantidade na BQ, CM ou MF escolhida, sem alterar outra ferramenta com os mesmos factos. | OK | A-0408 |
+| `Sap_NaoMantemQuantidadeEUsoManual_NaoRepeteMesmoValorEMostraNovoValor` | O Não conserva quantidade e uso manual, cala o valor recusado e volta a avisar se o SAP trouxer outro valor. | OK | A-0408 |
+| `Sap_SimUsaOPercentDoServidorEDepoisVoltaAAplicarAutomaticamente` | O Sim aceita a percentagem guardada no servidor e permite atualizações automáticas posteriores. | OK | A-0408 |
+| `Sap_UmaDecisaoAntigaNaoSubstituiUmaImportacaoMaisRecente` | Uma decisão enviada de uma ficha antiga não aplica dados SAP alterados entretanto. | OK | A-0408 |
+| `Sap_AMigracaoSoAcrescentaColunasOpcionais` | A migração só acrescenta colunas opcionais, sem mudar ou apagar dados existentes. | OK | A-0408 |
+| `Sap_DuasDecisoesDaMesmaFicha_SoUmaGrava` | Duas decisões simultâneas da mesma ficha só deixam uma gravar no PostgreSQL. | OK | A-0408 |
+| `Sap_EditarOutrosFactosDaCmNaoApagaAQuantidadeAceite` | Editar outros factos da CM conserva a quantidade aceite do SAP. | OK | A-0408 |
+| `Sap_UmValorManualIgualAoSapContinuaProtegidoQuandoOSapMuda` | Uma percentagem manual igual à do SAP mantém a origem manual; escrever depois de outra importação conserva o retrato mais recente. | OK | A-0408 |
+| `Sap_AFichaMostraFornecedorECompraNaInformacaoOpcional_EOSimGravaAPeca` | A ficha mostra fornecedor/aquisição em Informação opcional e o formulário Sim grava a quantidade. | OK | A-0408 |
+| `Sap_ONaoMantemAQuantidadeENaoVoltaAMostrarOMesmoAviso` | O formulário Não mantém a quantidade e retira o aviso do mesmo valor. | OK | A-0408 |
+| `Sap_UmaDecisaoSemAntiforgeryNaoGrava` | Uma decisão sem o token de antifalsificação é recusada. | OK | A-0408 |
+| `O × fecha só o aviso escolhido, sem decidir «Não» nem enviar o formulário` | O × fecha apenas o aviso escolhido, sem enviar uma decisão ao servidor. | OK | A-0408 |
+| `Os avisos carregados depois de uma troca parcial também se podem fechar` | O × continua a funcionar nos avisos recebidos numa troca parcial. | OK | A-0408 |

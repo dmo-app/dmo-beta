@@ -145,7 +145,7 @@ public sealed class MigrationFoundationTests
                 "20261027050241_ToolsReferenciaMaiusculas", "20261027111956_PesoMeasurementHistorico", "20261027121559_SapFabricoColunasZfmd", "20261027125325_SapFabricoSoCadencia",
                 "20261028091807_FabricasBa", "20261028092856_AnDasBoquilhas",
                 "20261028165606_FerramentaB2Modo", "20261028184747_SapCodigoDaFerramenta",
-                "20261029070528_PesoAssociadoAoControloEmUtc" },
+                "20261029070528_PesoAssociadoAoControloEmUtc", "20261029104943_AvisosSapPecasFornecedorData" },
             keys);
     }
 
