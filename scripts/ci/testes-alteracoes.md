@@ -5743,3 +5743,13 @@ Novos: 20 · mudaram: 7 · saíram: 1
 - saiu: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CoberturaA2SemJobOn.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_UmaBqSemLinhasNaFicha_MostraTodasAsLinhasSemNenhumaEscolhida`
 
 Selo depois: `966e410cbc21147d`
+
+## A-0431 · 2026-10-29 · ok-do-diogo
+
+Porquê: Os testes de gravação e limite de texto da folha nova de Job On precisam de ferramentas com associações válidas: o fixture de JobOnFolhaTests associa CM/MF/BQ a B1 e limpa essas ligações no reset. Sem essa pré-condição, a nova filtragem recusa a linha antes de chegar à regra da folha. Mantidas todas as verificações dos testes.
+Referência: Pedido do Diogo em 29/10/2026 nesta conversa: adaptar testes para englobar a alteração.
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: (resto do ficheiro)`
+
+Selo depois: `27d1d20acaad3e53`
