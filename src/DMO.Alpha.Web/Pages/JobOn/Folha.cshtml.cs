@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DMO.Alpha.Web.Pages.JobOn;
 
@@ -47,8 +48,16 @@ public sealed class FolhaModel(
     IConfiguration configuration,
     DMO.Alpha.Core.Tools.IFerramentasUsoSap usoSap,
     IFolhaDaFerramenta folhaDaFerramenta,
-    DMO.Alpha.Core.Tools.IFerramentasFabricoSap fabricoSap) : PageModel
+    DMO.Alpha.Core.Tools.IFerramentasFabricoSap fabricoSap,
+    [FromKeyedServices(FolhaModel.RelogioDaExperiencia)] TimeProvider? relogioExperiencia = null) : PageModel
 {
+    /// <summary>A chave do relógio do dia por defeito da EXPERIÊNCIA (os testes fixam-no).</summary>
+    public const string RelogioDaExperiencia = "jobon-folha-experiencia-relogio";
+
+    /// <summary>DATA-B01 (sweep .230): o dia de hoje para a Experiência sem data escrita é o de Lisboa, não o do servidor.</summary>
+    private DateOnly HojeDaExperiencia => DateOnly.FromDateTime(
+        DmoBusinessTime.ToLocal((relogioExperiencia ?? TimeProvider.System).GetUtcNow()));
+
     /// <summary>
     /// No Editar, a ferramenta escolhida traz os dados dela para o cartão
     /// (Diogo, 26/10/2026): a % de uso dela (0 se é nova) e as notas e a
@@ -339,7 +348,7 @@ public sealed class FolhaModel(
             if (duplicar is null && etapa == "criar" && tipo == "experiencia" && referencia?.Trim().ToUpperInvariant() is { Length: > 0 } refExp)
             {
                 var maquinaExp = Machines.FirstOrDefault(m => m.MachineId == machineId)?.Code ?? string.Empty;
-                var diaExp = inicio ?? DateOnly.FromDateTime(DateTime.Today);
+                var diaExp = inicio ?? HojeDaExperiencia;
                 await AbrirCriarAsync(
                     new ProductionContextReadModel(0, refExp, string.Empty, maquinaExp, null, null, null, null, null, null, diaExp, diaExp),
                     FolhaDoJobOnVista.Vazia(), numero: $"{diaExp.Year}00", origemId: null, origemNumero: null, recusa: null, experiencia: true);

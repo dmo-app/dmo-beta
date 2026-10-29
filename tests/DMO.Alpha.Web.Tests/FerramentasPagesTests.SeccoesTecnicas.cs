@@ -177,15 +177,17 @@ public partial class FerramentasPagesTests
         }
 
         await GuardarAsync("");
+        // SAP-B06 (sweep .230): a última leitura é 62,4 — 62 é diferente do
+        // valor exato e é uma correção real, grava (já não só o arredondado).
         await GuardarAsync("62");
-        Assert.Equal(1, Leituras());
+        Assert.Equal(2, Leituras());
 
         var ilegivel = await GuardarAsync("muito");
-        Assert.Equal(1, Leituras());
+        Assert.Equal(2, Leituras());
         Assert.Contains("O % uso «muito» não é um número inteiro positivo e não foi gravado", ilegivel, StringComparison.Ordinal);
 
         var depois = await GuardarAsync("75");
-        Assert.Equal(2, Leituras());
+        Assert.Equal(3, Leituras());
         Assert.Matches("<input id=\"ferr-edit-uso\" name=\"uso_percentagem\"[^>]*value=\"75\"", depois);
         Assert.DoesNotContain("id=\"ferrUtilizacaoLembrete\"", depois, StringComparison.Ordinal);
         Assert.DoesNotContain("id=\"ferrUsoAviso\"", depois, StringComparison.Ordinal);
@@ -198,14 +200,14 @@ public partial class FerramentasPagesTests
 
         // 100 ou mais grava sem aviso nenhum (Diogo, 23/10/2026: só a cor muda).
         var cem = await GuardarAsync("100");
-        Assert.Equal(3, Leituras());
+        Assert.Equal(4, Leituras());
         Assert.DoesNotContain("id=\"ferrUsoAviso\"", cem, StringComparison.Ordinal);
         var centoEUm = await GuardarAsync("101");
-        Assert.Equal(4, Leituras());
+        Assert.Equal(5, Leituras());
         Assert.DoesNotContain("id=\"ferrUsoAviso\"", centoEUm, StringComparison.Ordinal);
 
         var acima = await GuardarAsync("120%");
-        Assert.Equal(5, Leituras());
+        Assert.Equal(6, Leituras());
         Assert.DoesNotContain("id=\"ferrUsoAviso\"", acima, StringComparison.Ordinal);
     }
 }

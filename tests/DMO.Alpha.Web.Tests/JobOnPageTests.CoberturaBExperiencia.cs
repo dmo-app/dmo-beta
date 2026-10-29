@@ -1,4 +1,7 @@
 using System.Net;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DMO.Alpha.Web.Tests;
 
@@ -45,6 +48,36 @@ public partial class JobOnPageTests
         // Já criada a folha, não há escolha de tipo: o tipo segue escondido para o Criar.
         Assert.DoesNotContain("name=\"tipo\" value=\"producao\"", aberta, StringComparison.Ordinal);
         Assert.Contains("<input type=\"hidden\" name=\"tipo\" value=\"experiencia\" />", aberta, StringComparison.Ordinal);
+    }
+
+    // DATA-B01 (sweep .230, DMO-624/A-0364): a Experiência sem data escrita
+    // usa o dia de Lisboa, não o do servidor — às 00:30 de Lisboa no verão
+    // (DST, UTC+1) ainda é a véspera em UTC.
+    [Fact]
+    public async Task FolhaNova_Experiencia_SemData_UsaODiaDeLisboaNaoOUtc_NaMadrugadaDeVerao()
+    {
+        // 2026-07-15 00:30 em Lisboa (verão, UTC+1) = 2026-07-14 23:30 em UTC.
+        var clock = new RelogioFixo(new DateTimeOffset(2026, 7, 14, 23, 30, 0, TimeSpan.Zero));
+        using var app = _factory.WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
+            services.AddKeyedSingleton<TimeProvider>(DMO.Alpha.Web.Pages.JobOn.FolhaModel.RelogioDaExperiencia, clock)));
+        SeedUser("4874", "Chefe experiência", "provider-folha-experiencia-4", "Folha1234!");
+        await SeedJobOnCompletoAsync();
+        var b2 = await MachineIdAsync("B2");
+        using var client = await LoginClientAsync("4874", "Folha1234!", app);
+
+        // Sem inicio_em: o dia por defeito da Experiência tem de ser o de Lisboa (15/07), não o de UTC (14/07).
+        var escolha = await GetPageHtmlAsync(client, $"{FolhaPath}?novo=1&machine_id={b2}");
+        var (acao, campos) = EnvioDoFormulario.Enviar(escolha, [("jofReferencia", "9999t2")], radios: [("tipo", "experiencia")]);
+        var consulta = string.Join("&", campos.Select(c => $"{Uri.EscapeDataString(c.Nome)}={Uri.EscapeDataString(c.Valor)}"));
+        var aberta = await GetPageHtmlAsync(client, $"{acao}?{consulta}");
+
+        Assert.Contains("id=\"lightProduction\" name=\"production_number\" type=\"text\" value=\"202600\"", aberta, StringComparison.Ordinal);
+        Assert.Contains("value=\"2026-07-15\"", aberta, StringComparison.Ordinal);
+    }
+
+    private sealed class RelogioFixo(DateTimeOffset agora) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => agora;
     }
 
     [Fact]

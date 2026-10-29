@@ -324,6 +324,11 @@ public sealed class FerramentasUsoSapTests
         await Servico(db).ImportarAsync(HtmlDoSap, "percentagem.HTML", null);
         await LembreteAsync(db, "cm11");
 
+        // SAP-B06 (sweep .230): a última leitura do SAP é 90,2 — um manual de
+        // 90 é uma correção real (diferente do valor exato) e tem de gravar,
+        // não só o arredondado igual.
+        Assert.True(await Servico(db).RegistarPercentagemManualAsync("cm11", 90));
+        // Agora que o gravado é exatamente 90, repetir 90 é que é o no-op.
         Assert.False(await Servico(db).RegistarPercentagemManualAsync("cm11", 90));
         Assert.False(await Servico(db).RegistarPercentagemManualAsync("cm11", -1));
         Assert.False(await Servico(db).RegistarPercentagemManualAsync("nao-existe", 5));
@@ -335,6 +340,24 @@ public sealed class FerramentasUsoSapTests
         var atual = await Servico(db).DaFerramentaAsync("cm11");
         Assert.Equal((FerramentaUtilizacao.OrigemManual, 95m, (long?)null), (atual.Ultima!.Origem, atual.Ultima.Percentagem, atual.Ultima.Consumo));
         Assert.Null(atual.LembreteDesdeUtc);
+    }
+
+    // SAP-B06 (sweep .230, DMO-623/A-0363): a comparação é pelo valor exato
+    // (não arredondado) contra a última leitura, qualquer que seja a origem.
+    [Fact]
+    public async Task OPercentManual_IgualAoValorExatoDaUltimaLeituraSap_NaoGrava_MasDiferenteDoArredondadoGrava()
+    {
+        await using var db = CreateContext();
+        await Servico(db).ImportarAsync(HtmlDoSap, "percentagem.HTML", null);
+
+        // Última leitura SAP de cm11: 90,2%. Repetir exatamente 90,2 não grava.
+        Assert.False(await Servico(db).RegistarPercentagemManualAsync("cm11", 90.2m));
+        // 90 arredonda igual a 90,2 mas é um valor diferente: grava (corrige).
+        Assert.True(await Servico(db).RegistarPercentagemManualAsync("cm11", 90));
+
+        db.ChangeTracker.Clear();
+        var atual = await Servico(db).DaFerramentaAsync("cm11");
+        Assert.Equal(90m, atual.Ultima!.Percentagem);
     }
 
     // O aviso do Sumário (Diogo, 22/10/2026): os lembretes abertos.
