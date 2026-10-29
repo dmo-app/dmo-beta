@@ -1,4 +1,6 @@
+using DMO.Alpha.Core.Admin;
 using DMO.Alpha.Core.Tools;
+using DMO.Alpha.Web.Authorization;
 using DMO.Alpha.Web.Presentation;
 using DMO.Alpha.Web.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -11,8 +13,12 @@ namespace DMO.Alpha.Web.Pages.Ferramentas;
 /// O histórico do uso de uma ferramenta: todas as produções em que esteve, com
 /// o Job On, o produzido e o uso que foi acumulando (Diogo, 27/10/2026). Abre no
 /// painel a partir de qualquer «% uso» (Shared/_UsoFerramenta); só leitura.
+/// PERM-B01 (DMO-654): o Posto (Reparação Interna) fica confinado à RI — sem
+/// a capability Ferramentas, esta página também recusa (não só o menu do
+/// Posto que não mostra o link).
 /// </summary>
 [Authorize]
+[ModuleEntry(DmoCapabilities.Ferramentas)]
 public sealed class UtilizacaoModel : PageModel
 {
     private readonly IToolSheetQuery _sheetQuery;
