@@ -1495,6 +1495,20 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         Assert.Contains("<strong>Aprovado</strong>", depois);
     }
 
+    // Diogo, 29/10/2026: «estragaram a folha do peso quando bloquearam o
+    // tamanho da janela»: os cartões das leituras e do controlo anterior
+    // esticam até ao cartão de baixo, sem vazios nas duas colunas.
+    [Fact]
+    public async Task Peso_OsCartoesDaFolhaEsticamSemVazios()
+    {
+        var css = await CreateClient().GetStringAsync("/css/d1366-controlo.css");
+        Assert.Contains("section[data-peso-live]{grid-column:1;grid-row:3/span 2;padding:6px 14px;align-self:stretch}", css);
+        Assert.Contains("section.peso-compare:not(.peso-producao-anterior){grid-column:2;grid-row:2/span 2;display:flex;flex-direction:column;padding:6px 14px;align-self:stretch}", css);
+        // Diogo, 29/10/2026: «+ e − estão fora na comparação»: a caixa das
+        // leituras da Comparação ajusta-se ao que leva, com o + e o − dentro.
+        Assert.Contains(".peso-leitura-row{grid-template-columns:72px 112px 26px;align-items:end;box-sizing:border-box;flex:0 0 auto;width:max-content;max-width:100%}", css);
+    }
+
     [Fact]
     public async Task Peso_OAvisoDeQueOJobOnMudouTemUmXParaFechar()
     {

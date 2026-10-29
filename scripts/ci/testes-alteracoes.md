@@ -5507,13 +5507,22 @@ Novos: 2 · mudaram: 0 · saíram: 0
 
 Selo depois: `cc3bd3e5d96c86c2`
 
-## A-0417 · 2026-10-29 · ok-do-diogo
+## A-0417 · 2026-10-29 · teste-novo
 
-Porquê: Lote .243: junta #330, #331, #334, #335; as entradas A-0404..A-0416 explicam os testes (PeloPosto_EmUso_ASessaoContinua saiu em A-0406).
+Porquê: Folha do Peso sem vazios e + − dentro da caixa da Comparação (DMO-662)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraBWU6FVRkEeLpJiTrcXdcAD
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Peso_OsCartoesDaFolhaEsticamSemVazios`
+
+Selo depois: `a5844820eeb1b7d1`
+
+## A-0418 · 2026-10-29 · ok-do-diogo
+
+Porquê: Lote .243: junta #330, #331, #334, #335, #338; as entradas A-0404..A-0417 explicam os testes (PeloPosto_EmUso_ASessaoContinua saiu em A-0406).
 Referência: lote .243
-Novos: 2 · mudaram: 0 · saíram: 0
+Novos: 1 · mudaram: 0 · saíram: 0
 
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.PainelCincoDias.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.PainelCincoDias.cs :: JobOnPageTests.Folha_PainelDasLinhas_SoOQueEntraNosProximosCincoDias`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Peso_OsCartoesDaFolhaEsticamSemVazios`
 
-Selo depois: `4453e92ada10709c`
+Selo depois: `61d4bf97b6defe5b`
