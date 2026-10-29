@@ -306,7 +306,6 @@ html body .dmo-table tbody tr.peso-linha-destaque:not(:hover)>td{background:var(
 .peso-page .peso-anterior-faixa{margin-top:10px}
 .peso-page .peso-anterior-faixa:not(:has(table)){display:none}
 .peso-page .peso-anterior-faixa [hidden]{display:none}
-.peso-page .peso-anterior-faixa .peso-sap-periodo{margin:0 0 6px}
 .peso-page .peso-anterior-faixa tbody th{font-weight:400;color:var(--dmo-muted);text-align:left}
 .peso-page .peso-anterior-faixa tr[data-sap-sem] .dmo-button{margin-left:8px}
 /* A linha não abre nada: sem hover. */

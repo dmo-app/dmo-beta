@@ -423,6 +423,59 @@ function escolherComparacao(window, document, texto) {
   filtro.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
 }
 
+test('DMO-689: previous production dates and named differences survive selection and live updates', () => {
+  const dom = new JSDOM(`
+    <select data-producao-anterior-select>
+      <option value="1" data-inicio="01/10/2026" data-fim="10/10/2026">1</option>
+      <option value="2" data-inicio="11/10/2026" data-fim="20/10/2026">2</option>
+      <option value="3" data-inicio="21/10/2026">3</option>
+    </select>
+    <div id="pesoAnteriorDelta"><span data-peso-atual="132.89"></span></div>
+    <div data-producao-anterior-sap>
+      <table><tbody>
+        <tr><th scope="row">Datas</th><td colspan="2"><span data-producao-anterior-periodo><span data-inicio></span><span data-fim></span></span><span data-sap-com><span data-sap-valor="dias"></span></span></td></tr>
+        <tr data-sap-com><td data-sap-valor="media">130</td><td data-sap-valor="moda">130</td></tr>
+        <tr data-sap-com><td data-sap-delta="media"></td><td data-sap-delta="moda"></td></tr>
+        <tr data-sap-sem hidden><td>No production weight</td></tr>
+      </tbody></table>
+      <span hidden data-sap-opcao="1" data-sap-media="130" data-sap-moda="130" data-sap-dias="10"></span>
+      <span hidden data-sap-opcao="2" data-sap-media="140" data-sap-moda="135" data-sap-dias="9"></span>
+    </div>`, { runScripts: 'outside-only', url: 'http://localhost/Controlo/Peso' });
+  try {
+    const { window } = dom;
+    const document = window.document;
+    for (const bloco of scriptsDaPagina()) window.eval(bloco);
+    const select = document.querySelector('select');
+    const choose = value => {
+      select.value = value;
+      select.dispatchEvent(new window.Event('change', { bubbles: true }));
+    };
+    const difference = key => document.querySelector(`[data-sap-delta="${key}"]`).textContent;
+    choose('1');
+    assert.equal(difference('media'), 'Peso médio atual − Média: +2.89 g (+2.22 %)');
+    assert.equal(difference('moda'), 'Peso médio atual − Moda: +2.89 g (+2.22 %)');
+    choose('2');
+    assert.equal(document.querySelector('table [data-inicio]').textContent, '11/10/2026');
+    assert.equal(document.querySelector('table [data-fim]').textContent, '20/10/2026');
+    assert.equal(document.querySelector('table [data-sap-valor="dias"]').textContent, '9');
+    assert.equal(difference('media'), 'Peso médio atual − Média: −7.11 g (−5.08 %)');
+    assert.equal(difference('moda'), 'Peso médio atual − Moda: −2.11 g (−1.56 %)');
+    document.querySelector('[data-peso-atual]').setAttribute('data-peso-atual', '140');
+    document.dispatchEvent(new window.Event('dmo:troca'));
+    assert.equal(difference('media'), 'Peso médio atual − Média: +0.00 g (+0.00 %)');
+    assert.equal(difference('moda'), 'Peso médio atual − Moda: +5.00 g (+3.70 %)');
+    choose('3');
+    assert.equal(document.querySelector('table [data-fim]').textContent, '—');
+    assert.equal(document.querySelector('[data-sap-sem]').hidden, false);
+    assert.ok([...document.querySelectorAll('[data-sap-com]')].every(el => el.hidden));
+    choose('1');
+    assert.equal(document.querySelector('[data-sap-sem]').hidden, true);
+    assert.equal(difference('media'), 'Peso médio atual − Média: +10.00 g (+7.69 %)');
+  } finally {
+    dom.window.close();
+  }
+});
+
 test('a folha de teste usa as marcas das zonas e os scripts do Peso.cshtml', () => {
   for (const [nome, marca] of Object.entries(M)) assert.ok(cshtml.includes(marca), `${nome} não está no Peso.cshtml: ${marca}`);
   // O apoio TP fica (data-dmo-fica) e só os campos escondidos do «Calcular» trocam.

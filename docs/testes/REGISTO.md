@@ -908,11 +908,19 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 |---|---|---|---|
 | PesoFolhaProducaoAnteriorPageTests.CriarControloAnterior_SemJobOnOuNumJobOnAnterior | «Criar» o Controlo anterior sem Job On ou num Job On anterior | OK | Decisão Diogo 28/10 (DMO-565) |
 
+### `tests/ShellProof/peso-live.test.cjs` — DMO-689
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| DMO-689: previous production dates and named differences survive selection and live updates | Changing production updates dates/days and named differences; live updates cover zero, positive and negative deltas, and missing production weight hides unavailable values | OK | (DMO-689 / A-0449) Existing CI file; no old JavaScript test changed |
+
 ### `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs`
 
 | Teste | Garante | Estado | Nota |
 |---|---|---|---|
-| PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_MostraAMediaPelosDiasEAModaDoSap_EOCampoVemComAMedia | Produção anterior mostra Média e Moda do SAP com diferenças | OK | Decisão Diogo 28/10 (peso-arrumado-pr212): Média e Moda, nunca «SAP» à vista |
+| PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_MostraAMediaPelosDiasEAModaDoSap_EOCampoVemComAMedia | Previous production shows mean and mode; each difference names current weight minus its reference and retains signed grams and percentage | OK | (DMO-689 / A-0449) Two assertions updated with Diogo's explicit approval on 2026-10-29; all other checks retained |
+| PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_DatasDentroDaTabela_ComESemPeso | Start/end dates appear once inside the table, with production days when available; also covers missing production weight | OK | (DMO-689 / A-0449) Two cases |
+| PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_DiferencaIdentificaAtualMenosReferencia_ComSinalEPercentagem | Mean and mode differences name both operands and show exact signed grams and percentages above/below the reference | OK | (DMO-689 / A-0449) Two cases |
 | PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_SemOrdensDoSap_DizQueOSapAindaNaoDeuOPeso | Sem ordens do SAP diz que ainda não há peso | OK |  |
 | PesoFolhaProducaoAnteriorPageTests.Resumo_ProducaoAnteriorComAMediaEAModa | Resumo mostra Produção anterior com Média e Moda | OK |  |
 
