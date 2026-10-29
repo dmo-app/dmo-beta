@@ -5730,6 +5730,12 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 |---|---|---|---|
 | FerramentasPagesTests.Ficha_Geral_LinhasNaVertical_EUtilizacaoNaMesmaLinha | Geral da ficha: Linhas uma por baixo da outra e Utilização no mesmo quadro; o browser confirma uma só linha (DMO-608) | OK |  |
 
+### `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoOrdem.cs`
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| DefinicoesPorModuloPageTests.OHistoricoDeProducoes_NumeraAsProducoesDaFerramenta_A1EAMaisAntiga | Histórico de produções da ficha: cada produção com o número de ordem na ferramenta, 1 = a mais antiga, também noutro artigo; sem início, sem número (DMO-679) | OK |  |
+
 ### `tests/ShellProof/cobertura_a1_ficha-na-lista.test.cjs`
 
 | Teste | Garante | Estado | Correção |

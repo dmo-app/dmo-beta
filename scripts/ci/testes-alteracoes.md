@@ -5706,3 +5706,14 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.SemCaixaDaSenha_NaoEscrevePeloTeclado`
 
 Selo depois: `a6aba0b16d9e9794`
+
+## A-0432 · 2026-10-29 · teste-novo
+
+Porquê: DMO-679: o Histórico de produções da ficha numera as produções da ferramenta (1 = a mais antiga).
+Referência: DMO-679
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoOrdem.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoOrdem.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_NumeraAsProducoesDaFerramenta_A1EAMaisAntiga`
+
+Selo depois: `7f03434c7663c234`

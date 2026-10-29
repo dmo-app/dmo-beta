@@ -340,7 +340,8 @@ public sealed record FerramentaProducao(
     int LinhasSap,
     decimal? UtilizacaoAntes = null,
     decimal? UtilizacaoDepois = null,
-    CadenciaSapResumo? Cadencia = null)
+    CadenciaSapResumo? Cadencia = null,
+    int? Ordem = null)
 {
     /// <summary>Quanto a utilização subiu nesta produção (pontos percentuais); nenhum sem as duas leituras.</summary>
     public decimal? DeltaUtilizacao => UtilizacaoAntes is { } antes && UtilizacaoDepois is { } depois ? depois - antes : null;

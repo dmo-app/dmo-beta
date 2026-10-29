@@ -691,7 +691,7 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
                   <tr data-dmo-row data-id="@prod.JobOnId" data-dmo-open="@Url.Page("/JobOn/Index", new { jobon_id = prod.JobOnId })">
                     <td><a class="ferr-armazem-link" href="@Url.Page("/JobOn/Index", new { jobon_id = prod.JobOnId })"><strong>@prod.Producao</strong></a> @* O artigo de cada produção: a mesma ferramenta
                        serve vários artigos e o nº de produção repete-se entre eles
-                       (Diogo, 28/10/2026: «produção não faz sentido»). *@<small class="ferr-producao-maquina">@prod.Referencia · @prod.Maquina</small></td>
+                       (Diogo, 28/10/2026: «produção não faz sentido»). *@<small class="ferr-producao-maquina">@prod.Referencia · @prod.Maquina</small>@if (prod.Ordem is { } ordem) {<small class="ferr-producao-maquina ferr-producao-ordem"> · @ordem</small>}</td>
                     @* «em curso» também na produção que está na máquina hoje, com o fim
                        previsto (Diogo, 28/10/2026: «o que está em curso é o 202605»). *@
                     <td>@DMO.Alpha.Web.Presentation.UsoFerramenta.Datas(prod.InicioEm, prod.FimEm, hojeHist)</td>
