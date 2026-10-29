@@ -4941,3 +4941,12 @@ Novos: 2 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoToolScopedSchemaTests.cs :: PesoToolScopedSchemaTests.PesoEntity_HasNoProductionIdentityColumns`
 
 Selo depois: `bf0976279e3f3a84`
+
+## A-0359 · 2026-10-29 · contagem-lista
+
+Porquê: CI do #313: migração nova (PesoAssociadoAoControloEmUtc) tinha de entrar na lista fixa do MigrationFoundationTests
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+
+Selo depois: `852a8fa9a1e466cb`

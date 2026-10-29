@@ -1,5 +1,5 @@
 {
-  "selo": "bf0976279e3f3a84",
+  "selo": "852a8fa9a1e466cb",
   "unidades": {
     "scripts/ci/ci-local.sh": "b85e4195bb3ac186",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -871,7 +871,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Baseline_GeneratesValidPostgreSql": "3ec4c3399af184d1",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Baseline_SeedsTheRemovedTool": "258c965fc3f28c69",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.CurrentModel_HasExactlyTheCanonicalTables": "20bd7dffb43a4e78",
-    "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt": "9add972b524c2cd1",
+    "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt": "3458a59d85c4e904",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.PesoPerToolCombination_OnePesoPerControloForEachCmAndBq": "947b1fc638c05771",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Snapshot_MatchesCurrentModelExactly": "415260325a6f9c86",
     "tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AoMesmoTempo.cs :: (resto do ficheiro)": "78c9042c39dc7d44",
