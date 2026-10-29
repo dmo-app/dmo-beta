@@ -180,6 +180,15 @@
     doc.addEventListener('input', event => { if (event.target.closest('form[method="post"],form[method="POST"]')) dirty = true; });
     doc.addEventListener('change', event => { if (event.target.closest('form[method="post"],form[method="POST"]')) dirty = true; });
     doc.addEventListener('submit', event => { if (event.target.method.toLowerCase() === 'post') operation = true; });
+    // Depois de gravar sem recarregar (o «Registar leitura» do Peso), só há alterações por guardar
+    // se ainda houver um campo diferente do que a página trouxe (Diogo, 29/10/2026: «quando tento
+    // sair aparece para sair sem gravar», com as leituras já registadas).
+    doc.addEventListener('dmo:troca', () => {
+      dirty = [...doc.querySelectorAll('form[method="post"] :is(input:not([type=hidden]),textarea,select)')].some(campo =>
+        campo.matches('select') ? [...campo.options].some(o => o.selected !== o.defaultSelected)
+          : campo.matches('[type=checkbox],[type=radio]') ? campo.checked !== campo.defaultChecked
+            : campo.value !== campo.defaultValue);
+    });
     // Escape from inside the frame closes the outer drawer only if no local dialog is open.
     doc.addEventListener('keydown', event => {
       if (event.key === 'Escape' && !doc.querySelector('dialog[open],.dmo-modal-backdrop.open')) {event.preventDefault(); requestClose();}

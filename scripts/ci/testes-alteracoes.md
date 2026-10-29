@@ -5411,3 +5411,150 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.SemSenha_OScriptParaLogo`
 
 Selo depois: `5dd9004e5e11ea1f`
+
+## A-0411 · 2026-10-29 · teste-novo
+
+Porquê: Teste novo: os avisos dos cartões da folha do Job On vão para a pilha dos alertas da app (DMO-666).
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/ShellProof/jobon-folha-avisos-alerta.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/jobon-folha-avisos-alerta.test.cjs :: Ver: avisos do CM e da BQ vão para a pilha dos alertas da app, com o botão e o ×`
+
+Selo depois: `3133427fe0c23198`
+
+## A-0414 · 2026-10-29 · teste-novo
+
+Porquê: Teste novo: diâmetros antigos com dois números separam-se em valor e Tol. e o Guardar passa (DMO-669).
+Novos: 4 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnDiametrosSepararTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnDiametrosSepararTests.cs :: JobOnDiametrosSepararTests.DoisNumeros_VaiOSegundoParaATolVazia_EOGuardarPassa`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnDiametrosSepararTests.cs :: JobOnDiametrosSepararTests.TolJaEscrita_FicaComoEsta`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnDiametrosSepararTests.cs :: JobOnDiametrosSepararTests.UmNumero_NaoMuda`
+
+Selo depois: `4308a5058f2f4495`
+
+## A-0404 · 2026-10-29 · contagem-lista
+
+Porquê: AUTH-B03 (DMO-655): o reset de acesso apaga o PIN do Posto; o rollback do provider repõe o PIN apagado.
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.ResetUserAccessAsync_ApagaOPinDoPosto`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.ResetUserAccessAsync_OProviderRecusa_OPinDoPostoVoltaAFicar`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: AuthB03B04B05Tests.ComRequiresPasswordChange_AEntradaPeloPostoRecusaMesmoComOPinCerto`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: AuthB03B04B05Tests.MudarOPin_FechaAsSessoesDoPostoAbertasComOPinAnterior`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: AuthB03B04B05Tests.ResetDeAcesso_ApagaOPinDoPosto_OPinAntigoJaNaoEntra`
+
+## A-0405 · 2026-10-29 · contagem-lista
+
+Porquê: AUTH-B04 (DMO-656): arquivar e reativar um utilizador sobem o SessionVersion nas duas mudanças, para uma cookie antiga não voltar a valer depois de reativar.
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.SetUserStandByAsync_ArquivarEReativar_SobeAVersaoNasDuasVezes`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.SetUserStandByAsync_Arquivar_SobeAVersaoDaSessao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.SetUserStandByAsync_SemMudarOEstado_NaoSobeAVersao`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: AuthB03B04B05Tests.ArquivarEReativar_ACookieAntigaContinuaRecusadaDepoisDeReativar`
+
+## A-0406 · 2026-10-29 · contagem-lista
+
+Porquê: AUTH-B05 (DMO-657): cookie próprio do Posto sem deslizar; o endpoint /posto/ativo (só a partir de uma ação real da pessoa) renova o limite, outros pedidos não renovam.
+Novos: 3 · mudaram: 1 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_ChamarAtivo_RenovaOLimitePorMaisNMinutos`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_DentroDoLimite_OsPedidosContinuam`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_PedidoQueNaoPassaPorAtivo_NaoRenova`
+- mudou: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: (resto do ficheiro)`
+- saiu: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_EmUso_ASessaoContinua`
+
+Selo depois: `1868af282879fe3a`
+
+## A-0409 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-664: sem ferramentas à espera o uso do SAP acaba sem erro (Diogo 29/10, «A leitura do SAP falhou»)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraHYrksKjJRFizcpFcHB7tKz
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.SemCodigosAEspera_OUsoAcabaSemErro`
+
+Selo depois: `4a55af040cab0651`
+
+## A-0410 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-665: a janela Atualizar do SAP mostra só a parte escolhida (Diogo 29/10)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraCdENbGEZaUsyR5Q2wb938B
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.AJanelaDoSap_EscondeAsPartesQueNaoEstaoEscolhidas`
+
+Selo depois: `b07ddb963368e9dd`
+
+## A-0412 · 2026-10-29 · teste-novo
+
+Porquê: DMO-667/A-0412 (Diogo 29/10): no Registo do Armazém, «Voltar» por cima do título e a Fábrica do Empréstimo sempre em lista (Definições). 1 teste novo; nenhum antigo mudou.
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Registo_VoltarFicaPorCimaDoTitulo_EAFabricaDoEmprestimoEUmaLista`
+
+Selo depois: `55fad2475f50042a`
+
+## A-0416 · 2026-10-29 · teste-novo
+
+Porquê: Teste novo: o painel das linhas da Folha só mostra o que entra nos próximos 5 dias (DMO-671).
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.PainelCincoDias.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.PainelCincoDias.cs :: JobOnPageTests.Folha_PainelDasLinhas_SoOQueEntraNosProximosCincoDias`
+
+Selo depois: `cc3bd3e5d96c86c2`
+
+## A-0417 · 2026-10-29 · teste-novo
+
+Porquê: Peso volta a deslizar; Enter não volta ao topo; + − dentro da caixa (DMO-672)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra4341FR3J1Tyu38gwWqzNfJ
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_DiferencasFicamForaDaTroca_RegistarNaoVoltaAoTopo`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Peso_ComparacaoTemOMaisEOMenosDentroDaCaixa`
+
+Selo depois: `7bf7f2456fd5e9bc`
+
+## A-0418 · 2026-10-29 · teste-novo
+
+Porquê: Painel do Peso sem aviso falso de alterações por guardar (DMO-672)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra9W3LRiSMF46vR7EVbf8Uq7
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/ShellProof/painel-gravou-sem-recarregar.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/painel-gravou-sem-recarregar.test.cjs :: Painel de apoio: depois de gravar sem recarregar, sem campos alterados, fecha sem aviso`
+
+Selo depois: `daf9bbebd5494b9b`
+
+## A-0419 · 2026-10-29 · ok-do-diogo
+
+Porquê: Tabela do Controlo anterior lado a lado por grandeza com o anterior a cinza (DMO-672)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraM8r59Af85tn7f3zTFfP4DF
+Novos: 1 · mudaram: 3 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBAgrupamento.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDaComparacao_AgrupaPorGrandeza_AtualAnteriorEDiferenca_ComAnteriorACinza`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.UltimasProducoes.cs :: PesoComparacaoPageTests.Folha_AProducaoACompararTemAsUltimas5Anteriores_EAPedidaFica`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_PrimeiraTabelaTemVolumeEPesoPorCm_EAComparacaoFicaAbaixo`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoSoParaComparacaoPageTests.cs :: PesoSoParaComparacaoPageTests.CriarDaComparacao_LigaOPesoAoAtual_MostraAComparacao_ENuncaPedeJobOn`
+- saiu: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBAgrupamento.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDaComparacao_AgrupaEsteControlo_ControloAnterior_EDiferenca_PorEstaOrdem`
+
+Selo depois: `3d2817c5fc411e69`
+
+## A-0420 · 2026-10-29 · ok-do-diogo
+
+Porquê: Lote .243: junta #330, #331, #334, #335, #338; as entradas A-0404..A-0419 explicam os testes (PeloPosto_EmUso_ASessaoContinua saiu em A-0406; o Peso foi trocado em A-0417..A-0419).
+Referência: lote .243
+Novos: 3 · mudaram: 3 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBAgrupamento.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDaComparacao_AgrupaPorGrandeza_AtualAnteriorEDiferenca_ComAnteriorACinza`
+- novo: `tests/ShellProof/painel-gravou-sem-recarregar.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/painel-gravou-sem-recarregar.test.cjs :: Painel de apoio: depois de gravar sem recarregar, sem campos alterados, fecha sem aviso`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.UltimasProducoes.cs :: PesoComparacaoPageTests.Folha_AProducaoACompararTemAsUltimas5Anteriores_EAPedidaFica`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_PrimeiraTabelaTemVolumeEPesoPorCm_EAComparacaoFicaAbaixo`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoSoParaComparacaoPageTests.cs :: PesoSoParaComparacaoPageTests.CriarDaComparacao_LigaOPesoAoAtual_MostraAComparacao_ENuncaPedeJobOn`
+- saiu: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBAgrupamento.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDaComparacao_AgrupaEsteControlo_ControloAnterior_EDiferenca_PorEstaOrdem`
+
+Selo depois: `188b67503f0e65e6`

@@ -162,14 +162,14 @@ public sealed class FolhaDoJobOnVista
 
     /// <summary>A folha gravada de um Job On (Editar).</summary>
     public static FolhaDoJobOnVista DaLida(JobOnFolhaLida lida) =>
-        new(lida.Valores, ComExtra(JobOnFolhaRegras.CalParaAbrir(lida.Cal)), null);
+        new(JobOnFolhaRegras.SepararDiametros(lida.Valores), ComExtra(JobOnFolhaRegras.CalParaAbrir(lida.Cal)), null);
 
     /// <summary>
     /// A folha da produção de origem no Duplicar: os campos e as linhas CAL
     /// copiados, que o Guardar grava com a produção nova.
     /// </summary>
     public static FolhaDoJobOnVista DoDuplicar(JobOnFolhaLida origem) =>
-        new(origem.Valores, ComExtra(JobOnFolhaRegras.CalParaAbrir(origem.Cal)), null, duplicada: true);
+        new(JobOnFolhaRegras.SepararDiametros(origem.Valores), ComExtra(JobOnFolhaRegras.CalParaAbrir(origem.Cal)), null, duplicada: true);
 
     /// <summary>
     /// A folha depois de uma recusa: o que se escreveu, como se escreveu, e a

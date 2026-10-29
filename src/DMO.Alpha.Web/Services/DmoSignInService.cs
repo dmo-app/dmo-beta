@@ -358,7 +358,12 @@ public sealed class DmoSignInService
         var httpContext = _httpContextAccessor.HttpContext
             ?? throw new InvalidOperationException("No active HTTP context.");
         var user = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
-        if (user is null || user.IsStandBy || string.IsNullOrWhiteSpace(user.ProviderUserId))
+        // AUTH-B03 (DMO-655), defesa em profundidade: o reset de acesso já
+        // apaga o PIN do posto (ConfereAsync falha sem ele chegar aqui) e
+        // o validador da sessão já recusaria o pedido seguinte por isto —
+        // mas a entrada em si também recusa, como os outros caminhos de
+        // login já tratam RequiresPasswordChange.
+        if (user is null || user.IsStandBy || user.RequiresPasswordChange || string.IsNullOrWhiteSpace(user.ProviderUserId))
         {
             return SignInOutcome.Failed(InvalidCredentials);
         }
@@ -386,8 +391,12 @@ public sealed class DmoSignInService
             claims.Add(new Claim(DmoClaimTypes.ProfileLabel, user.TemplateName));
         }
 
-        var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
-        await httpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal,
+        // AUTH-B05 (DMO-657): o esquema PRÓPRIO do posto (PostoAuthentication.Scheme),
+        // sem SlidingExpiration — o ExpiresUtc aqui é o único limite da sessão,
+        // nunca esticado por um pedido qualquer (ver Program.cs e
+        // Services/PostoAuthentication.cs).
+        var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, PostoAuthentication.Scheme));
+        await httpContext.SignInAsync(PostoAuthentication.Scheme, principal,
             new AuthenticationProperties { ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(minutos) });
         DesbloqueioDasDefinicoes.Fechar(httpContext);
 

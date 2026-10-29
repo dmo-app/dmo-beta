@@ -336,6 +336,30 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
     }
 
     [Fact]
+    public async Task Registo_VoltarFicaPorCimaDoTitulo_EAFabricaDoEmprestimoEUmaLista()
+    {
+        // DMO-667 (Diogo, 29/10/2026): «Voltar» sempre por cima do título da página (não no cartão da
+        // ferramenta); a Fábrica do Empréstimo é uma lista das fábricas das Definições, nunca texto livre.
+        using var client = await LoginOperatorAsync("6209", DmoCapabilities.ArmazemGestao);
+        var pagina = await client.GetStringAsync($"/Armazem/Movimentos?ferramenta={Cm}");
+        pagina = await GravarAsync(client, pagina, "armEntRegistar",
+            ("armEntPosicao", "0042"),
+            ("armEntOrigem", EnvioDoFormulario.Opcao(pagina, "armEntOrigem", "Nova")),
+            ("armEntEstado", EnvioDoFormulario.Opcao(pagina, "armEntEstado", "Novo")));
+
+        var emprestimo = EnvioDoFormulario.Opcao(pagina, "armSaiDestino", "Emprestado");
+        var comDestino = await client.GetStringAsync($"/Armazem/Movimentos?ferramenta={Cm}&destino={emprestimo}");
+
+        var voltar = comDestino.IndexOf("id=\"armRegVoltar\"", StringComparison.Ordinal);
+        var titulo = comDestino.IndexOf("id=\"arm-mov-title\"", StringComparison.Ordinal);
+        Assert.InRange(voltar, 0, titulo - 1);
+        Assert.Contains("class=\"dmo-voltar-texto\" id=\"armRegVoltar\"", comDestino);
+        Assert.DoesNotContain("arm-voltar", comDestino);
+        Assert.Matches("<select[^>]*id=\"armSaiFabrica\"", comDestino);
+        Assert.DoesNotContain("Ex.: LE", comDestino);
+    }
+
+    [Fact]
     public async Task Saida_ODestinoEscolheOsCamposEDepoisAEntradaPropoe()
     {
         using var client = await LoginOperatorAsync("6205", DmoCapabilities.ArmazemGestao);

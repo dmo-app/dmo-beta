@@ -75,6 +75,23 @@ public partial class PesoFolhaProducaoAnteriorPageTests
         Assert.DoesNotContain($"data-sap-opcao=\"{maisAntigaJobOnId}\"", sap, StringComparison.Ordinal);
     }
 
+    // Diogo, 29/10/2026: «ao carregar Enter para registar leva-me para o
+    // início da página» (DMO-673): a diferença da produção anterior depende do
+    // peso médio e, fora de uma zona, mudava a cada leitura; a troca abria a
+    // página inteira (voltava ao topo). As células ficam como estão
+    // (data-dmo-fica) e o peso-live refaz-lhes o texto.
+    [Fact]
+    public async Task ProducaoAnterior_DiferencasFicamForaDaTroca_RegistarNaoVoltaAoTopo()
+    {
+        var (controloId, _, _, _) = await SeedAsync();
+        SeedSapFabrico("2026-04-06", "2026-04-18", 181m, 12);
+        SeedUser("4411", "Peso Topo", "provider-folha-topo", "FolhaTopo10!");
+        using var client = await LoginClientAsync("4411", "FolhaTopo10!");
+        var html = await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}");
+        Assert.Contains("<td data-dmo-fica data-sap-delta=\"media\">", html, StringComparison.Ordinal);
+        Assert.Contains("<td data-dmo-fica data-sap-delta=\"moda\">", html, StringComparison.Ordinal);
+    }
+
     [Fact]
     public async Task ProducaoAnterior_SemOrdensDoSap_DizQueOSapAindaNaoDeuOPeso()
     {
