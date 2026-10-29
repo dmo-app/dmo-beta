@@ -5855,7 +5855,7 @@ Selo depois: `cdeb69fb7af8ca55`
 ## A-0448 · 2026-10-29 · ok-do-diogo
 
 Porquê: DMO-688: o teste DMO-562 exigia que a Informação técnica empurrasse os cartões; passa a exigir que abra por cima sem empurrar
-Referência: Diogo 29/10 16:11 cmsg_01K75FTs9bQnbhhH7qttpgraG76sK5UWKJbGCfsmcUk25Z e cmsg_01K75FTs9bQnbhhH7qttpgra2F79VBxd4ZeUdh7T4M8XnU: a Informação técnica deve aparecer por cima, sem empurrar
+Referência: Diogo 29/10 16:11 cmsg_01K75FTs9bQnbhhH7qttpgraG76sK5UWKJbGCfsmcUk25Z e cmsg_01K75FTs9bQnbhhH7qttpgra2F79VBxd4ZeUdh7T4M8XnU: a Informação técnica deve aparecer por cima, sem empurrar; «sim» no cartão cmsg_01K75FTs9bQnbhhH7qttpgra9g7HjpYyNvnDkcmSiwJB9z (29/10 17:23)
 Novos: 0 · mudaram: 1 · saíram: 0
 
 - mudou: `tests/visual/cobertura_a1_browser.py`
