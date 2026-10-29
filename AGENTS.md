@@ -1,5 +1,21 @@
 # AGENTS.md — regras para os agentes de fora (Codex e outros)
 
+Este AGENTS.md aplica-se a qualquer IA, independentemente da ferramenta. O [AGENTS universal da DMO](https://github.com/dmo-app/dmo-Improvements/blob/main/AGENTS.md) contém o processo comum; abaixo ficam as instruções deste repositório.
+
+## Onde continuar
+
+- [Regras de implementação](docs/architecture/REGRAS-DE-CODIGO.md).
+- [Garantias e alterações dos testes](docs/architecture/REGRAS-DOS-TESTES.md).
+- [Entrega do PR](.github/pull_request_template.md).
+- [Versão do código local](version.props).
+
+## O que entregar
+
+Trabalhar no âmbito do pedido e entregar o PR para integracao segundo AGENTS.md. A lista, o histórico e os relatórios de testes consultam-se no dmo-ci; os testes executáveis permanecem aqui até uma migração técnica validada. Não atribuir versões nem publicar.
+
+
+
+
 Vale para qualquer agente que trabalhe neste repositório. Junta-se a
 [docs/architecture/REGRAS-DE-CODIGO.md](docs/architecture/REGRAS-DE-CODIGO.md) e
 [docs/architecture/REGRAS-DOS-TESTES.md](docs/architecture/REGRAS-DOS-TESTES.md); não as substitui.
@@ -7,20 +23,20 @@ Português de Portugal em tudo o que se escreve (PR, relatórios, textos da app)
 
 ## Quem faz o quê
 
-1. **O Claude** implementa a mudança (refinamento, correção, funcionalidade) e **escreve os testes**
+1. **A IA de implementação** implementa a mudança (refinamento, correção, funcionalidade) e **escreve os testes**
    dela. Em cada PR (modelo em `.github/pull_request_template.md`) diz:
    - a **prioridade de entrada** (1 = entra primeiro; ordem em que os PRs devem entrar na `integracao`);
    - a **lista de testes**: cada teste com a funcionalidade que garante, em frase do negócio.
      Esta lista fica também registada na guarda dos testes (`guarda-testes.py registar --porque`).
      Cada teste novo ganha também a sua linha em [docs/testes/REGISTO.md](docs/testes/REGISTO.md)
      (o que cada teste garante; os testes fracos ou errados conhecidos estão em `docs/testes/PROBLEMAS.md`).
-   Abre o PR para o ramo `integracao` com a etiqueta **`agentes: testar`**. O Claude não corre o CI.
+   Abre o PR para o ramo `integracao` com a etiqueta **`agentes: testar`**. A implementação entrega à validação; o papel de CI segue o dmo-ci.
 2. **O agente de fora** trata de tudo o que é CI e PR: pega nos PRs pela prioridade, resolve os
    conflitos com a `integracao`, corre o CI, corrige o que falhar e escreve o **relatório** de como
    tudo foi feito (modelo abaixo) no PR e em `relatorios/` do repositório
    [dmo-app/dmo-ci](https://github.com/dmo-app/dmo-ci), que tem o passo a passo e o script. Muda a etiqueta para
    **`agentes: pronto`** (CI verde) ou **`agentes: ajuda`** (não conseguiu, diz porquê).
-3. **O Claude** lê o relatório. Se a correção estiver mal, sugere no PR (comentário) e volta a pôr
+3. **A IA de implementação** lê o relatório. Se a correção estiver mal, sugere no PR (comentário) e volta a pôr
    `agentes: testar`. Não a refaz por cima.
 4. **Só a thread «Rever»** junta os PRs na `integracao`, em lotes, e dá o número da versão.
    O proprietário (Diogo) decide quando vai para a `main` e para o servidor.
