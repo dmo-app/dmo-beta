@@ -158,8 +158,8 @@ public sealed partial class DefinicoesPorModuloPageTests
             return json.RootElement.GetProperty("codigos").EnumerateArray().Select(c => c.GetString()).ToList();
         }
 
-        Assert.Equal([nome + "02", nome + "07"], await Codigos(""));
-        Assert.Equal([nome + "07"], await Codigos("bq"));
+        Assert.Equal([nome + "*07", nome + "02"], await Codigos(""));
+        Assert.Equal([nome + "*07"], await Codigos("bq"));
         Assert.Empty(await Codigos("mf"));
     }
 
