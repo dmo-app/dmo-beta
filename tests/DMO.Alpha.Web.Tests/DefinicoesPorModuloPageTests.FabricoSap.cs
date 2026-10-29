@@ -211,7 +211,8 @@ public sealed partial class DefinicoesPorModuloPageTests
         var client = await LoginOperatorAsync("7110", DmoCapabilities.Ferramentas);
         var historico = WebUtility.HtmlDecode(ZonaUsoSap(await (await client.GetAsync($"/Ferramentas/Ficha?tool_id={toolId}")).Content.ReadAsStringAsync(), "ferrHistoricoProducoes"));
 
-        Assert.Contains("+" + 250_000.ToString("#,0", System.Globalization.CultureInfo.GetCultureInfo("pt-PT")), historico, StringComparison.Ordinal);
+        // Sem o Δ garrafas (Diogo, 29/10/2026: «o delta das garrafas é confuso, vamos deixar apenas o bruto»).
+        Assert.DoesNotContain("+" + 250_000.ToString("#,0", System.Globalization.CultureInfo.GetCultureInfo("pt-PT")), historico, StringComparison.Ordinal);
         Assert.Matches("<button[^>]*data-dmo-dialog=\"ferrPeso\\d+\">81.50 g</button>", historico);
         Assert.Contains("+1.50 g", historico, StringComparison.Ordinal);
         Assert.Contains("Moda <strong>81.50 g</strong>", historico, StringComparison.Ordinal);
