@@ -5843,4 +5843,5 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 
 | ControloCapabilitiesCutHPageTests.Approve_BarraDosFiltrosNaoRepeteAEtiquetaPendente | A barra dos filtros do Aprovar não repete a etiqueta «Pendente» | OK | A-0335 (DMO-597) |
 | DefinicoesPorModuloPageTests.OPesoDoHistorico_DeltaSaltaAsProducoesAnterioresSemPeso | O Δ do peso por produção salta as anteriores sem peso | OK | A-0341 (DMO-602) |
-| JobOnFichaTests.Peso_OsCartoesDaFolhaEsticamSemVazios | Cartões da folha do Peso esticam sem vazios; + e − dentro da caixa da Comparação | OK | A-0417 (DMO-672) |
+| JobOnFichaTests.Peso_ComparacaoTemOMaisEOMenosDentroDaCaixa | + e − dentro da caixa da Comparação | OK | A-0417 (DMO-672) |
+| PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_DiferencasFicamForaDaTroca_RegistarNaoVoltaAoTopo | As diferenças da produção anterior ficam fora da troca (registar não volta ao topo) | OK | A-0417 (DMO-672) |

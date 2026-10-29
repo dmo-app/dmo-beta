@@ -2017,8 +2017,8 @@
                 </tr>
                 <tr data-sap-com hidden="@semSap">
                   <th scope="row">Diferença</th>
-                  <td data-sap-delta="media">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.MediaGramas))</td>
-                  <td data-sap-delta="moda">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.ModaGramas))</td>
+                  <td data-dmo-fica data-sap-delta="media">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.MediaGramas))</td>
+                  <td data-dmo-fica data-sap-delta="moda">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.ModaGramas))</td>
                 </tr>
                 <tr data-sap-sem hidden="@(sapDaEscolhida is null ? null : "hidden")">
                   <td colspan="3">Ainda não há o peso desta produção. <a class="dmo-button" href="/Definicoes?secao=computador">Ler a pasta da produção</a></td>

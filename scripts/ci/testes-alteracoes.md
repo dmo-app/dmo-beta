@@ -5414,10 +5414,11 @@ Selo depois: `5dd9004e5e11ea1f`
 
 ## A-0417 · 2026-10-29 · teste-novo
 
-Porquê: Folha do Peso sem vazios e + − dentro da caixa da Comparação (DMO-672)
-Referência: cmsg_01K75FTs9bQnbhhH7qttpgraBWU6FVRkEeLpJiTrcXdcAD
-Novos: 1 · mudaram: 0 · saíram: 0
+Porquê: Peso volta a deslizar; Enter não volta ao topo; + − dentro da caixa (DMO-672)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra4341FR3J1Tyu38gwWqzNfJ
+Novos: 2 · mudaram: 0 · saíram: 0
 
-- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Peso_OsCartoesDaFolhaEsticamSemVazios`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_DiferencasFicamForaDaTroca_RegistarNaoVoltaAoTopo`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Peso_ComparacaoTemOMaisEOMenosDentroDaCaixa`
 
-Selo depois: `a5844820eeb1b7d1`
+Selo depois: `7bf7f2456fd5e9bc`
