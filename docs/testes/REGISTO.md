@@ -5978,3 +5978,4 @@ Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; no
 | filtros-referencia.test.cjs: Enter no lote | Aplica a pesquisa mesmo sem botão de submissão. | OK |
 
 | `Editar: mudar o Início ou o Fim atualiza os Dias na hora` | No Editar do Job On os Dias acompanham o Início e o Fim sem gravar. | OK | A-0444 |
+| `cobertura_a1_browser.py` DMO-562 (alterado) | A Informação técnica abre por cima dos cartões de baixo e já não os empurra (pedido do Diogo, DMO-688). | OK | A-0448 |

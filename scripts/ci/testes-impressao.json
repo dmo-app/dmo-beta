@@ -1,5 +1,5 @@
 {
-  "selo": "31de1c374beec1f4",
+  "selo": "e4785a2628a5145d",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -3688,7 +3688,7 @@
     "tests/visual/bq_registo_dia_calendario_browser.py": "88ef7370ec0ff887",
     "tests/visual/cabecalho_nome_comprido_browser.py": "623ebd9d59c44ca0",
     "tests/visual/calendario_parcial_browser.py": "e8db227590a44c8f",
-    "tests/visual/cobertura_a1_browser.py": "9eedc570cb390990",
+    "tests/visual/cobertura_a1_browser.py": "1590351c735270be",
     "tests/visual/cobertura_a2_browser.py": "31da5a5f5297a77e",
     "tests/visual/cobertura_b_browser.py": "cf5e7027756d34bd",
     "tests/visual/cobertura_c_browser.py": "fc6d3e1f7ba8e52b",
