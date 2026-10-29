@@ -1,5 +1,5 @@
 {
-  "selo": "5dd9004e5e11ea1f",
+  "selo": "3133427fe0c23198",
   "unidades": {
     "scripts/ci/ci-local.sh": "b85e4195bb3ac186",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -3360,6 +3360,8 @@
     "tests/ShellProof/jobon-dados-ferramentas.test.cjs :: a resposta de uma escolha anterior que chega depois da atual não escreve os dados nem os avisos dela": "4642cc8144e9e8e5",
     "tests/ShellProof/jobon-dados-ferramentas.test.cjs :: a resposta tardia de uma escolha anterior não apaga o aviso da escolha atual": "c3b8356616543afe",
     "tests/ShellProof/jobon-dados-ferramentas.test.cjs :: sem resposta ou com erro do servidor, saem os dados e os avisos da escolha anterior e a mesma escolha volta a ser pedida": "2452527d18ca22d9",
+    "tests/ShellProof/jobon-folha-avisos-alerta.test.cjs :: (resto do ficheiro)": "898090f49c22262b",
+    "tests/ShellProof/jobon-folha-avisos-alerta.test.cjs :: Ver: avisos do CM e da BQ vão para a pilha dos alertas da app, com o botão e o ×": "513608deb7440f34",
     "tests/ShellProof/jobon-folha-avisos-canto.test.cjs :: (resto do ficheiro)": "a1217a4980295ac3",
     "tests/ShellProof/jobon-folha-avisos-canto.test.cjs :: Editar: os avisos ficam onde estão": "3b0caf382a5780bd",
     "tests/ShellProof/jobon-folha-avisos-canto.test.cjs :: Ver: avisos do CM e da BQ vão para o canto, com o botão e um × que fecha": "9bc89e910705b0f5",

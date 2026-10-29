@@ -5411,3 +5411,13 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.SemSenha_OScriptParaLogo`
 
 Selo depois: `5dd9004e5e11ea1f`
+
+## A-0411 · 2026-10-29 · teste-novo
+
+Porquê: Teste novo: os avisos dos cartões da folha do Job On vão para a pilha dos alertas da app (DMO-666).
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/ShellProof/jobon-folha-avisos-alerta.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/jobon-folha-avisos-alerta.test.cjs :: Ver: avisos do CM e da BQ vão para a pilha dos alertas da app, com o botão e o ×`
+
+Selo depois: `3133427fe0c23198`
