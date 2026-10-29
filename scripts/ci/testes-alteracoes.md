@@ -5400,3 +5400,14 @@ Novos: 7 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/PostoFerramentasUtilizacaoTests.cs :: PostoFerramentasUtilizacaoTests.PeloPosto_FerramentasUtilizacao_EhRecusada_PeloLoginContinuaAAbrir`
 
 Selo depois: `e2521895af016d8f`
+
+## A-0403 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-661: sem senha do SAP os scripts param logo e o Instalar recusa; com o SAP aberto a senha ainda se escreve (Diogo 29/10: «prendeu na pass», PC bloqueado)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraQu3J6rFFkjYFcUdKevP4Ln
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.SemSenhaDoSap_OsScriptsNaoSeDao`
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.SemSenha_OScriptParaLogo`
+
+Selo depois: `5dd9004e5e11ea1f`

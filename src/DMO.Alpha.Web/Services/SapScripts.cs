@@ -27,6 +27,10 @@ public sealed class SapScripts(ISapDefinicoes definicoes)
     public async Task<string> TextoAsync(string nome, CancellationToken cancellationToken = default) =>
         await definicoes.ScriptEditadoAsync(nome, cancellationToken) ?? Original(nome);
 
+    /// <summary>Sem senha gravada no Admin › SAP os scripts não se dão: ficavam presos na janela da senha (DMO-661).</summary>
+    public async Task<bool> TemSenhaAsync(CancellationToken cancellationToken = default) =>
+        !string.IsNullOrEmpty(await definicoes.SenhaAsync(cancellationToken));
+
     /// <param name="urlBase">O endereço da app como o browser a vê: o script envia para lá o que leu (DMO-582).</param>
     public async Task<IReadOnlyList<Ficheiro>> FicheirosAsync(string urlBase, CancellationToken cancellationToken = default)
     {

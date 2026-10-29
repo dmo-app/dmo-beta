@@ -508,6 +508,24 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         Assert.EndsWith("sap=ScriptDesconhecido", desconhecido.Headers.Location!.OriginalString);
     }
 
+    // DMO-661: sem senha gravada, o «Instalar»/«Atualizar do SAP» não dá os scripts.
+    [Fact]
+    public async Task SemSenhaDoSap_OsScriptsNaoSeDao()
+    {
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            db.ModuleSettings.RemoveRange(db.ModuleSettings.Where(s => s.SettingKey == SapDefinicoesRegras.ChaveSenha));
+            await db.SaveChangesAsync();
+        }
+
+        using var admin = await LoginAdminAsync();
+        var resposta = await admin.GetAsync("/Admin/Definicoes?handler=ScriptsSap");
+
+        Assert.Equal(System.Net.HttpStatusCode.Conflict, resposta.StatusCode);
+        Assert.Contains("Falta a senha do SAP", await resposta.Content.ReadAsStringAsync());
+    }
+
     private static async Task<Dictionary<string, string>> ScriptsAsync(HttpClient client)
     {
         using var json = System.Text.Json.JsonDocument.Parse(await GetOkAsync(client, "/Admin/Definicoes?handler=ScriptsSap"));

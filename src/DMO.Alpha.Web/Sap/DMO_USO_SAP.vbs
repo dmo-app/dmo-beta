@@ -39,6 +39,13 @@ Const SENHA = "{{SENHA}}"
 Const UTILIZADOR = "{{UTILIZADOR}}"
 Const JANELA_LOGON = "Moldes Existentes"
 
+' Sem senha do SAP o script pára logo (Diogo, 29/10/2026: «prendeu na pass»,
+' o PC bloqueou): nunca fica à espera da janela da senha.
+If SENHA = "" Or InStr(SENHA, Chr(123) & Chr(123)) > 0 Then
+    CreateObject("WScript.Shell").Popup "Falta a senha do SAP. Grave-a no DMO em Admin › SAP e carregue outra vez em «Instalar».", 30, TITULO, 48
+    WScript.Quit 1
+End If
+
 Dim fso, shell, pasta, atalho, ficheiroCodigos, saida, temporario
 Dim SapGuiAuto, application, connection, session
 Dim searchField, grid, outFile
@@ -128,8 +135,9 @@ shell.Run Chr(34) & atalho & Chr(34), 7, False
 ' Esperar por uma sessão do SAP com o campo de procura da ZPPG.
 startedAt = Timer
 Dim senhaEscrita
-' Com o SAP já aberto não há janela da senha: não se escreve nada.
-senhaEscrita = (SENHA = "") Or sapAberto
+' Mesmo com o SAP já aberto, o atalho pode abrir a janela da senha (Diogo,
+' 29/10/2026: «o sap já estava aberto», ficou preso na senha): escreve-se se ela aparecer.
+senhaEscrita = False
 Do
     ' A janela da senha: escrever a senha e carregar em Logon.
     If Not senhaEscrita Then

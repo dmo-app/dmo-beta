@@ -220,6 +220,7 @@
   // Os scripts do SAP com as definições do Admin › SAP, sempre os da app.
   async function escreverScripts(pasta) {
     const resposta = await fetch(URL_SCRIPTS, { credentials: "same-origin", headers: { Accept: "application/json" } });
+    if (resposta.status === 409) throw new Error((await resposta.json()).erro);
     if (!resposta.ok) throw new Error("O servidor não deu os scripts do SAP (" + resposta.status + ").");
     for (const f of await resposta.json()) {
       const bytes = Uint8Array.from(atob(f.base64), (c) => c.charCodeAt(0));

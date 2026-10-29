@@ -1,5 +1,5 @@
 {
-  "selo": "e2521895af016d8f",
+  "selo": "5dd9004e5e11ea1f",
   "unidades": {
     "scripts/ci/ci-local.sh": "b85e4195bb3ac186",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2434,6 +2434,7 @@
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Pessoal_SoTemAContaAPalavraPasseEAAparencia": "bdea2d423c892c7f",
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.PuNnpb_UmGuardarParaB1EC3_AsOutrasLinhasFicamComoEstao": "bf6dcf543adb9977",
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.SemAPermissao_OGeralLeSeComCadeado_ENaoGrava": "d337051ca82210e8",
+    "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.SemSenhaDoSap_OsScriptsNaoSeDao": "91f870206c5708b3",
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.UmModuloInativo_NaoTemSeccao": "01bd7308c1849114",
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.UmSoCadeado_PorCimaDasPastasEDasGerais_QuandoSaoSoDeLeitura": "e74c16bbad40c757",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPin.cs :: (resto do ficheiro)": "3ad0a004ca035488",
@@ -3166,6 +3167,7 @@
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: (resto do ficheiro)": "d38fd88e828f8294",
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OScriptDaZppg_ProcuraSoNaPlantMg": "ef9aa9ed84f29785",
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OsScriptsDoSap_NaoUsamOLikeDoVba": "b6343316fdb3f4ef",
+    "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.SemSenha_OScriptParaLogo": "950eea171c21e580",
     "tests/DMO.Alpha.Web.Tests/SemVigiarFicheiros.cs :: (resto do ficheiro)": "fba9c266d00c8477",
     "tests/DMO.Alpha.Web.Tests/SemVigiarFicheirosTests.cs :: (resto do ficheiro)": "c763cea9fe9b49f6",
     "tests/DMO.Alpha.Web.Tests/SemVigiarFicheirosTests.cs :: SemVigiarFicheirosTests.UmaAplicacaoDeTeste_ArrancaEAbreOLogin_SemGastarVigiasDeFicheiros": "44a8fbe58f05c8de",
