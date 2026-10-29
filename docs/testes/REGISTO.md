@@ -5951,3 +5951,4 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | `PrimeiraProducao_ComecaAZero` | A primeira produção de uma ferramenta nova mostra a Utilização a 0. | OK | A-0441 |
 | `ProducaoQueAindaNaoCorreu_ComecaNaPercentagemAtual` | Uma produção que ainda não correu mostra a % de uso atual da ferramenta. | OK | A-0441 |
 | `No ver, a Informação técnica aberta fica por cima (absoluta, por baixo do cartão) e não faz a folha crescer` | A Informação técnica abre por cima dos elementos de baixo sem empurrar os cartões. | OK | A-0445 |
+| `Editar: mudar o Início ou o Fim atualiza os Dias na hora` | No Editar do Job On os Dias acompanham o Início e o Fim sem gravar. | OK | A-0444 |

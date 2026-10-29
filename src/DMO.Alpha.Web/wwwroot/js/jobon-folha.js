@@ -885,7 +885,22 @@
     });
   }
 
+  // No Editar os Dias mudam logo ao mudar o Início ou o Fim, sem gravar (Diogo, 29/10/2026).
+  function diasAoVivo() {
+    const inicio = document.getElementById('lightStart');
+    const fim = document.getElementById('lightEnd');
+    const dias = document.querySelector('[data-jof-dias]');
+    if (!inicio || !fim || !dias) return;
+    const dia = v => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || ''); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) / 86400000 : null; };
+    const atualizar = () => {
+      const i = dia(inicio.value), f = dia(fim.value);
+      dias.textContent = i !== null && f !== null && f >= i ? String(f - i + 1) : '—';
+    };
+    ['input', 'change'].forEach(t => { inicio.addEventListener(t, atualizar); fim.addEventListener(t, atualizar); });
+  }
+
   function init() {
+    diasAoVivo();
     tecnicaPorCima();
     avisosNoCanto();
     cancelarNoPainel();
