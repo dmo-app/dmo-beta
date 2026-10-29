@@ -1,5 +1,6 @@
 {
   "fixes": [
+    { "id": "DMO-603", "module": "Job On", "description": "0.3.0-beta.234: na gaveta Planeamento da folha do Job On, os cartões das produções ficam com as cores do Planeamento: em repouso o fundo claro da cor da linha com letra normal, no hover e no escolhido a cor da linha cheia com letra branca, no claro e no escuro." },
     { "id": "DMO-599", "module": "Job On", "description": "0.3.0-beta.234: no painel deslizante do Planeamento, o Job On volta a abrir o resumo (datas, secções, CM/MF/BQ/PU com a utilização, notas gerais e «Abrir folha»), e não a folha inteira apertada, com o cabeçalho sobreposto e a deslizar para o lado." },
     { "id": "DMO-001", "module": "Aplicação", "description": "Página de erro com referência para diagnóstico, em vez de uma página inexistente." },
     { "id": "DMO-002", "module": "Aplicação", "description": "Configuração de persistência e autenticação coerente no arranque; sem registos voláteis fora de Development." },
