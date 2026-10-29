@@ -105,6 +105,7 @@ public sealed class PegamentosPdfGenerator
                 page.Content().PaddingVertical(8).Column(content =>
                 {
                     content.Item().Section(input.SectionName);
+                    if (combined) content.Item().SectionLink("resumo").Text("Voltar ao Resumo").FontColor(DmoPdfPalette.Accent);
                     content.Item().PaddingTop(4).Row(row =>
                     {
                         row.Spacing(5);
