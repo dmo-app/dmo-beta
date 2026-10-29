@@ -412,9 +412,29 @@ builder.Services.AddScoped<IUserAdminService, UserAdminService>();
 // -------------------------------------------------------------------------
 // Authentication & authorization
 // -------------------------------------------------------------------------
+// AUTH-B05 (DMO-657): o posto da RI entra por um esquema de cookie PRÓPRIO,
+// separado do login normal — o selector decide pela presença do cookie do
+// posto, sem mudar o esquema por omissão dos [Authorize] existentes (nenhum
+// pede um esquema específico; todos continuam a ler HttpContext.User tal
+// como antes). Antes, o posto partilhava o esquema principal, cujo
+// SlidingExpiration deslizava QUALQUER pedido autenticado para a hora
+// inteira, por cima do ExpiresUtc de poucos minutos que o posto escreve —
+// ver DmoSignInService.SignInPostoAsync e Services/PostoAuthentication.cs.
 builder.Services
-    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
+    .AddAuthentication(options =>
+    {
+        options.DefaultScheme = "DmoAuthSelector";
+        options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultSignOutScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    })
+    .AddPolicyScheme("DmoAuthSelector", "DmoAuthSelector", options =>
+    {
+        options.ForwardDefaultSelector = context =>
+            context.Request.Cookies.ContainsKey(PostoAuthentication.CookieName)
+                ? PostoAuthentication.Scheme
+                : CookieAuthenticationDefaults.AuthenticationScheme;
+    })
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
     {
         options.LoginPath = "/login";
         options.LogoutPath = "/logout";
@@ -428,6 +448,25 @@ builder.Services
         // still be the email kept in the Definições (o ADMIN é o email —
         // o Owner 2026-10-16). Operator principals are untouched; changing
         // the field ends the previous ADMIN's cookie at its next request.
+        options.Events.OnValidatePrincipal = AdminSessionCookieValidator.ValidateAsync;
+    })
+    .AddCookie(PostoAuthentication.Scheme, options =>
+    {
+        options.LoginPath = "/Posto";
+        options.LogoutPath = "/logout";
+        options.AccessDeniedPath = "/Posto";
+        options.Cookie.Name = PostoAuthentication.CookieName;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        // AUTH-B05: sem deslizar — o ExpiresUtc escrito no sign-in (os
+        // minutos das Definições da Reparação, 3 por omissão) é o único
+        // limite. O ExpireTimeSpan aqui só serve de rede: SignInPostoAsync
+        // escreve sempre o seu próprio ExpiresUtc.
+        options.SlidingExpiration = false;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(PostoRiRegras.MinutosPorOmissao);
+        // A mesma validação do login normal (versão da sessão, stand-by,
+        // identidade do provider e RequiresPasswordChange) vale para o
+        // posto: o claim IsAdmin é sempre falso nesta sessão.
         options.Events.OnValidatePrincipal = AdminSessionCookieValidator.ValidateAsync;
     });
 
@@ -727,9 +766,25 @@ var suggestionModules = new Dictionary<string, string[]>(StringComparer.Ordinal)
     ["referencias_bq"] = [DmoCapabilities.Boquilhas, DmoCapabilities.BoquilhasView],
     ["referencias_registo"] = [DmoCapabilities.Ferramentas],
 };
-// O posto da RI: a página está a ser usada (dmo-posto.js). Só renova a
-// sessão (a renovação deslizante do cookie); quem está parado não chama.
-app.MapGet("/posto/ativo", () => Results.NoContent());
+// O posto da RI: a página está a ser usada (dmo-posto.js só chama isto a
+// partir de um evento real da pessoa — pointerdown/keydown/input/wheel/
+// touchstart — nunca por si só). AUTH-B05 (DMO-657): com o esquema próprio
+// do posto sem SlidingExpiration, nada mais renova a sessão; só esta ação
+// explícita da própria pessoa estende o limite dos N minutos. Um pedido
+// qualquer de outra página (JobOn, etc.) NÃO passa por aqui e não renova.
+app.MapGet("/posto/ativo", async (HttpContext context, IOptionsMonitor<CookieAuthenticationOptions> cookieOptions) =>
+{
+    var auth = await context.AuthenticateAsync(PostoAuthentication.Scheme);
+    if (auth.Succeeded && auth.Principal is not null)
+    {
+        var minutos = PostoRiRegras.Minutos(
+            auth.Principal.FindFirst(DmoClaimTypes.PostoMinutos)?.Value);
+        var agora = (cookieOptions.Get(PostoAuthentication.Scheme).TimeProvider ?? TimeProvider.System).GetUtcNow();
+        await context.SignInAsync(PostoAuthentication.Scheme, auth.Principal,
+            new AuthenticationProperties { ExpiresUtc = agora.AddMinutes(minutos) });
+    }
+    return Results.NoContent();
+});
 // O ENVIO DIRETO DO SAP (Diogo, 28/10/2026: «amanhã quero ter a app a funcionar
 // com o sistema já nela, sem ter de ler pasta»; DMO-582): o DMO_SAP_DIARIO.vbs
 // do PC do SAP manda cada ficheiro que leu, com a chave das definições do
