@@ -4929,3 +4929,15 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelMedio_AbreMaisLargo`
 
 Selo depois: `c07be0113f2cf44c`
+
+## A-0358 · 2026-10-29 · contagem-lista
+
+Porquê: 2.ª passagem da auditoria .230 (PESO-B03, BQ-B01): a associação do Peso ao controlo grava a sua hora (um Peso criado antes mas associado depois de aprovar fica «Por aprovar»); o Histórico das Boquilhas usa a referência/lote congelados quando a BQ foi eliminada.
+Novos: 2 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/RegisterBqMovementHandlerTests.cs :: StubSettings.Historico_ComABqEliminada_MostraAReferenciaEOLoteCongelados`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloAprovacaoTests.cs :: ControloAprovacaoTests.UmPesoCriadoAntesEAssociadoDepoisDeAprovar_FicaPorAprovar`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/AssociatePesoToControloHandlerTests.cs :: AssociatePesoToControloHandlerTests.Associate_SameCmTool_KeepsSamePesoAndLinksProduction`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoToolScopedSchemaTests.cs :: PesoToolScopedSchemaTests.PesoEntity_HasNoProductionIdentityColumns`
+
+Selo depois: `bf0976279e3f3a84`

@@ -135,6 +135,18 @@ public sealed class Peso
     public Controlo? Controlo { get; set; }
 
     /// <summary>
+    /// Quando este Peso ficou associado a <see cref="ControloId"/> (UTC), se
+    /// foi por uma associação posterior explícita (<c>AssociatePesoToControloHandler</c>);
+    /// NULL quando o Peso já nasceu com a produção (nunca associado depois)
+    /// ou nos registos anteriores a esta coluna. Sem isto, um Peso criado
+    /// antes de o controlo ser aprovado mas associado depois da aprovação
+    /// parecia «aprovado» sem o aprovador o ter visto (SAP-B.../PESO-B03,
+    /// auditoria de 29/10/2026): a invalidação da aprovação só olhava para
+    /// <see cref="RegistadoEmUtc"/>.
+    /// </summary>
+    public DateTime? AssociadoAoControloEmUtc { get; set; }
+
+    /// <summary>
     /// Quando o registo foi gravado (UTC, pelo backend). Null nos registos
     /// anteriores a 17/10/2026: a data não foi guardada e não se inventa.
     /// A Revisão do Controlo usa-a para pôr o controlo no dia do calendário.

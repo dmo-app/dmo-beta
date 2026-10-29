@@ -42,10 +42,14 @@ internal static class ControloAprovacao
              peso,
              SemDecisoes = !db.ControloDecisoes.Any(d => d.ControloId == c.Id),
              // Um Peso novo depois da decisão (a CM ou a BQ trocou): tem
-             // aprovação própria (Diogo, 19/10/2026, C7).
+             // aprovação própria (Diogo, 19/10/2026, C7). Conta tanto a
+             // criação como uma associação posterior explícita (PESO-B03,
+             // auditoria de 29/10/2026): um Peso pré-produção criado antes da
+             // aprovação mas só associado a esta produção depois dela também
+             // não foi visto pelo aprovador.
              Aprovado = peso != null && peso.Aprovado
                  && !db.Pesos.Any(p => p.ControloId == c.Id && (pesoId == null || p.Id == pesoId)
-                     && p.RegistadoEmUtc > peso.EmUtc),
+                     && (p.RegistadoEmUtc > peso.EmUtc || p.AssociadoAoControloEmUtc > peso.EmUtc)),
              NaoAprovado = peso != null && !peso.Aprovado
          })
         .Select(x => new ControloAprovacaoEstado
