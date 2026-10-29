@@ -656,16 +656,9 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
         }
         else
         {
-          @* Todas as referências em que a ferramenta trabalhou, não só a do
-             Job On de agora (Diogo, 28/10/2026: «a tool_id tem de mostrar
-             todas as referências que trabalhou e não apenas um Job On»). *@
+          @* Sem o quadro «Referência: … (n)» por cima (Diogo, 29/10/2026: «a
+             tabela em baixo já mostra»): cada produção leva a sua referência. *@
           var hojeHist = DateOnly.FromDateTime(DMO.Alpha.Core.Runtime.DmoBusinessTime.Now);
-          var referenciasHist = historico.Pagina.Items
-              .GroupBy(p => p.Referencia.ToUpperInvariant())
-              .Select(g => (Referencia: g.First().Referencia, Producoes: g.Count()))
-              .OrderByDescending(r => r.Producoes).ThenBy(r => r.Referencia, StringComparer.Ordinal)
-              .ToList();
-          <p class="ferr-nota" id="ferrHistoricoReferencias">@(referenciasHist.Count == 1 ? "Referência" : $"{referenciasHist.Count} referências"): @string.Join(" · ", referenciasHist.Select(r => $"{r.Referencia} ({r.Producoes})"))</p>
           <div class="dmo-table-wrap">
             <table class="dmo-table" data-dmo-list="Histórico de produções">
               <thead><tr><th>Produção</th><th>Datas</th><th>Garrafas (bruto)</th><th>Δ garrafas</th><th>% uso</th><th>Peso médio</th><th title="A cadência do SAP em cada produção (a moda: a das ordens com mais dias)">Cadência</th></tr></thead>
