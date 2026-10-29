@@ -111,6 +111,47 @@ public sealed partial class ControloCapabilitiesCutHPageTests
         Assert.Contains("<h3 class=\"revisao-section\" id=\"approve-detail-production\">Pegamentos</h3>", pegamentos);
     }
 
+    // Diogo, 29/10/2026: «controlo aprove faltou diferença da produção, o
+    // delta como tem no nominal» (DMO-595): o «Peso da produção anterior» leva
+    // por baixo a diferença em g e em % ao peso médio atual, como o nominal.
+    [Fact]
+    public async Task Approve_PesoDaProducaoAnteriorMostraAhDiferenca()
+    {
+        var (_, controloId) = await SeedRealProductionAsync();
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            // A produção anterior da mesma referência, com o seu Peso.
+            var anterior = new JobOn { Reference = "5810", ProductionNumber = "J09", MachineId = (await db.Machines.FirstAsync()).Id };
+            db.JobOns.Add(anterior);
+            await db.SaveChangesAsync();
+            var controloAnterior = new DMO.Alpha.Core.Controlo.Controlo { JobOnId = anterior.Id };
+            db.Controlos.Add(controloAnterior);
+            await db.SaveChangesAsync();
+            var pesoAnterior = NovoPeso(controloAnterior.Id, null, null);
+            pesoAnterior.Measurements.Add(new PesoMeasurement { RowPosition = 1, CmSubject = "41", WaterWeightGrams = 250m });
+            db.Pesos.Add(pesoAnterior);
+            await db.SaveChangesAsync();
+
+            var peso = NovoPeso(controloId, controloAnterior.Id, 258m);
+            peso.Measurements.Add(new PesoMeasurement { RowPosition = 1, CmSubject = "61", WaterWeightGrams = 251m });
+            db.Pesos.Add(peso);
+            var folha = new Pegamentos { ControloId = controloId, CmToolId = "T3", BqToolId = "BQ-1", MfToolId = "MF-TOOL-9", ToleranceMm = 0.20m };
+            folha.Measurements.Add(new PegamentosMeasurement { RowPosition = 1, Component = PegamentosComponent.Cm, CosturaMm = 30m, NominalGargaloMm = 30m });
+            db.Pegamentos.Add(folha);
+            await db.SaveChangesAsync();
+        }
+
+        SeedUserWithTemplate("4852", "Chefe Delta", "provider-approve-delta", "ApproveDelta1!",
+            "tpl-teste-approve-delta", "Chefe delta", [DmoCapabilities.ControloApprove, DmoCapabilities.ControloCreate]);
+        using var client = await LoginClientAsync("4852", "ApproveDelta1!");
+        var padrao = "Peso da produção anterior</span><strong>[^<]*</strong><small>(?:&#x2B;|[−-])[^<]* g \\((?:&#x2B;|[−-])[^<]* %\\)</small>";
+        var consulta = await GetPageHtmlAsync(client, $"/Controlo/Approve/Detalhe?controlo_id={controloId}&tipo=peso");
+        Assert.Matches(padrao, consulta);
+        var resumo = await GetPageHtmlAsync(client, $"/Controlo/Approve/Detalhe?controlo_id={controloId}&tipo=controlo");
+        Assert.Matches(padrao, resumo);
+    }
+
     // Sem Peso não há nada para aprovar: nem botões nem nota, e o aviso diz
     // onde se regista (Diogo, 19/10/2026: «isto é uma aprovaçao do peso?»).
     [Fact]

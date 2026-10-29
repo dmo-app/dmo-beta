@@ -4559,3 +4559,17 @@ Novos: 1 · mudaram: 2 · saíram: 27
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisoArmazemEmEsperaTests.cs :: JobOnAvisoArmazemEmEsperaTests.PorOmissao_AAplicacaoNaoOLigaNasDefinicoes`
 
 Selo depois: `5c318483048cbfe4`
+
+## A-0332 · 2026-10-29 · teste-novo
+
+Porquê: × para fechar o aviso «O Job On mudou» no Peso (DMO-594)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraL37Lbd4WXdmt65HTzFQZEw
+Novos: 5 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: ControloCapabilitiesCutHPageTests.Approve_PesoDaProducaoAnteriorMostraAhDiferenca`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Peso_OAvisoDeQueOJobOnMudouTemUmXParaFechar`
+- novo: `tests/ShellProof/aviso-dispensar.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/aviso-dispensar.test.cjs :: o × fecha o aviso e ele não volta ao reabrir a página`
+- novo: `tests/ShellProof/aviso-dispensar.test.cjs :: uma mudança mais nova do que a que se fechou traz o aviso de volta`
+
+Selo depois: `c7e4abf6099e0b4c`

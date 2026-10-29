@@ -5394,3 +5394,11 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 |---|---|---|---|
 | validate_pdf_evidence.py (script) | Valida o conteúdo dos PDFs de Controlo | OK | Fora do CI por desenho (testes.md: precisa de PDF de referência do Diogo). |
 
+
+### Peso › aviso «O Job On mudou» e Approve › diferença da produção (DMO-594, DMO-595)
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| JobOnFichaTests.Peso_OAvisoDeQueOJobOnMudouTemUmXParaFechar | O aviso do Peso tem o ×, e o Resumo não | OK | A-0332 |
+| tests/ShellProof/aviso-dispensar.test.cjs (2) | O × fecha o aviso e não volta; uma mudança mais nova traz-o de volta | OK | A-0332 |
+| ControloCapabilitiesCutHPageTests.Approve_PesoDaProducaoAnteriorMostraAhDiferenca | «Peso da produção anterior» leva g e % por baixo, no Peso e no Resumo do controlo | OK | A-0332 |
