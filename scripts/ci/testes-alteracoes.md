@@ -5184,6 +5184,15 @@ Novos: 5 · mudaram: 2 · saíram: 0
 
 Selo depois: `7d6e9e4dd09e857f`
 
+## A-0359 · 2026-10-29 · contagem-lista
+
+Porquê: CI do #313: migração nova (PesoAssociadoAoControloEmUtc) tinha de entrar na lista fixa do MigrationFoundationTests
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+
+Selo depois: `852a8fa9a1e466cb`
+
 ## A-0390 · 2026-10-29 · contagem-lista
 
 Porquê: Lote .237: a lista das migrações no MigrationFoundationTests ganha a do #313 (PesoAssociadoAoControloEmUtc), como em A-0315/A-0322; só a lista, nenhuma asserção nova ou afrouxada
