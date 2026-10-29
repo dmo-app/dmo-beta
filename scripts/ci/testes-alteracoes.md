@@ -4559,3 +4559,20 @@ Novos: 1 · mudaram: 2 · saíram: 27
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisoArmazemEmEsperaTests.cs :: JobOnAvisoArmazemEmEsperaTests.PorOmissao_AAplicacaoNaoOLigaNasDefinicoes`
 
 Selo depois: `5c318483048cbfe4`
+
+## A-0330 · 2026-10-29 · contagem-lista
+
+Porquê: Painéis fecham ao clicar fora, «Voltar» fixo e hover legível (DMO-592/593): ficheiro novo painel-fecha-ao-clicar-fora.test.cjs e a sua entrada na lista do test:js; o «sim» do Diogo a mudar a regra de 28/10 está nas mensagens de 29/10 05:40 (cmsg_01K75FTs9bQnbhhH7qttpgraRjoHenMh7tBoYHhFiZKV6A)
+Referência: DMO-592
+Novos: 6 · mudaram: 2 · saíram: 0
+
+- novo: `tests/ShellProof/painel-fecha-ao-clicar-fora.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/painel-fecha-ao-clicar-fora.test.cjs :: com alterações por guardar, um clique fora mostra o aviso em vez de fechar`
+- novo: `tests/ShellProof/painel-fecha-ao-clicar-fora.test.cjs :: painel de apoio: um clique fora fecha-o`
+- novo: `tests/ShellProof/painel-fecha-ao-clicar-fora.test.cjs :: painel de apoio: «Voltar» é um link no canto esquerdo, antes do título, e volta à página que lá estava`
+- novo: `tests/ShellProof/painel-fecha-ao-clicar-fora.test.cjs :: um clique fora fecha o painel; dentro da caixa não`
+- novo: `tests/visual/hover_linhas_browser.py`
+- mudou: `scripts/ci/ci-local.sh`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `7ddf28c2d9343d78`

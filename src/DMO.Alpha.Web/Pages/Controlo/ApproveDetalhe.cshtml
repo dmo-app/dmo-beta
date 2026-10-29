@@ -15,9 +15,9 @@
 <main data-dmo-troca class="resumo-page dmo-workspace@(Model.Tipo == "pegamentos" && Model.Production is not null ? " revisao-peg-consulta-page" : null)" aria-labelledby="approve-detail-title">
   <div class="page-head">
     <div>
-      @if (Model.Tipo == "pegamentos" && Model.Production is { } producaoVoltar)
+      @if (Model.Production is { } producaoVoltar)
       {
-        @* «← Voltar» por cima do título, como nas outras páginas (Diogo, 27/10/2026): volta à página de onde se veio, com os filtros. *@
+        @* «Voltar» sempre no canto superior esquerdo, como link (Diogo, 29/10/2026): volta à página de onde se veio, com os filtros. *@
         <a class="dmo-voltar-texto" id="approveVoltar" href="/Controlo/Approve?jobon_id=@producaoVoltar.JobOnId" data-dmo-voltar="@producaoVoltar.JobOnId" data-dmo-voltar-texto="Voltar">Voltar</a>
       }
       <h1 id="approve-detail-title">@(Model.Tipo switch { "peso" => "Consulta do Peso", "pegamentos" => "Consulta dos Pegamentos", "puncoes" => "Consulta do PU NNPB", "controlo" => "Resumo do controlo", _ => "Consulta do Resumo das ferramentas" })</h1>
@@ -69,7 +69,7 @@
     {
       <section class="dmo-card resumo-card">
         <p class="resumo-hint">Nenhuma produção válida selecionada para revisão.</p>
-        <a class="dmo-button" href="/Controlo/Approve">Voltar</a>
+        <a class="dmo-voltar-texto" href="/Controlo/Approve">Voltar</a>
       </section>
     }
   }
@@ -97,13 +97,6 @@
             }
             <a href="/Controlo/Approve?jobon_id=@production.JobOnId">Revisão</a>
           </nav>
-        }
-        else if (Model.Tipo != "pegamentos")
-        {
-          <div class="dmo-card-topo-acoes">
-            @* Volta à página de onde se veio, com os filtros (Diogo, 26/10/2026); sem origem, à revisão. *@
-            <a class="dmo-button" id="approveVoltar" href="/Controlo/Approve?jobon_id=@production.JobOnId" data-dmo-voltar="@production.JobOnId" data-dmo-voltar-texto="Voltar">Voltar</a>
-          </div>
         }
       </div>
       <div class="revisao-facts">
