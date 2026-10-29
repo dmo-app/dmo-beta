@@ -5411,3 +5411,12 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.SemSenha_OScriptParaLogo`
 
 Selo depois: `5dd9004e5e11ea1f`
+
+## A-0412 · 2026-10-29 · teste-novo
+
+Porquê: DMO-667/A-0412 (Diogo 29/10): no Registo do Armazém, «Voltar» por cima do título e a Fábrica do Empréstimo sempre em lista (Definições). 1 teste novo; nenhum antigo mudou.
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Registo_VoltarFicaPorCimaDoTitulo_EAFabricaDoEmprestimoEUmaLista`
+
+Selo depois: `55fad2475f50042a`

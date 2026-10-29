@@ -1,5 +1,5 @@
 {
-  "selo": "5dd9004e5e11ea1f",
+  "selo": "55fad2475f50042a",
   "unidades": {
     "scripts/ci/ci-local.sh": "b85e4195bb3ac186",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1811,6 +1811,7 @@
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Procurar_MostraOUsoDaUltimaLeitura_ESemLeituraUmTraco": "20ae6a908989e51f",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Procurar_SemFerramenta_AvisaComOLinkParaAsFerramentas": "13a1ce8d483edbaf",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Procurar_SoNoCartaoDoTipo_MostraOndeEstaEAbreAFerramenta": "5a42d2d1ace0159d",
+    "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Registo_VoltarFicaPorCimaDoTitulo_EAFabricaDoEmprestimoEUmaLista": "aee31e6d9b1e4b48",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Saida_ODestinoEscolheOsCamposEDepoisAEntradaPropoe": "4843ad1927542443",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Saida_ParaReparacaoSemReparador_RecusaComOFormularioPreenchido": "32d40be8933f5686",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.SemAChave_NaoEntra": "9f60bde41307adb6",

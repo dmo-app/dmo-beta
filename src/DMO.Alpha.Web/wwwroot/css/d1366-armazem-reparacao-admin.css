@@ -378,6 +378,10 @@ html body #riLinhasRail .beta-production-lines :is(button,.dmo-rail-link):is(.dm
   html body main.arm-page #armRegisto>#armLog{position:relative}
   html body main.arm-page #armLog>.dmo-list-pager{position:absolute;top:8px;right:20px;margin:0!important}
   html body main.arm-page #armLog>p{margin:0}
+  /* O Destino cabe por inteiro («Reparação», «Empréstimo»); os últimos movimentos da ferramenta deslizam
+     (duas linhas) e deixam o resto do ecrã às últimas entradas e saídas (DMO-667, Diogo 29/10/2026). */
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta] .arm-entrada-linha>.dmo-field select#armSaiDestino{width:auto;min-width:132px}
+  html body main.arm-page #armMovFerramenta[data-dmo-ferramenta]>.dmo-table-wrap{max-height:96px}
   /* A procura sem ferramenta aberta: a lista do que se encontrou desliza (não empurra o cartão). */
   html body main.arm-page #armProcuraLista .dmo-table-wrap{max-height:max(150px,calc(100vh - 560px))}
 
