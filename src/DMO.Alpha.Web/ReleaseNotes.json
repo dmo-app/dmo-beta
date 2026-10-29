@@ -1,6 +1,6 @@
 {
   "fixes": [
-    { "id": "DMO-647", "module": "Job On", "description": "0.3.0-beta.237: no Planeamento sai o título grande «Planeamento» (o separador Job On já diz onde se está) e as linhas do dia ficam um pouco mais baixas, para as seis máquinas caberem sem deslizar a 1290×646." },
+    { "id": "DMO-652", "module": "Job On", "description": "0.3.0-beta.237: no Planeamento sai o título grande «Planeamento» (o separador Job On já diz onde se está) e as linhas do dia ficam um pouco mais baixas, para as seis máquinas caberem sem deslizar a 1290×646." },
     { "id": "DMO-603", "module": "Job On", "description": "0.3.0-beta.236 (A-0350): na gaveta Planeamento da folha do Job On, os cartões das produções ficam com as cores do Planeamento: em repouso o fundo claro da cor da linha com letra normal, no hover e no escolhido a cor da linha cheia com letra branca, no claro e no escuro." },
     { "id": "DMO-001", "module": "Aplicação", "description": "Página de erro com referência para diagnóstico, em vez de uma página inexistente." },
     { "id": "DMO-002", "module": "Aplicação", "description": "Configuração de persistência e autenticação coerente no arranque; sem registos voláteis fora de Development." },
