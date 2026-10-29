@@ -5202,3 +5202,36 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
 
 Selo depois: `1cfa56ff3a5f7761`
+
+## A-0391 · 2026-10-29 · teste-novo
+
+Porquê: Os scripts do SAP não usam o «Like» do VBA, que dava 800A0023 no PC do SAP (DMO-650).
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraHox5ySvEzeS1u4MkLYRRrV
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OsScriptsDoSap_NaoUsamOLikeDoVba`
+
+Selo depois: `11d6061decabf2cd`
+
+## A-0392 · 2026-10-29 · teste-novo
+
+Porquê: Hora e dias do SAP na mesma linha (DMO-651).
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraMwugQGfF7VkHCAd75ed5wu
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.AHoraEOsDiasDoSap_FicamNaMesmaLinha`
+
+Selo depois: `ce60ee745ffd910a`
+
+## A-0393 · 2026-10-29 · teste-novo
+
+Porquê: Lote .238: junta os testes novos do #322 (SapScriptsVbsTests, AHoraEOsDiasDoSap_FicamNaMesmaLinha), já explicados em A-0391/A-0392
+Referência: A-0391; A-0392
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.AHoraEOsDiasDoSap_FicamNaMesmaLinha`
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OsScriptsDoSap_NaoUsamOLikeDoVba`
+
+Selo depois: `9b47efa82c4e2c2f`
