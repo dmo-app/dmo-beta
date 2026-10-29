@@ -529,6 +529,10 @@ html body main.beta-light-main h1.sr-only{position:absolute!important;width:1px;
    espaço, e as linhas ficam um pouco mais baixas e mais juntas. */
 html body main.beta-light-main:has(#jobonProducoes) .beta-light-view.active>div:empty:not(#_){display:none}
 html body main.beta-light-main:has(#jobonProducoes) .beta-light-view.active>[data-dmo-regiao]:not(:has(*)):not(#_){display:none}
-html body main.beta-light-main:has(#jobonProducoes) #jobonProducoes .beta-light-machine-row:not(#_){min-height:32px;height:32px}
-html body main.beta-light-main:has(#jobonProducoes) #jobonProducoes :has(>.beta-light-machine-row):not(#_){row-gap:3px}
-html body main.beta-light-main:has(#jobonProducoes) #lightProductionList:not(#_){overflow:clip}
+/* A procura e o «Criar Job On» vão para cima da lista, e os cartões das linhas voltam à altura normal com espaço
+   por baixo (Diogo, 29/10/2026: «cortaram os cards das linhas», «dar espaço em baixo», «move o procurar referência»). */
+html body main.beta-light-main:has(#jobonProducoes) .beta-light-productions:not(#_){position:relative}
+html body main.beta-light-main:has(#jobonProducoes) .beta-light-productions>.jobon-procura-bloco:not(#_):not(#__):not(#___){position:absolute;top:12px;right:16px;margin:0;padding:0;border:0;z-index:3}
+html body main.beta-light-main:has(#jobonProducoes) #lightDayTitle:not(#_){min-height:36px;display:flex;align-items:center;margin-bottom:4px}
+html body main.beta-light-main:has(#jobonProducoes) .jobon-procura-bloco .jobon-procura-rotulo:not(#_){display:none}
+html body main.beta-light-main:has(#jobonProducoes) #jobonProducoes :has(>.beta-light-machine-row):not(#_){row-gap:6px}

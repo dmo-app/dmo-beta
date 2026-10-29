@@ -1,5 +1,6 @@
 {
   "fixes": [
+    { "id": "DMO-653", "module": "Job On", "description": "No Planeamento a procura da referência e o «Criar Job On» passam para a linha do título «Produções de …», e os cartões das linhas voltam à altura normal, inteiros e com espaço por baixo." },
     { "id": "DMO-001", "module": "Aplicação", "description": "Página de erro com referência para diagnóstico, em vez de uma página inexistente." },
     { "id": "DMO-002", "module": "Aplicação", "description": "Configuração de persistência e autenticação coerente no arranque; sem registos voláteis fora de Development." },
     { "id": "DMO-003", "module": "Job On", "description": "Decimais de calote guardados corretamente ao criar e editar produções." },
