@@ -354,6 +354,59 @@ public sealed class PesoComparisonQueryTests : IDisposable
             (await _query.FindCandidatesAsync(current, await PesoDoControloAsync(controlos[4]))).Select(c => c.ProductionNumber));
     }
 
+    /// <summary>
+    /// Um Peso vazio (sem leituras) da MESMA combinação (CM + BQ) de uma
+    /// produção já seedada — simula uma pesagem reaberta/criada depois, sem
+    /// leituras ainda (PESO-B05).
+    /// </summary>
+    private async Task<int> SeedPesoVazioAsync(int controloId, string cmToolId, string bqToolId)
+    {
+        var peso = new Peso
+        {
+            CmToolId = cmToolId,
+            BqToolId = bqToolId,
+            Process = "NNPB",
+            WaterTemperatureC = 20,
+            VolumeMarisaCm3 = 10m,
+            VolumePuncaoCm3 = 30m,
+            GlassDensityGramsPerCm3 = 2.5m,
+            ControloId = controloId
+        };
+        _db.Pesos.Add(peso);
+        await _db.SaveChangesAsync();
+        return peso.Id;
+    }
+
+    [Fact]
+    public async Task FindCandidates_PesoVazioCriadoDepois_NaoEscondeAProducaoComLeituras()
+    {
+        // PESO-B05 (sweep 2): o corte das últimas 5 contava Pesos, não
+        // produções distintas com leituras — um Peso vazio da MESMA
+        // combinação (p.ex. uma pesagem reaberta) criado depois do que já
+        // tinha leituras empurrava a leitura real para fora das 5, mesmo
+        // havendo só 5 produções no total (nenhuma devia ficar de fora, e a
+        // que sobrava mostrava 0 leituras em vez das reais).
+        var b1 = await SeedB1ComFichaAsync();
+        var maisAntiga = await SeedProductionWithPesoAsync(
+            b1, "P-202601", "1075C142", "T-ST100", waterWeight: 199m, inicioEm: new DateOnly(2026, 1, 1));
+        // O Peso vazio, da mesma combinação, criado DEPOIS (Id maior).
+        await SeedPesoVazioAsync(maisAntiga, "T-ST100", "BQ-1");
+        foreach (var mes in Enumerable.Range(2, 4))
+        {
+            await SeedProductionWithPesoAsync(b1, $"P-20260{mes}", "1075C142", "T-ST100", inicioEm: new DateOnly(2026, mes, 1));
+        }
+        var current = await SeedProductionWithPesoAsync(b1, "P-202606", "1075C142", "T-ST100", inicioEm: new DateOnly(2026, 6, 1));
+
+        var candidates = await _query.FindCandidatesAsync(current);
+
+        // As 5 produções continuam todas (nenhuma perdida pelo Peso vazio).
+        Assert.Equal(5, candidates.Count);
+        var daMaisAntiga = Assert.Single(candidates, c => c.ProductionNumber == "P-202601");
+        // A entrada é a da leitura REAL, nunca a do Peso vazio criado depois.
+        Assert.Equal(1, daMaisAntiga.ReadingCount);
+        Assert.NotNull(daMaisAntiga.AverageWaterWeightGrams);
+    }
+
     /// <summary>Outro Peso da mesma produção (outra combinação, a BQ-2), com uma leitura.</summary>
     private async Task<int> SeedOutroPesoAsync(int controloId)
     {

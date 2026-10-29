@@ -172,11 +172,41 @@ public sealed class PesoComparisonQuery : IPesoComparisonQuery
         // continua a aparecer, e a tabela não fica com o select em «Procurar
         // produção…». O corte é de 5 Pesos: uma produção com a CM ou a BQ
         // trocada (beta.243) conta um por combinação, o mais recente primeiro.
-        var ultimas = anteriores
-            .MaisRecentePrimeiro(x => x.j)
-            .ThenByDescending(x => x.p.Id)
-            .Select(x => x.p.Id)
-            .Take(IProductionPickerQuery.MaxResults);
+        //
+        // PESO-B05 (sweep 2): «o mais recente primeiro» por combinação tinha
+        // de ler as leituras ANTES do corte — um Peso vazio criado depois
+        // (p.ex. a abrir uma nova pesagem da mesma combinação) ganhava o
+        // lugar ao Peso anterior da MESMA combinação que já tinha leituras,
+        // e esse ficava de fora das 5 só por ser mais antigo. Dentro de cada
+        // combinação (produção + CM + BQ) fica o Peso COM leituras mais
+        // recente; só sem nenhum com leituras é que fica o mais recente vazio.
+        var candidatos = await anteriores
+            .Select(x => new
+            {
+                PesoId = x.p.Id,
+                x.p.CmToolId,
+                x.p.BqToolId,
+                JobOnId = x.j.Id,
+                x.j.InicioEm,
+                TemLeituras = x.p.Measurements.Any()
+            })
+            .ToListAsync(cancellationToken);
+
+        var porCombinacao = candidatos
+            .GroupBy(c => (c.JobOnId, c.CmToolId, c.BqToolId))
+            .Select(g => g
+                .OrderByDescending(c => c.TemLeituras)
+                .ThenByDescending(c => c.PesoId)
+                .First());
+
+        var ultimas = porCombinacao
+            .OrderBy(c => c.InicioEm is null)
+            .ThenByDescending(c => c.InicioEm)
+            .ThenByDescending(c => c.JobOnId)
+            .ThenByDescending(c => c.PesoId)
+            .Select(c => c.PesoId)
+            .Take(IProductionPickerQuery.MaxResults)
+            .ToList();
         query = compararPesoId is int pedido
             ? query.Where(x => ultimas.Contains(x.p.Id) || x.p.Id == pedido)
             : query.Where(x => ultimas.Contains(x.p.Id));

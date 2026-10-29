@@ -78,7 +78,7 @@ public static class PesoComparacaoCalculation
             {
                 par = anterioresPorOrdem.FirstOrDefault(anterior =>
                     !usados.Contains(anterior.Posicao)
-                    && string.Equals(anterior.CmSubject?.Trim(), subject, StringComparison.Ordinal));
+                    && MesmoCmSubject(anterior.CmSubject?.Trim(), subject));
             }
 
             if (par is { } contraparte)
@@ -124,6 +124,30 @@ public static class PesoComparacaoCalculation
             deltasVolume.Count > 0 ? deltasVolume.Average() : null,
             rows);
     }
+
+    /// <summary>
+    /// O mesmo CM para o emparelhamento (PESO-B01, sweep 2): «01» e «1» são o
+    /// mesmo número, só com zeros à esquerda — comparam-se numericamente
+    /// quando os DOIS são só dígitos. Com uma letra de qualquer lado (p.ex.
+    /// «01A» vs «1A») a interpretação é ambígua: fica a igualdade de texto,
+    /// nunca promovida a numérica, para não emparelhar CMs diferentes por
+    /// engano. Nunca altera o que é gravado ou mostrado — só esta comparação.
+    /// </summary>
+    private static bool MesmoCmSubject(string? a, string? b)
+    {
+        var x = a ?? string.Empty;
+        var y = b ?? string.Empty;
+        if (string.Equals(x, y, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return SoDigitos(x) && SoDigitos(y)
+            && int.TryParse(x, out var nx) && int.TryParse(y, out var ny) && nx == ny;
+    }
+
+    private static bool SoDigitos(string valor) =>
+        valor.Length > 0 && valor.All(char.IsAsciiDigit);
 }
 
 /// <summary>
