@@ -566,7 +566,8 @@
     { "id": "DMO-600", "module": "Job On", "description": "0.3.0-beta.235 (A-0338): o resumo do Job On no painel deslizante abre mais largo." },
     { "id": "DMO-601", "module": "Ferramentas", "description": "(A-0340): na ficha da ferramenta, o Histórico de produções deixa de ter o quadro verde «Referência: … (n)» por cima da tabela; a tabela já mostra a referência de cada produção." },
     { "id": "DMO-608", "module": "Ferramentas", "description": "(A-0348): na ficha da ferramenta, também no painel lateral, o Geral fica numa só linha: as Linhas uma por baixo da outra (B1, depois C3), a Quantidade e a Posição estreitas e a Utilização na mesma linha dos outros dados." },
-    { "id": "DMO-609", "module": "Ferramentas", "description": "(A-0348): no Histórico de produções da ficha sai o «Δ garrafas»; ficam Produção, Datas, Garrafas (em bruto), % uso, Peso médio e Cadência. As datas levam os dias da produção à frente («19/10/2026 a 28/10/2026 · 10 dias»), também na janela da Utilização por produção, que passa a dizer «Garrafas» em vez de «Produzido»." }
+    { "id": "DMO-609", "module": "Ferramentas", "description": "(A-0348): no Histórico de produções da ficha sai o «Δ garrafas»; ficam Produção, Datas, Garrafas (em bruto), % uso, Peso médio e Cadência. As datas levam os dias da produção à frente («19/10/2026 a 28/10/2026 · 10 dias»), também na janela da Utilização por produção, que passa a dizer «Garrafas» em vez de «Produzido»." },
+    { "id": "DMO-602", "module": "Ferramentas", "description": "Nova versão (A-0341): na ficha da ferramenta, o Δ anterior do peso por produção compara com a produção anterior que tem peso do SAP, em vez de mostrar «—» quando a mais próxima não o tem." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
