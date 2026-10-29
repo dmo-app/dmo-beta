@@ -404,6 +404,26 @@ else
   failed=1
 fi
 
+# Os erros de aspeto que a revisão dos testes encontrou (DMO-406/495/509/522), corrigidos em DMO-589 (.233).
+# Os scripts chamam-se ainda pendentes_*_browser.py e o texto deles diz «não entra no CI»: já entram.
+echo
+echo "== Browser no aspeto"
+echo "   Resumo Início/Fim numa linha; folha do Job On com 8 calibres e nota comprida; Registo BQ «Início» sem corte (1290×646)."
+if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then
+  echo "   não corrido (CI_SEM_BROWSER=1)"
+  summary+=("--      Browser no aspeto (CI_SEM_BROWSER=1)")
+  incompleto+=("browser")
+elif python3 tests/visual/pendentes_a1_browser.py "$ui" >"$logs/ui-aspeto.log" 2>&1 \
+  && python3 tests/visual/pendentes_a2_browser.py "$ui" >>"$logs/ui-aspeto.log" 2>&1 \
+  && python3 tests/visual/pendentes_b_browser.py "$ui" >>"$logs/ui-aspeto.log" 2>&1; then
+  echo "   passaram"
+  summary+=("OK      Browser no aspeto")
+else
+  tail -30 "$logs/ui-aspeto.log"
+  summary+=("FALHOU  Browser no aspeto")
+  failed=1
+fi
+
 echo
 echo "== Resumo"
 printf '%s\n' "${summary[@]}"

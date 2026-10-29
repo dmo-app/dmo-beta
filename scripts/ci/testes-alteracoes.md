@@ -4852,3 +4852,13 @@ Novos: 0 · mudaram: 3 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Editar_LoteDoAnVazioMostraODaBqComoSugestao_EGuardarOutraCoisaNaoOCopiaParaABase`
 
 Selo depois: `3f7b0c747f3b0cec`
+
+## A-0328 · 2026-10-29 · contagem-lista
+
+Porquê: As verificações de aspeto da revisão dos testes (DMO-406/495/509/522) entram no CI: a app foi corrigida em DMO-589 (.233, #288) e os 3 scripts pendentes_*_browser.py passam. Novo passo «Browser no aspeto» no ci-local.sh; nenhum teste mudou.
+Referência: DMO-589
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `scripts/ci/ci-local.sh`
+
+Selo depois: `6f35b0cd84d962cd`
