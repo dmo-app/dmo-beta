@@ -5780,3 +5780,17 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.CoberturaBPdf.cs :: PesoPdfGeneratorCoberturaBTests.ProducaoAnterior_ComMediaEModa_OsCartoesDizemMediaEModa_EAModaMostraOsDiasSemDiferenca`
 
 Selo depois: `7cffc9e0a88f482f`
+
+## A-0436 · 2026-10-29 · teste-novo
+
+Porquê: Lote .247: junta #350, #351, #353 e #354; os testes novos estão explicados em A-0432..A-0435.
+Referência: lote .247
+Novos: 5 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.CoberturaBPdf.cs :: PesoPdfGeneratorCoberturaBTests.ProducaoAnterior_ComMediaEModa_OsCartoesDizemMediaEModa_EAModaMostraOsDiasSemDiferenca`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoOrdem.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoOrdem.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_NumeraAsProducoesDaFerramenta_A1EAMaisAntiga`
+- novo: `tests/ShellProof/jobon-folha-linhas-contagem.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/jobon-folha-linhas-contagem.test.cjs :: O número do botão «Linhas» fica num círculo com contorno, centrado com o texto`
+
+Selo depois: `d1db188e2d7bbb02`
