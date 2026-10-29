@@ -5605,3 +5605,13 @@ Novos: 1 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBResumo.cs :: PesoFolhaProducaoAnteriorPageTests.Resumo_TabelaDoPeso_TemAsColunasValorGEPercentagem_EACadaLinhaAsDuasDiferencas`
 
 Selo depois: `ffd1b58d9d7cece0`
+
+## A-0424 · 2026-10-29 · teste-novo
+
+Porquê: Teste novo: os dados técnicos do Peso (volumes, densidade, TP/calote) ficam num dobrável fechado por omissão
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraEivdTWrHp8gVA2VQQjDEY5
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_DadosTecnicos_FicamNumDobravelFechadoPorOmissao`
+
+Selo depois: `bffe122afda559ff`

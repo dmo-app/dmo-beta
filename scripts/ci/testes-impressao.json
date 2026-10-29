@@ -1,5 +1,5 @@
 {
-  "selo": "ffd1b58d9d7cece0",
+  "selo": "bffe122afda559ff",
   "unidades": {
     "scripts/ci/ci-local.sh": "b85e4195bb3ac186",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2181,6 +2181,7 @@
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.CapSupportEndpoint_DevolveOCalculoDoBackend": "d03468909be694e6",
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.CapSupportEndpoint_SemCalote_UsaACaloteDoJobOn": "1cca8d9bf69cf55e",
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.CapSupportEndpoint_SemTP_TemReferenciaFalse": "5b517d22844aeea2",
+    "tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_DadosTecnicos_FicamNumDobravelFechadoPorOmissao": "01074cacc7fb16e4",
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_PainelDeFactos_MostraVolumesDensidadeEApoioComACaloteDoJobOn": "3f88f7214dd9042f",
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_SemCaloteNoJobOn_UsaAReferenciaDaTool": "eb44c0b51d36e643",
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_SemTP_ReferenciaPorCompletarEPesoIntacto": "f2252ea9fc8c7f4c",

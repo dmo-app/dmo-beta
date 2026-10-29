@@ -5903,3 +5903,4 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | DefinicoesPorModuloPageTests.AJanelaDoSap_EscondeAsPartesQueNaoEstaoEscolhidas | DMO-665: a janela Atualizar do SAP mostra só a parte escolhida (Diogo 29/10) | OK | A-0410 |
 | ArmazemMovimentosPaginaTests.Registo_VoltarFicaPorCimaDoTitulo_EAFabricaDoEmprestimoEUmaLista | DMO-667/A-0412 (Diogo 29/10): no Registo do Armazém, «Voltar» por cima do título e a Fábrica do Empréstimo sempre em lista (Definições). 1 teste novo; nenhum antigo mudou | OK | A-0412 |
 | JobOnPageTests.Folha_PainelDasLinhas_SoOQueEntraNosProximosCincoDias | Teste novo: o painel das linhas da Folha só mostra o que entra nos próximos 5 dias (DMO-671) | OK | A-0416 |
+| PesoCapSupportPageTests.ProductionMode_DadosTecnicos_FicamNumDobravelFechadoPorOmissao | Teste novo: os dados técnicos do Peso (volumes, densidade, TP/calote) ficam num dobrável com triângulo, fechado por omissão (DMO-674, Diogo 29/10) | OK | A-0424 |
