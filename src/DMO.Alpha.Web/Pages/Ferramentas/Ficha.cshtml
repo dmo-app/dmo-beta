@@ -760,6 +760,15 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
               }
               return texto;
           }
+          // A produção anterior com peso: as mais antigas sem peso do SAP saltam-se.
+          PesoSapResumo? PesoAnteriorA(int i)
+          {
+              for (var j = i + 1; j < itensHistJanela.Count; j++)
+              {
+                  if (PesoDe(j) is { } r) { return r; }
+              }
+              return null;
+          }
           PesoSapResumo? PesoDe(int i) => i < itensHistJanela.Count && Model.PesoProducoes.TryGetValue(itensHistJanela[i].JobOnId, out var r) ? r : null;
           }
           @if (itensHistJanela.Any(p => Model.PesoProducoes.ContainsKey(p.JobOnId)))
@@ -777,7 +786,7 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
                       <td><a class="ferr-armazem-link" href="@Url.Page("/JobOn/Index", new { jobon_id = prod.JobOnId })"><strong>@prod.Producao</strong></a> <small class="ferr-producao-maquina">@prod.Maquina</small></td>
                       <td>@(peso is null ? "—" : DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(peso.MediaGramas) + " g")</td>
                       <td>@(peso is null ? "—" : DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(peso.ModaGramas) + " g")</td>
-                      <td>@DeltaPeso(peso, PesoDe(i + 1))</td>
+                      <td>@DeltaPeso(peso, PesoAnteriorA(i))</td>
                     </tr>
                   }
                 </tbody>
@@ -789,7 +798,7 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
               if (PesoDe(i) is not { } peso) { continue; }
               <dialog id="ferrPeso@(prod.JobOnId)" class="dmo-dialog ferr-producoes-janela ferr-peso-janela" aria-labelledby="ferrPesoTitulo@(prod.JobOnId)">
                 <h3 id="ferrPesoTitulo@(prod.JobOnId)" title="O peso médio do relatório de produções do SAP em cada Job On: a média pesada pelos dias e a moda (o peso que se repete mais). O Δ é a média contra a da produção anterior, em gramas e em %. Um clique na produção abre a ficha do Job On.">Peso por produção</h3>
-                <p class="ferr-nota">Produção <strong>@prod.Producao</strong> · Média <strong>@DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(peso.MediaGramas) g</strong> · Moda <strong>@DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(peso.ModaGramas) g</strong> · Δ anterior <strong>@DeltaPeso(peso, PesoDe(i + 1))</strong></p>
+                <p class="ferr-nota">Produção <strong>@prod.Producao</strong> · Média <strong>@DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(peso.MediaGramas) g</strong> · Moda <strong>@DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(peso.ModaGramas) g</strong> · Δ anterior <strong>@DeltaPeso(peso, PesoAnteriorA(i))</strong></p>
                 <div data-ferr-peso-lugar></div>
                 <div class="dmo-dialog-actions">
                   <button type="button" class="dmo-button" data-dmo-dialog-close data-ferr-peso-fechar>Fechar</button>

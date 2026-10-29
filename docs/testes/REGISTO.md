@@ -5842,3 +5842,4 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | ControloCapabilitiesCutHPageTests.Approve_PesoDaProducaoAnteriorMostraAhDiferenca | «Peso da produção anterior» leva g e % por baixo, no Peso e no Resumo do controlo | OK | A-0332 |
 
 | ControloCapabilitiesCutHPageTests.Approve_BarraDosFiltrosNaoRepeteAEtiquetaPendente | A barra dos filtros do Aprovar não repete a etiqueta «Pendente» | OK | A-0335 (DMO-597) |
+| DefinicoesPorModuloPageTests.OPesoDoHistorico_DeltaSaltaAsProducoesAnterioresSemPeso | O Δ do peso por produção salta as anteriores sem peso | OK | A-0341 (DMO-602) |

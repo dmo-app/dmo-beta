@@ -4895,3 +4895,13 @@ Novos: 6 · mudaram: 2 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `6c7ce321b5f42e87`
+
+## A-0341 · 2026-10-29 · teste-novo
+
+Porquê: Δ anterior do peso por produção salta as anteriores sem peso (DMO-602)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraUgL2ipM5RzYX6UEZx6Kunt
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PesoPorProducao.cs :: DefinicoesPorModuloPageTests.OPesoDoHistorico_DeltaSaltaAsProducoesAnterioresSemPeso`
+
+Selo depois: `199918b21337a0b9`

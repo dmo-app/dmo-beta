@@ -1,5 +1,5 @@
 {
-  "selo": "6c7ce321b5f42e87",
+  "selo": "199918b21337a0b9",
   "unidades": {
     "scripts/ci/ci-local.sh": "87afafb0b81f8ca9",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2419,6 +2419,7 @@
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PastasEmColunas.cs :: DefinicoesPorModuloPageTests.AsPastasDesteComputador_FicamCadaUmaNaSuaColuna": "3686f2334587f0da",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PesoPorProducao.cs :: (resto do ficheiro)": "15a550359070c5ac",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PesoPorProducao.cs :: DefinicoesPorModuloPageTests.OPesoDoHistorico_AbreAJanelaComTodasAsProducoes_MediaModaEDeltaEmGEPercentagem": "d020936d66b8b1dc",
+    "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PesoPorProducao.cs :: DefinicoesPorModuloPageTests.OPesoDoHistorico_DeltaSaltaAsProducoesAnterioresSemPeso": "597c260521a23f0f",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapMaisAntigo.cs :: (resto do ficheiro)": "6d6aca8933b8917d",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapMaisAntigo.cs :: DefinicoesPorModuloPageTests.UmFicheiroDoSapMaisAntigoDoQueOUltimoLido_NaoGrava": "8ad1c34d3f2274ac",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: (resto do ficheiro)": "20b422bec4da6f5d",
