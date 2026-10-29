@@ -4869,3 +4869,13 @@ Novos: 6 · mudaram: 2 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `91091fb4cd0913af`
+
+## A-0338 · 2026-10-29 · teste-novo
+
+Porquê: Painel médio (resumo do Job On) abre mais largo (DMO-600)
+Referência: DMO-600
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelMedio_AbreMaisLargo`
+
+Selo depois: `20b70164dcfa4312`
