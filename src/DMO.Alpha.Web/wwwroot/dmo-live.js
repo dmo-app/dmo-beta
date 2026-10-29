@@ -366,9 +366,23 @@
   function montarVoltar() {
     var caminho = acertarCaminho();
     var links = document.querySelectorAll("a[data-dmo-voltar], a.dmo-voltar-texto");
-    if (links.length === 0 || !caminho) return;
+    if (!caminho) return;
     var origem = caminho.length > 1 ? caminho[caminho.length - 2] : null;
     if (!origem || caminhoDe(origem) === "/login") return;
+    // Todas as páginas (Diogo, 29/10/2026: «já criámos o Voltar para todas as páginas?»):
+    // a que não o escreveu ganha o link no canto superior esquerdo, desde que
+    // venha de outra página (a primeira não tem para onde voltar).
+    if (links.length === 0 && !/imprimir/i.test(global.location.pathname)) {
+      var principal = document.querySelector("main");
+      if (!principal) return;
+      var novo = document.createElement("a");
+      novo.className = "dmo-voltar-texto";
+      novo.setAttribute("data-dmo-voltar", "auto");
+      novo.setAttribute("href", origem);
+      novo.textContent = "Voltar";
+      principal.insertBefore(novo, principal.firstChild);
+      links = [novo];
+    }
     Array.prototype.forEach.call(links, function (link) {
       link.setAttribute("href", origem);
       var texto = link.getAttribute("data-dmo-voltar-texto");

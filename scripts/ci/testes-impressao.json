@@ -1,5 +1,5 @@
 {
-  "selo": "c07be0113f2cf44c",
+  "selo": "1667b4002ee21767",
   "unidades": {
     "scripts/ci/ci-local.sh": "b85e4195bb3ac186",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -3327,7 +3327,7 @@
     "tests/ShellProof/jobon-tool-picker.test.cjs :: «Criar BQ» abre o registo das Ferramentas com a máquina da folha no momento do clique": "2747f0dc6012fecf",
     "tests/ShellProof/jobon-tool-picker.test.cjs :: «Mostrar todas as ferramentas» só pede o catálogo inteiro quando está marcado": "61d6174d62480996",
     "tests/ShellProof/package-lock.json": "8cabd09c7635d204",
-    "tests/ShellProof/package.json": "af30152152fa2ff9",
+    "tests/ShellProof/package.json": "b02c12e7604a4ad9",
     "tests/ShellProof/painel-apoio-alteracoes.test.cjs :: (resto do ficheiro)": "746debc2c59fb275",
     "tests/ShellProof/painel-apoio-alteracoes.test.cjs :: Painel de apoio: um <dmo-painel> com alterações por guardar fica com o aviso e o apoio não abre por cima": "0b2b99e6fc3e1cbc",
     "tests/ShellProof/painel-estrutura.test.cjs :: (resto do ficheiro)": "c525db31e3b4284e",
@@ -3503,6 +3503,8 @@
     "tests/ShellProof/vistoria-frontend.test.cjs :: F3: o rascunho de outra pessoa não aparece e sai do browser": "bfd43132d0af51e5",
     "tests/ShellProof/vistoria-frontend.test.cjs :: F3: o rascunho de quem abre a folha volta": "0a0e45c65ab3e498",
     "tests/ShellProof/vistoria-frontend.test.cjs :: F3: um rascunho com mais de um dia não volta; um de 23 h volta": "6b6d97b9dd98d642",
+    "tests/ShellProof/voltar-automatico.test.cjs :: (resto do ficheiro)": "5863ceefc236b678",
+    "tests/ShellProof/voltar-automatico.test.cjs :: a página sem Voltar escrito ganha-o no canto, só se vier de outra página": "f6dab5cd7b57c4c6",
     "tests/ShellProof/voltar-caminho.test.cjs :: (resto do ficheiro)": "e2529dcfcea8001e",
     "tests/ShellProof/voltar-caminho.test.cjs :: a mesma página com outros filtros ou depois de guardar não é um passo": "836b7fa6eaed2848",
     "tests/ShellProof/voltar-caminho.test.cjs :: a primeira página do separador usa a página anterior do site; o login começa de novo": "4edd15e94110e992",

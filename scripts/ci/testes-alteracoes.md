@@ -4929,3 +4929,15 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelMedio_AbreMaisLargo`
 
 Selo depois: `c07be0113f2cf44c`
+
+## A-0349 · 2026-10-29 · contagem-lista
+
+Porquê: Só entrou o ficheiro novo voltar-automatico.test.cjs na lista de testes (package.json); Diogo 29/10: «nos ja criamos o voltar para todas as paginas'?»
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra4mH2zZ2eTtEjgoducXvkiA
+Novos: 2 · mudaram: 1 · saíram: 0
+
+- novo: `tests/ShellProof/voltar-automatico.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/voltar-automatico.test.cjs :: a página sem Voltar escrito ganha-o no canto, só se vier de outra página`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `1667b4002ee21767`
