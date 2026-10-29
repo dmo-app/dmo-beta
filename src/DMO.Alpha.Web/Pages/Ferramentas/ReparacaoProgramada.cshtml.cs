@@ -163,6 +163,24 @@ public sealed class ReparacaoProgramadaModel(IReparacaoProgramada programada, Sh
         return Page();
     }
 
+    /// <summary>
+    /// A procura ao escrever (DMO-591): só a zona dos resultados, sem shell,
+    /// listas nem histórico. A lista escolhida conta para o «Adicionar».
+    /// </summary>
+    public async Task<IActionResult> OnGetResultadosAsync()
+    {
+        var ct = HttpContext.RequestAborted;
+        Candidatas = await programada.ProcurarAsync(Procura, ct);
+        var escolhida = ListaId is > 0 ? ListaId : ListaId == 0 ? null : (await programada.ListasAsync(false, ct)).FirstOrDefault()?.Id;
+        if (escolhida is { } id)
+        {
+            Lista = await programada.ListaAsync(id, ct);
+        }
+
+        Response.Headers["X-Dmo-Region"] = "rpResultados";
+        return Partial("_ReparacaoProgramadaResultados", this);
+    }
+
     /// <summary>«Nova lista»: o reparador e «Criar» fazem uma lista ativa vazia.</summary>
     [EnvioUnico]
     public async Task<IActionResult> OnPostCriarAsync(int? reparador)
@@ -238,7 +256,4 @@ public sealed class ReparacaoProgramadaModel(IReparacaoProgramada programada, Sh
 
         return linha.SaidaEmUtc is { } saida ? $"Saída {DiaCurto(saida)}" : "Por retirar";
     }
-
-    public static string Titulo(ProgramadaListaResumo lista) =>
-        $"{lista.Reparador} · {Dia(lista.CriadaEmUtc)}" + (lista.Ativa ? string.Empty : " · fechada");
 }

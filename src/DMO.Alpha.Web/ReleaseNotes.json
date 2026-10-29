@@ -559,7 +559,8 @@
     { "id": "DMO-595", "module": "Controlo", "description": "0.3.0-beta.234 (A-0332): no Controlo › Aprovar, o «Peso da produção anterior» mostra por baixo a diferença em g e em % ao peso médio atual, como o peso nominal." },
     { "id": "DMO-597", "module": "Controlo", "description": "0.3.0-beta.234 (A-0332): no Controlo › Aprovar, a barra dos filtros já não mostra a etiqueta «Pendente» ao lado de Exportar, porque já aparece em baixo." },
     { "id": "DMO-592", "module": "Aplicação", "description": "0.3.0-beta.234 (A-0330): os painéis deslizantes voltam a fechar ao clicar fora (Diogo, 29/10); o «Voltar» fica sempre à vista no topo do painel." },
-    { "id": "DMO-593", "module": "Aplicação", "description": "0.3.0-beta.234 (A-0330): o hover nos painéis fica legível, igual ao resto da app." }
+    { "id": "DMO-593", "module": "Aplicação", "description": "0.3.0-beta.234 (A-0330): o hover nos painéis fica legível, igual ao resto da app." },
+    { "id": "DMO-591", "module": "Ferramentas", "description": "(A-0329): nas Listas de reparação, o campo «Lista» mostra só o reparador (o dia aparece na lista aberta), sem passar por cima do «Reparador». Em «Procurar ferramentas», a Referência e o Lote procuram ao escrever (antes só com Enter, e escrever 1075 não mostrava nada); só os resultados mudam, o campo fica como estava." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
