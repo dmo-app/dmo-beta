@@ -624,7 +624,7 @@
     { "id": "DMO-656", "module": "Utilizadores", "description": "0.3.0-beta.241 (A-0405): Arquivar e depois reativar um utilizador exige sempre um novo login — já não deixa entrar com uma sessão antiga." },
     { "id": "DMO-657", "module": "Reparação Interna", "description": "0.3.0-beta.241 (A-0406): A sessão do Posto fecha mesmo aos 3 minutos sem uso, em vez de ser renovada pela sessão geral de 1 hora; cada ação real da pessoa (não pedidos automáticos) continua a renovar o limite." },
     { "id": "DMO-671", "module": "Job On", "description": "0.3.0-beta.243 (A-0416): na folha do Job On o painel das linhas mostra só as produções que entram nos próximos 5 dias." },
-    { "id": "DMO-662", "module": "Peso", "description": "0.3.0-beta.243 (A-0417): na folha do Peso, os cartões das leituras e do controlo anterior esticam até ao fundo, sem vazios; na Comparação de Peso, o + e o − ficam dentro da caixa das leituras." }
+    { "id": "DMO-672", "module": "Peso", "description": "0.3.0-beta.243 (A-0417): na folha do Peso, os cartões das leituras e do controlo anterior esticam até ao fundo, sem vazios; na Comparação de Peso, o + e o − ficam dentro da caixa das leituras." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
