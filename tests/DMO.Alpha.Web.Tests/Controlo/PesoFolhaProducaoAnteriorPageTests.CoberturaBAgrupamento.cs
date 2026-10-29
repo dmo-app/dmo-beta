@@ -2,11 +2,12 @@ namespace DMO.Alpha.Web.Tests.Controlo;
 
 public partial class PesoFolhaProducaoAnteriorPageTests
 {
-    // DMO-491: a tabela da comparação agrupa as colunas em «Este controlo»,
-    // o controlo anterior e a «Diferença», por esta ordem, e a seguir vêm as
-    // colunas de cada grupo.
+    // DMO-491, mudado por pedido do Diogo (29/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraM8r59Af85tn7f3zTFfP4DF
+    // e cmsg_01K75FTs9bQnbhhH7qttpgraFUfGGfDxwiZwrLfL7HKTHW): a tabela da comparação
+    // põe lado a lado, por grandeza, o atual, o anterior e a diferença (volume e peso),
+    // e as colunas do controlo anterior levam um fundo cinza claro.
     [Fact]
-    public async Task Folha_TabelaDaComparacao_AgrupaEsteControlo_ControloAnterior_EDiferenca_PorEstaOrdem()
+    public async Task Folha_TabelaDaComparacao_AgrupaPorGrandeza_AtualAnteriorEDiferenca_ComAnteriorACinza()
     {
         var (controloId, _, _, _) = await SeedAsync();
         SeedUser("4878", "Peso Operador", "provider-folha-grupos", "FolhaGrupos15!");
@@ -18,14 +19,13 @@ public partial class PesoFolhaProducaoAnteriorPageTests
         Assert.True(inicio >= 0, "a página não tem a tabela da comparação");
         var tabela = html[inicio..html.IndexOf("</table>", inicio, StringComparison.Ordinal)];
 
-        Assert.Contains("<th colspan=\"3\" scope=\"colgroup\">Este controlo</th>", tabela, StringComparison.Ordinal);
-        Assert.Contains("<th colspan=\"3\" scope=\"colgroup\">Controlo anterior · 202604</th>", tabela, StringComparison.Ordinal);
-        Assert.Contains("<th colspan=\"2\" scope=\"colgroup\">Diferença</th>", tabela, StringComparison.Ordinal);
-        var este = PosicaoNoHtml.Posicao(tabela, ">Este controlo</th>");
-        var anterior = PosicaoNoHtml.Posicao(tabela, ">Controlo anterior · 202604</th>");
-        var diferenca = PosicaoNoHtml.Posicao(tabela, ">Diferença</th>");
-        Assert.True(este < anterior && anterior < diferenca, "Este controlo, Controlo anterior, Diferença");
-        // Os grupos vêm antes das colunas de cada um.
-        Assert.True(diferenca < PosicaoNoHtml.Posicao(tabela, "<th>Volume (cm³)</th>"));
+        Assert.Contains("<th colspan=\"3\" scope=\"colgroup\">Volume (cm³)</th>", tabela, StringComparison.Ordinal);
+        Assert.Contains("<th colspan=\"3\" scope=\"colgroup\">Peso (g)</th>", tabela, StringComparison.Ordinal);
+        var volume = PosicaoNoHtml.Posicao(tabela, ">Volume (cm³)</th>");
+        var peso = PosicaoNoHtml.Posicao(tabela, ">Peso (g)</th>");
+        Assert.True(volume < peso, "Volume e depois Peso");
+        // Em cada grandeza: atual, anterior (cinza) e diferença.
+        Assert.Matches("<th>Atual</th>\\s*<th class=\"peso-cmp-ant\">Anterior</th>\\s*<th>Diferença</th>\\s*<th>Atual</th>\\s*<th class=\"peso-cmp-ant\">Anterior</th>\\s*<th>Diferença</th>", tabela);
+        Assert.Contains("class=\"peso-cmp-ant\"", tabela, StringComparison.Ordinal);
     }
 }

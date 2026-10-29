@@ -1836,20 +1836,22 @@
         <div class="dmo-table-wrap" style="margin-top:8px">
           <table class="dmo-table" data-peso-comparacao-tabela>
             <thead>
+              @* Lado a lado por grandeza (Diogo, 29/10/2026): o volume atual ao lado do anterior e da
+                 diferença, e o mesmo no peso; as colunas do controlo anterior levam um fundo cinza claro. *@
               <tr class="peso-cmp-grupos">
-                <th colspan="3" scope="colgroup">Este controlo</th>
-                <th colspan="3" scope="colgroup">@historicoRotulo</th>
-                <th colspan="2" scope="colgroup">Diferença</th>
+                <th colspan="2" scope="colgroup">CM</th>
+                <th colspan="3" scope="colgroup">Volume (cm³)</th>
+                <th colspan="3" scope="colgroup">Peso (g)</th>
               </tr>
               <tr>
-                <th>CM</th>
-                <th>Volume (cm³)</th>
-                <th>Peso (g)</th>
-                <th>CM</th>
-                <th>Volume (cm³)</th>
-                <th>Peso (g)</th>
-                <th>Δ volume (cm³)</th>
-                <th>Δ peso (g)</th>
+                <th>Este controlo</th>
+                <th class="peso-cmp-ant">@historicoRotulo</th>
+                <th>Atual</th>
+                <th class="peso-cmp-ant">Anterior</th>
+                <th>Diferença</th>
+                <th>Atual</th>
+                <th class="peso-cmp-ant">Anterior</th>
+                <th>Diferença</th>
               </tr>
             </thead>
             <tbody>
@@ -1858,12 +1860,12 @@
                 var anterior = comparison.Rows.FirstOrDefault(r => r.Position == measurement.RowPosition);
                 <tr>
                   <td>@(string.IsNullOrEmpty(measurement.CmSubject) ? "—" : measurement.CmSubject)</td>
+                  <td class="peso-cmp-ant">@(anterior is { } a1 && !string.IsNullOrEmpty(a1.HistoricalCmSubject) ? a1.HistoricalCmSubject : "—")</td>
                   <td>@fmtCap(measurement.CapacityCm3)</td>
-                  <td>@fmt(measurement.GlassWeightGrams)</td>
-                  <td>@(anterior is { } a1 && !string.IsNullOrEmpty(a1.HistoricalCmSubject) ? a1.HistoricalCmSubject : "—")</td>
-                  <td>@(anterior?.HistoricalCapacityCm3 is { } hcap ? fmtCap(hcap) : "—")</td>
-                  <td>@(anterior is { } a2 ? fmt(a2.HistoricalGlassWeightGrams) : "—")</td>
+                  <td class="peso-cmp-ant">@(anterior?.HistoricalCapacityCm3 is { } hcap ? fmtCap(hcap) : "—")</td>
                   <td>@(anterior?.HistoricalCapacityCm3 is { } hcap2 ? signed(measurement.CapacityCm3 - hcap2) : "—")</td>
+                  <td>@fmt(measurement.GlassWeightGrams)</td>
+                  <td class="peso-cmp-ant">@(anterior is { } a2 ? fmt(a2.HistoricalGlassWeightGrams) : "—")</td>
                   <td><strong>@(anterior is { } a3 ? signed(measurement.GlassWeightGrams - a3.HistoricalGlassWeightGrams) : "—")</strong></td>
                 </tr>
               }
@@ -1871,12 +1873,12 @@
             <tfoot data-peso-comparacao-medias>
               <tr>
                 <th scope="row">Média</th>
+                <td class="peso-cmp-ant"></td>
                 <td>@(comparison.CurrentAverages is { } ca ? fmtCap(ca.AverageCapacityCm3) : "—")</td>
-                <td>@(comparison.CurrentAverages is { } ca1 ? fmt(ca1.AverageGlassWeightGrams) : "—")</td>
-                <td></td>
-                <td>@(comparison.HistoricalAverages is { } ha ? fmtCap(ha.AverageCapacityCm3) : "—")</td>
-                <td>@(comparison.HistoricalAverages is { } ha1 ? fmt(ha1.AverageGlassWeightGrams) : "—")</td>
+                <td class="peso-cmp-ant">@(comparison.HistoricalAverages is { } ha ? fmtCap(ha.AverageCapacityCm3) : "—")</td>
                 <td>@(comparison.Deltas.CapacityDifferenceCm3 is { } cd ? signed(cd) : "—")</td>
+                <td>@(comparison.CurrentAverages is { } ca1 ? fmt(ca1.AverageGlassWeightGrams) : "—")</td>
+                <td class="peso-cmp-ant">@(comparison.HistoricalAverages is { } ha1 ? fmt(ha1.AverageGlassWeightGrams) : "—")</td>
                 <td><strong class="@(comparison.Deltas.GlassWeightDifferenceGrams is { } gd && gd < 0 ? "peso-valor-negativo" : null)">@(comparison.Deltas.GlassWeightDifferenceGrams is { } gd2 ? signed(gd2) : "—")@(comparison.Deltas.GlassWeightVariationPercent is { } gv ? $" ({signed(gv)} %)" : null)</strong></td>
               </tr>
             </tfoot>
