@@ -113,28 +113,52 @@ public sealed class PostoSoRiTests : IClassFixture<CustomWebApplicationFactory>
 
     /// <summary>
     /// AUTH-B05 (DMO-657): antes, o posto partilhava o cookie do login normal
-    /// (SlidingExpiration=true, ExpireTimeSpan de 1 hora) — um pedido feito
-    /// DENTRO do limite do posto (aqui, aos 2 min de um limite de 3) deslizava
-    /// o cookie para a hora inteira, e a sessão continuava válida muito depois
-    /// dos 3 minutos sem que mais nenhum pedido fosse preciso. Com o esquema
-    /// próprio do posto, sem deslizar, esse MESMO pedido já não estende nada:
-    /// o ExpiresUtc escrito no login continua a ser o único limite.
+    /// (SlidingExpiration=true, ExpireTimeSpan de 1 hora) — QUALQUER pedido,
+    /// mesmo um automático, deslizava o cookie para a hora inteira. Agora o
+    /// esquema próprio do posto não desliza por si só: só uma ação REAL da
+    /// própria pessoa (o `dmo-posto.js` chama `/posto/ativo`, e só a partir
+    /// de um evento de interação real) renova o limite. Um pedido normal a
+    /// outra página, que não passa por `/posto/ativo`, não renova nada.
     /// </summary>
     [Fact]
-    public async Task PeloPosto_UmPedidoDentroDoLimite_JaNaoEstendeParaUmaHora()
+    public async Task PeloPosto_ChamarAtivo_RenovaOLimitePorMaisNMinutos()
     {
         var (factory, relogio, id) = Fabrica(minutos: null);
         using var _ = factory;
         using var posto = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
         await EntrarNoPostoAsync(posto, id);
 
-        // Um único pedido a meio do limite de 3 minutos — exatamente o que
-        // deslizava o cookie do login partilhado para a hora inteira.
+        // Aos 2 minutos (ainda dentro do limite de 3), a pessoa usa a página
+        // e o dmo-posto.js chama /posto/ativo — isto RENOVA o limite.
         relogio.Avancar(TimeSpan.FromMinutes(2));
         Assert.Equal(HttpStatusCode.NoContent, (await posto.GetAsync("/posto/ativo")).StatusCode);
 
-        // Passados os 3 minutos do login (muito antes da hora que o esquema
-        // partilhado teria concedido), a sessão já não vale.
+        // Mais 2.5 minutos (4.5 desde o login, mas só 2.5 desde a renovação,
+        // dentro dos 3 que a renovação concedeu): a sessão continua válida.
+        relogio.Avancar(TimeSpan.FromMinutes(2.5));
+        Assert.Equal(HttpStatusCode.OK, (await posto.GetAsync("/ReparacaoInterna")).StatusCode);
+    }
+
+    /// <summary>
+    /// Um pedido que NÃO passa por `/posto/ativo` (ex.: abrir outra página)
+    /// não renova o limite — só a ação real detetada pelo `dmo-posto.js`
+    /// (que chama `/posto/ativo`) conta como uso.
+    /// </summary>
+    [Fact]
+    public async Task PeloPosto_PedidoQueNaoPassaPorAtivo_NaoRenova()
+    {
+        var (factory, relogio, id) = Fabrica(minutos: null);
+        using var _ = factory;
+        using var posto = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
+        await EntrarNoPostoAsync(posto, id);
+
+        // Aos 2 minutos, um pedido normal a outra página (não é /posto/ativo)
+        // continua a entrar (dentro do limite de 3), mas não renova nada.
+        relogio.Avancar(TimeSpan.FromMinutes(2));
+        Assert.Equal(HttpStatusCode.OK, (await posto.GetAsync("/ReparacaoInterna")).StatusCode);
+
+        // Passado o limite original de 3 minutos desde o login, a sessão
+        // já expirou — aquele pedido não a renovou.
         relogio.Avancar(TimeSpan.FromMinutes(2));
         var depois = await posto.GetAsync("/ReparacaoInterna");
         Assert.Equal(HttpStatusCode.Redirect, depois.StatusCode);
