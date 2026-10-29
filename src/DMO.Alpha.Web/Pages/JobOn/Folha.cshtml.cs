@@ -245,6 +245,45 @@ public sealed class FolhaModel(
     public string? UsoCheioDe(string? toolId) =>
         toolId is not null && Usos.TryGetValue(toolId, out var uso) ? UsoCheio.ClasseDe(uso) : null;
 
+    /// <summary>A % de uso de cada ferramenta no início desta produção, pelo tool_id (sem entrada: fica a da folha).</summary>
+    public IReadOnlyDictionary<string, decimal> UsosNoInicio { get; private set; } = new Dictionary<string, decimal>();
+
+    /// <summary>
+    /// A % de uso de cada ferramenta quando esta produção começou, ligada pelo tool_id e nunca pelo que ficou
+    /// escrito no Job On (Diogo, 28/10/2026; 29/10/2026: «dupliquei o jobon e % uso do CM passou 6.7% para 2%»,
+    /// «a produção 202601 está a associar % do 202602 como anterior»): a leitura antes dela quando existe; sem
+    /// produção feita ainda, a % atual; sem nenhuma produção da ferramenta antes desta, 0.
+    /// </summary>
+    public static IReadOnlyDictionary<string, decimal> UsoNoInicio(
+        ProductionContextReadModel jobOn,
+        IReadOnlyDictionary<string, IReadOnlyList<DMO.Alpha.Core.Tools.FerramentaProducao>> producoes,
+        IReadOnlyDictionary<string, decimal> atuais)
+    {
+        var usos = new Dictionary<string, decimal>(StringComparer.Ordinal);
+        foreach (var toolId in new[] { jobOn.CmToolId, jobOn.MfToolId, jobOn.BqToolId }.OfType<string>())
+        {
+            var lista = producoes.TryGetValue(toolId, out var l) ? l : [];
+            var esta = lista.FirstOrDefault(p => p.JobOnId == jobOn.JobOnId);
+            if (esta?.UtilizacaoAntes is { } antes)
+            {
+                usos[toolId] = antes;
+            }
+            else if (esta is null || (esta.ProducaoBruta ?? 0) == 0)
+            {
+                if (atuais.TryGetValue(toolId, out var atual))
+                {
+                    usos[toolId] = atual;
+                }
+            }
+            else if (!lista.Any(p => p.JobOnId != jobOn.JobOnId && (p.ProducaoBruta ?? 0) > 0 && p.InicioEm < jobOn.InicioEm))
+            {
+                usos[toolId] = 0m;
+            }
+        }
+
+        return usos;
+    }
+
     public JobOnToolFacts? Fact(string? toolId) => toolId is null ? null : Facts.FirstOrDefault(f => f.ToolId == toolId);
 
     /// <summary>
@@ -502,6 +541,19 @@ public sealed class FolhaModel(
             Facts = await toolFacts.FindAsync(ids, novo.Machine.Length == 0 ? null : novo.Machine, null, novo.InicioEm, novo.FimEm, HttpContext.RequestAborted);
             Usos = await usoSap.UltimasPercentagensAsync(ids, HttpContext.RequestAborted);
         }
+
+        // No Duplicar a utilização não se copia da produção de origem: é a % de uso atual de cada ferramenta,
+        // pelo tool_id (Diogo, 29/10/2026: «dupliquei o jobon e % uso do CM passou 6.7% para 2%»).
+        if (origemId is not null)
+        {
+            foreach (var (chave, toolId) in new[] { ("cm_utilizacao", novo.CmToolId), ("mf_utilizacao", novo.MfToolId), ("bq_utilizacao", novo.BqToolId) })
+            {
+                if (Fact(toolId)?.Utilizacao is { } uso)
+                {
+                    Folha = Folha.ComValor(chave, uso.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+                }
+            }
+        }
     }
 
     private async Task ComporPaginaAsync()
@@ -549,6 +601,10 @@ public sealed class FolhaModel(
                 Facts = await toolFacts.FindAsync(ids, aberto.Machine, aberto.JobOnId, aberto.InicioEm, aberto.FimEm, ct);
                 Usos = await usoSap.UltimasPercentagensAsync(ids, ct);
                 Folha = Folha.ComLoteFfDoMf(Fact(aberto.MfToolId)?.Lot);
+                if (!Editar)
+                {
+                    UsosNoInicio = UsoNoInicio(aberto, await fabricoSap.ProducoesDeFerramentasAsync(ids, null, ct), Usos);
+                }
             }
             CadenciaSap = await fabricoSap.CadenciaDoJobOnAsync(aberto.JobOnId, ct);
             if (Editar)

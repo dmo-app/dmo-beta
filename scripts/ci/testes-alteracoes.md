@@ -5907,3 +5907,74 @@ Novos: 21 · mudaram: 9 · saíram: 1
 - saiu: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CoberturaA2SemJobOn.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_UmaBqSemLinhasNaFicha_MostraTodasAsLinhasSemNenhumaEscolhida`
 
 Selo depois: `58fbd5d23417e520`
+
+## A-0441 · 2026-10-29 · teste-novo
+
+Porquê: Testes novos: a Utilização da folha vem da ferramenta pelo tool_id (DMO-685).
+Novos: 5 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.DuplicarUso.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.DuplicarUso.cs :: JobOnPageTests.Duplicar_UtilizacaoEAPercentagemAtualDaFerramenta_NaoADaOrigem`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.PrimeiraProducao_ComecaAZero`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.ProducaoQueAindaNaoCorreu_ComecaNaPercentagemAtual`
+
+Selo depois: `6de950ab4d1ff1a5`
+
+## A-0445 · 2026-10-29 · teste-novo
+
+Porquê: Teste novo: Informação técnica por cima, sem empurrar (DMO-688).
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/ShellProof/jobon-folha-tecnica-por-cima.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/jobon-folha-tecnica-por-cima.test.cjs :: No ver, a Informação técnica aberta fica por cima (absoluta, por baixo do cartão) e não faz a folha crescer`
+
+Selo depois: `c43c160dd147b593`
+
+## A-0446 · 2026-10-29 · teste-novo
+
+Porquê: Lote beta.250: junta #360 (DMO-685 e DMO-688) à integracao; impressão refeita; os testes são os explicados em A-0441 e A-0445
+Referência: Coordenador 29/10 16:19 (erro da oficial .247 que bloqueia o Diogo)
+Novos: 7 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.DuplicarUso.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.DuplicarUso.cs :: JobOnPageTests.Duplicar_UtilizacaoEAPercentagemAtualDaFerramenta_NaoADaOrigem`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.PrimeiraProducao_ComecaAZero`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.ProducaoQueAindaNaoCorreu_ComecaNaPercentagemAtual`
+- novo: `tests/ShellProof/jobon-folha-tecnica-por-cima.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/jobon-folha-tecnica-por-cima.test.cjs :: No ver, a Informação técnica aberta fica por cima (absoluta, por baixo do cartão) e não faz a folha crescer`
+
+Selo depois: `22bdf7091d2f58df`
+
+## A-0444 · 2026-10-29 · teste-novo
+
+Porquê: Teste novo: Dias ao vivo no Editar (DMO-687).
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/ShellProof/jobon-folha-dias-ao-vivo.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/jobon-folha-dias-ao-vivo.test.cjs :: Editar: mudar o Início ou o Fim atualiza os Dias na hora`
+
+Selo depois: `cdeb69fb7af8ca55`
+
+## A-0447 · 2026-10-29 · teste-novo
+
+Porquê: Lote beta.250: junta o DMO-687 do #360 (teste novo dos Dias ao vivo); impressão refeita
+Referência: Coordenador 29/10 16:22
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/ShellProof/jobon-folha-dias-ao-vivo.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/jobon-folha-dias-ao-vivo.test.cjs :: Editar: mudar o Início ou o Fim atualiza os Dias na hora`
+
+Selo depois: `31de1c374beec1f4`
+
+
+## A-0448 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-688: o teste DMO-562 exigia que a Informação técnica empurrasse os cartões; passa a exigir que abra por cima sem empurrar
+Referência: Diogo 29/10 16:11 cmsg_01K75FTs9bQnbhhH7qttpgraG76sK5UWKJbGCfsmcUk25Z e cmsg_01K75FTs9bQnbhhH7qttpgra2F79VBxd4ZeUdh7T4M8XnU; «sim» no cartão cmsg_01K75FTs9bQnbhhH7qttpgra9g7HjpYyNvnDkcmSiwJB9z (29/10 17:23)
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/visual/cobertura_a1_browser.py`
+
+Selo depois: `e4785a2628a5145d`

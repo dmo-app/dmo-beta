@@ -193,6 +193,13 @@ public sealed class FolhaDoJobOnVista
         return new FolhaDoJobOnVista(valores, Cal, ChaveRecusada, Duplicada);
     }
 
+    /// <summary>A mesma folha com o valor de um campo trocado.</summary>
+    public FolhaDoJobOnVista ComValor(string chave, string? valor)
+    {
+        var valores = new Dictionary<string, string?>(_valores, StringComparer.Ordinal) { [chave] = valor };
+        return new FolhaDoJobOnVista(valores, Cal, ChaveRecusada, Duplicada);
+    }
+
     /// <summary>O id no ecrã de um campo de uma linha CAL pelo índice no formulário.</summary>
     public static string IdCal(int indice, JobOnFolhaCampoCal campo) => campo switch
     {

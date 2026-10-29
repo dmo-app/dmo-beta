@@ -15,7 +15,7 @@ Duas partes:
   - DMO-495: os oito calibres ficam à vista no cartão; as notas compridas deslizam por dentro e acabam numa
     linha inteira; o cabeçalho do Editar fica fixo;
   - DMO-509: a nota aberta cai por cima, sem empurrar os outros cartões; a foto do artigo é 3:4 e sem a referência;
-  - DMO-562: a Informação técnica da folha abre para baixo e empurra os cartões de baixo, sem os tapar;
+  - DMO-562/DMO-688: a Informação técnica da folha abre por cima dos cartões de baixo, sem os empurrar;
   - DMO-476: o Imprimir faz caber as quatro folhas no A4, com a letra nunca abaixo de 8,5pt.
 Só ficheiros locais; nada vai ao DEV.
 """
@@ -311,7 +311,7 @@ def folha(browser, fixtures):
         if mudou(antes, page.evaluate(POSICOES, 'CM')):
             falhas.append(f'{nome}: depois de fechar a nota, os cartões não voltaram ao sítio')
 
-        # DMO-562: na folha (Ver) a Informação técnica abre para baixo e empurra os cartões de baixo, sem os tapar.
+        # DMO-562/DMO-688: na folha (Ver) a Informação técnica abre por cima dos cartões de baixo, sem os empurrar.
         antes_cm = page.evaluate(POSICOES, '')
         page.locator('[data-jof-tecnica="CM"] summary').click()
         page.wait_for_timeout(150)
@@ -319,13 +319,10 @@ def folha(browser, fixtures):
         if not aberta['aberta'] or aberta['altura'] < 20:
             falhas.append(f'{nome}: a Informação técnica não abriu ({aberta})')
         depois_cm = page.evaluate(POSICOES, '')
-        if not mudou(antes_cm, depois_cm):
-            falhas.append(f'{nome}: a Informação técnica aberta não empurrou os cartões de baixo, tapa-os ({aberta})')
-        sobrepoe = page.evaluate("""() => { const cm = document.querySelector('[data-jof-familia="CM"]').getBoundingClientRect();
-          const tp = document.querySelector('[data-jof-familia="TP"]').getBoundingClientRect();
-          return Math.round(cm.bottom - tp.top); }""")
-        if sobrepoe > 1:
-            falhas.append(f'{nome}: a Informação técnica aberta sobrepõe-se ao cartão de baixo ({sobrepoe}px)')
+        if mudou(antes_cm, depois_cm):
+            falhas.append(f'{nome}: a Informação técnica aberta empurrou os cartões ({mudou(antes_cm, depois_cm)})')
+        if aberta['posicao'] != 'absolute':
+            falhas.append(f'{nome}: a Informação técnica não abre por cima ({aberta})')
         page.keyboard.press('Escape')
 
         if erros:

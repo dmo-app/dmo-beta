@@ -5948,6 +5948,11 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | `O número do botão «Linhas» fica num círculo com contorno, centrado com o texto` | Na folha do Job On, o número do botão «Linhas» aparece num círculo visível e alinhado ao centro com o texto. | OK | A-0433 |
 | PesoPdfGeneratorCoberturaBTests.ProducaoAnterior_ComMediaEModa_OsCartoesDizemMediaEModa_EAModaMostraOsDiasSemDiferenca | Teste novo: o PDF do Peso diz «Média» e «Moda» nos cartões e a moda mostra os dias, sem diferença (DMO-682, Diogo 29/10) | OK | A-0435 |
 | PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes | O Resumo volta a ter «Abrir PDF das punções» (DMO-684, Diogo 29/10) | OK | A-0439 |
+| `Duplicar_UtilizacaoEAPercentagemAtualDaFerramenta_NaoADaOrigem` | No Duplicar e no ver, a Utilização do CM é a % atual da ferramenta, não o valor escrito na folha de origem. | OK | A-0441 |
+| `PrimeiraProducao_ComecaAZero` | A primeira produção de uma ferramenta nova mostra a Utilização a 0. | OK | A-0441 |
+| `ProducaoQueAindaNaoCorreu_ComecaNaPercentagemAtual` | Uma produção que ainda não correu mostra a % de uso atual da ferramenta. | OK | A-0441 |
+| `No ver, a Informação técnica aberta fica por cima (absoluta, por baixo do cartão) e não faz a folha crescer` | A Informação técnica abre por cima dos elementos de baixo sem empurrar os cartões. | OK | A-0445 |
+
 
 
 
@@ -5971,3 +5976,6 @@ Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; no
 | filtros-referencia.test.cjs: referência inexistente | Não apresenta opções de outras referências. | OK |
 | filtros-referencia.test.cjs: falha e recuperação | Uma falha de rede bloqueia opções desatualizadas e permite repetir. | OK |
 | filtros-referencia.test.cjs: Enter no lote | Aplica a pesquisa mesmo sem botão de submissão. | OK |
+
+| `Editar: mudar o Início ou o Fim atualiza os Dias na hora` | No Editar do Job On os Dias acompanham o Início e o Fim sem gravar. | OK | A-0444 |
+| `cobertura_a1_browser.py` DMO-562 (alterado) | A Informação técnica abre por cima dos cartões de baixo e já não os empurra (pedido do Diogo, DMO-688). | OK | A-0448 |
