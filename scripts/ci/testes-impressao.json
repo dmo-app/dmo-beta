@@ -1,5 +1,5 @@
 {
-  "selo": "73a57477ea5d6e48",
+  "selo": "6de950ab4d1ff1a5",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2815,6 +2815,8 @@
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_JobOnVer_NaoCriaNemDuplica_SoVe": "c86dd8cad0607626",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.FolhaNova_TP_ODiametroSemPS_ECampoIgual": "6b8216b15f60bd60",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CriarDuplicar.cs :: JobOnPageTests.Planeamento_EscolherUmaProducao_AbreAFolhaNova_SemAFichaAntiga": "33f35e0563b6c5e2",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.DuplicarUso.cs :: (resto do ficheiro)": "dc7af088cc485bd5",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.DuplicarUso.cs :: JobOnPageTests.Duplicar_UtilizacaoEAPercentagemAtualDaFerramenta_NaoADaOrigem": "c042c735c4eacb8a",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolgasDimensoes.cs :: (resto do ficheiro)": "2c42d45e6424fae5",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolgasDimensoes.cs :: JobOnPageTests.Editar_DoisNumerosNumaFolga_ERecusado": "5a4ab2b8dbffb20d",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.FolgasDimensoes.cs :: JobOnPageTests.Folha_ToleranciaComUmSoSinal_EFolgasUmNumeroPorEspaco": "5fc185ba945a63db",
@@ -2919,6 +2921,9 @@
     "tests/DMO.Alpha.Web.Tests/JobOnSidepanelWeekTests.cs :: JobOnSidepanelWeekTests.Em_curso_primeiro_e_as_que_ja_acabaram_ficam_de_fora": "7427f596842d6376",
     "tests/DMO.Alpha.Web.Tests/JobOnSidepanelWeekTests.cs :: JobOnSidepanelWeekTests.Mostra_so_entradas_de_hoje_ate_uma_semana": "c2694f4922b06ee8",
     "tests/DMO.Alpha.Web.Tests/JobOnSidepanelWeekTests.cs :: JobOnSidepanelWeekTests.Uma_linha_so_tem_uma_producao_em_curso": "4d5450b76254b22b",
+    "tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: (resto do ficheiro)": "e6b0cdfbc8636117",
+    "tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.PrimeiraProducao_ComecaAZero": "436caf4e3db8c1b9",
+    "tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.ProducaoQueAindaNaoCorreu_ComecaNaPercentagemAtual": "9db76d77378f97c8",
     "tests/DMO.Alpha.Web.Tests/ListPaginationPagesTests.cs :: (resto do ficheiro)": "bf042ef577624634",
     "tests/DMO.Alpha.Web.Tests/ListPaginationPagesTests.cs :: ListPaginationPagesTests.AdminUsers_ListShows25PerPage_WithPagerKeepingOtherParameters": "a837e1b97567aba1",
     "tests/DMO.Alpha.Web.Tests/ListPaginationPagesTests.cs :: ListPaginationPagesTests.AdminUsers_ShortList_StillShowsThePagerWithOnePage": "6c9e9a856c469609",

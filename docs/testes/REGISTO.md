@@ -5947,3 +5947,6 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | `O número do botão «Linhas» fica num círculo com contorno, centrado com o texto` | Na folha do Job On, o número do botão «Linhas» aparece num círculo visível e alinhado ao centro com o texto. | OK | A-0433 |
 | PesoPdfGeneratorCoberturaBTests.ProducaoAnterior_ComMediaEModa_OsCartoesDizemMediaEModa_EAModaMostraOsDiasSemDiferenca | Teste novo: o PDF do Peso diz «Média» e «Moda» nos cartões e a moda mostra os dias, sem diferença (DMO-682, Diogo 29/10) | OK | A-0435 |
 | PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes | O Resumo volta a ter «Abrir PDF das punções» (DMO-684, Diogo 29/10) | OK | A-0439 |
+| `Duplicar_UtilizacaoEAPercentagemAtualDaFerramenta_NaoADaOrigem` | No Duplicar e no ver, a Utilização do CM é a % atual da ferramenta, não o valor escrito na folha de origem. | OK | A-0441 |
+| `PrimeiraProducao_ComecaAZero` | A primeira produção de uma ferramenta nova mostra a Utilização a 0. | OK | A-0441 |
+| `ProducaoQueAindaNaoCorreu_ComecaNaPercentagemAtual` | Uma produção que ainda não correu mostra a % de uso atual da ferramenta. | OK | A-0441 |

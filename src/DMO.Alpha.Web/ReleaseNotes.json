@@ -638,7 +638,8 @@
     { "id": "DMO-679", "module": "Ferramentas", "description": "0.3.0-beta.247 (A-0432): no Histórico de produções da ficha da ferramenta, cada produção leva à frente o seu número de ordem nessa ferramenta (por exemplo «202603 7018C002 · B1 · 1»): a 1 é a mais antiga, mesmo que seja de outra referência." },
     { "id": "DMO-680", "module": "Job On", "description": "0.3.0-beta.247 (A-0433): na folha do Job On o número do botão «Linhas» fica num círculo visível, alinhado ao centro com o texto." },
     { "id": "DMO-682", "module": "Peso", "description": "0.3.0-beta.247 (A-0435): no PDF do Peso, os cartões da produção anterior dizem «Média» e «Moda» (antes tinham o mesmo título repetido), e a moda mostra os dias em que esse peso se usou (ex.: «9 de 9 dias») em vez da diferença." },
-    { "id": "DMO-684", "module": "Controlo", "description": "0.3.0-beta.248 (A-0439): no PDF do Resumo do Controlo voltam as ligações «Ver detalhe» e «Ver» para o Peso e os Pegamentos e «Abrir PDF das punções» para a PU NNPB, e nas folhas do Peso e dos Pegamentos volta o «Voltar ao Resumo»." }
+    { "id": "DMO-684", "module": "Controlo", "description": "0.3.0-beta.248 (A-0439): no PDF do Resumo do Controlo voltam as ligações «Ver detalhe» e «Ver» para o Peso e os Pegamentos e «Abrir PDF das punções» para a PU NNPB, e nas folhas do Peso e dos Pegamentos volta o «Voltar ao Resumo»." },
+    { "id": "DMO-685", "module": "Job On", "description": "Na folha do Job On a Utilização de cada ferramenta vem da própria ferramenta (tool_id) e não do que ficou escrito no Job On: no Duplicar é a % atual, e cada produção mostra a % com que começou (a primeira de uma ferramenta nova começa a 0)." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

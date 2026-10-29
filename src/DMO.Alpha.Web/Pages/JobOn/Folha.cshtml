@@ -149,6 +149,12 @@
         desenhados.Add(chave);
         var campo = JobOnFolhaCampos.Encontrar(chave)!;
         var valor = Vazio(Model.Folha.Valor(chave));
+        // No ver, a % de uso vem sempre da ferramenta pelo tool_id, não do que ficou escrito no Job On
+        // (Diogo, 28/10/2026, modelo de dados; 29/10/2026: «está a acontecer a todos»).
+        if (!editar && f?.ToolId is { } toolDoUso && Model.UsosNoInicio.TryGetValue(toolDoUso, out var usoDaFerramenta))
+        {
+            valor = usoDaFerramenta.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+        }
         var agora = Numero(valor);
         var antes = f?.Utilizacao;
         <div class="use">

@@ -5818,3 +5818,16 @@ Novos: 0 · mudaram: 3 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes`
 
 Selo depois: `73a57477ea5d6e48`
+
+## A-0441 · 2026-10-29 · teste-novo
+
+Porquê: Testes novos: a Utilização da folha vem da ferramenta pelo tool_id (DMO-685).
+Novos: 5 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.DuplicarUso.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.DuplicarUso.cs :: JobOnPageTests.Duplicar_UtilizacaoEAPercentagemAtualDaFerramenta_NaoADaOrigem`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.PrimeiraProducao_ComecaAZero`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.ProducaoQueAindaNaoCorreu_ComecaNaPercentagemAtual`
+
+Selo depois: `6de950ab4d1ff1a5`
