@@ -1,5 +1,5 @@
 {
-  "selo": "22bdf7091d2f58df",
+  "selo": "31de1c374beec1f4",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -3440,6 +3440,8 @@
     "tests/ShellProof/jobon-folha-avisos-canto.test.cjs :: (resto do ficheiro)": "a1217a4980295ac3",
     "tests/ShellProof/jobon-folha-avisos-canto.test.cjs :: Editar: os avisos ficam onde estão": "3b0caf382a5780bd",
     "tests/ShellProof/jobon-folha-avisos-canto.test.cjs :: Ver: avisos do CM e da BQ vão para o canto, com o botão e um × que fecha": "9bc89e910705b0f5",
+    "tests/ShellProof/jobon-folha-dias-ao-vivo.test.cjs :: (resto do ficheiro)": "898090f49c22262b",
+    "tests/ShellProof/jobon-folha-dias-ao-vivo.test.cjs :: Editar: mudar o Início ou o Fim atualiza os Dias na hora": "f6131fe5ec13e6b9",
     "tests/ShellProof/jobon-folha-linhas-contagem.test.cjs :: (resto do ficheiro)": "bc2cb9d49f071e21",
     "tests/ShellProof/jobon-folha-linhas-contagem.test.cjs :: O número do botão «Linhas» fica num círculo com contorno, centrado com o texto": "30451199b5a7263d",
     "tests/ShellProof/jobon-folha-tecnica-por-cima.test.cjs :: (resto do ficheiro)": "c55fc1216f52107a",

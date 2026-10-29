@@ -5976,3 +5976,5 @@ Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; no
 | filtros-referencia.test.cjs: referência inexistente | Não apresenta opções de outras referências. | OK |
 | filtros-referencia.test.cjs: falha e recuperação | Uma falha de rede bloqueia opções desatualizadas e permite repetir. | OK |
 | filtros-referencia.test.cjs: Enter no lote | Aplica a pesquisa mesmo sem botão de submissão. | OK |
+
+| `Editar: mudar o Início ou o Fim atualiza os Dias na hora` | No Editar do Job On os Dias acompanham o Início e o Fim sem gravar. | OK | A-0444 |

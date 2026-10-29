@@ -5946,3 +5946,24 @@ Novos: 7 · mudaram: 0 · saíram: 0
 - novo: `tests/ShellProof/jobon-folha-tecnica-por-cima.test.cjs :: No ver, a Informação técnica aberta fica por cima (absoluta, por baixo do cartão) e não faz a folha crescer`
 
 Selo depois: `22bdf7091d2f58df`
+
+## A-0444 · 2026-10-29 · teste-novo
+
+Porquê: Teste novo: Dias ao vivo no Editar (DMO-687).
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/ShellProof/jobon-folha-dias-ao-vivo.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/jobon-folha-dias-ao-vivo.test.cjs :: Editar: mudar o Início ou o Fim atualiza os Dias na hora`
+
+Selo depois: `cdeb69fb7af8ca55`
+
+## A-0447 · 2026-10-29 · teste-novo
+
+Porquê: Lote beta.250: junta o DMO-687 do #360 (teste novo dos Dias ao vivo); impressão refeita
+Referência: Coordenador 29/10 16:22
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/ShellProof/jobon-folha-dias-ao-vivo.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/jobon-folha-dias-ao-vivo.test.cjs :: Editar: mudar o Início ou o Fim atualiza os Dias na hora`
+
+Selo depois: `31de1c374beec1f4`

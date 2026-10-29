@@ -630,7 +630,7 @@ else
           <span class="fl">Fim</span><span class="fv">@if (editar) {<input class="f" id="lightEnd" name="fim_em" type="date" value="@jobOn.FimEm?.ToString("yyyy-MM-dd")" aria-label="Fim" />} else {<strong>@(jobOn.FimEm?.ToString("dd/MM/yyyy") ?? "—")</strong>}</span>
         </div>
         <div class="fact-col fact-dias">
-          <span class="fl">Dias</span><span class="fv"><strong title="Fim − início + 1">@(Model.Dias?.ToString() ?? "—")</strong></span>
+          <span class="fl">Dias</span><span class="fv"><strong title="Fim − início + 1" data-jof-dias>@(Model.Dias?.ToString() ?? "—")</strong></span>
         </div>
         @foreach (var par in new[] { new[] { ("Secções", "cab_seccoes", "") }, new[] { ("Gota", "cab_gota", "") }, new[] { ("Processo", "cab_processo", "") }, new[] { ("Peso", "cab_peso", "g") } })
         {
