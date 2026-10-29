@@ -34,16 +34,101 @@
             </div>
         </form>
     </section>
-    <section id="admSapPasta" class="dmo-card adm-card" aria-labelledby="admin-sap-pasta-title" data-sap-admin-pasta>
+    @* «Atualizar do SAP» também aqui (Diogo, 28/10/2026): as mesmas três escolhas. O script envia o que leu direto para a app (DMO-582). *@
+    <section id="admSapPasta" class="dmo-card adm-card" aria-labelledby="admin-sap-pasta-title" data-sap-admin-pasta data-ferr-sap data-ferr-sap-admin data-ferr-sap-base="/Admin/Definicoes">
         <div class="dmo-card-topo">
             <h3 id="admin-sap-pasta-title">Pasta do SAP neste computador</h3>
             <div class="dmo-card-topo-acoes">
-                <button type="button" class="dmo-button" data-sap-admin-ligar>Ligar pasta</button>
+                <button type="button" class="dmo-button" data-ferr-sap-atualizar>Atualizar do SAP</button>
+                @* «Instalar» à vista, ao lado do Atualizar (Diogo, 28/10/2026 18:31). *@
+                <button type="button" class="dmo-button" data-ferr-sap-instalar>Instalar</button>
+                <details class="dmo-options" data-dmo-tab-menu>
+                    <summary class="dmo-button" aria-label="Opções da pasta do SAP"><span class="dmo-caret" aria-hidden="true"></span>Opções</summary>
+                    <div class="dmo-options-list">
+                        <button type="button" class="dmo-options-item" data-sap-admin-ligar>Ligar pasta</button>
+                    </div>
+                </details>
             </div>
         </div>
-        <p><span data-sap-admin-estado role="status">Nenhuma pasta ligada</span></p>
-        <p class="card-note">Na primeira vez em cada PC: Ferramentas › Definições › Opções › «Instalar neste PC» e duplo clique no INSTALAR.cmd.</p>
+        <p><span data-sap-admin-estado data-ferr-sap-estado role="status">Nenhuma pasta ligada</span></p>
+        <p class="card-note">Na primeira vez em cada PC: «Ligar pasta» (Opções), depois «Instalar» e duplo clique no INSTALAR.cmd. O que o SAP lê vai direto para a app, sem abrir as Ferramentas.</p>
+        <partial name="/Pages/Ferramentas/_SapAtualizarJanela.cshtml" />
     </section>
+    @* A TABELA DOS CÓDIGOS DE PROCURA (Diogo, 28/10/2026: «eu pedi para alterar no UI», «não deve ser só para BQ»): para cada tipo e Linha,
+       como se monta o código que o script procura na ZPPG. Sem linha própria vale a «Todas» do tipo. Cada ferramenta pode ter o seu «Código SAP» (Opções da ficha). *@
+    <section id="admSapProcura" class="dmo-card adm-card" aria-labelledby="admin-sap-procura-title">
+        <div class="dmo-card-topo">
+            <h3 id="admin-sap-procura-title">Códigos de procura no SAP<partial name="_DmoHelp" model="@("O código que o script procura na ZPPG para cada ferramenta: o que começa por, o meio (nome técnico ou referência), o que vem depois e o lote (letras, algarismos, «-» e «_»; o «*» bloqueia a ZPPG). Ex.: BQ da B1 = AB + nome técnico + NX + lote. Uma Linha sem regra usa a «Todas».")" /></h3>
+            <div class="dmo-card-topo-acoes">
+                <button type="button" class="dmo-button" data-dmo-dialog="admSapProcuraNova">Nova linha</button>
+            </div>
+        </div>
+        <table class="dmo-table">
+            <thead><tr><th>Tipo</th><th>Linha</th><th>Procura</th><th></th></tr></thead>
+            <tbody>
+            @for (var i = 0; i < Model.SapProcura.Count; i++)
+            {
+                var r = Model.SapProcura[i];
+                <tr>
+                    <td>@(r.Tipo switch { DMO.Alpha.Core.Tools.ToolType.Cm => "CM", DMO.Alpha.Core.Tools.ToolType.Mf => "MF", _ => "BQ" })</td>
+                    <td>@(r.Linha.Length == 0 ? "Todas" : r.Linha)</td>
+                    <td><code>@r.Exemplo</code></td>
+                    <td><a href="#" data-dmo-dialog="admSapProcura@(i)">Editar</a></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </section>
+    @for (var i = -1; i < Model.SapProcura.Count; i++)
+    {
+        var r = i < 0 ? null : Model.SapProcura[i];
+        var id = i < 0 ? "admSapProcuraNova" : $"admSapProcura{i}";
+        var tipo = r is null ? "bq" : r.Tipo switch { DMO.Alpha.Core.Tools.ToolType.Cm => "cm", DMO.Alpha.Core.Tools.ToolType.Mf => "mf", _ => "bq" };
+        <dialog id="@id" class="dmo-dialog adm-sap-procura" aria-labelledby="@(id)Titulo">
+            <h3 id="@(id)Titulo">@(r is null ? "Nova linha de procura" : "Código de procura")</h3>
+            <form method="post" asp-page="/Admin/Definicoes/Index" asp-page-handler="SaveSapProcura">
+                <div class="adm-sap-procura-campos">
+                    <label>Tipo
+                        <select name="procura_tipo" class="dmo-input">
+                            <option value="cm" selected="@(tipo == "cm")">CM</option>
+                            <option value="mf" selected="@(tipo == "mf")">MF</option>
+                            <option value="bq" selected="@(tipo == "bq")">BQ</option>
+                        </select>
+                    </label>
+                    <label>Linha
+                        <select name="procura_linha" class="dmo-input">
+                            <option value="" selected="@(r is null || r.Linha.Length == 0)">Todas</option>
+                            @foreach (var linha in Model.SapLinhas)
+                            {
+                                <option value="@linha" selected="@(r is not null && string.Equals(r.Linha, linha, StringComparison.OrdinalIgnoreCase))">@linha</option>
+                            }
+                        </select>
+                    </label>
+                    <label>Começa por
+                        <input type="text" name="procura_antes" class="dmo-input" value="@r?.Antes" maxlength="20" size="6" autocomplete="off" />
+                    </label>
+                    <label>Meio
+                        <select name="procura_meio" class="dmo-input">
+                            <option value="nome" selected="@(r is null || r.Meio == DMO.Alpha.Core.Tools.SapProcuraMeio.NomeTecnico)">Nome técnico</option>
+                            <option value="referencia" selected="@(r is not null && r.Meio == DMO.Alpha.Core.Tools.SapProcuraMeio.Referencia)">Referência</option>
+                        </select>
+                    </label>
+                    <label>Depois
+                        <input type="text" name="procura_depois" class="dmo-input" value="@r?.Depois" maxlength="20" size="6" autocomplete="off" />
+                    </label>
+                    <label class="adm-sap-procura-lote"><input type="checkbox" name="procura_lote" value="true" checked="@(r is null || r.ComLote)" /> Lote no fim</label>
+                </div>
+                <div class="dmo-dialog-actions">
+                    <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+                    @if (r is not null && r.Linha.Length > 0)
+                    {
+                        <button type="submit" class="dmo-button" name="procura_tirar" value="1">Tirar</button>
+                    }
+                    <button type="submit" class="dmo-button">Guardar</button>
+                </div>
+            </form>
+        </dialog>
+    }
     <section id="admSapScripts" class="dmo-card adm-card" aria-labelledby="admin-sap-scripts-title">
         <div class="dmo-card-topo">
             <h3 id="admin-sap-scripts-title">Scripts</h3>
@@ -55,6 +140,7 @@
                 <tr>
                     <td><a href="#" data-dmo-dialog="admSapScript@(i)">@Model.SapScriptsTextos[i].Nome</a></td>
                     <td>@(Model.SapScriptsTextos[i].Mudado ? "mudado no Admin" : "o da app")</td>
+                    <td><a href="#" data-dmo-dialog="admSapScript@(i)">Editar</a></td>
                 </tr>
             }
             </tbody>
@@ -108,6 +194,9 @@
     }
 <style>
 .adm-sap-form{display:flex;gap:14px;flex-wrap:wrap}
+.adm-sap-procura-campos{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin:10px 0 14px}
+.adm-sap-procura-campos label{display:flex;flex-direction:column;gap:4px;font-size:12.5px}
+.adm-sap-procura-campos label.adm-sap-procura-lote{flex-direction:row;align-items:center}
 .adm-sap-script{width:min(1100px,94vw)}
 .adm-sap-script textarea{width:100%;height:56vh;font-family:ui-monospace,Consolas,monospace;font-size:12px;white-space:pre}
 </style>

@@ -245,9 +245,12 @@
             var armazem = DMO.Alpha.Web.Pages.Shared.DmoAvisoLink.MovimentosDoArmazem(f.ToolId, "Armazém");
             @* O estado primeiro, um espaço e a posição: «Reparado   4094» (Diogo, 28/10/2026: «Reparado, espaço e
                posição do armazém»); fora do Armazém, o sítio por extenso («Reparação · Moldin»). *@
+            @* A localização também a negrito e a abrir a Entrada/Saída da ferramenta no Armazém quando não é
+               uma posição («Sem registo», «Fabrico», «Reparação · Moldin»; Diogo, 28/10/2026: «a localização no
+               armazém abri ao registo entrar sair», «pedi para meter em bold»). *@
             @* O reparador logo a seguir: «Reparado   5252 · MOLDIN» (Diogo, 28/10/2026: «Reparador deve aparecer
                depois do estado reparado»). *@
-            <p class="jof-onde" data-dmo-onde-esta title="@ondeEsta">@if (f.Estado is { } estado) {<b>@DMO.Alpha.Core.Armazem.ArmazemTextos.Estado(estado)</b><span class="jof-onde-espaco"> </span>}@if (ondeEsta.StartsWith(NaPosicao, StringComparison.Ordinal)) {if (armazem.PodeAbrir(Model.Capacidades)) {<a class="jof-onde-pos" href="@armazem.Href" title="@ondeEsta: dar entrada ou saída no Armazém"><b>@ondeEsta[NaPosicao.Length..]</b></a>} else {<b>@ondeEsta[NaPosicao.Length..]</b>}} else {@ondeEsta}@if (ReparadorNaLinha(tipo, f) && Mostra(Model.Folha.Valor(tipo.ToLowerInvariant() + "_reparador")) is { } reparador) {<span class="jof-onde-reparador" title="Reparador"> · <b>@reparador</b></span>}</p>
+            <p class="jof-onde" data-dmo-onde-esta title="@ondeEsta">@if (f.Estado is { } estado) {<b>@DMO.Alpha.Core.Armazem.ArmazemTextos.Estado(estado)</b><span class="jof-onde-espaco"> </span>}@{ var sitio = ondeEsta.StartsWith(NaPosicao, StringComparison.Ordinal) ? ondeEsta[NaPosicao.Length..] : ondeEsta; }@if (armazem.PodeAbrir(Model.Capacidades)) {<a class="jof-onde-pos" href="@armazem.Href" title="@ondeEsta: dar entrada ou saída no Armazém"><b>@sitio</b></a>} else {<b>@sitio</b>}@if (ReparadorNaLinha(tipo, f) && Mostra(Model.Folha.Valor(tipo.ToLowerInvariant() + "_reparador")) is { } reparador) {<span class="jof-onde-reparador" title="Reparador"> · <b>@reparador</b></span>}</p>
           }
           @* A B2 sem Dupla nem Tripla é um aviso importante (Diogo, 28/10/2026). *@
           @if (f?.AvisoB2 is { } avisoB2)

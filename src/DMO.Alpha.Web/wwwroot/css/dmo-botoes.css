@@ -222,6 +222,13 @@ html body .bq-sem-jobon-link:is(:hover,:focus-visible,:active):not(#_),html body
   html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user span:not(#_){min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user span:not(#_)::before{content:"\00a0·\00a0"}
 }
+/* Um nome ou título comprido não passa a conta para uma segunda fila do cabeçalho (auditoria do Codex
+   de 28/10/2026, C02: a 1290×646, com todos os módulos, a página ganhava 36 px de scroll). A conta fica na
+   fila dos módulos, com o espaço que sobra, até à sua largura natural; o título corta com reticências. */
+@media screen and (min-width:801px){
+  html body .dmo-shell-header .dmo-shell-conta:not(#_){flex:1 1 0;min-width:0;max-width:max-content}
+  html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user:not(#_){max-width:min(100%,340px)}
+}
 
 /* Hover único dos cartões das linhas (B1, B2, C1…; Diogo, 28/10/2026: «a questão das cores no hover tem de ser igual para todos»):
    em todas as páginas (Boquilhas, Reparação Interna, Sumário, Planeamento, gaveta «Linhas» da Folha), claro e escuro, o cartão não escolhido

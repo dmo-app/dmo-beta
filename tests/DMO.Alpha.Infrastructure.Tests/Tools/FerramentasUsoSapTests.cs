@@ -86,7 +86,7 @@ public sealed class FerramentasUsoSapTests
         var leitura = UsoSapExportacao.Ler(CsvDoScript);
 
         Assert.True(leitura.CabecalhoEncontrado);
-        Assert.Equal(new[] { new UsoSapLinha("M544744MPPSX11", 91.4m, null, null) }, leitura.Linhas);
+        Assert.Equal(new[] { new UsoSapLinha("M544744MPPSX11", 91.4m, null, null, "M544744MPPSX11") }, leitura.Linhas);
     }
 
     [Fact]
@@ -114,6 +114,34 @@ public sealed class FerramentasUsoSapTests
     public void OQueNaoEUmNumero_FicaDeFora(string texto)
     {
         Assert.False(UsoSapExportacao.Numero(texto, out _));
+    }
+
+    // O «%» pegado e os espaços inquebráveis que o SAP às vezes copia
+    // (revisão do script, Diogo 28/10/2026 19:04).
+    [Theory]
+    [InlineData("90%", 90)]
+    [InlineData("91,4 %", 91.4)]
+    [InlineData("91,4\u00A0%", 91.4)]
+    [InlineData("43\u00A0200\u00A0000", 43200000)]
+    public void OsNumerosComPercentagemOuEspacosEstranhos_LeemSe(string texto, double esperado)
+    {
+        Assert.True(UsoSapExportacao.Numero(texto, out var valor));
+        Assert.Equal((decimal)esperado, valor);
+    }
+
+    // O script passa a gravar o Consumption, o Expected life e o No. of
+    // pieces da ZPPG; a app lê o consumo e a vida prevista do CSV.
+    [Fact]
+    public void OCsvDoScript_TrazOConsumoEAVidaPrevista()
+    {
+        const string csv = """
+            search,equipment,percent_use,last_production,batch_description,status,error,consumption,expected life,pieces
+            "M544744MPPSX11","M544744MPPSX11","90,2","21.10.2026","M544744MPPSX","FOUND","","38.962.451","43.200.000","96"
+            """;
+
+        var leitura = UsoSapExportacao.Ler(csv);
+
+        Assert.Equal(new[] { new UsoSapLinha("M544744MPPSX11", 90.2m, 38_962_451, 43_200_000, "M544744MPPSX11") }, leitura.Linhas);
     }
 
     [Theory]

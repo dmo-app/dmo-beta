@@ -4559,3 +4559,296 @@ Novos: 1 · mudaram: 2 · saíram: 27
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisoArmazemEmEsperaTests.cs :: JobOnAvisoArmazemEmEsperaTests.PorOmissao_AAplicacaoNaoOLigaNasDefinicoes`
 
 Selo depois: `5c318483048cbfe4`
+
+## A-0319 · 2026-10-28 · teste-novo
+
+Porquê: O script do SAP envia os ficheiros direto para a app com a chave do Admin › SAP; sem a chave recusa (DMO-582).
+Referência: PR #290
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.OScriptDoSap_EnviaDireto_ComAChave_ESemElaNao`
+
+Selo depois: `be0b65595a608b7e`
+
+## A-0322 · 2026-10-28 · contagem-lista
+
+Porquê: Tabela dos códigos de procura no SAP para CM, MF e BQ por Linha e «Código SAP» por ferramenta (DMO-585/586). As listas ganham a migração SapCodigoDaFerramenta, os endpoints /sap/codigos e /sap/enviar (com chave, DMO-582) e a coluna «search» lida do CSV; o que cada teste verifica fica igual.
+Referência: PR #290
+Novos: 9 · mudaram: 3 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.ACodigo_PorOmissao_EONomeTecnicoComOLote`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.ARegraDaLinha_GanhaAGeral_EOCodigoAMaoGanhaATudo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.AsTresGerais_EstaoSempre_EAsGravadasLeemSeDeVolta`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.OCsvDoScript_LigaPeloCodigoProcurado_QuandoONomeTecnicoNaoBate`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.OsCodigosPedidosAoSap_SeguemATabelaEOCodigoSap_DeTodosOsTipos`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.ATabelaDosCodigosDeProcura_GravaNoAdminEMudaOsCodigosPedidos`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.OCodigoSapDaFicha_GanhaATabela_EVazioVoltaAEla`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.OCsvDoScript_LeOPercDasLinhasEncontradasEDeixaAsOutras`
+- mudou: `tests/DMO.Alpha.Web.Tests/PaginasSemSessaoTests.cs :: PaginasSemSessaoTests.SemSessao_SoAbremAsPaginasPublicas`
+
+Selo depois: `22d7c7aa100fe569`
+
+## A-0323 · 2026-10-28 · teste-novo
+
+Porquê: A % do SAP com «%» ou espaços inquebráveis lê-se; o CSV do script traz o consumo e a vida prevista (revisão do script pedida pelo Diogo).
+Referência: PR #290
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.OCsvDoScript_TrazOConsumoEAVidaPrevista`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.OsNumerosComPercentagemOuEspacosEstranhos_LeemSe`
+
+Selo depois: `b53737140df2c16e`
+
+## A-0318 · 2026-10-29 · contagem-lista
+
+Porquê: C02 da auditoria do Codex de 28/10/2026 (DMO-581, #286): teste de browser novo tests/visual/cabecalho_nome_comprido_browser.py, que garante que com um nome e um título compridos a conta fica na fila dos módulos e a folha do Job On a 1290×646 não desliza; no ci-local.sh só se acrescenta o passo que o corre.
+Referência: PR #286
+Novos: 1 · mudaram: 1 · saíram: 0
+
+- novo: `tests/visual/cabecalho_nome_comprido_browser.py`
+- mudou: `scripts/ci/ci-local.sh`
+
+Selo depois: `0e6f198e89a387c4`
+
+## A-0325 · 2026-10-29 · ok-do-diogo
+
+Porquê: A localização no cartão do Job On passa a negrito também quando não é uma posição («Sem registo»), como o Diogo pediu; o teste do reparador na linha passa a esperar <b>Sem registo</b>. Testes novos: localização abre a Entrada/Saída do Armazém; diâmetros só com um número (DMO-587, #288).
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraNidJsALf8gXwDKhAgYzVEb
+Novos: 4 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnDiametrosRecusaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnDiametrosRecusaTests.cs :: JobOnDiametrosRecusaTests.DoisNumerosNumDiametro_ERecusado`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.LocalizacaoArmazem.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.LocalizacaoArmazem.cs :: JobOnPageTests.Folha_LocalizacaoANegrito_AbreAEntradaSaidaDoArmazem`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.ReparadorNaLinha.cs :: JobOnPageTests.Folha_ReparadorDepoisDoEstadoEDaPosicao_SemLinhaAParte`
+
+Selo depois: `8f89f97f666856db`
+
+## A-0326 · 2026-10-29 · contagem-lista
+
+Porquê: Testes novos da auditoria de cobertura (DMO-588, #291): 173 testes para 75 correções DMO-380…577 que estavam sem teste ou de raspão (C#, JavaScript e browser). Listas acrescentadas: 9 ficheiros no test:js (inclui painel-propria-pagina.test.cjs, que nunca corria) e 4 passos de browser cobertura_*_browser.py no ci-local.sh. Os pendentes_*_browser.py ficam fora do CI. Nenhum teste existente mudou.
+Referência: Diogo 28/10: cmsg_01K75FTs9bQnbhhH7qttpgra7cwoVACUyomrv9aShsVyV6, cmsg_01K75FTs9bQnbhhH7qttpgraX7KNnAiKEpCXv78YGZccVx
+Novos: 203 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqSaldoNoHistoricoCoberturaA2Tests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqSaldoNoHistoricoCoberturaA2Tests.cs :: NoSettings.Historico_BqQueSaiuNumJobOnEVoltaNoutro_NaoMostraSaldo_MesmoComUmSaldoAntigoGravado`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqSaldoNoHistoricoCoberturaA2Tests.cs :: NoSettings.Historico_EntraMaisDoQueSaiu_MostraOSaldoNaEntrada_ENoPdf`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.CoberturaBPdf.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.CoberturaBPdf.cs :: PesoPdfGeneratorCoberturaBTests.PdfDoPeso_NaoRepeteRotulosNemExplicacoesRetiradas`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.CoberturaBPdf.cs :: PesoPdfGeneratorCoberturaBTests.ProducaoAnterior_ComMediaEModa_OPdfDizAsDuasEOsDiasDaModa`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.CoberturaBPdf.cs :: PesoPdfGeneratorCoberturaBTests.ProducaoAnterior_SemMediaNemModa_UsaOPesoGuardado_ESemDizerMedia`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesPosicoesPdfCoberturaB.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesPosicoesPdfCoberturaB.cs :: PuncoesPosicoesPdfCoberturaBTests.PdfDasPuncoes_AsLinhasSaoAsGotasDaLinha_ETresGotasDeixamMaisNaReserva`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesPosicoesPdfCoberturaB.cs :: PuncoesPosicoesPdfCoberturaBTests.PdfDasPuncoes_SaiNumaSoFolhaA4_ComAReservaCheiaOuNao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.CoberturaA2TrincoCorrigir.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.CoberturaA2TrincoCorrigir.cs :: PostgresMigrationIntegrationTests.ApagarUmaLeituraDoPeso_EsperaPelaLeituraNovaEmCurso_ENaoDeixaBuracoNasPosicoes`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.CoberturaA2TrincoCorrigir.cs :: PostgresMigrationIntegrationTests.CorrigirUmaLeituraDoPeso_EsperaPelaLeituraNovaEmCurso`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.CoberturaBTrincoDoPeso.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.CoberturaBTrincoDoPeso.cs :: PostgresMigrationIntegrationTests.CorrigirEApagarUmaLeituraDoPeso_EsperamPeloTrincoDeQuemRegista`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CoberturaA1ProducaoEmCursoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CoberturaA1ProducaoEmCursoTests.cs :: CoberturaA1ProducaoEmCursoTests.ComOMesmoDiaDeInicio_FicaALancadaPorUltimo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CoberturaA1ProducaoEmCursoTests.cs :: CoberturaA1ProducaoEmCursoTests.DuasExperienciasDeUmDiaNaMesmaLinha_FicaAUltimaLancada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CoberturaA1ProducaoEmCursoTests.cs :: CoberturaA1ProducaoEmCursoTests.DuasProducoesQueCobremODiaNaMesmaLinha_FicaAQueComecouPorUltimo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CoberturaA1ProducaoEmCursoTests.cs :: CoberturaA1ProducaoEmCursoTests.EntradasPorDia_ExperienciaDeUmDiaEntraAoLadoDaProducaoDessaLinha`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CoberturaA1ProducaoEmCursoTests.cs :: CoberturaA1ProducaoEmCursoTests.EntradasPorDia_PelaOrdemDeEntrada_ESemAsQueNaoTemDiaDeInicio`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CoberturaA1ProducaoEmCursoTests.cs :: CoberturaA1ProducaoEmCursoTests.EntradasPorDia_UmaPorLinhaEPorDia_AUltimaLancada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CoberturaA1ProducaoEmCursoTests.cs :: CoberturaA1ProducaoEmCursoTests.ExperienciaDeUmDiaSozinha_AparecenaLinhaSemProducao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CoberturaA1ProducaoEmCursoTests.cs :: CoberturaA1ProducaoEmCursoTests.ExperienciaDeUmDia_NaoTiraAProducaoNemSubstituiAEscolhaDaLinha`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CoberturaA1ProducaoEmCursoTests.cs :: CoberturaA1ProducaoEmCursoTests.ExperienciaDeUmDia_SoApareceNoSeuDia`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CoberturaA1ProducaoEmCursoTests.cs :: CoberturaA1ProducaoEmCursoTests.ExperienciaDeUmDia_SoQuandoEExperienciaEEntraESaiNoMesmoDia`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CoberturaA1ProducaoEmCursoTests.cs :: CoberturaA1ProducaoEmCursoTests.ExperienciaQueEntraESaiNoDia_FicaAoLadoDaProducaoDaLinha_SemATirar`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CoberturaA1ProducaoEmCursoTests.cs :: CoberturaA1ProducaoEmCursoTests.ExperienciaSemFim_NaoEDeUmDia`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CoberturaA1ProducaoEmCursoTests.cs :: CoberturaA1ProducaoEmCursoTests.OFimCobreOUltimoDia_ESoNesse_NoLimiteELogoAbaixoELogoAcima`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CoberturaA1ProducaoEmCursoTests.cs :: CoberturaA1ProducaoEmCursoTests.ProducaoSemDiaDeInicio_NaoEstaEmCurso`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CoberturaA1ProducaoEmCursoTests.cs :: CoberturaA1ProducaoEmCursoTests.ProducaoSemFim_CobreOsDiasDepoisDoInicio_ENaoOsAntes`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CoberturaA1ProducaoEmCursoTests.cs :: CoberturaA1ProducaoEmCursoTests.QuadroDoDia_ExperienciaDeDoisDias_NaoFicaAoLado_ECompeteComAProducaoDaLinha`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CoberturaA1ProducaoEmCursoTests.cs :: CoberturaA1ProducaoEmCursoTests.QuadroDoDia_ExperienciaDeUmDiaFicaAoLadoDaProducao_EVemMarcadaComoExperiencia`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasDuplicarCoberturaA2Tests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasDuplicarCoberturaA2Tests.cs :: FerramentasDuplicarCoberturaA2Tests.DuplicarParaLoteNovo_LevaOLinkMcaliperEAFabricaDeOrigem_ESemUtilizacao`
+- novo: `tests/DMO.Alpha.Web.Tests/Admin/CoberturaCRegistosPorUtilizadorTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Admin/CoberturaCRegistosPorUtilizadorTests.cs :: CoberturaCRegistosPorUtilizadorTests.OFiltroDosDias_DeEAteIncluemOsDiasEscolhidos_ESoElesTrazemORegistoDoUltimoMinuto`
+- novo: `tests/DMO.Alpha.Web.Tests/Admin/CoberturaCRegistosPorUtilizadorTests.cs :: CoberturaCRegistosPorUtilizadorTests.OsRegistos_VemDosMaisRecentesParaOsMaisAntigos_ComOQueCorrigiuOuAnulou`
+- novo: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.CoberturaA2Exporta.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.CoberturaA2Exporta.cs :: AdminUsersAndTemplatesPagesTests.ListaDosUtilizadores_ComMaisDe25_ParaOBrowser`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CoberturaA2FiltroLote.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CoberturaA2FiltroLote.cs :: BoquilhasRegistoPageTests.FichaDaBoquilha_TemOsBotoesNoTopo_ESeguemOsQuatroMiniCartoesDeDados`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CoberturaA2FiltroLote.cs :: BoquilhasRegistoPageTests.ProcurarBoquilha_OFiltroLoteVemLogoDepoisDaReferencia_EFiltraPorEsseLote`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CoberturaA2LinhaCor.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CoberturaA2LinhaCor.cs :: BoquilhasRegistoPageTests.PainelDasMaquinas_CadaCartaoLevaALinhaDele_ESoAsLinhasComCor`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CoberturaA2RegistoComProducao.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CoberturaA2RegistoComProducao.cs :: BoquilhasRegistoPageTests.RegistoComProducao_MostraBqLoteEOsCartoesDaProducao_ParaOBrowser`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CoberturaA2SemJobOn.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CoberturaA2SemJobOn.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_ALinhaVemJaEscolhidaComAUltimaOndeABqTeveMovimentos`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CoberturaA2SemJobOn.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_UmaBqSemLinhasNaFicha_MostraTodasAsLinhasSemNenhumaEscolhida`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaA1EntradasDaSemanaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaA1EntradasDaSemanaTests.cs :: CoberturaA1EntradasDaSemanaTests.Faixa_ExperienciaQueEntraESaiNoMesmoDia_FicaAoLadoDaProducaoDessaLinha`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaA1EntradasDaSemanaTests.cs :: CoberturaA1EntradasDaSemanaTests.Faixa_PelaOrdemEmQueEntram`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaA1EntradasDaSemanaTests.cs :: CoberturaA1EntradasDaSemanaTests.Faixa_SoTemOQueEntraDeHojeAteUmaSemana_OQueJaEntrouSai`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaA1EntradasDaSemanaTests.cs :: CoberturaA1EntradasDaSemanaTests.Faixa_VariasAEntrarNaMesmaLinhaNoMesmoDia_SoAUltimaLancada`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaA1EntradasDaSemanaTests.cs :: CoberturaA1EntradasDaSemanaTests.Gaveta_AsEmCurso_UmaPorLinha_VemAntesDasQueEntram`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaA1EntradasDaSemanaTests.cs :: CoberturaA1EntradasDaSemanaTests.Gaveta_ExperienciaDeUmDia_NaoEEmCurso`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaBExportaParaOBrowserTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaBExportaParaOBrowserTests.cs :: CoberturaBExportaParaOBrowserTests.ExportaAsDefinicoesDoControlo`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaBExportaParaOBrowserTests.cs :: CoberturaBExportaParaOBrowserTests.ExportaOLoginComAPalavraPasseErrada`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaBExportaParaOBrowserTests.cs :: CoberturaBExportaParaOBrowserTests.ExportaORegistoDoArmazemComUmaFerramentaAberta`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaCApoio.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaCContaETopoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaCContaETopoTests.cs :: CoberturaCContaETopoTests.ADuracaoDaSessao_OferecePeloMenosUmaHoraAteVinteEQuatro_ESoGravaAsPermitidas_SoDeQuemAEscolhe`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaCContaETopoTests.cs :: CoberturaCContaETopoTests.AFichaDoUtilizador_TemOVoltarPorCimaDoTitulo_ENaoRepeteONumeroDeOperadorNosFactos`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaCContaETopoTests.cs :: CoberturaCContaETopoTests.AMinhaConta_EscondeOEmailInventadoDoLoginPorNumero_EMostraOEmailRealDoAdmin`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaCContaETopoTests.cs :: CoberturaCContaETopoTests.ASessaoNova_DuraAsHorasQueOUtilizadorEscolheu_ESemEscolhaDuraUmaHora`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaCContaETopoTests.cs :: CoberturaCContaETopoTests.OTopo_MostraONomeEOTituloDoOperadorAntesDoSair_ESemTituloOAdminSoTemONome`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaCExportaParaOBrowserTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaCExportaParaOBrowserTests.cs :: CoberturaCExportaParaOBrowserTests.ExportaARegistarEAConsultaDaReparacaoInterna`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaCExportaParaOBrowserTests.cs :: CoberturaCExportaParaOBrowserTests.ExportaOLoginAsDefinicoesEAFichaDoUtilizador`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaCInstalarPaginaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaCInstalarPaginaTests.cs :: CoberturaCInstalarPaginaTests.ABaseSemAdmin_MostraOFormularioDaPrimeiraInstalacao`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaCInstalarPaginaTests.cs :: CoberturaCInstalarPaginaTests.ComOCodigoCerto_CriaOAdmin_VaiParaOLogin_ADepoisDeFeitaJaNaoServe`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaCInstalarPaginaTests.cs :: CoberturaCInstalarPaginaTests.SemOLoginProprio_NaoHaPrimeiraInstalacao_ELevaAoLogin`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaCInstalarPaginaTests.cs :: CoberturaCInstalarPaginaTests.UmCampoMalPreenchido_VoltaComOAviso_GuardaOEmailEscrito_ENadaSeCria`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaCPostoDaReparacaoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaCPostoDaReparacaoTests.cs :: CoberturaCPostoDaReparacaoTests.OBotaoReparacaoDoLogin_AbreOPosto_EOPostoTemOVoltarAoLogin`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaCPostoDaReparacaoTests.cs :: CoberturaCPostoDaReparacaoTests.OPinGuardadoPeloAdmin_FicaEmHash_ESoComEleOReparadorEntraNoPosto`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaCPostoDaReparacaoTests.cs :: CoberturaCPostoDaReparacaoTests.QuemNaoTemAReparacaoInterna_TemPinMasNaoApareceNoPosto`
+- novo: `tests/DMO.Alpha.Web.Tests/CoberturaCPostoDaReparacaoTests.cs :: CoberturaCPostoDaReparacaoTests.UmPinNovoSubstituiOAnterior_ENaoSeAceitaUmPinForaDosQuatroAosDozeAlgarismos`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.CoberturaBExporta.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.CoberturaBExporta.cs :: PesoComparacaoPageTests.Comparacao_ComBase_TemALinhaDestacada_ParaOBrowser`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.CoberturaBUmaLinha.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.CoberturaBUmaLinha.cs :: PesoComparacaoPageTests.Comparacao_ComecaComUmaSoLinhaDeLeitura_EDepoisDeCompararVoltaComAsEscritas`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaA2Abrir.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaA2Abrir.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_AbrirLevaAoPesoDaProducaoEscolhidaNoSelect`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaA2ResumoLongo.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaA2ResumoLongo.cs :: PesoFolhaProducaoAnteriorPageTests.Resumo_ComPesoDaProducaoAnteriorLongo_ParaOBrowser`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBAgrupamento.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBAgrupamento.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDaComparacao_AgrupaEsteControlo_ControloAnterior_EDiferenca_PorEstaOrdem`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBCartao.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBCartao.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_NomeSoNoTitulo_BotaoAbrir_EInicioEFimNoCartaoDoPeso`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBExporta.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBExporta.cs :: PesoFolhaProducaoAnteriorPageTests.Peso_NoPainel_TemOsNumerosEALeituraNova_ParaOBrowser`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBResumo.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBResumo.cs :: PesoFolhaProducaoAnteriorPageTests.Resumo_TabelaDoPeso_TemAsColunasValorGEPercentagem_EACadaLinhaAsDuasDiferencas`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.CoberturaA1Aspeto.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.CoberturaA1Aspeto.cs :: ControloCapabilitiesCutHPageTests.ResumoComPainelDeApoioEBotaoDosPegamentos_ExportadoParaOBrowser`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.CoberturaA2Revisao.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.CoberturaA2Revisao.cs :: ControloCapabilitiesCutHPageTests.ConsultaDosPegamentos_VoltarPorCimaDoTitulo_SemOQuadroLeituras_EOMapaDepoisDasTabelas`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.CoberturaA2Revisao.cs :: ControloCapabilitiesCutHPageTests.Revisao_TemOTituloRevisao_EAsConsultasJuntoAoTituloDoResumo`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.CoberturaBExporta.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.CoberturaBExporta.cs :: ControloCapabilitiesCutHPageTests.PesoSemJobOn_ComCmEBq_ParaOBrowser`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.CoberturaBLoteCm.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.CoberturaBLoteCm.cs :: ControloCapabilitiesCutHPageTests.PesoSemJobOn_CmComVariosLotes_PedeOLote_ESoResolveQuandoEscolhido`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.CoberturaBVoltar.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.CoberturaBVoltar.cs :: ControloCapabilitiesCutHPageTests.PaginasDeRegisto_TemOVoltarAoResumoDaProducao_AntesDoTitulo`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.CoberturaA2Ficha.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.CoberturaA2Ficha.cs :: FerramentasPagesTests.Ficha_ParaOBrowser_CabeNoEcraSemDeslizar`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.CoberturaA2FiltroLote.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.CoberturaA2FiltroLote.cs :: FerramentasPagesTests.Pesquisar_OFiltroLoteVemLogoDepoisDaReferencia_EFiltraPorEsseLote`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.CoberturaCLinhasCompativeis.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.CoberturaCLinhasCompativeis.cs :: FerramentasPagesTests.Registar_DaUmaCaixaPorLinhaComOCodigoDela_EVaiParaOBrowser`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Browser.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Browser.cs :: JobOnPageTests.Folha_Cheia_ComOitoCalibresENotasCompridas_ExportadaParaOBrowser`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Duplicar_TrazOCabecalhoDaOrigem_OPuEACalote_EGravaAProducaoNovaComEles`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Editar_LoteDoAnEscritoNoEditar_GravaSeEFicaComoLoteDoAn`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Editar_LoteDoAnVazioMostraODaBqComoSugestao_EGuardarOutraCoisaNaoOCopiaParaABase`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Folha_CaloteDoTp_SemCaloteDaProducaoMostraABaciaPs_ComElaMandaACalote`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Folha_LoteDoAnEscritoAMao_FicaEMantemSeQuandoATrocaDeBq`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Folha_LoteDoAnSemEscrever_ESempreODaBq_NoEcraENaImpressao_MesmoDepoisDeTrocarAsBq`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Folha_NaoTemOContadorDeSessaoNemOBotaoDeDesbloquearDoPainel`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Folha_PosicaoDoArmazem_ELinkParaOArmazemDaFerramenta_SoParaQuemTemOArmazem`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Imprimir_UsaAsPincasDoCartaoPiInteiras_ComODiametro_SemALinhaTipo`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Painel_FolhaNoPainel_EUmResumoComAbrirFolha_SemOsCartoesDaFolha`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Planeamento_FaixaDoJobOn_TemOQueEntraEstaSemana_ENaoOQueJaEntrou`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaBExperiencia.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaBExperiencia.cs :: JobOnPageTests.FolhaNova_Duplicar_NaoTemOBotaoExperiencia`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaBExperiencia.cs :: JobOnPageTests.FolhaNova_Experiencia_AbreEmBrancoComONumeroAnoZeroZero_EMarcadaComoExperiencia`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaBExperiencia.cs :: JobOnPageTests.FolhaNova_TemOsDoisBotoes_ProducaoEExperiencia_ComAProducaoEscolhida`
+- novo: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.CoberturaA2Mapa.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.CoberturaA2Mapa.cs :: PegamentosPageTests.FolhaComMedicoes_OMapaDeLimitesFicaPorBaixoDasLeituras_SemTextoDeAjuda`
+- novo: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.CoberturaBPassos.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.CoberturaBPassos.cs :: PegamentosPageTests.Folha_TemAsLeiturasEOMapa_SemOsPassosContextoMedicoesMapa`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/CoberturaCReparacaoInternaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/CoberturaCReparacaoInternaTests.cs :: CoberturaCReparacaoInternaTests.ANaoSerReparacao_AConsultaMostraOTrabalhoNaLinha_EFiltraPeloTipoDeTrabalho`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/CoberturaCReparacaoInternaTests.cs :: CoberturaCReparacaoInternaTests.OTrabalhoEscolhidoNoRegisto_FicaGravado_ESemEscolhaOuComUmValorDesconhecidoEReparacao`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/CoberturaCReparacaoInternaTests.cs :: CoberturaCReparacaoInternaTests.OsFiltrosDaConsulta_VemPelaOrdemPedida_ESemJobOnTemUmaDica`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/CoberturaCReparacaoInternaTests.cs :: CoberturaCReparacaoInternaTests.OsFiltrosDoHistorico_VemPelaMesmaOrdem_SemQuemNemCmMf`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaConsultaCoberturaBTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaConsultaCoberturaBTests.cs :: ReparacaoInternaConsultaCoberturaBTests.Consulta_ReferenciaPrimeiro_ProducaoLogoAseguir_ETodosOsFiltrosNumSoFormulario`
+- novo: `tests/ShellProof/cobertura_a1_ficha-na-lista.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/cobertura_a1_ficha-na-lista.test.cjs :: a linha que limpa a escolha não tem triângulo`
+- novo: `tests/ShellProof/cobertura_a1_ficha-na-lista.test.cjs :: cada ferramenta da lista tem o triângulo que aponta para a ficha dela`
+- novo: `tests/ShellProof/cobertura_a1_ficha-na-lista.test.cjs :: clicar no texto da ferramenta escolhe-a e não abre a ficha`
+- novo: `tests/ShellProof/cobertura_a1_ficha-na-lista.test.cjs :: clicar no triângulo abre a ficha no painel e não escolhe a ferramenta`
+- novo: `tests/ShellProof/cobertura_a1_ficha-na-lista.test.cjs :: sem painel de apoio, o triângulo abre a ficha noutro separador sem escolher`
+- novo: `tests/ShellProof/cobertura_a1_ficha-na-lista.test.cjs :: uma procura sem endereço de ficha não desenha triângulo`
+- novo: `tests/ShellProof/cobertura_a1_folha-js.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/cobertura_a1_folha-js.test.cjs :: Calibres: «P 59.20 / M 58.60» quebra só na barra, em dois segmentos inteiros`
+- novo: `tests/ShellProof/cobertura_a1_folha-js.test.cjs :: Dimensões compridas: só se pode quebrar depois de cada barra`
+- novo: `tests/ShellProof/cobertura_a1_folha-js.test.cjs :: Editar: a procura da CM dá à lista o endereço da ficha de cada ferramenta`
+- novo: `tests/ShellProof/cobertura_a1_folha-js.test.cjs :: a Informação técnica abre de uma em uma, e o clique fora ou o Esc fecham-na`
+- novo: `tests/ShellProof/cobertura_a1_folha-js.test.cjs :: a nota ampliada diz de que ferramenta é e deixa o lugar guardado no cartão`
+- novo: `tests/ShellProof/cobertura_a1_folha-js.test.cjs :: com uma nota ampliada, o clique noutra nota só fecha a primeira e não abre a outra`
+- novo: `tests/ShellProof/cobertura_a1_folha-js.test.cjs :: com uma nota ampliada, o rato premido fora não põe o cursor noutra caixa`
+- novo: `tests/ShellProof/cobertura_a1_folha-js.test.cjs :: no Editar, a nota abre pronta a escrever com o cursor no fim do texto`
+- novo: `tests/ShellProof/cobertura_a1_folha-js.test.cjs :: o artigo com imagem da referência mostra-a no lugar do desenho e oferece retirar`
+- novo: `tests/ShellProof/cobertura_a1_folha-js.test.cjs :: o artigo sem imagem mostra o desenho de reserva e não oferece retirar`
+- novo: `tests/ShellProof/cobertura_a1_folha-js.test.cjs :: um clique na procura da Referência seleciona-a toda, para o Backspace a apagar`
+- novo: `tests/ShellProof/cobertura_a2_artigo-recorte.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/cobertura_a2_artigo-recorte.test.cjs :: Cancelar o recorte não grava nada e a imagem anterior fica como estava`
+- novo: `tests/ShellProof/cobertura_a2_artigo-recorte.test.cjs :: Colar algo que não é imagem não abre o recorte`
+- novo: `tests/ShellProof/cobertura_a2_artigo-recorte.test.cjs :: Colar dentro de um campo de escrita fica no campo e não grava imagem`
+- novo: `tests/ShellProof/cobertura_a2_artigo-recorte.test.cjs :: Colar uma imagem (Ctrl+V) fora dos campos abre o recorte e grava o recorte`
+- novo: `tests/ShellProof/cobertura_a2_artigo-recorte.test.cjs :: Guardar recorte com imagem anterior: a anterior fica guardada e o artigo.png é o novo`
+- novo: `tests/ShellProof/cobertura_a2_artigo-recorte.test.cjs :: Guardar recorte grava na pasta da referência o recorte, não a imagem inteira`
+- novo: `tests/ShellProof/cobertura_a2_bq-sem-jobon.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/cobertura_a2_bq-sem-jobon.test.cjs :: As sugestões da BQ só aparecem depois de escrever, e o rótulo é «BQ C002 · Lote 18»`
+- novo: `tests/ShellProof/cobertura_a2_bq-sem-jobon.test.cjs :: Com a BQ já escolhida ao abrir, a Linha só tem as da ficha e vem com a primeira`
+- novo: `tests/ShellProof/cobertura_a2_bq-sem-jobon.test.cjs :: Escolher a BQ deixa na Linha só as da ficha dela, com a primeira já escolhida`
+- novo: `tests/ShellProof/cobertura_a2_bq-sem-jobon.test.cjs :: Job On anterior: a BQ mostra as referências dela, a referência as produções, e a produção põe a linha do Job On`
+- novo: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: A primeira leitura da pasta envia todos os ficheiros do SAP, do mais antigo para o mais novo, e nenhum do DMO`
+- novo: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: Apagar lidos: pergunta antes e apaga só os ficheiros do SAP já lidos`
+- novo: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: Apagar lidos: se a pessoa não confirma, nada é apagado`
+- novo: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: Apagar lidos: sem nada lido ainda, avisa e não apaga nem pergunta`
+- novo: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: Com um ficheiro já lido, só os mais novos do que o último lido vão para o servidor`
+- novo: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: Numa pasta com mais de dez listas por ler, vão as dez mais recentes`
+- novo: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: Se a lista mais recente já foi lida, nada vai para o servidor e o cartão diz isso`
+- novo: `tests/ShellProof/cobertura_b_peso-faixa.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/cobertura_b_peso-faixa.test.cjs :: A diferença nominal positiva leva «+» e duas casas, mesmo inteira`
+- novo: `tests/ShellProof/cobertura_b_peso-faixa.test.cjs :: A faixa escreve inteiros sem casas e decimais com duas, como o servidor`
+- novo: `tests/ShellProof/cobertura_b_peso-menos.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/cobertura_b_peso-menos.test.cjs :: Esc dentro da correção sai da correção e não chega ao resto da página`
+- novo: `tests/ShellProof/cobertura_b_peso-menos.test.cjs :: Um pedido de apagar anterior não fica no endereço do novo`
+- novo: `tests/ShellProof/cobertura_b_peso-menos.test.cjs :: «−» com duas linhas só tira a linha vazia, sem perguntar nada`
+- novo: `tests/ShellProof/cobertura_b_peso-menos.test.cjs :: «−» com uma só linha abre a pergunta de apagar a última leitura gravada, sem apagar nada`
+- novo: `tests/ShellProof/cobertura_b_peso-menos.test.cjs :: «−» com uma só linha e nenhuma leitura gravada não faz nada`
+- novo: `tests/ShellProof/cobertura_b_ri-consulta.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/cobertura_b_ri-consulta.test.cjs :: A Produção fechada mostra só o número; aberta, o resto por baixo de cada uma`
+- novo: `tests/ShellProof/cobertura_b_ri-consulta.test.cjs :: Carregar numa pessoa do resumo escolhe-a no «Quem» e aplica; uma que não está na lista segue o link`
+- novo: `tests/ShellProof/cobertura_b_ri-consulta.test.cjs :: Esc fecha a lista aberta sem escolher nada`
+- novo: `tests/ShellProof/cobertura_b_ri-consulta.test.cjs :: Escolher uma produção fecha a lista, fica só o número e o select muda e avisa`
+- novo: `tests/visual/cobertura_a1_browser.py`
+- novo: `tests/visual/cobertura_a2_browser.py`
+- novo: `tests/visual/cobertura_b_browser.py`
+- novo: `tests/visual/cobertura_c_browser.py`
+- novo: `tests/visual/pendentes_a1_browser.py`
+- novo: `tests/visual/pendentes_a2_browser.py`
+- novo: `tests/visual/pendentes_b_browser.py`
+- mudou: `scripts/ci/ci-local.sh`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `f1d0e4a34de15020`
+
+## A-0327 · 2026-10-29 · ok-do-diogo
+
+Porquê: Os 3 testes novos do #291 (DMO-588) que gravam a folha passam a escrever o diâmetro do corpo do MF com um só número (71.7), porque o #288 (DMO-587) recusa dois números num diâmetro; o que eles verificam não muda.
+Referência: Regra do Diogo 28/10 «no corpo não deve ter dois valores» (cmsg_01K75FTs9bQnbhhH7qttpgraNidJsALf8gXwDKhAgYzVEb)
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Duplicar_TrazOCabecalhoDaOrigem_OPuEACalote_EGravaAProducaoNovaComEles`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Editar_LoteDoAnEscritoNoEditar_GravaSeEFicaComoLoteDoAn`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Editar_LoteDoAnVazioMostraODaBqComoSugestao_EGuardarOutraCoisaNaoOCopiaParaABase`
+
+Selo depois: `3f7b0c747f3b0cec`

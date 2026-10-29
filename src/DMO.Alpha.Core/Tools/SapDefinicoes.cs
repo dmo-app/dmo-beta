@@ -19,6 +19,9 @@ public static class SapDefinicoesRegras
     /// <summary>O prefixo do texto de um script editado no Admin (Sap:Script:DMO_USO_SAP.vbs).</summary>
     public const string ChaveScript = "Sap:Script:";
 
+    /// <summary>A chave com que o script do SAP envia o que leu (cifrada, DMO-582).</summary>
+    public const string ChaveEnvio = "Sap:ChaveEnvio";
+
     /// <summary>O utilizador do «Moldes Existentes.SAP» (Diogo, 28/10/2026).</summary>
     public const string UtilizadorPorOmissao = "USERREQMG";
 
@@ -73,6 +76,16 @@ public interface ISapDefinicoes
     /// <summary>Grava o texto de um script; null ou vazio volta ao da app.</summary>
     Task<SapGravacao> GravarScriptAsync(string nome, string? texto, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// A chave do envio direto (o script do SAP manda os ficheiros para
+    /// /sap/enviar com ela, sem ninguém abrir a app; DMO-582). Criada na
+    /// primeira vez.
+    /// </summary>
+    Task<string> ChaveDeEnvioAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>TRUE quando <paramref name="chave"/> é a chave do envio.</summary>
+    Task<bool> ConfereChaveAsync(string? chave, CancellationToken cancellationToken = default);
+
     /// <summary>As últimas leituras gravadas (a % uso e as produções), as mais recentes primeiro.</summary>
     Task<IReadOnlyList<SapLeituraFeita>> LeiturasAsync(int maximo, CancellationToken cancellationToken = default);
 }
@@ -89,4 +102,7 @@ public static class SapScriptsRegras
     public static readonly IReadOnlyList<string> Nomes = [Diario, Fabrico, Uso, Instalar, Atalho];
 
     public static bool Conhecido(string? nome) => nome is not null && Nomes.Contains(nome);
+
+    /// <summary>Os que se abrem e mudam no Admin › SAP: todos menos o INSTALAR.cmd, que só instala.</summary>
+    public static bool Editavel(string? nome) => Conhecido(nome) && nome != Instalar;
 }

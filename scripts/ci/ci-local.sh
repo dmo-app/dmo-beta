@@ -293,6 +293,21 @@ else
 fi
 
 echo
+echo "== Browser no cabeçalho com nome comprido"
+echo "   A folha do Job On a 1290×646, 1366×768 e 1024×646, com um nome e um título compridos: a conta fica na fila dos módulos e a página não desliza."
+if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then
+  echo "   não corrido (CI_SEM_BROWSER=1)"
+  summary+=("--      Browser no cabeçalho com nome comprido (CI_SEM_BROWSER=1)")
+elif python3 tests/visual/cabecalho_nome_comprido_browser.py "$ui" >"$logs/ui-cabecalho.log" 2>&1; then
+  echo "   passaram"
+  summary+=("OK      Browser no cabeçalho com nome comprido")
+else
+  tail -30 "$logs/ui-cabecalho.log"
+  summary+=("FALHOU  Browser no cabeçalho com nome comprido")
+  failed=1
+fi
+
+echo
 echo "== Browser na pasta dos PDFs"
 echo "   A pasta dos PDFs no Chromium: sem pasta, com pasta (referência/produção), deixar de usar e duplo clique."
 if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then
@@ -319,6 +334,73 @@ elif python3 tests/visual/excel_bq_browser.py "$logs/ui-excel-bq" >"$logs/ui-exc
 else
   tail -30 "$logs/ui-excel-bq.log"
   summary+=("FALHOU  Browser no Excel das Boquilhas")
+  failed=1
+fi
+
+# Os browsers da cobertura (tests/visual/cobertura_*_browser.py; revisão dos testes de 28/10/2026):
+# medem no Chromium o HTML que os testes Web exportaram para "$ui" (as correções DMO-380…577
+# que não tinham teste ou só o tinham de raspão).
+echo
+echo "== Browser na cobertura A1"
+echo "   Planeamento, Sumário, botões, cabeçalho, folha cheia e Imprimir."
+if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then
+  echo "   não corrido (CI_SEM_BROWSER=1)"
+  summary+=("--      Browser na cobertura A1 (CI_SEM_BROWSER=1)")
+  incompleto+=("browser")
+elif python3 tests/visual/cobertura_a1_browser.py "$ui" >"$logs/ui-cobertura-a1.log" 2>&1; then
+  echo "   passaram"
+  summary+=("OK      Browser na cobertura A1")
+else
+  tail -30 "$logs/ui-cobertura-a1.log"
+  summary+=("FALHOU  Browser na cobertura A1")
+  failed=1
+fi
+
+echo
+echo "== Browser na cobertura A2"
+echo "   Job On, Revisão, Ficha, Utilizadores, Resumo, Registo e Pegamentos a 1366×768 e 1290×646; Imprimir a preto e branco."
+if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then
+  echo "   não corrido (CI_SEM_BROWSER=1)"
+  summary+=("--      Browser na cobertura A2 (CI_SEM_BROWSER=1)")
+  incompleto+=("browser")
+elif python3 tests/visual/cobertura_a2_browser.py "$ui" >"$logs/ui-cobertura-a2.log" 2>&1; then
+  echo "   passaram"
+  summary+=("OK      Browser na cobertura A2")
+else
+  tail -30 "$logs/ui-cobertura-a2.log"
+  summary+=("FALHOU  Browser na cobertura A2")
+  failed=1
+fi
+
+echo
+echo "== Browser na cobertura B"
+echo "   Sem setas nos botões; login, Peso, Resumo, Definições, Armazém, Pegamentos e punções a 1290×646 e 1366×768."
+if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then
+  echo "   não corrido (CI_SEM_BROWSER=1)"
+  summary+=("--      Browser na cobertura B (CI_SEM_BROWSER=1)")
+  incompleto+=("browser")
+elif python3 tests/visual/cobertura_b_browser.py "$ui" >"$logs/ui-cobertura-b.log" 2>&1; then
+  echo "   passaram"
+  summary+=("OK      Browser na cobertura B")
+else
+  tail -30 "$logs/ui-cobertura-b.log"
+  summary+=("FALHOU  Browser na cobertura B")
+  failed=1
+fi
+
+echo
+echo "== Browser na cobertura C"
+echo "   Login, topo, Definições, ficha, Reparação Interna, Consulta e Ferramentas a 1366×768 e 1290×646, claro e escuro."
+if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then
+  echo "   não corrido (CI_SEM_BROWSER=1)"
+  summary+=("--      Browser na cobertura C (CI_SEM_BROWSER=1)")
+  incompleto+=("browser")
+elif python3 tests/visual/cobertura_c_browser.py "$ui" >"$logs/ui-cobertura-c.log" 2>&1; then
+  echo "   passaram"
+  summary+=("OK      Browser na cobertura C")
+else
+  tail -30 "$logs/ui-cobertura-c.log"
+  summary+=("FALHOU  Browser na cobertura C")
   failed=1
 fi
 
