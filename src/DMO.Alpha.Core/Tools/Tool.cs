@@ -77,6 +77,14 @@ public sealed class Tool
     public string? TechnicalName { get; set; }
 
     /// <summary>
+    /// O CÓDIGO SAP à mão (Diogo, 28/10/2026: «se precisar de alterar algum
+    /// nome de uma ferramenta para o script procurar»): quando o código no SAP
+    /// não é o que a tabela de procura dá, o script procura este. Null usa a
+    /// tabela (Admin › SAP).
+    /// </summary>
+    public string? SapCodigo { get; set; }
+
+    /// <summary>
     /// A B2 em que a ferramenta trabalha (Diogo, 28/10/2026): uma da C3+B2
     /// fica sempre com B2 Tripla, uma da C1+B2 com B2 Dupla. Null fora da B2
     /// e, na B2, enquanto não for escolhida (aviso importante).

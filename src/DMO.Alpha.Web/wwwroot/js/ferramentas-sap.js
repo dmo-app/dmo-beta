@@ -21,10 +21,15 @@
 (function () {
   "use strict";
 
+  // O cartão do Admin › SAP pede os scripts à página dele (data-ferr-sap-base)
+  // e não grava pelo browser: o script envia tudo direto (DMO-582).
+  const cartaoBase = document.querySelector("[data-ferr-sap]");
+  const doAdmin = !!(cartaoBase && cartaoBase.hasAttribute("data-ferr-sap-admin"));
+  const PAGINA = (cartaoBase && cartaoBase.getAttribute("data-ferr-sap-base")) || "/Ferramentas/Definicoes";
   const URL_SAP = "/Ferramentas/Definicoes?handler=UsoSap";
   const URL_IMPORTAR = "/Ferramentas/Definicoes?handler=ImportarUsoSap";
-  const URL_SCRIPTS = "/Ferramentas/Definicoes?handler=ScriptsSap";
-  const URL_CODIGOS_REF = "/Ferramentas/Definicoes?handler=CodigosSap";
+  const URL_SCRIPTS = PAGINA + "?handler=ScriptsSap";
+  const URL_CODIGOS_REF = PAGINA + "?handler=CodigosSap";
   const PEDIDO = "dmo-codigos-pedido.txt";
   const ESTADO_SAP = "dmo-sap-estado.txt";
   // Os ficheiros que o DMO e os scripts escrevem na pasta: nunca vão para o servidor.
@@ -321,7 +326,7 @@
         const estadoSap = await lerEstado(pasta);
         if (!estadoSap || estadoSap.quando < comeco - 2000) {
           if (!arrancou && volta === 12) {
-            mensagem("aviso", "O SAP não arrancou. Neste PC, faça uma vez «Opções › Instalar neste PC».");
+            mensagem("aviso", "O SAP não arrancou. Neste PC, carregue uma vez em «Instalar».");
             mostrarEstado("«" + pasta.name + "» · o SAP não arrancou");
             return;
           }
@@ -329,7 +334,7 @@
         }
         arrancou = true;
         if (estadoSap.texto.startsWith("feito")) {
-          await sincronizar(pasta, false);
+          if (!doAdmin) await sincronizar(pasta, false);
           mensagem("ok", "Leitura do SAP feita e gravada.");
           return;
         }
@@ -407,6 +412,11 @@
     const pasta = await pastaGuardada();
     if (!pasta) return;
     mostrarRemover(true);
+    if (doAdmin) {
+      mostrarEstado("«" + pasta.name + "»");
+      if (await permissao(pasta, false)) await escreverScripts(pasta);
+      return;
+    }
     if (await permissao(pasta, false)) {
       await sincronizar(pasta, false);
     } else {
@@ -448,12 +458,12 @@
     const apagar = cartao.querySelector("[data-ferr-sap-apagar]");
     const todas = cartao.querySelector("[data-ferr-sap-todas]");
     const remover = cartao.querySelector("[data-ferr-sap-remover]");
-    copiar.addEventListener("click", () => copiarCodigos().catch(falhou));
+    if (copiar) copiar.addEventListener("click", () => copiarCodigos().catch(falhou));
     if (!suportado) {
       atualizarBotao.disabled = true;
       instalarBotao.disabled = true;
-      apagar.disabled = true;
-      todas.disabled = true;
+      if (apagar) apagar.disabled = true;
+      if (todas) todas.disabled = true;
       mostrarEstado("este browser não liga pastas (use o Chrome ou o Edge); o «Copiar códigos» funciona na mesma");
       return;
     }
@@ -495,9 +505,9 @@
         .catch(cancelado);
     });
     instalarBotao.addEventListener("click", () => instalar().catch(cancelado));
-    apagar.addEventListener("click", () => apagarLidos().catch(falhou));
-    todas.addEventListener("click", () => alternarTodas().catch(falhou));
-    remover.addEventListener("click", () => esquecerPasta().then(() => {
+    if (apagar) apagar.addEventListener("click", () => apagarLidos().catch(falhou));
+    if (todas) todas.addEventListener("click", () => alternarTodas().catch(falhou));
+    if (remover) remover.addEventListener("click", () => esquecerPasta().then(() => {
       mostrarRemover(false);
       mostrarEstado("Nenhuma pasta ligada");
     }).catch(falhou));

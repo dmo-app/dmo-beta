@@ -105,6 +105,40 @@ public sealed partial class DefinicoesPorModuloPageTests
     }
 
     [Fact]
+    public async Task OScriptDoSap_EnviaDireto_ComAChave_ESemElaNao()
+    {
+        var nome = "MEN" + Guid.NewGuid().ToString("N")[..6].ToUpperInvariant() + "MPNNX";
+        var toolId = SeedToolComNomeTecnico(nome, "4");
+        string chave;
+        using (var scope = _factory.Services.CreateScope())
+        {
+            chave = await scope.ServiceProvider.GetRequiredService<ISapDefinicoes>().ChaveDeEnvioAsync();
+        }
+
+        var anonimo = _factory.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+        var lista = "search,equipment,percent_use,last_production,batch_description,status,error\r\n"
+            + $"{nome}04,{nome}04,77.5,,,OK,\r\n";
+        var semChave = await anonimo.PostAsync("/sap/enviar?ficheiro=dmo-uso-sap.csv", new ByteArrayContent(System.Text.Encoding.Latin1.GetBytes(lista)));
+        Assert.Equal(HttpStatusCode.Forbidden, semChave.StatusCode);
+
+        using var pedido = new HttpRequestMessage(HttpMethod.Post, "/sap/enviar?ficheiro=dmo-uso-sap.csv") { Content = new ByteArrayContent(System.Text.Encoding.Latin1.GetBytes(lista)) };
+        pedido.Headers.Add("X-DMO-SAP", chave);
+        var comChave = await anonimo.SendAsync(pedido);
+        Assert.Equal(HttpStatusCode.OK, comChave.StatusCode);
+        using var json = JsonDocument.Parse(await comChave.Content.ReadAsStringAsync());
+        Assert.True(json.RootElement.GetProperty("gravado").GetBoolean(), json.RootElement.GetProperty("mensagem").GetString());
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            Assert.Equal(77.5m, db.FerramentaUtilizacoes.Single(u => u.ToolId == toolId).Percentagem);
+        }
+
+        using var codigos = new HttpRequestMessage(HttpMethod.Get, "/sap/codigos");
+        codigos.Headers.Add("X-DMO-SAP", chave);
+        Assert.Contains(nome + "04\r\n", await (await anonimo.SendAsync(codigos)).Content.ReadAsStringAsync(), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task AtualizarPorReferencia_DaOsCodigosDessaReferenciaEDoTipo()
     {
         var nome = "MRF" + Guid.NewGuid().ToString("N")[..6].ToUpperInvariant() + "MPNNX";

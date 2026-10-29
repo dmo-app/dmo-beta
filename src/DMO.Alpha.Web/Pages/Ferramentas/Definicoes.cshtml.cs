@@ -58,7 +58,7 @@ public sealed class DefinicoesModel(ICodificacaoFerramentas codificacao, IFerram
     /// </summary>
     public async Task<IActionResult> OnGetScriptsSapAsync()
     {
-        var ficheiros = await sapScripts.FicheirosAsync(HttpContext.RequestAborted);
+        var ficheiros = await sapScripts.FicheirosAsync($"{Request.Scheme}://{Request.Host}{Request.PathBase}", HttpContext.RequestAborted);
         Response.Headers.CacheControl = "no-store";
         return new JsonResult(ficheiros.Select(f => new { nome = f.Nome, base64 = Convert.ToBase64String(f.Conteudo) }));
     }
@@ -102,30 +102,38 @@ public sealed class DefinicoesModel(ICodificacaoFerramentas codificacao, IFerram
         DateTime? modificadoEm = modificado is > 0 and < 253402300799999
             ? DateTimeOffset.FromUnixTimeMilliseconds(modificado.Value).UtcDateTime
             : null;
+        var (gravado, mensagem) = await ImportarSapAsync(usoSap, fabricoSap, conteudo, ficheiro, modificadoEm, HttpContext.RequestAborted);
+        return new JsonResult(new { gravado, mensagem });
+    }
+
+    /// <summary>
+    /// Grava um ficheiro do SAP: a lista da % uso ou o relatório de fabrico.
+    /// O mesmo para o browser (a pasta ligada) e para o envio direto do script
+    /// do SAP (/sap/enviar, DMO-582).
+    /// </summary>
+    public static async Task<(bool Gravado, string Mensagem)> ImportarSapAsync(
+        IFerramentasUsoSap usoSap, IFerramentasFabricoSap fabricoSap, string? conteudo, string? ficheiro, DateTime? modificadoEm, CancellationToken cancellationToken)
+    {
         if (UsoSapExportacao.Ler(conteudo).CabecalhoEncontrado
-            && MaisAntigo(modificadoEm, (await usoSap.UltimaLeituraAsync(HttpContext.RequestAborted))?.FicheiroModificadoEmUtc))
+            && MaisAntigo(modificadoEm, (await usoSap.UltimaLeituraAsync(cancellationToken))?.FicheiroModificadoEmUtc))
         {
-            return new JsonResult(new { gravado = false, mensagem = MensagemMaisAntigo(ficheiro) });
+            return (false, MensagemMaisAntigo(ficheiro));
         }
 
-        var outcome = await usoSap.ImportarAsync(conteudo, ficheiro, modificadoEm, HttpContext.RequestAborted);
+        var outcome = await usoSap.ImportarAsync(conteudo, ficheiro, modificadoEm, cancellationToken);
         if (outcome.Resultado == ImportarUsoSapResultado.NaoELista
             && FabricoSapExportacao.Ler(conteudo) is { CabecalhoEncontrado: true } relatorio)
         {
-            if (MaisAntigo(modificadoEm, await fabricoSap.UltimoFicheiroAsync(HttpContext.RequestAborted)))
+            if (MaisAntigo(modificadoEm, await fabricoSap.UltimoFicheiroAsync(cancellationToken)))
             {
-                return new JsonResult(new { gravado = false, mensagem = MensagemMaisAntigo(ficheiro) });
+                return (false, MensagemMaisAntigo(ficheiro));
             }
 
-            var fabrico = await fabricoSap.ImportarAsync(relatorio.Linhas, ficheiro, modificadoEm, relatorio.Detalhes, HttpContext.RequestAborted);
-            return new JsonResult(new { gravado = true, mensagem = MensagemFabricoSap(fabrico) });
+            var fabrico = await fabricoSap.ImportarAsync(relatorio.Linhas, ficheiro, modificadoEm, relatorio.Detalhes, cancellationToken);
+            return (true, MensagemFabricoSap(fabrico));
         }
 
-        return new JsonResult(new
-        {
-            gravado = outcome.Resultado == ImportarUsoSapResultado.Gravado,
-            mensagem = MensagemUsoSap(outcome, ficheiro)
-        });
+        return (outcome.Resultado == ImportarUsoSapResultado.Gravado, MensagemUsoSap(outcome, ficheiro));
     }
 
     /// <summary>O que a leitura fez, dito ao utilizador.</summary>

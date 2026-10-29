@@ -4559,3 +4559,45 @@ Novos: 1 · mudaram: 2 · saíram: 27
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisoArmazemEmEsperaTests.cs :: JobOnAvisoArmazemEmEsperaTests.PorOmissao_AAplicacaoNaoOLigaNasDefinicoes`
 
 Selo depois: `5c318483048cbfe4`
+
+## A-0319 · 2026-10-28 · teste-novo
+
+Porquê: O script do SAP envia os ficheiros direto para a app com a chave do Admin › SAP; sem a chave recusa (DMO-582).
+Referência: PR #290
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.OScriptDoSap_EnviaDireto_ComAChave_ESemElaNao`
+
+Selo depois: `be0b65595a608b7e`
+
+## A-0322 · 2026-10-28 · contagem-lista
+
+Porquê: Tabela dos códigos de procura no SAP para CM, MF e BQ por Linha e «Código SAP» por ferramenta (DMO-585/586). As listas ganham a migração SapCodigoDaFerramenta, os endpoints /sap/codigos e /sap/enviar (com chave, DMO-582) e a coluna «search» lida do CSV; o que cada teste verifica fica igual.
+Referência: PR #290
+Novos: 9 · mudaram: 3 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.ACodigo_PorOmissao_EONomeTecnicoComOLote`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.ARegraDaLinha_GanhaAGeral_EOCodigoAMaoGanhaATudo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.AsTresGerais_EstaoSempre_EAsGravadasLeemSeDeVolta`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.OCsvDoScript_LigaPeloCodigoProcurado_QuandoONomeTecnicoNaoBate`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.OsCodigosPedidosAoSap_SeguemATabelaEOCodigoSap_DeTodosOsTipos`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.ATabelaDosCodigosDeProcura_GravaNoAdminEMudaOsCodigosPedidos`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.OCodigoSapDaFicha_GanhaATabela_EVazioVoltaAEla`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.OCsvDoScript_LeOPercDasLinhasEncontradasEDeixaAsOutras`
+- mudou: `tests/DMO.Alpha.Web.Tests/PaginasSemSessaoTests.cs :: PaginasSemSessaoTests.SemSessao_SoAbremAsPaginasPublicas`
+
+Selo depois: `22d7c7aa100fe569`
+
+## A-0323 · 2026-10-28 · teste-novo
+
+Porquê: A % do SAP com «%» ou espaços inquebráveis lê-se; o CSV do script traz o consumo e a vida prevista (revisão do script pedida pelo Diogo).
+Referência: PR #290
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.OCsvDoScript_TrazOConsumoEAVidaPrevista`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.OsNumerosComPercentagemOuEspacosEstranhos_LeemSe`
+
+Selo depois: `b53737140df2c16e`

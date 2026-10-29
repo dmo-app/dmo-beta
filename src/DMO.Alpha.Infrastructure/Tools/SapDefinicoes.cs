@@ -83,13 +83,13 @@ public sealed class SapDefinicoes(DmoDbContext db, IDataProtectionProvider prote
     }
 
     public Task<string?> ScriptEditadoAsync(string nome, CancellationToken cancellationToken = default) =>
-        SapScriptsRegras.Conhecido(nome)
+        SapScriptsRegras.Editavel(nome)
             ? ValorAsync(SapDefinicoesRegras.ChaveScript + nome, cancellationToken)
             : Task.FromResult<string?>(null);
 
     public async Task<SapGravacao> GravarScriptAsync(string nome, string? texto, CancellationToken cancellationToken = default)
     {
-        if (!SapScriptsRegras.Conhecido(nome))
+        if (!SapScriptsRegras.Editavel(nome))
         {
             return SapGravacao.ScriptDesconhecido;
         }
@@ -115,6 +115,49 @@ public sealed class SapDefinicoes(DmoDbContext db, IDataProtectionProvider prote
 
         await db.SaveChangesAsync(cancellationToken);
         return SapGravacao.Gravado;
+    }
+
+    public async Task<string> ChaveDeEnvioAsync(CancellationToken cancellationToken = default)
+    {
+        if (await ChaveGuardadaAsync(cancellationToken) is { } guardada)
+        {
+            return guardada;
+        }
+
+        var nova = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
+        await PorAsync(SapDefinicoesRegras.ChaveEnvio, protetor.Protect(nova), cancellationToken);
+        await db.SaveChangesAsync(cancellationToken);
+        return nova;
+    }
+
+    public async Task<bool> ConfereChaveAsync(string? chave, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(chave) || await ChaveGuardadaAsync(cancellationToken) is not { } guardada)
+        {
+            return false;
+        }
+
+        return CryptographicOperations.FixedTimeEquals(
+            System.Text.Encoding.ASCII.GetBytes(chave),
+            System.Text.Encoding.ASCII.GetBytes(guardada));
+    }
+
+    private async Task<string?> ChaveGuardadaAsync(CancellationToken cancellationToken)
+    {
+        var cifrada = await ValorAsync(SapDefinicoesRegras.ChaveEnvio, cancellationToken);
+        if (string.IsNullOrEmpty(cifrada))
+        {
+            return null;
+        }
+
+        try
+        {
+            return protetor.Unprotect(cifrada);
+        }
+        catch (CryptographicException)
+        {
+            return null;
+        }
     }
 
     public async Task<IReadOnlyList<SapLeituraFeita>> LeiturasAsync(int maximo, CancellationToken cancellationToken = default)
