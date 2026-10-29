@@ -5369,3 +5369,34 @@ Novos: 1 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.ABq_ProcuraSePeloNomeTecnicoAteAoProcesso_EstrelaELote`
 
 Selo depois: `d6778ba23b53272e`
+
+## A-0395 · 2026-10-29 · contagem-lista
+
+Porquê: AUTH-B06 (DMO-653): adicionado o guard SoVerAsync aos handlers AJAX ProcurarProducao, ToolCandidates e ToolFacts do Job On, que faltava e deixava quem só tem jobon.view aceder ao catálogo de ferramentas e aos fatos técnicos pelo endereço direto; 4 testes novos (JobOnPageTests.AjaxSoVer.cs). PERM-B01 (DMO-654): adicionado [ModuleEntry(DmoCapabilities.Ferramentas)] à página Ferramentas/Utilizacao, confinando a sessão do Posto (Reparação Interna) à RI também nesta página, não só no menu; 1 teste novo (PostoFerramentasUtilizacaoTests.cs).
+Novos: 7 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: JobOnPageTests.JobOnCriar_HandlersAjax_ContinuamAFuncionar`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: JobOnPageTests.JobOnVer_HandlerProcurarProducao_EhRedirecionado`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: JobOnPageTests.JobOnVer_HandlerToolCandidates_EhRedirecionado`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: JobOnPageTests.JobOnVer_HandlerToolFacts_EhRedirecionado`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoFerramentasUtilizacaoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoFerramentasUtilizacaoTests.cs :: PostoFerramentasUtilizacaoTests.PeloPosto_FerramentasUtilizacao_EhRecusada_PeloLoginContinuaAAbrir`
+
+Selo depois: `1bf72afdf36220cb`
+
+## A-0402 · 2026-10-29 · teste-novo
+
+Porquê: Lote .241: junta os testes novos do #327 (A-0395) e do #328 (A-0401)
+Referência: A-0395; A-0401
+Novos: 7 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: JobOnPageTests.JobOnCriar_HandlersAjax_ContinuamAFuncionar`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: JobOnPageTests.JobOnVer_HandlerProcurarProducao_EhRedirecionado`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: JobOnPageTests.JobOnVer_HandlerToolCandidates_EhRedirecionado`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: JobOnPageTests.JobOnVer_HandlerToolFacts_EhRedirecionado`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoFerramentasUtilizacaoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoFerramentasUtilizacaoTests.cs :: PostoFerramentasUtilizacaoTests.PeloPosto_FerramentasUtilizacao_EhRecusada_PeloLoginContinuaAAbrir`
+
+Selo depois: `e2521895af016d8f`
