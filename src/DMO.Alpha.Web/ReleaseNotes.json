@@ -615,7 +615,7 @@
     { "id": "DMO-659", "module": "Ferramentas", "description": "0.3.0-beta.241 (A-0401): SAP: a ZPPG procura só na plant MG; as BQ procuram-se até às 2 letras do processo, seja qual for (NX, PX, SX, SC, SR, NR, PR…), com «*» e o lote." },
     { "id": "DMO-660", "module": "Job On", "description": "0.3.0-beta.242 No Planeamento a procura da referência e o «Criar Job On» passam para a linha do título «Produções de …», e os cartões das linhas voltam à altura normal, inteiros e com espaço por baixo." },
     { "id": "DMO-661", "module": "Ferramentas", "description": "0.3.0-beta.242 (A-0403): o «Atualizar do SAP» sem senha guardada já não prende o computador: os scripts do SAP param logo e o «Instalar» recusa; com o SAP já aberto, a senha escreve-se na janela do SAP." },
-    { "id": "DMO-662", "module": "Peso", "description": "Nova versão (A-0404): na folha do Peso, os cartões das leituras e do controlo anterior esticam até ao fundo, sem vazios; na Comparação de Peso, o + e o − ficam dentro da caixa das leituras." }
+    { "id": "DMO-672", "module": "Peso", "description": "Nova versão (A-0417): na folha do Peso, os cartões das leituras e do controlo anterior esticam até ao fundo, sem vazios; na Comparação de Peso, o + e o − ficam dentro da caixa das leituras." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
