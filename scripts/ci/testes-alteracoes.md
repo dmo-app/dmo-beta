@@ -5558,3 +5558,13 @@ Novos: 3 · mudaram: 3 · saíram: 1
 - saiu: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBAgrupamento.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDaComparacao_AgrupaEsteControlo_ControloAnterior_EDiferenca_PorEstaOrdem`
 
 Selo depois: `188b67503f0e65e6`
+
+## A-0420 · 2026-10-29 · ok-do-diogo
+
+Porquê: Moda no Resumo mostra dias e não diferença (DMO-673)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraJPtT8ohDC782LcHjvY4Xhg
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBResumo.cs :: PesoFolhaProducaoAnteriorPageTests.Resumo_TabelaDoPeso_TemAsColunasValorGEPercentagem_EACadaLinhaAsDuasDiferencas`
+
+Selo depois: `d29f1065cfbc8c48`
