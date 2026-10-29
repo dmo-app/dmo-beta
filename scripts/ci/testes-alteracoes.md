@@ -4601,3 +4601,13 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.OsNumerosComPercentagemOuEspacosEstranhos_LeemSe`
 
 Selo depois: `b53737140df2c16e`
+
+## A-0336 · 2026-10-29 · teste-novo
+
+Porquê: O botão do SAP diz «Atualizar» em vez de «Pedir só as à espera» (DMO-598).
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraLnQSBGPCNmfDYFWnFKi1A8
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.OBotaoDoSap_DizAtualizar_ENaoPedirSoAsAEspera`
+
+Selo depois: `c1a91a461399b1f9`
