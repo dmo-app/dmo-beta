@@ -101,4 +101,14 @@ public sealed partial class ControloCapabilitiesCutHPageTests
         Assert.Contains("html:root[data-dmo-embedded=\"true\"] body .jof2.jof2.jof2.jof2.jof2 .page-head h1.design-jobon-title{display:none}", css);
         Assert.Contains("html:root[data-dmo-embedded=\"true\"] body .jof2.jof2.jof2.jof2.jof2 #jofVoltar{display:none}", css);
     }
+
+    // O resumo do Job On no painel sai mais (Diogo, 29/10/2026: «o painel tem de
+    // sair mais, o conteúdo fica demasiado grande»): a largura «media» tem regra.
+    [Fact]
+    public void Estrutura_PainelMedio_AbreMaisLargo()
+    {
+        var raiz = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "src", "DMO.Alpha.Web", "wwwroot");
+        var css = File.ReadAllText(Path.Combine(raiz, "css", "dmo-estrutura.css"));
+        Assert.Contains("html body dialog.dmo-painel[data-largura=\"media\"]{--dmo-painel-largura:min(1100px,calc(100vw - 96px))}", css);
+    }
 }

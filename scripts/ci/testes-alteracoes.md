@@ -4895,3 +4895,37 @@ Novos: 6 · mudaram: 2 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `6c7ce321b5f42e87`
+
+## A-0337 · 2026-10-29 · ok-do-diogo
+
+Porquê: Lote .235: DMO-599 (#301, teste novo: Job On no painel abre o resumo); DMO-598 (#298, botão do SAP «Atualizar»); DMO-406/495/509/522 (#299, os 3 pendentes_*_browser.py entram no CI no passo «Browser no aspeto»); DMO-591 (#294, a opção da lista leva reparador + dia); DMO-596 (#300, o quadro Saídas/Entradas saiu e 5 testes deixam de o exigir).
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraSqBF3QGLt9P9ZqybZ6R37g; cmsg_01K75FTs9bQnbhhH7qttpgraLnQSBGPCNmfDYFWnFKi1A8; Diogo «sim» cmsg_01K75FTs9bQnbhhH7qttpgra9QKtyXnRyQfgfVzCYpBW2R
+Novos: 7 · mudaram: 7 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.Movimentos_SemOQuadroDeTotais_SoAContagem`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.OBotaoDoSap_DizAtualizar_ENaoPedirSoAsAEspera`
+- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.Lista_MostraSoOReparador_EAProcuraCorreAoEscrever`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.PainelResumo.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.PainelResumo.cs :: JobOnPageTests.Planeamento_NoPainel_AbreOResumoDaFolha`
+- novo: `tests/visual/bq_registo_dia_calendario_browser.py`
+- novo: `tests/visual/reparacao_listas_browser.py`
+- mudou: `scripts/ci/ci-local.sh`
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.HistoryDay_ReplacesRangePreservesFiltersAndExportsTheSameSelection`
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.History_CalendarDay_ChangesOnlyTheZones`
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.History_Filters_ChangeOnlyTheZones`
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.History_OpensBlank_UntilAReferenceOrAPeriodIsSearched`
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.Matrix_MovimentosSemMaquina_AvisaComLinkParaALista`
+- mudou: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.Ferramentas_VeOSeparador_AProcuraAbreVazia_EAssociaAUmaListaNova`
+- saiu: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.FilterCounters_AreQuantitySums_NotStockBalances`
+
+Selo depois: `50d42fefc3f8d7e2`
+
+## A-0338 · 2026-10-29 · teste-novo
+
+Porquê: Teste novo: o resumo do Job On no painel abre mais largo (DMO-600, #296).
+Referência: PR #296
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelMedio_AbreMaisLargo`
+
+Selo depois: `c07be0113f2cf44c`

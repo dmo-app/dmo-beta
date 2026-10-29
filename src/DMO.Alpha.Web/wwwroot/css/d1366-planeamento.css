@@ -431,7 +431,6 @@ html body .jof2 .jof-fora .hv+.hv:not(:nth-child(2)){margin-left:0;padding-left:
 }
 
 /* Calendário: a legenda com o tamanho dos rótulos (12 px). */
-html body .beta-light-view .dmo-calendar .dmo-calendar-legend{font-size:12px}
 
 /* Hover dos cartões das linhas (todas as páginas): ver dmo-botoes.css, «Hover único dos cartões das linhas». */
 

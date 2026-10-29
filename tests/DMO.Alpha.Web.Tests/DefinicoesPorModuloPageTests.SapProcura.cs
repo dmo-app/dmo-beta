@@ -82,4 +82,15 @@ public sealed partial class DefinicoesPorModuloPageTests
             Assert.Contains(nome + "08", await scope.ServiceProvider.GetRequiredService<IFerramentasUsoSap>().TodosOsCodigosAsync());
         }
     }
+
+    // Diogo, 29/10/2026: no Opções do SAP, «Pedir só as à espera» passa a «Atualizar» (DMO-598).
+    [Fact]
+    public async Task OBotaoDoSap_DizAtualizar_ENaoPedirSoAsAEspera()
+    {
+        var client = await LoginOperatorAsync("7193", DmoCapabilities.Ferramentas);
+        var js = await (await client.GetAsync("/js/ferramentas-sap.js")).Content.ReadAsStringAsync();
+
+        Assert.Contains("todas ? \"Atualizar\" : \"Pedir todas\"", js);
+        Assert.DoesNotContain("Pedir só as à espera", js);
+    }
 }
