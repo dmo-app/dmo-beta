@@ -4852,3 +4852,14 @@ Novos: 0 · mudaram: 3 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Editar_LoteDoAnVazioMostraODaBqComoSugestao_EGuardarOutraCoisaNaoOCopiaParaABase`
 
 Selo depois: `3f7b0c747f3b0cec`
+
+## A-0328 · 2026-10-29 · contagem-lista
+
+Porquê: C03 da auditoria do Codex de 28/10/2026 (DMO-590, #293): teste de browser novo tests/visual/bq_historico_lista_browser.py (lista de Movimentos das Boquilhas com cabeçalho e uma linha inteira a 1290×646, 1366×768 e 1100×646); no ci-local.sh só se acrescenta o passo que o corre.
+Referência: PR #293
+Novos: 1 · mudaram: 1 · saíram: 0
+
+- novo: `tests/visual/bq_historico_lista_browser.py`
+- mudou: `scripts/ci/ci-local.sh`
+
+Selo depois: `88d81159021341b1`
