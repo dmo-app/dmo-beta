@@ -485,3 +485,15 @@ ci-local.sh corre só 12 scripts: boquilhas_catalog, paginacao_parcial, nok_agen
 7. ReparacaoInternaPaginaTests.SemProducao_AvisaEOFormularioPedeAReferenciaEOLote — FRACO: só atributos required, não grava nada.
 8. ShellProof peso-live «a folha de teste usa as marcas das zonas», jobon-tool-picker «a página desenha os cartões», programada-enter «o script está na página», historico-menu «o script foi encontrado» — FRACO: só procuram texto nos ficheiros.
 
+
+## Erros de aspeto da app que os testes novos encontraram (28/10/2026, DMO-588)
+
+Medidos no browser; ficam em `tests/visual/pendentes_*_browser.py`, fora do CI, até a app ser corrigida.
+Quando forem corrigidos, as verificações passam para o script `cobertura_*` do CI.
+
+- **DMO-406** — Resumo: nos cartões Início/Fim o rótulo fica por cima do valor em vez de na mesma linha (`pendentes_b_browser.py`).
+- **DMO-495** — Folha do Job On a 1290×646: o 8.º calibre passa para uma 2.ª coluna fora do cartão, cortado (`pendentes_a1_browser.py`).
+- **DMO-509** — Folha do Job On a 1290×646: com uma nota muito comprida, a nota ampliada fica mais pequena do que fechada (747 → 434 px) (`pendentes_a1_browser.py`).
+- **DMO-522** — Registo das Boquilhas a 1290×646: o cartão «Início» («Sem data no Job On») sai cortado com «…» (`pendentes_a2_browser.py`).
+
+Correções da auditoria sem teste novo, por já não existirem ou não terem efeito visível: DMO-389, 391, 396, 401, 408, 419, 421, 424, 455, 456, 458, 464, 465, 494, 515, 517. DMO-512: o teste já existia mas não corria; entrou no `test:js`.

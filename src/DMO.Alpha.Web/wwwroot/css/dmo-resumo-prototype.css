@@ -859,3 +859,7 @@ html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo
 /* Os valores do Peso um pouco para a esquerda e ao centro dos títulos Valor / g / % (Diogo, 28/10/2026: «mover os valores ligeiramente para a esquerda e alinhar com títulos»). */
 html body main.resumo-page .resumo-peso-tabela :is(thead th:not(:first-child),td){text-align:center;padding-left:8px;padding-right:8px}
 html body main.resumo-page .resumo-peso-tabela :is(th,td):last-child{padding-right:12px}
+
+/* Aprovação · Início · Fim: o rótulo e o valor na mesma linha, cartões compactos (Diogo, DMO-406; o design novo
+   do DMO-436 tinha posto o rótulo por cima). */
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-cabecalho .resumo-context-grid > .resumo-mini-card { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "rotulo valor acao" "nota nota nota"; }

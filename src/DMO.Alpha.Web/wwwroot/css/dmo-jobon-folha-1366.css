@@ -298,6 +298,16 @@ html:root body .jof2.jof2.jof2:not(.editing) .folga{min-width:0;padding:0;border
 html:root body .jof2.jof2.jof2:not(.editing) .folgas{display:grid;grid-template-columns:auto repeat(3,minmax(0,1fr));column-gap:8px;align-items:end}
 html:root body .jof2.jof2.jof2:not(.editing) .folga{display:flex;flex-direction:column;white-space:nowrap}
 html:root body .jof2.jof2.jof2:not(.editing) .folga>small{font-size:10.5px;font-weight:500;color:var(--dmo-muted);line-height:1.2}
+/* Alinhado (Diogo, 28/10/2026, «meter alinhado»): o nome numa coluna, o valor à direita numa caixa igual em todas as
+   linhas, e a tolerância começa sempre no mesmo sítio. As folgas usam as mesmas colunas: a Folga por baixo dos valores
+   e a Tol. por baixo das tolerâncias. */
+html:root body .jof2.jof2.jof2:not(.editing) .jof-dim{grid-template-columns:50px minmax(0,1fr);column-gap:6px}
+html:root body .jof2.jof2.jof2:not(.editing) .jof-dim:not(.longo) .jof-dim-valor{flex:none;min-width:6ch;text-align:right}
+html:root body .jof2.jof2.jof2:not(.editing) .folgas{grid-template-columns:50px minmax(6ch,max-content) repeat(2,minmax(0,max-content));column-gap:6px;justify-content:start}
+html:root body .jof2.jof2.jof2:not(.editing) .folgas>span:first-child{margin:0;font-size:12px;font-weight:500;color:var(--dmo-muted)}
+html:root body .jof2.jof2.jof2:not(.editing) .folgas>.folga:nth-child(2){align-items:flex-end;min-width:6ch}
+html:root body .jof2.jof2.jof2:not(.editing) .folgas>.folga:not(:nth-child(2)){min-width:0;white-space:normal;overflow-wrap:anywhere}
+html:root body .jof2.jof2.jof2:not(.editing) .folgas>.folga>small{white-space:nowrap}
 
 /* ---- as Notas no ver: a caixa cresce até ocupar o espaço livre do cartão (mínimo três linhas inteiras de 18px com texto, uma vazia);
    só quando o texto não cabe desliza por dentro, e o jobon-folha.js corta a altura numa linha inteira. ---- */
@@ -411,7 +421,11 @@ html:root body .jof2.jof2 .jof-artigo-escolher:hover{outline-color:var(--dmo-bor
   html:root body main.jof2.jof2.jof2>.wrap{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;width:100%;box-sizing:border-box;padding-bottom:4px}
   html:root body main.jof2.jof2.jof2>.wrap>*{flex:none}
   html:root body main.jof2.jof2.jof2>.wrap>.sheet{flex:1 1 0;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
-  html:root body .jof2.jof2.jof2.jof2.jof2.jof2:not(.editing) .sec>.note-box.note-view:not(.is-ampliada)>p{flex:1 1 auto !important;overflow:visible}
+  /* Uma nota muito comprida não estica o cartão para lá do ecrã: fica com a altura do ecrã menos o cabeçalho e
+     desliza por dentro; aberta, a nota usa quase o ecrã todo e fica sempre maior do que fechada. */
+  html:root body .jof2.jof2.jof2.jof2.jof2.jof2:not(.editing) .sec>.note-box.note-view:not(.is-ampliada)>p{flex:1 1 auto !important;max-height:calc(100vh - 230px) !important;overflow-y:auto}
+  html:root body .jof2.jof2.jof2 .note-box.is-ampliada{top:40px}
+  html:root body .jof2.jof2.jof2 .note-box.is-ampliada>p{max-height:calc(100vh - 130px) !important}
   html:root body .jof2.jof2.jof2 .side>.notes>ul{flex:1 1 auto;min-height:72px}
 }
 @container board (min-width:640px){
@@ -443,6 +457,15 @@ html:root body .jof2.jof2 .jof-artigo-escolher:hover{outline-color:var(--dmo-bor
   html:root body .jof2.jof2.jof2:not(.editing) table.calv tbody th:nth-child(n){font-size:11.5px;justify-content:center;text-align:center}
   html:root body .jof2.jof2.jof2:not(.editing) table.calv td:nth-child(n){font-size:12.5px;line-height:1.2}
   html:root body .jof2.jof2.jof2:not(.editing) table.calv .calv-seg{white-space:nowrap}
+  /* Colunas iguais (Diogo, 28/10/2026, imagem dos Calibres): todas com a mesma largura; só a de um valor que não
+     cabe fica com o que ele precisa, e a última nunca fica cortada a 1290 px. */
+  html:root body .jof2.jof2.jof2:not(.editing) table.calv{grid-auto-columns:minmax(min-content,1fr)}
+  html:root body .jof2.jof2.jof2:not(.editing) table.calv td:nth-child(n){font-size:12px}
+  /* A 1290×646 os oito calibres cabem no cartão: um nome que não cabe quebra onde for preciso, nunca sai do cartão. */
+  html:root body .jof2.jof2.jof2:not(.editing) table.calv tbody th:nth-child(n){overflow-wrap:anywhere;font-size:10.5px;line-height:1.15;padding-inline:1px;letter-spacing:-.01em}
+  html:root body .jof2.jof2.jof2:not(.editing) table.calv thead th:nth-child(n){font-size:11px}
+  html:root body .jof2.jof2.jof2:not(.editing) table.calv .cal-vezes{line-height:1.05}
+  html:root body .jof2.jof2.jof2:not(.editing) table.calv .cal-vezes>span:nth-child(2){font-size:10px}
 }
 
 /* ---- CAL em Editar/Duplicar: a lista das medidas desliza dentro do cartão, com o cabeçalho sempre à vista ---- */
