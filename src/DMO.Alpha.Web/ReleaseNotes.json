@@ -630,7 +630,8 @@
     { "id": "DMO-675", "module": "Controlo", "description": "0.3.0-beta.245 (A-0425): no Peso, os dados técnicos (volumes, densidade, TP/calote) ficam sob um triângulo «Dados técnicos», fechado por omissão; os cartões da produção anterior ficam à vista." },
     { "id": "DMO-663", "module": "Ferramentas", "description": "0.3.0-beta.245 (A-0408): SAP: a ZPPG guarda as peças (No. of pieces), o fornecedor e a data de aquisição; quando a quantidade do SAP difere da da ferramenta aparece um aviso com «Sim» (aplica) e «Não» (mantém e não repete o mesmo valor); a % de uso manual só muda depois de um «Sim»; fornecedor e aquisição aparecem em «Informação opcional»." },
     { "id": "DMO-666", "module": "Job On", "description": "Na folha do Job On os avisos dos cartões (CM sem registo no Armazém, B2 sem dupla/tripla) aparecem como os outros alertas da app, no canto superior direito do ecrã, com ×." },
-    { "id": "DMO-669", "module": "Job On", "description": "Um diâmetro antigo com dois números (ex.: «52.60 / 0.05») separa-se sozinho: o primeiro fica no valor e o segundo vai para a «Tol.». O Guardar deixa de ser recusado por isso." }
+    { "id": "DMO-669", "module": "Job On", "description": "Um diâmetro antigo com dois números (ex.: «52.60 / 0.05») separa-se sozinho: o primeiro fica no valor e o segundo vai para a «Tol.». O Guardar deixa de ser recusado por isso." },
+    { "id": "DMO-677", "module": "Ferramentas", "description": "0.3.0-beta.245 (A-0428): SAP: com o SAP já aberto, o «Atualizar do SAP» já não escreve o utilizador e a senha na janela do SAP em uso («Função impossível»)." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

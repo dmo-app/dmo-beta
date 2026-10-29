@@ -5686,3 +5686,23 @@ Novos: 18 · mudaram: 2 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `58354ba1d7582bbb`
+
+## A-0428 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-677: sem caixa da senha o script não escreve pelo teclado na janela do SAP em uso (Diogo 29/10, «Função impossível»)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraYbZnyAJ6oEvMe6guNRA41v
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.SemCaixaDaSenha_NaoEscrevePeloTeclado`
+
+Selo depois: `3923e2ad82832cb3`
+
+## A-0429 · 2026-10-29 · teste-novo
+
+Porquê: Lote .245: junta o #346 (A-0428); o teste novo SemCaixaDaSenha_NaoEscrevePeloTeclado está explicado em A-0428.
+Referência: lote .245
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.SemCaixaDaSenha_NaoEscrevePeloTeclado`
+
+Selo depois: `a6aba0b16d9e9794`
