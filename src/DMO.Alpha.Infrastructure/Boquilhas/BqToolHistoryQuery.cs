@@ -142,15 +142,34 @@ public sealed class BqToolHistoryQuery : IBqToolHistoryQuery
                 from t in _db.BqRepairTraces.AsNoTracking()
                 join c in _db.BqContexts.AsNoTracking() on t.BqContextId equals (int?)c.Id into cs
                 from c in cs.DefaultIfEmpty()
-                select new { t.Id, ToolId = t.ToolId ?? (c != null ? c.ToolId : null) })
-            .Where(r => r.ToolId != null)
+                select new
+                {
+                    t.Id,
+                    ToolId = t.ToolId ?? (c != null ? c.ToolId : null),
+                    t.ToolReferenceFrozen,
+                    t.ToolLotFrozen,
+                    t.DiscrepancyResetAtUtc
+                })
             .ToListAsync(cancellationToken);
-        var bqDoRegisto = registos.ToDictionary(r => r.Id, r => r.ToolId!);
+        // BQ-B03: o reset de cada registo (mesmo o que não tem tool_id
+        // nenhum resolvido) vem desta MESMA consulta — nunca uma segunda
+        // ida à base só para o DiscrepancyResetAtUtc.
+        var resetPorTrace = registos.ToDictionary(r => r.Id, r => r.DiscrepancyResetAtUtc);
+        var comToolId = registos.Where(r => r.ToolId != null).ToList();
+        // A chave do saldo: o tool_id, exceto quando é a BQ eliminada
+        // (REMOVED) — aí cada BQ eliminada é a sua própria conta, pela
+        // referência/lote congelados no trace (BQ-B02: senão todas as BQs
+        // eliminadas caíam na mesma chave «REMOVED» e misturavam o saldo).
+        string ChaveDoSaldo(string toolId, string? referenciaFrozen, string? loteFrozen) =>
+            toolId == DMO.Alpha.Core.Tools.ToolRegistryConstants.RemovedToolId
+                ? $"{DMO.Alpha.Core.Tools.ToolRegistryConstants.RemovedToolId}:{referenciaFrozen}:{loteFrozen}"
+                : toolId;
+        var bqDoRegisto = comToolId.ToDictionary(r => r.Id, r => ChaveDoSaldo(r.ToolId!, r.ToolReferenceFrozen, r.ToolLotFrozen));
         var bqs = traceIds.Select(id => bqDoRegisto.GetValueOrDefault(id)).OfType<string>().ToHashSet(StringComparer.Ordinal);
-        var registosDasBqs = registos.Where(r => bqs.Contains(r.ToolId!) || traceIds.Contains(r.Id)).Select(r => r.Id).ToList();
+        var registosDasBqs = comToolId.Where(r => bqs.Contains(bqDoRegisto.GetValueOrDefault(r.Id) ?? string.Empty) || traceIds.Contains(r.Id)).Select(r => r.Id).ToList();
         var todos = await _db.BqMovements.AsNoTracking()
             .Where(m => registosDasBqs.Contains(m.BqRepairTraceId) || traceIds.Contains(m.BqRepairTraceId))
-            .Select(m => new BqMovement { Id = m.Id, BqRepairTraceId = m.BqRepairTraceId, Type = m.Type, Quantity = m.Quantity, OccurredAtUtc = m.OccurredAtUtc })
+            .Select(m => new BqMovement { Id = m.Id, BqRepairTraceId = m.BqRepairTraceId, Type = m.Type, Quantity = m.Quantity, OccurredAtUtc = m.OccurredAtUtc, CreatedAtUtc = m.CreatedAtUtc })
             .ToListAsync(cancellationToken);
         foreach (var daBq in todos.GroupBy(m => bqDoRegisto.GetValueOrDefault(m.BqRepairTraceId) ?? $"registo:{m.BqRepairTraceId}"))
         {
@@ -158,7 +177,27 @@ public sealed class BqToolHistoryQuery : IBqToolHistoryQuery
         }
 
         var saldo = todos.ToDictionary(m => m.Id, m => m.Discrepancy);
-        return items.Select(i => i with { Discrepancy = saldo.GetValueOrDefault(i.MovementId) }).ToList();
+        var createdAtById = todos.ToDictionary(m => m.Id, m => m.CreatedAtUtc);
+
+        // BQ-B03: o «meter a zero» (DiscrepancyResetAtUtc) do registo próprio
+        // do movimento esconde o Saldo das linhas anteriores ao zero, tal
+        // como o Registo faz (ver BoquilhasRegistoQuery) — senão o Histórico
+        // e o PDF (que usa este query) continuavam a mostrar a discrepância
+        // de antes do zero.
+        return items.Select(i =>
+        {
+            var discrepancy = saldo.GetValueOrDefault(i.MovementId);
+            if (discrepancy is not null
+                && resetPorTrace.TryGetValue(i.BqRepairTraceId, out var resetAtUtc)
+                && resetAtUtc is DateTime resetAt
+                && createdAtById.TryGetValue(i.MovementId, out var createdAt)
+                && !BqDiscrepancyFold.CountsAfterReset(i.OccurredAtUtc, createdAt, resetAt))
+            {
+                discrepancy = null;
+            }
+
+            return i with { Discrepancy = discrepancy };
+        }).ToList();
     }
 
     private static (DateTime StartUtc, DateTime EndUtc) UtcBounds(DateOnly? desde, DateOnly? ate)

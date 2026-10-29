@@ -152,6 +152,33 @@ public sealed class ArmazemHistoricoTests
     }
 
     [Fact]
+    public async Task OFiltroDoReparador_UsaOMesmoValorQueALinhaMostra_BQ_B06()
+    {
+        using var db = await CreateContextAsync();
+        var s = new ArmazemMovimentos(db, new OperacoesRegistadas(db), new Sessao());
+        // O Cm saiu para «Moldes Lda» (no seed); volta com o reparador
+        // escrito à mão como «Afia Norte» (um reparador diferente do que saiu).
+        await s.EntradaAsync(new PedidoDeEntrada(
+            Guid.NewGuid(), Cm, "0042", ArmazemOrigem.Reparacao, FerramentaEstadoTipo.Reparado, Dia(13), null,
+            LinhaEReparadorDoFormulario: true, Reparador: "Afia Norte"));
+
+        var historico = new ArmazemHistorico(db);
+        var lista = await historico.ListarAsync(new ArmazemHistoricoFiltro(), 1);
+        var linhaDaEntrada = Assert.Single(lista.Items, l => l.Tipo == ToolType.Cm && l.Descricao.StartsWith("Entrada 0042 · Reparação"));
+        Assert.Equal("Afia Norte", linhaDaEntrada.Reparador);
+
+        // BQ-B06: o filtro pelo valor que a linha mostra encontra-a; o valor
+        // da Saída anterior («Moldes Lda») já não é o que filtra esta linha.
+        var porAfiaNorte = await historico.ListarAsync(new ArmazemHistoricoFiltro(Reparador: "Afia Norte"), 1);
+        Assert.Contains(porAfiaNorte.Items, l => l.Reparador == "Afia Norte");
+
+        // As opções do filtro têm as duas fontes do nome.
+        var opcoes = await historico.ReparadoresAsync();
+        Assert.Contains("Afia Norte", opcoes);
+        Assert.Contains("Moldes Lda", opcoes);
+    }
+
+    [Fact]
     public async Task APaginacao_VinteECincoPorPagina()
     {
         using var db = await CreateContextAsync();

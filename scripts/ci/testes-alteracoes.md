@@ -5144,3 +5144,20 @@ Novos: 3 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/cobertura_a1_folha-js.test.cjs :: Calibres: «P 59.20 / M 58.60» quebra só na barra, em dois segmentos inteiros`
 
 Selo depois: `4390bbb2cbbcc0af`
+
+## A-0386 · 2026-10-29 · teste-novo
+
+Porquê: BQ-B02..B06 (2.ª passagem do sweep .230): testes novos para o Saldo de BQs eliminadas, o meter-a-zero no Histórico/PDF, o Corrigir no Armazém, a versão do Excel e o filtro do reparador.
+Novos: 9 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemHistoricoTests.cs :: ArmazemHistoricoTests.OFiltroDoReparador_UsaOMesmoValorQueALinhaMostra_BQ_B06`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Armazem/ArmazemMovimentosTests.cs :: ArmazemMovimentosTests.Saida_DepoisDeUmCorrigir_HerdaALinhaDaEntradaAnterior_BQ_B04`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelBoquilhasTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqExcelBoquilhasTests.cs :: BqExcelBoquilhasTests.VersaoAsync_IgualSemNenhumaMudanca`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqHistoryDiscrepancyTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqHistoryDiscrepancyTests.cs :: BqHistoryDiscrepancyTests.DuasBqsEliminadas_TemSaldosSeparados_BQ_B02`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqHistoryDiscrepancyTests.cs :: BqHistoryDiscrepancyTests.MeterAZero_EscondeOSaldoDasLinhasDeAntes_BQ_B03`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BqExcelVersao.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.BqExcelVersao.cs :: PostgresMigrationIntegrationTests.VersaoAsync_MudaQuandoSeEditaOLoteDaBQ_SemNovoMovimento_BQ_B05`
+
+Selo depois: `4866d9b665f0f44a`
