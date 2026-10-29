@@ -242,10 +242,10 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
     }
 
     [Fact]
-    public async Task FilterCounters_AreQuantitySums_NotStockBalances()
+    public async Task Movimentos_SemOQuadroDeTotais_SoAContagem()
     {
-        // «Totais de movimentos do filtro, não saldos de stock»: as somas
-        // de QUANTIDADE por tipo sobre a lista filtrada.
+        // O quadro Saídas / Entradas / Entradas sem reparação saiu (DMO-596,
+        // Diogo 29/10/2026: «remover»); fica a contagem dos movimentos.
         var traceA = await SeedProductionAsync("BQ-A4-C", "B2", "RGT960", "202603");
         await SeedMovementAsync(traceA.Id, "saida", 3);
         await SeedMovementAsync(traceA.Id, "entrada", 2);
@@ -257,11 +257,9 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
         // carregam depois de uma pesquisa ou de um filtro.
         var html = await GetPageHtmlAsync(client, $"{PagePath}?historico=1&pesquisa=RGT960");
 
-        Assert.Contains("<span>Saídas</span><strong>3</strong>", html);
-        Assert.Contains("<span>Entradas</span><strong>2</strong>", html);
-        Assert.Contains("<span>Entradas sem reparação</span><strong>1</strong>", html);
+        Assert.DoesNotContain("id=\"bqHistTotais\"", html);
+        Assert.DoesNotContain("<span>Entradas sem reparação</span>", html);
         Assert.Contains("3 movimentos", html);
-        Assert.Contains("Totais de movimentos do filtro, não saldos de stock.", html);
     }
 
     [Fact]
@@ -753,7 +751,7 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
         Assert.Contains("beta-light-machine-row mch-B1", html);
         Assert.Contains($"<input type=\"radio\" name=\"bq_day_trace\" value=\"{trace.Id}\"", html);
         Assert.Contains("<span>T173 · Lote 8</span>", html);
-        Assert.Contains("<span>Saídas</span><strong>4</strong>", html);
+        Assert.DoesNotContain("<span>Saídas</span>", html);
         Assert.Contains("dia=12", html);
         Assert.Contains("handler=PdfHistorico", html);
         Assert.Contains("tipo=saida", html);
@@ -762,7 +760,7 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
         {
             var viewHtml = await GetPageHtmlAsync(client, $"/Boquilhas?historico=1&vista={view}&ano=2026&mes=8&dia=12&tipo=saida");
             Assert.Contains("1 movimento", viewHtml);
-            Assert.Contains("<span>Saídas</span><strong>4</strong>", viewHtml);
+            Assert.DoesNotContain("<span>Saídas</span>", viewHtml);
             var pdf = await client.GetAsync($"/Boquilhas?handler=PdfHistorico&vista={view}&ano=2026&mes=8&dia=12&tipo=saida");
             Assert.Equal("application/pdf", pdf.Content.Headers.ContentType?.MediaType);
         }
@@ -798,7 +796,7 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
             // A BQ em máquina aparece nas linhas do topo (Diogo, 27/10/2026); a lista fica vazia.
             var lista = blank[blank.IndexOf("id=\"bqHistLista\"", StringComparison.Ordinal)..];
             Assert.DoesNotContain("BQ T188 · Lote 8", lista);
-            Assert.Contains("<span>Saídas</span><strong>0</strong>", blank);
+            Assert.DoesNotContain("<span>Saídas</span>", blank);
             // O calendário do mês continua lá.
             Assert.Contains("class=\"card dmo-calendar\"", blank);
         }
@@ -836,7 +834,7 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
         var outubro = await GetPageHtmlAsync(client, "/Boquilhas?historico=1&maquina=B1&ano=2026&mes=10");
 
         Assert.Contains("<section id=\"historico\" class=\"view active\" data-dmo-troca>", dia10);
-        foreach (var zona in new[] { "bqHistContexto", "bqHistContagem", "bqHistAcoes", "bqHistDesdeZona", "bqHistAteZona", "bqHistDiaCartao", "bqHistDia", "bqHistDiaAcoes", "bqHistTotais", "bqHistLista", "dmoCalendario" })
+        foreach (var zona in new[] { "bqHistContexto", "bqHistContagem", "bqHistAcoes", "bqHistDesdeZona", "bqHistAteZona", "bqHistDiaCartao", "bqHistDia", "bqHistDiaAcoes", "bqHistLista", "dmoCalendario" })
             Assert.Matches($"<div [^>]*id=\"{zona}\"[^>]*data-dmo-regiao", dia10);
         // «Hoje» e «Todos os dias» no canto superior direito do cartão do dia,
         // por cima do calendário e não por baixo (regra 39 do deep sweep de
@@ -896,10 +894,10 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
             Assert.Equal(fora, Controlo.PesoZonas.ForaDasZonas(html));
         }
 
-        // A lista e os totais mudam com o filtro.
+        // A lista e a contagem mudam com o filtro.
         var b1 = await GetPageHtmlAsync(client, "/Boquilhas?historico=1&maquina=B1&desde=2026-09-01&ate=2026-09-30");
         var saidas = await GetPageHtmlAsync(client, "/Boquilhas?historico=1&maquina=B1&tipo=saida&desde=2026-09-01&ate=2026-09-30");
-        Assert.NotEqual(Controlo.PesoZonas.Zona(b1, "bqHistTotais"), Controlo.PesoZonas.Zona(saidas, "bqHistTotais"));
+        Assert.NotEqual(Controlo.PesoZonas.Zona(b1, "bqHistLista"), Controlo.PesoZonas.Zona(saidas, "bqHistLista"));
         Assert.Contains("2 movimentos", Controlo.PesoZonas.Zona(b1, "bqHistContagem"));
         Assert.Contains("1 movimento", Controlo.PesoZonas.Zona(saidas, "bqHistContagem"));
     }
@@ -953,7 +951,7 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
         await SeedMovementAsync(avulso.Id, "saida", 1, agosto);
 
         var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, grelha));
-        Assert.Contains("<div><span>Saídas</span><strong>3</strong></div>", html);
+        Assert.DoesNotContain("<span>Saídas</span>", html);
         Assert.Contains(
             "1 movimento sem máquina não aparece na grelha, mas conta nos totais. <a class=\"dmo-aviso-link\" href=\"/Boquilhas?historico=1&ano=2026&mes=8&vista=grupos&desde=2026-08-01&ate=2026-08-31\">Ver os movimentos</a>",
             html);
