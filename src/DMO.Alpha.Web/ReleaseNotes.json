@@ -1,7 +1,5 @@
 {
   "fixes": [
-    { "id": "DMO-669", "module": "Job On", "description": "Um diâmetro antigo com dois números (ex.: «52.60 / 0.05») separa-se sozinho: o primeiro fica no valor e o segundo vai para a «Tol.». O Guardar deixa de ser recusado por isso." },
-    { "id": "DMO-666", "module": "Job On", "description": "Na folha do Job On os avisos dos cartões (CM sem registo no Armazém, B2 sem dupla/tripla) aparecem como os outros alertas da app, no canto superior direito do ecrã, com ×." },
     { "id": "DMO-001", "module": "Aplicação", "description": "Página de erro com referência para diagnóstico, em vez de uma página inexistente." },
     { "id": "DMO-002", "module": "Aplicação", "description": "Configuração de persistência e autenticação coerente no arranque; sem registos voláteis fora de Development." },
     { "id": "DMO-003", "module": "Job On", "description": "Decimais de calote guardados corretamente ao criar e editar produções." },
@@ -630,7 +628,9 @@
     { "id": "DMO-673", "module": "Controlo", "description": "0.3.0-beta.244 (A-0422): no cartão do Peso do Resumo do Controlo, a linha «Produção anterior · moda» já não mostra a diferença em g e %; mostra os dias em que esse peso se usou e o total (ex.: «9 de 9 dias»)." },
     { "id": "DMO-674", "module": "Ferramentas", "description": "0.3.0-beta.245 (A-0424): no Registar Reparação, em frente ao nome da ferramenta aparece a referência completa do artigo da última produção (por exemplo «· 5447T173»), na lista e na procura. Imprimir, Listas, Histórico, Adicionar e Limpar filtros ficam com o mesmo espaço entre si." },
     { "id": "DMO-675", "module": "Controlo", "description": "0.3.0-beta.245 (A-0425): no Peso, os dados técnicos (volumes, densidade, TP/calote) ficam sob um triângulo «Dados técnicos», fechado por omissão; os cartões da produção anterior ficam à vista." },
-    { "id": "DMO-663", "module": "Ferramentas", "description": "0.3.0-beta.245 (A-0408): SAP: a ZPPG guarda as peças (No. of pieces), o fornecedor e a data de aquisição; quando a quantidade do SAP difere da da ferramenta aparece um aviso com «Sim» (aplica) e «Não» (mantém e não repete o mesmo valor); a % de uso manual só muda depois de um «Sim»; fornecedor e aquisição aparecem em «Informação opcional»." }
+    { "id": "DMO-663", "module": "Ferramentas", "description": "0.3.0-beta.245 (A-0408): SAP: a ZPPG guarda as peças (No. of pieces), o fornecedor e a data de aquisição; quando a quantidade do SAP difere da da ferramenta aparece um aviso com «Sim» (aplica) e «Não» (mantém e não repete o mesmo valor); a % de uso manual só muda depois de um «Sim»; fornecedor e aquisição aparecem em «Informação opcional»." },
+    { "id": "DMO-666", "module": "Job On", "description": "Na folha do Job On os avisos dos cartões (CM sem registo no Armazém, B2 sem dupla/tripla) aparecem como os outros alertas da app, no canto superior direito do ecrã, com ×." },
+    { "id": "DMO-669", "module": "Job On", "description": "Um diâmetro antigo com dois números (ex.: «52.60 / 0.05») separa-se sozinho: o primeiro fica no valor e o segundo vai para a «Tol.». O Guardar deixa de ser recusado por isso." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
