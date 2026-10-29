@@ -496,6 +496,9 @@ public sealed partial class IndexModel : PageModel
     /// <summary>A BQ e o lote do filtro, para o PDF.</summary>
     public string? FilterToolLabel { get; private set; }
 
+    /// <summary>A mensagem quando a referência existe mas o lote não (DMO-648): lista vazia com explicação, nunca erro.</summary>
+    public string? FilterSemBq { get; private set; }
+
     /// <summary>O lote do filtro (?lote=), com a referência da BQ no campo «Referência»
     /// (Diogo, 24/10/2026): os dois juntos escolhem a BQ e o lote.</summary>
     public string? FilterLote { get; private set; }
@@ -850,7 +853,10 @@ public sealed partial class IndexModel : PageModel
             var escolhida = candidatas.FirstOrDefault(t => t.Lot == loteQuery)
                 ?? candidatas.FirstOrDefault(t => t.Lot!.TrimStart('0') == semZeros);
             // Sem BQ com esta referência e lote: a lista fica vazia, não ignora o lote.
-            FilterToolId = escolhida?.ToolId ?? "\u0000sem-bq";
+            // Sem BQ com esta referência e lote: um id que não existe (nunca um \0, que a base recusa → erro 500).
+            FilterToolId = escolhida?.ToolId ?? "sem-bq";
+            if (escolhida is null)
+                FilterSemBq = $"Não existe o lote {loteQuery} da BQ {referencia}. Confirme a referência e o lote.";
             FilterToolLabel = $"BQ {escolhida?.Reference ?? referencia} · Lote {loteQuery}";
         }
         if (int.TryParse(Request.Query["jobon_id"], NumberStyles.None, CultureInfo.InvariantCulture, out var wantedJobOn))
@@ -1113,7 +1119,7 @@ public sealed partial class IndexModel : PageModel
                     : null))
             : generator.GenerateMovementList(new(
                 ShowMovements ? "Boquilhas · Movimentos detalhados" : "Boquilhas · Por linha / Job On",
-                (ListLimitWarning is not null ? $"Os {HistoryMovementCount} movimentos mais recentes" : $"{HistoryMovementCount} {(HistoryMovementCount == 1 ? "movimento" : "movimentos")}")
+                (FilterSemBq is not null ? FilterSemBq : ListLimitWarning is not null ? $"Os {HistoryMovementCount} movimentos mais recentes" : $"{HistoryMovementCount} {(HistoryMovementCount == 1 ? "movimento" : "movimentos")}")
                     + $" · {HistoryPeriodLabel}"
                     + (FilterMachine is { Length: > 0 } ? $" · Máquina {FilterMachine}" : "")
                     + (FilterType is { Length: > 0 } ? $" · {BqMovementLabels.Of(FilterType)}" : "")

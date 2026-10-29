@@ -4929,3 +4929,14 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelMedio_AbreMaisLargo`
 
 Selo depois: `c07be0113f2cf44c`
+
+## A-0387 · 2026-10-29 · teste-novo
+
+Porquê: DMO-648/A-0387 e DMO-649/A-0388 (auditoria 29/10): referência com lote inexistente nas Boquilhas mostra mensagem (lista e PDF) em vez de erro 500; Enter no Lote das Últimas entradas e saídas do Armazém aplica o filtro (botão de envio escondido). 2 testes .NET e 1 script de browser novos; nenhum teste antigo mudou.
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.Ultimas_OFormularioTemUmEnvioEscondido_ParaOEnterNoLote`
+- novo: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.ReferenciaExistente_ComLoteInexistente_MostraMensagemClara_NaListaENoPdf`
+- novo: `tests/visual/armazem_ultimos_enter_lote_browser.py`
+
+Selo depois: `78b84285abd75ac5`

@@ -1,5 +1,5 @@
 {
-  "selo": "c07be0113f2cf44c",
+  "selo": "78b84285abd75ac5",
   "unidades": {
     "scripts/ci/ci-local.sh": "b85e4195bb3ac186",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1796,6 +1796,7 @@
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.Fora_SoCmEMf_ComReparadorEDia_BqNao": "0025cfaa0862a25e",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.SemAChave_NaoEntra": "9fb344892eed706d",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.SemRegistoNoArmazem_AFichaDizSemRegisto_ENaoFabrico": "2dd0110b837dab74",
+    "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.Ultimas_OFormularioTemUmEnvioEscondido_ParaOEnterNoLote": "61a3a958648bf808",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.Ultimas_OsFiltros": "35f60b44272437ec",
     "tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.Ultimas_Todas_DoMaisRecente_BqIncluida_PosicaoSoNaEntrada": "b3ea863c95676464",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.LoginLocal.cs :: (resto do ficheiro)": "98e14b92a2a14edc",
@@ -1872,6 +1873,7 @@
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.PdfHistorico_WithTheMachineFilter_ReturnsTheMachinePdf": "bf116fc761054df8",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.PdfHistorico_WithoutPeriodOrFilter_ExportsTheCalendarMonth": "d90d544fc4093bb8",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.PdfHistorico_WithoutTheMachine_ExportsAllMachines": "f8b5588d66e3ec4e",
+    "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.ReferenciaExistente_ComLoteInexistente_MostraMensagemClara_NaListaENoPdf": "62fe35a9f09607bc",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.Sidepanel_SurvivesTheHistoryViews": "f957509207a3499c",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.ViewDropdown_AndContextualPdfButton_AreWiredToTheGenerators": "d8d173e449e5d3ff",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasRegistoConsultasTests.cs :: (resto do ficheiro)": "ebe49e8cb3c2744a",
@@ -3515,6 +3517,7 @@
     "tests/ShellProof/voltar.test.cjs :: vindo de outra página, o Voltar volta lá com os filtros": "538ba708ae2c1c98",
     "tests/visual/README.md": "e945d763593851fe",
     "tests/visual/ajuda_junto_browser.py": "c7efa17e70a52222",
+    "tests/visual/armazem_ultimos_enter_lote_browser.py": "9713b83c311b1268",
     "tests/visual/boquilhas_catalog_browser.py": "c9534c908a21179c",
     "tests/visual/bq_historico_lista_browser.py": "7a992a41c71e849d",
     "tests/visual/bq_registo_dia_calendario_browser.py": "88ef7370ec0ff887",
