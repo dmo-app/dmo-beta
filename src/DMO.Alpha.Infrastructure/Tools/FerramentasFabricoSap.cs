@@ -257,6 +257,10 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
         var inicios = jobOns.Select(j => j.InicioEm).ToList();
         var itens = jobOns.Select(j => Montar(j.Id, j.Reference, j.ProductionNumber, j.Maquina, j.InicioEm, j.FimEm, sap, leituras, ProximoInicio(inicios, j.InicioEm),
             j.InicioEm is { } de ? ProximoNaMaquina(iniciosPorMaquina, j.Maquina, de) : null)).ToList();
+        // O número de ordem de cada produção nesta ferramenta, a 1 é a mais
+        // antiga (Diogo, 29/10/2026: «202603 referência B1 depois 1»). Só as
+        // que já começaram: vêm primeiro, da mais recente para a mais antiga.
+        itens = itens.Select((p, k) => p.InicioEm is null ? p : p with { Ordem = comDatas.Count - k }).ToList();
         return new FerramentaProducoes(
             PagedList<FerramentaProducao>.FromLoaded(itens, pagina, porPagina),
             itens.Any(p => p.ProducaoBruta.HasValue) ? itens.Sum(p => p.ProducaoBruta ?? 0) : null,
@@ -423,6 +427,10 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
                 .Select(j => Montar(j.Id, j.Reference, j.ProductionNumber, j.Maquina, j.InicioEm, j.FimEm, sap, l, ProximoInicio(inicios, j.InicioEm),
                     j.InicioEm is { } de ? ProximoNaMaquina(iniciosPorMaquina, j.Maquina, de) : null))
                 .ToList();
+            // O mesmo número de ordem da ficha, contado em todas as produções
+            // da ferramenta (não só nas que passam o filtro).
+            var datadas = todosJobOns.Where(j => seus.Contains(j.Id) && j.InicioEm.HasValue).Select(j => j.Id).ToList();
+            itens = itens.Select(p => p.InicioEm is null ? p : p with { Ordem = datadas.Count - datadas.IndexOf(p.JobOnId) }).ToList();
             if (itens.Count > 0)
             {
                 resultado[toolId] = itens;
