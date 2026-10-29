@@ -5594,7 +5594,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 
 | Teste | Garante | Estado | Correção |
 |---|---|---|---|
-| PesoFolhaProducaoAnteriorPageTests.Resumo_TabelaDoPeso_TemAsColunasValorGEPercentagem_EACadaLinhaAsDuasDiferencas | A tabela do Peso no Resumo tem as colunas Valor, g e %. | OK | DMO-496 |
+| PesoFolhaProducaoAnteriorPageTests.Resumo_TabelaDoPeso_TemAsColunasValorGEPercentagem_EACadaLinhaAsDuasDiferencas | A tabela do Peso no Resumo tem as colunas Valor, g e %; a linha da moda mostra «X de Y dias» em vez da diferença (mudado a 29/10/2026, DMO-673). | OK | DMO-496, DMO-673 |
 
 ### `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.CoberturaA1Aspeto.cs`
 

@@ -264,8 +264,16 @@
                     <tr>
                       <th scope="row">@linha.Rotulo@if (linha.Numero is { } numeroAnterior) {<small> @numeroAnterior</small>}</th>
                       <td>@(linha.Valor is { } valor ? $"{valor.ToString("0.00", fmt)} g" : "—")</td>
-                      <td>@(linha.Valor is not null && linha.Delta.Grams is { } dg ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(dg) : "—")</td>
-                      <td>@(linha.Valor is not null && linha.Delta.Percent is { } dp ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(dp) : "—")</td>
+                      @if (linha.Rotulo == "Produção anterior · moda" && Model.ProducaoAnteriorPeso is { } pesoModa)
+                      {
+                        @* A moda não tem diferença: mostra os dias em que esse peso se usou e o total (Diogo, 29/10/2026). *@
+                        <td colspan="2" data-resumo-moda-dias>@pesoModa.ModaDias de @pesoModa.Dias dias</td>
+                      }
+                      else
+                      {
+                        <td>@(linha.Valor is not null && linha.Delta.Grams is { } dg ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(dg) : "—")</td>
+                        <td>@(linha.Valor is not null && linha.Delta.Percent is { } dp ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Signed(dp) : "—")</td>
+                      }
                     </tr>
                   }
                 </tbody>
