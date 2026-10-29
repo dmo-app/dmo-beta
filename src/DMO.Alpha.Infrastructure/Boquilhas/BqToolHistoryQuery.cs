@@ -228,8 +228,12 @@ public sealed class BqToolHistoryQuery : IBqToolHistoryQuery
             OccurredAtUtc = mov.OccurredAtUtc,
             RegisteredByOperatorId = mov.RegisteredByOperatorId,
             RepairerName = mov.BqRepairerNameFrozen,
-            ToolReference = t != null ? t.Reference : null,
-            ToolLot = t != null ? t.Lot : null,
+            // A BQ pode ter sido eliminada depois do movimento: a referência
+            // e o lote congelados no trace sobrevivem à eliminação (BQ-B01,
+            // auditoria de 29/10/2026) — sem eles, o Histórico e o Excel
+            // ficavam em branco.
+            ToolReference = t != null ? t.Reference : tr.ToolReferenceFrozen,
+            ToolLot = t != null ? t.Lot : tr.ToolLotFrozen,
             ToolId = t != null ? t.ToolId : null,
             // A MÁQUINA EFETIVA: a congelada no movimento; senão a da
             // produção; o registo avulso só resolve uma compatibilidade

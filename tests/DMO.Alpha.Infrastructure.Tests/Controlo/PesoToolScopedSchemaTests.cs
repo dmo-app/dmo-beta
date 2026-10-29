@@ -157,6 +157,10 @@ public sealed class PesoToolScopedSchemaTests
                 "BqToolReferenceFrozen",
                 "BqToolLotFrozen",
                 "ControloId",
+                // A hora da associação explícita ao controlo (PESO-B03,
+                // auditoria de 29/10/2026): distingue um Peso associado
+                // depois de uma aprovação de um criado antes dela.
+                "AssociadoAoControloEmUtc",
                 // #27 AddControloRevisao: quando e quem gravou.
                 "RegistadoEmUtc",
                 "RegistadoPor",

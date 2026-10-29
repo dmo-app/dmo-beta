@@ -234,6 +234,19 @@ public sealed class ArmazemUltimosPaginaTests : IClassFixture<CustomWebApplicati
     }
 
     [Fact]
+    public async Task Ultimas_OFormularioTemUmEnvioEscondido_ParaOEnterNoLote()
+    {
+        // DMO-649 (auditoria): sem botão de envio, o Enter no campo Lote não aplicava o filtro.
+        using var client = await LoginOperatorAsync("6606", DmoCapabilities.ArmazemGestao);
+
+        var html = await client.GetStringAsync("/Armazem/Ultimos");
+
+        var filtros = Elemento(html, "id=\"armMovFiltros\"");
+        Assert.Matches("<input[^>]*type=\"submit\"[^>]*id=\"armMovAplicar\"[^>]*hidden|<input[^>]*id=\"armMovAplicar\"[^>]*type=\"submit\"[^>]*hidden", filtros);
+        Assert.DoesNotContain("<button", filtros);
+    }
+
+    [Fact]
     public async Task Ultimas_OsFiltros()
     {
         using var client = await LoginOperatorAsync("6606", DmoCapabilities.ArmazemGestao);

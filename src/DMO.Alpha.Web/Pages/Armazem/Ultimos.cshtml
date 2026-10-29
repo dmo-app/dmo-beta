@@ -150,6 +150,8 @@ html body .arm-filtros .dmo-field select{width:auto;max-width:16ch}
             }
           </select>
         </div>
+        @* Sem botão de envio o Enter não aplicava o Lote (DMO-649): este, escondido, é o que o Enter carrega. *@
+        <input type="submit" id="armMovAplicar" value="Aplicar" hidden tabindex="-1" aria-hidden="true" />
       </form>
 
       @if (!string.IsNullOrWhiteSpace(Model.ToolId))

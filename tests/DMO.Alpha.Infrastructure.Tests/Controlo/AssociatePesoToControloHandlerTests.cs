@@ -118,6 +118,10 @@ public sealed class AssociatePesoToControloHandlerTests : IDisposable
         Assert.Equal(pesoId, stored.Id);
         Assert.Equal(controloId, stored.ControloId);
         Assert.Equal("66", stored.CmToolLotFrozen);
+        // PESO-B03 (auditoria de 29/10/2026): a associação grava a sua
+        // própria hora, para a aprovação poder distinguir «criado antes» de
+        // «visto pelo aprovador».
+        Assert.NotNull(stored.AssociadoAoControloEmUtc);
     }
 
     [Fact]
