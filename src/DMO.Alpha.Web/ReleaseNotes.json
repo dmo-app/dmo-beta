@@ -562,7 +562,10 @@
     { "id": "DMO-598", "module": "Ferramentas", "description": "0.3.0-beta.235: No Opções do SAP, «Pedir só as à espera» passa a chamar-se «Atualizar»." },
     { "id": "DMO-591", "module": "Ferramentas", "description": "0.3.0-beta.235 (A-0329): nas Listas de reparação, o campo «Lista» mostra só o reparador (o dia aparece na lista aberta), sem passar por cima do «Reparador». Em «Procurar ferramentas», a Referência e o Lote procuram ao escrever (antes só com Enter, e escrever 1075 não mostrava nada); só os resultados mudam, o campo fica como estava." },
     { "id": "DMO-596", "module": "Boquilhas", "description": "0.3.0-beta.235 (A-0334): em Movimentos, o «Registo da …» mostra a ficha em cada barra (BQ, lote, produção), com as barras alinhadas, todas escolhíveis (a B1 também) e sem mexer ao mudar de dia. O quadro Saídas / Entradas / Entradas sem reparação saiu. O calendário passa a ter um modelo único (dmo-calendario.css) no Job On, Sumário, Revisão e Boquilhas, com o dia escolhido sempre marcado." },
-    { "id": "DMO-600", "module": "Job On", "description": "0.3.0-beta.235 (A-0338): o resumo do Job On no painel deslizante abre mais largo." }
+    { "id": "DMO-600", "module": "Job On", "description": "0.3.0-beta.235 (A-0338): o resumo do Job On no painel deslizante abre mais largo." },
+    { "id": "DMO-611", "module": "Posto", "description": "0.3.0-beta.235 (A-0351): o travão do Posto (PINs errados) já não confia no IP que vinha do X-Forwarded-For, que qualquer um muda a cada pedido; usa o IP verdadeiro da ligação, guardado antes desse cabeçalho o substituir (auditoria do Codex de 29/10/2026, AUTH-B02)." },
+    { "id": "DMO-612", "module": "Job On", "description": "0.3.0-beta.235 (A-0352): na folha, trocar de ferramenta duas vezes seguidas já não deixa a resposta atrasada da primeira sobrepor o cartão da segunda (auditoria do Codex de 29/10/2026, bug alto)." },
+    { "id": "DMO-613", "module": "Job On", "description": "0.3.0-beta.235 (A-0353): na procura da CM/MF/BQ, o Enter sem navegar nas flechas confirma a ferramenta já escolhida; antes podia limpá-la em silêncio quando o campo reabria vazio (auditoria do Codex de 29/10/2026, bug alto)." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

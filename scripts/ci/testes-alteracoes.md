@@ -4929,3 +4929,17 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelMedio_AbreMaisLargo`
 
 Selo depois: `c07be0113f2cf44c`
+
+## A-0351 · 2026-10-29 · contagem-lista
+
+Porquê: 2.ª passagem da auditoria .230, lote 1: travão do Posto por X-Forwarded-For falsificável (AUTH-B02), resposta atrasada de ferramenta sobrepõe o cartão (Job On), Enter sem navegar limpa a CM em silêncio (Job On).
+Novos: 3 · mudaram: 3 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: PostoTravaoTests.Posto_PinsErrados_ComXForwardedForDiferenteDeCadaVez_EsperaNaMesma`
+- novo: `tests/ShellProof/dmo-suggest.test.cjs :: Enter sem navegar nas flechas confirma a ferramenta já escolhida, não a limpa (auditoria do Codex, 29/10/2026)`
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: Editar: a resposta atrasada de uma ferramenta trocada não sobrepõe o cartão da escolhida a seguir`
+- mudou: `tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/dmo-suggest.test.cjs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/jobon-folha.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `9a278c4dad62b6a0`

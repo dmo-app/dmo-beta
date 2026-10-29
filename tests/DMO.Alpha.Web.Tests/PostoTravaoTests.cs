@@ -100,16 +100,65 @@ public sealed class PostoTravaoTests : IClassFixture<CustomWebApplicationFactory
         Assert.Equal([TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(4)], esperas);
     }
 
-    private static async Task<HttpResponseMessage> EntrarAsync(HttpClient client, Guid utilizador, string pin)
+    [Fact]
+    public async Task Posto_PinsErrados_ComXForwardedForDiferenteDeCadaVez_EsperaNaMesma()
+    {
+        // AUTH-B02 (auditoria do Codex, 29/10/2026): o travão usava o IP já
+        // substituído pelo X-Forwarded-For, que o cliente escolhe; cada
+        // tentativa com uma origem «nova» nunca esperava. Agora o travão usa
+        // o IP real da ligação (HttpContext.Items, guardado antes do
+        // middleware do X-Forwarded-For correr), por isso mudar o cabeçalho
+        // a cada pedido já não livra das esperas.
+        var esperas = new List<TimeSpan>();
+        var reparador = new PostoReparador(Guid.NewGuid(), "Reparador do Posto");
+        using var factory = _factory.WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
+        {
+            services.AddSingleton(sp => new TravaoDoPosto(
+                sp.GetRequiredService<IMemoryCache>(),
+                (espera, _) =>
+                {
+                    lock (esperas)
+                    {
+                        esperas.Add(espera);
+                    }
+
+                    return Task.CompletedTask;
+                }));
+            services.AddScoped<IPostoRi>(_ => new PostoComUmReparador(reparador));
+        }));
+        SemearUtilizador(factory, reparador);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
+
+        for (var tentativa = 1; tentativa <= 6; tentativa++)
+        {
+            var resposta = await EntrarAsync(client, reparador.Id, "0000", xForwardedFor: $"203.0.113.{tentativa}");
+            Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
+        }
+
+        // Se o X-Forwarded-For falso contasse, as 6 tentativas eram 6 origens
+        // novas e nunca esperavam. Como não conta, a 6.ª espera 2 s na mesma.
+        Assert.Equal([TimeSpan.FromSeconds(2)], esperas);
+    }
+
+    private static async Task<HttpResponseMessage> EntrarAsync(HttpClient client, Guid utilizador, string pin, string? xForwardedFor = null)
     {
         var pagina = await client.GetAsync("/Posto");
         pagina.EnsureSuccessStatusCode();
         var token = HtmlFormHelpers.ExtractRequestVerificationToken(await pagina.Content.ReadAsStringAsync())
             ?? throw new InvalidOperationException("No antiforgery token found on page.");
-        return await client.PostAsync("/Posto", HtmlFormHelpers.BuildFormPost(
-            ("utilizador", utilizador.ToString()),
-            ("pin", pin),
-            ("__RequestVerificationToken", token)));
+        using var pedido = new HttpRequestMessage(HttpMethod.Post, "/Posto")
+        {
+            Content = HtmlFormHelpers.BuildFormPost(
+                ("utilizador", utilizador.ToString()),
+                ("pin", pin),
+                ("__RequestVerificationToken", token))
+        };
+        if (xForwardedFor is not null)
+        {
+            pedido.Headers.Add("X-Forwarded-For", xForwardedFor);
+        }
+
+        return await client.SendAsync(pedido);
     }
 
     private static void SemearUtilizador(WebApplicationFactory<Program> factory, PostoReparador reparador)

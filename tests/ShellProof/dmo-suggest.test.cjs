@@ -91,3 +91,34 @@ test('num filtro sem fonte, o Enter continua a escolher a primeira opção filtr
     window.close();
   }
 });
+
+test('Enter sem navegar nas flechas confirma a ferramenta já escolhida, não a limpa (auditoria do Codex, 29/10/2026)', async () => {
+  const { dom, select, campo, pedidos, esperar, enter } = abrirFolha();
+  try {
+    dom.window.Element.prototype.scrollIntoView = function () {};
+    campo.focus();
+    await esperar(5);
+    pedidos[0].responder({ items: [{ value: 'T-5447-3', label: '5447 · Lote 3' }, { value: 'T-5448-9', label: '5448 · Lote 9' }] });
+    await esperar(5);
+    // Escolhe «5447 · Lote 3» navegando com a flecha, como um utilizador normal.
+    campo.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
+    enter();
+    assert.equal(select.value, 'T-5447-3', 'a escolha ficou feita');
+
+    // Reabrir o combo (sair e voltar ao campo) com a ferramenta já escolhida:
+    // a procura volta a correr com o filtro vazio e a app põe a linha de
+    // «limpar» à frente da já escolhida (showRemote).
+    campo.dispatchEvent(new dom.window.Event('blur', { bubbles: true }));
+    campo.focus();
+    await esperar(5);
+    pedidos[pedidos.length - 1].responder({ items: [{ value: 'T-5447-3', label: '5447 · Lote 3' }, { value: 'T-5448-9', label: '5448 · Lote 9' }] });
+    await esperar(5);
+
+    // Enter já, sem tocar nas flechas: antes do bug, escolhia a linha de
+    // «limpar» que ficou à frente e apagava a CM em silêncio.
+    assert.equal(enter().defaultPrevented, true);
+    assert.equal(select.value, 'T-5447-3', 'o Enter confirmou a ferramenta já escolhida, não limpou a CM');
+  } finally {
+    dom.window.close();
+  }
+});
