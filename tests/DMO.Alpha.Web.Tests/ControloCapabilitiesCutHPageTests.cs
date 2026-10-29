@@ -653,8 +653,9 @@ public sealed partial class ControloCapabilitiesCutHPageTests : IClassFixture<Cu
 
         using var chefe = await LoginClientAsync("4707", "ChefeMcalPass1!");
         var review = System.Net.WebUtility.HtmlDecode(await chefe.GetStringAsync($"/Controlo/Approve?jobon_id={jobOnId}"));
-        Assert.Contains($"data-dmo-copiar=\"{url}\"", review, StringComparison.Ordinal);
-        Assert.Contains("Copiar o link do mcaliper da BQ", review, StringComparison.Ordinal);
+        // O botão abre o mcaliper num separador novo (Diogo, 29/10/2026, DMO-678, A-0430).
+        Assert.Contains($"href=\"{url}\" target=\"_blank\" rel=\"noopener noreferrer\" aria-label=\"Abrir o mcaliper da BQ\"", review, StringComparison.Ordinal);
+        Assert.DoesNotContain($"data-dmo-copiar=\"{url}\"", review, StringComparison.Ordinal);
         Assert.DoesNotContain("da CM\"", review, StringComparison.Ordinal);
     }
 

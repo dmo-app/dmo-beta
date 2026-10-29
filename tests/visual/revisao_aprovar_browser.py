@@ -9,7 +9,7 @@ página inteira), com o filtro «Pendente», a 1400 e 390 px:
 - o que está fora das zonas é o mesmo elemento, no mesmo sítio; o foco fica no botão;
 - «Não aprovar» sem nota não envia nada; com nota, 1 POST, «Não aprovado», a nota e o
   foco no botão;
-- o copiar do link do mcaliper do cartão novo funciona.
+- o botão do mcaliper do cartão novo abre o link num separador novo.
 
 Uso: DMO_UI_TEST_URL=http://127.0.0.1:5370 DMO_UI_TEST_DB=dmo_e8 DMO_CHROMIUM=... \
      python3 tests/visual/revisao_aprovar_browser.py
@@ -131,7 +131,7 @@ with sync_playwright() as playwright:
         item = page.locator('.revisao-item[aria-current=true]')
         expect(item).to_have_count(1)
         expect(page.locator('.revisao-pill.big')).to_have_text('Pendente')
-        expect(page.locator('.revisao-mcaliper-copy')).not_to_have_count(0)
+        expect(page.locator('.revisao-mcaliper-abrir')).not_to_have_count(0)
         # Os botões no topo do cartão, à direita, antes da primeira secção (no telemóvel a
         # linha do título dobra e eles ficam por baixo do título, ainda no topo).
         topo = page.eval_on_selector('#revisaoDetalhe', '''(card) => {
@@ -154,9 +154,10 @@ with sync_playwright() as playwright:
         assert sql(f'select count(*) from "Controlos" where "JobOnId"={job_id}') == '1', 'controlo repetido'
         assert f'jobon_id={job_id}' in page.url and 'estado=pendente' in page.url, page.url
 
-        # O copiar do cartão novo (data-dmo-copiar por delegação).
-        page.locator('.revisao-mcaliper-copy').first.click()
-        expect(page.locator('.revisao-mcaliper-copy').first).to_contain_text('Copiado')
+        # O botão do mcaliper do cartão novo abre o link num separador novo (DMO-678).
+        abrir = page.locator('.revisao-mcaliper-abrir').first
+        expect(abrir).to_have_attribute('target', '_blank')
+        assert (abrir.get_attribute('href') or '').startswith('http'), abrir.get_attribute('href')
         assert page.evaluate('window.__marca') == 1
 
         # Não aprovar sem nota: o browser pede a nota e nada sai.

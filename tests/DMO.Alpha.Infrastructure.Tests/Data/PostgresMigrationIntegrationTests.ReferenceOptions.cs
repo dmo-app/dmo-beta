@@ -37,6 +37,7 @@ public sealed partial class PostgresMigrationIntegrationTests
         Assert.Equal(new[]{current.Id.ToString()},tools["machine_id"]);
         Assert.Equal(new[]{"3"},tools["lot"]);
         Assert.Equal(new[]{current.Code},(await query.ReadAsync("jobon",marker,null))["linha"]);
+        Assert.Empty((await query.ReadAsync("programada",marker,null))["linha"]); // a lista programada só admite CM/MF
         var bq=await query.ReadAsync("bq",marker,"3");
         Assert.Equal(new[]{historical.Code},bq["maquina"]);
         Assert.Equal(new[]{"Oficina da referência"},bq["reparador"]);

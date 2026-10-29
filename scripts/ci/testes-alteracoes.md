@@ -5709,9 +5709,42 @@ Selo depois: `a6aba0b16d9e9794`
 
 ## A-0430 · 2026-10-29 · ok-do-diogo
 
-Porquê: Após merge da integracao beta.245: referência restringe opções de linhas/lotes/reparadores e restantes campos; limpar escolhas incompatíveis, preservar produção histórica e rejeitar linha incompatível sem gravar. Novos testes: 9 JavaScript de transições, resposta tardia, erro e Enter; 3 casos de gravação; 1 PostgreSQL de opções multisscope, referência composta, ficha atual e histórico; 2 páginas/permissões. Existentes: sem associações BQ deixa de propor todas as linhas; cenários válidos ganham associação explícita e os resets em memória limpam associações órfãs; opção BQ verifica seleção e texto descodificado sem ordem de atributos. Preservadas as alterações e testes novos da integracao.
-Referência: Pedido do Diogo nesta conversa em 29/10/2026: aplicar alterações e adaptar testes para englobar a alteração.
-Novos: 20 · mudaram: 7 · saíram: 1
+Porquê: DMO-678: o Diogo pediu um botão que abra o link do mcaliper (não que o copie). O teste do link deixa de exigir o «Copiar» (data-dmo-copiar) na Revisão e passa a exigir o botão com o href, target=_blank e o rótulo «Abrir o mcaliper da BQ»; o script do browser da Revisão verifica o botão que abre em vez do «Copiado».
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraHSGZyC8czoCf8muUFTU4v5 («eu pedi um botao para abrir o link»)
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.cs :: ControloCapabilitiesCutHPageTests.McaliperLink_CreateAssociatesOnToolSheet_ApproveCopiesIt`
+- mudou: `tests/visual/revisao_aprovar_browser.py`
+
+Selo depois: `3cd049915e99b219`
+
+## A-0427 · 2026-10-29 · teste-novo
+
+Porquê: 2 testes novos: «Controlo atual · n.º da produção» na tabela do Controlo anterior e a lista de máquinas só com as da referência
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraPX2M5rmVJUZ2kYnWF2rSmJ
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDoControloAnterior_ChamaControloAtualComONumeroDaProducao`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.NovoPesoComJobOn_ASelecaoDeMaquina_SoMostraAsDaReferencia`
+
+Selo depois: `7bf1e745f18835d9`
+
+## A-0431 · 2026-10-29 · teste-novo
+
+Porquê: Lote .246: junta #347 e #348; os 2 testes novos do Peso estão explicados em A-0427.
+Referência: lote .246
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDoControloAnterior_ChamaControloAtualComONumeroDaProducao`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.NovoPesoComJobOn_ASelecaoDeMaquina_SoMostraAsDaReferencia`
+
+Selo depois: `e25ab73ba7eeb751`
+
+## A-0432 · 2026-10-29 · ok-do-diogo
+
+Porquê: Merge da integracao beta.246 preserva Peso/mcaliper e seus testes. Guarda regenerada a partir da integracao para todos os testes deste PR: 9 JS de dependências, 3 casos de gravação, 1 consulta PostgreSQL multisscope (incluindo referência composta e exclusão de BQ na lista programada CM/MF) e 2 HTTP/permissões. Cenários existentes têm associações válidas; resets limpam ligações órfãs; CM 5447 ganha associação MF 1075 no fixture da criação. Mantêm-se verificações de persistência, limites, datas e navegação; muda a expectativa antiga de todas as linhas quando BQ não tem associações.
+Referência: Pedido do Diogo em 29/10/2026 nesta conversa: aplicar e adaptar os testes à filtragem por referência.
+Novos: 20 · mudaram: 9 · saíram: 1
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/ReferenciaCompatibilidadeTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/ReferenciaCompatibilidadeTests.cs :: ReferenciaCompatibilidadeTests.CriarJobOnComFerramentaAssociadaAOutraLinhaNaoGrava`
@@ -5737,29 +5770,11 @@ Novos: 20 · mudaram: 7 · saíram: 1
 - mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: (resto do ficheiro)`
 - mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.RegisterMovement_ChosenMachineIsSavedAndShownInTheRegister`
 - mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_NaPaginaBoquilhas_GravaEMostraOMovimento`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: (resto do ficheiro)`
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: (resto do ficheiro)`
 - mudou: `tests/ShellProof/cobertura_a2_bq-sem-jobon.test.cjs :: Escolher a BQ deixa na Linha só as da ficha dela, com a primeira já escolhida`
 - mudou: `tests/ShellProof/package.json`
 - saiu: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CoberturaA2SemJobOn.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_UmaBqSemLinhasNaFicha_MostraTodasAsLinhasSemNenhumaEscolhida`
 
-Selo depois: `966e410cbc21147d`
-
-## A-0431 · 2026-10-29 · ok-do-diogo
-
-Porquê: Os testes de gravação e limite de texto da folha nova de Job On precisam de ferramentas com associações válidas: o fixture de JobOnFolhaTests associa CM/MF/BQ a B1 e limpa essas ligações no reset. Sem essa pré-condição, a nova filtragem recusa a linha antes de chegar à regra da folha. Mantidas todas as verificações dos testes.
-Referência: Pedido do Diogo em 29/10/2026 nesta conversa: adaptar testes para englobar a alteração.
-Novos: 0 · mudaram: 1 · saíram: 0
-
-- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: (resto do ficheiro)`
-
-Selo depois: `27d1d20acaad3e53`
-
-## A-0432 · 2026-10-29 · ok-do-diogo
-
-Porquê: No fixture JobOnFichaTests, a CM 5447 mantém a sua referência canónica e ganha associação MF explícita a 1075, usada nos cenários de criação com referência 1075C142. Assim a linha B1/C3 vem de uma ferramenta que corresponde à referência pesquisada; preservam-se todas as verificações de datas e persistência.
-Referência: Pedido do Diogo de 29/10/2026 nesta conversa: adaptar testes à filtragem por referência.
-Novos: 0 · mudaram: 1 · saíram: 0
-
-- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: (resto do ficheiro)`
-
-Selo depois: `096fce27da9b299c`
+Selo depois: `bc5ca4bbf7e2f22d`

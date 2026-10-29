@@ -20,6 +20,7 @@ public sealed class ReferenceOptionsQuery(DmoDbContext db)
         // A mesma procura do catálogo inclui referências completas (CM/MF + parte BQ).
         var matchingTools = new Tools.ToolCandidateQuery(db)
             .ApplyFilters(new ToolCandidateFilter(ReferenceContains: term, Lot: string.IsNullOrWhiteSpace(lot) ? null : lot.Trim()));
+        if (scope == "programada") matchingTools = matchingTools.Where(t => t.Type != ToolType.Bq);
         var toolIds = matchingTools.Select(t => t.ToolId);
         var jobs = db.JobOns.AsNoTracking().Where(ReferenceMatch.Predicate<DMO.Alpha.Core.Production.JobOn>(j => j.Reference, term));
         IQueryable<Row> rows;

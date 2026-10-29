@@ -14,6 +14,13 @@ public interface IPesoEscolhasQuery
 
     Task<IReadOnlyList<string>> CodigosDeMaquinasAsync(CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// As máquinas em que a referência pode trabalhar (as da ficha das
+    /// ferramentas com essa referência); sem nenhuma ficha com máquinas,
+    /// todas, para não esconder a escolha.
+    /// </summary>
+    Task<IReadOnlyList<string>> CodigosDeMaquinasDaReferenciaAsync(string referencia, CancellationToken cancellationToken = default);
+
     Task<bool> ComparacaoGuardadaExisteAsync(
         int comparacaoId,
         int pesoInicialId,
