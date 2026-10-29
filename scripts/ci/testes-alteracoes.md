@@ -5411,3 +5411,20 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.SemSenha_OScriptParaLogo`
 
 Selo depois: `5dd9004e5e11ea1f`
+
+## A-0415 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-668: Utilização por produção com Voltar e sem quadros verdes, Opções sem Código SAP, menu do Histórico com Job On/Controlo/Reparação/Boquilhas; DMO-670: B2 numa fila com dropdown Dupla/Tripla
+Referência: Diogo cmsg_01K75FTs9bQnbhhH7qttpgraGcthVpKtU8Ve3YXaFzFA1E, cmsg_01K75FTs9bQnbhhH7qttpgraDA13z7kmRhF33cV1uyAvMN, cmsg_01K75FTs9bQnbhhH7qttpgra9Cd53tmPP3qFHv2eV5p2vE, cmsg_01K75FTs9bQnbhhH7qttpgra2qWamwB946ubLpHqDngTxe, sim cmsg_01K75FTs9bQnbhhH7qttpgraABfYgJtLFVf7Q5F9METyuZ
+Novos: 2 · mudaram: 6 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoVoltar.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoVoltar.cs :: DefinicoesPorModuloPageTests.AUtilizacaoPorProducao_TemOVoltarPorCimaESemQuadrosVerdes`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.DeltaPeloProduzido.cs :: DefinicoesPorModuloPageTests.SemLeiturasAVoltaDaProducao_ODeltaEstimaSePeloProduzido`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.ODetalhesDaUtilizacao_MostraODeltaDeCadaProducaoEOTotal`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.OCodigoSapDaFicha_GanhaATabela_EVazioVoltaAEla`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_Codificacao_SeletorDaB2`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.Ficha_TemOBotaoHistorico_QueAbreOsJobOnDaFerramenta`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.Historico_ComControloERi_OMenuTemOsTresDestinos`
+
+Selo depois: `d6fffb514f187dfb`
