@@ -65,14 +65,57 @@ public partial class PesoFolhaProducaoAnteriorPageTests
         Assert.DoesNotContain("data-sap-ver", sap, StringComparison.Ordinal);
         Assert.DoesNotContain("pesoSapModa", sap, StringComparison.Ordinal);
         Assert.DoesNotContain("Hoje", sap, StringComparison.Ordinal);
-        Assert.Matches("data-sap-delta=\"media\">[+−]\\d+\\.\\d{2} g \\([+−]\\d+\\.\\d{2} %\\)<", sap);
-        Assert.Matches("data-sap-delta=\"moda\">[+−]\\d+\\.\\d{2} g \\([+−]\\d+\\.\\d{2} %\\)<", sap);
+        Assert.Matches("data-sap-delta=\"media\">Peso médio atual − Média: [+−]\\d+\\.\\d{2} g \\([+−]\\d+\\.\\d{2} %\\)<", sap);
+        Assert.Matches("data-sap-delta=\"moda\">Peso médio atual − Moda: [+−]\\d+\\.\\d{2} g \\([+−]\\d+\\.\\d{2} %\\)<", sap);
         Assert.DoesNotContain("data-sap-usar", sap, StringComparison.Ordinal);
         // Sem o peso escrito à mão: contam a média e a moda (Diogo, 28/10/2026).
         Assert.DoesNotContain("name=\"anterior_peso\"", html, StringComparison.Ordinal);
         // Cada produção do select leva o seu peso; a mais antiga não tem ordens do SAP.
         Assert.Contains($"data-sap-opcao=\"{anteriorJobOnId}\" data-sap-media=\"181.67\" data-sap-moda=\"181\" data-sap-moda-dias=\"12\" data-sap-dias=\"18\"", sap, StringComparison.Ordinal);
         Assert.DoesNotContain($"data-sap-opcao=\"{maisAntigaJobOnId}\"", sap, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task ProducaoAnterior_DatasDentroDaTabela_ComESemPeso(bool comPeso)
+    {
+        var (controloId, _, _, _) = await SeedAsync();
+        if (comPeso) SeedSapFabrico("2026-04-06", "2026-04-24", 170m, 18);
+        SeedUser("4413", "Peso Dates", "provider-peso-dates", "Dates689!");
+        using var client = await LoginClientAsync("4413", "Dates689!");
+        var sap = ZonaSap(await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}"));
+        var tabela = System.Text.RegularExpressions.Regex.Match(sap, @"<table\b[^>]*>([\s\S]*?)</table>");
+        Assert.True(tabela.Success, "The previous production table must exist.");
+        var datas = System.Text.RegularExpressions.Regex.Matches(tabela.Value, @"<tr\b[^>]*>[\s\S]*?</tr>")
+            .Cast<System.Text.RegularExpressions.Match>()
+            .SingleOrDefault(row => row.Value.Contains("data-producao-anterior-periodo", StringComparison.Ordinal));
+        Assert.NotNull(datas);
+        var texto = System.Text.RegularExpressions.Regex.Replace(datas.Value, "<[^>]+>", "");
+        Assert.Contains("Datas", texto);
+        Assert.Contains("Início 06/04/2026 · Fim 24/04/2026", texto);
+        if (comPeso) Assert.Contains("18 dias", texto);
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(sap, "data-producao-anterior-periodo"));
+    }
+
+    [Theory]
+    [InlineData(170, "+7.31 g (+4.30 %)")]
+    [InlineData(190, "−12.69 g (−6.68 %)")]
+    public async Task ProducaoAnterior_DiferencaIdentificaAtualMenosReferencia_ComSinalEPercentagem(int referencia, string esperado)
+    {
+        var (controloId, _, _, _) = await SeedAsync();
+        SeedSapFabrico("2026-04-06", "2026-04-24", referencia, 18);
+        SeedUser("4414", "Peso Difference", "provider-peso-difference", "Difference689!");
+        using var client = await LoginClientAsync("4414", "Difference689!");
+        var sap = ZonaSap(await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}"));
+        foreach (var (chave, nome) in new[] { ("media", "Média"), ("moda", "Moda") })
+        {
+            var celula = System.Text.RegularExpressions.Regex.Match(sap, $"<td\\b[^>]*data-sap-delta=\"{chave}\"[^>]*>([\\s\\S]*?)</td>");
+            Assert.True(celula.Success, $"The {chave} difference cell must exist.");
+            Assert.Equal($"Peso médio atual − {nome}: {esperado}", WebUtility.HtmlDecode(celula.Groups[1].Value).Trim());
+        }
+        var texto = System.Text.RegularExpressions.Regex.Replace(sap, "<[^>]+>", "");
+        Assert.Contains("Diferença para o peso atual", texto);
     }
 
     // Diogo, 29/10/2026: «ao carregar Enter para registar leva-me para o

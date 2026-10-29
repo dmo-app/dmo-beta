@@ -5978,3 +5978,17 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/visual/cobertura_a1_browser.py`
 
 Selo depois: `e4785a2628a5145d`
+
+## A-0449 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-689: approved descriptive differences, dates inside table, selection and live updates; preserve signs, grams and percentages
+Referência: Diogo approval in this conversation 2026-10-29
+Novos: 3 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_DatasDentroDaTabela_ComESemPeso`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_DiferencaIdentificaAtualMenosReferencia_ComSinalEPercentagem`
+- novo: `tests/ShellProof/peso-live.test.cjs :: DMO-689: previous production dates and named differences survive selection and live updates`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_MostraAMediaPelosDiasEAModaDoSap_EOCampoVemComAMedia`
+- mudou: `tests/ShellProof/peso-live.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `8852030be24aa949`
