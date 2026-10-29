@@ -488,8 +488,7 @@ ci-local.sh corre só 12 scripts: boquilhas_catalog, paginacao_parcial, nok_agen
 
 ## Erros de aspeto da app que os testes novos encontraram (28/10/2026, DMO-588)
 
-Medidos no browser; ficam em `tests/visual/pendentes_*_browser.py`, fora do CI, até a app ser corrigida.
-Quando forem corrigidos, as verificações passam para o script `cobertura_*` do CI.
+Medidos no browser. Corrigidos em DMO-589 (.233); as verificações estão em `tests/visual/pendentes_*_browser.py` (o nome ficou) e entram no CI (bloco «Browser no aspeto»).
 
 - **DMO-406** — Resumo: nos cartões Início/Fim o rótulo fica por cima do valor em vez de na mesma linha (`pendentes_b_browser.py`).
 - **DMO-495** — Folha do Job On a 1290×646: o 8.º calibre passa para uma 2.ª coluna fora do cartão, cortado (`pendentes_a1_browser.py`).
