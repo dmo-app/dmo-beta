@@ -43,12 +43,10 @@
     @if (!Model.ShowHistory)
     {
     <section class="beta-light-view active" data-light-panel="jobon">
-      <div class="beta-light-heading">
-        <div>
-          @* Sem os círculos da ajuda nos títulos (Diogo, 27/10/2026); o texto passa ao title do título. *@
-          <h1 title="Selecione uma produção para consultar ou preparar as ferramentas.">Planeamento</h1>
-        </div>
-      </div>
+      @* Sem o título grande «Planeamento» à vista, para as linhas do dia caberem sem deslizar (Diogo, 29/10/2026:
+         «remover o planeamento título para que os cards das máquinas não precisem de scroll»); o separador Job On
+         já diz onde se está. O h1 fica só para os leitores de ecrã. *@
+      <h1 class="sr-only" title="Selecione uma produção para consultar ou preparar as ferramentas.">Planeamento</h1>
       @* As linhas por baixo do título, como nos mockups (Owner, 26/10/2026): o mesmo painel, com os mesmos ids e zonas. *@
       <partial name="_DmoRailProximasEntradas" model="Model.ProximasEntradas" />
 
