@@ -412,9 +412,29 @@ builder.Services.AddScoped<IUserAdminService, UserAdminService>();
 // -------------------------------------------------------------------------
 // Authentication & authorization
 // -------------------------------------------------------------------------
+// AUTH-B05 (DMO-657): o posto da RI entra por um esquema de cookie PRÓPRIO,
+// separado do login normal — o selector decide pela presença do cookie do
+// posto, sem mudar o esquema por omissão dos [Authorize] existentes (nenhum
+// pede um esquema específico; todos continuam a ler HttpContext.User tal
+// como antes). Antes, o posto partilhava o esquema principal, cujo
+// SlidingExpiration deslizava QUALQUER pedido autenticado para a hora
+// inteira, por cima do ExpiresUtc de poucos minutos que o posto escreve —
+// ver DmoSignInService.SignInPostoAsync e Services/PostoAuthentication.cs.
 builder.Services
-    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
+    .AddAuthentication(options =>
+    {
+        options.DefaultScheme = "DmoAuthSelector";
+        options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultSignOutScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    })
+    .AddPolicyScheme("DmoAuthSelector", "DmoAuthSelector", options =>
+    {
+        options.ForwardDefaultSelector = context =>
+            context.Request.Cookies.ContainsKey(PostoAuthentication.CookieName)
+                ? PostoAuthentication.Scheme
+                : CookieAuthenticationDefaults.AuthenticationScheme;
+    })
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
     {
         options.LoginPath = "/login";
         options.LogoutPath = "/logout";
@@ -428,6 +448,25 @@ builder.Services
         // still be the email kept in the Definições (o ADMIN é o email —
         // o Owner 2026-10-16). Operator principals are untouched; changing
         // the field ends the previous ADMIN's cookie at its next request.
+        options.Events.OnValidatePrincipal = AdminSessionCookieValidator.ValidateAsync;
+    })
+    .AddCookie(PostoAuthentication.Scheme, options =>
+    {
+        options.LoginPath = "/Posto";
+        options.LogoutPath = "/logout";
+        options.AccessDeniedPath = "/Posto";
+        options.Cookie.Name = PostoAuthentication.CookieName;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        // AUTH-B05: sem deslizar — o ExpiresUtc escrito no sign-in (os
+        // minutos das Definições da Reparação, 3 por omissão) é o único
+        // limite. O ExpireTimeSpan aqui só serve de rede: SignInPostoAsync
+        // escreve sempre o seu próprio ExpiresUtc.
+        options.SlidingExpiration = false;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(PostoRiRegras.MinutosPorOmissao);
+        // A mesma validação do login normal (versão da sessão, stand-by,
+        // identidade do provider e RequiresPasswordChange) vale para o
+        // posto: o claim IsAdmin é sempre falso nesta sessão.
         options.Events.OnValidatePrincipal = AdminSessionCookieValidator.ValidateAsync;
     });
 

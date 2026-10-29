@@ -5358,3 +5358,26 @@ Novos: 2 · mudaram: 4 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.AtualizarPorReferencia_DaOsCodigosDessaReferenciaEDoTipo`
 
 Selo depois: `d750d0d392be5ec3`
+
+## A-0401 · 2026-10-29 · contagem-lista
+
+Porquê: AUTH-B03/B04/B05: revogação de PIN/sessões no reset, SessionVersion ao arquivar/reativar, cookie próprio do Posto sem deslizar
+Novos: 13 · mudaram: 1 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.ResetUserAccessAsync_ApagaOPinDoPosto`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.ResetUserAccessAsync_OProviderRecusa_OPinDoPostoVoltaAFicar`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.SetUserStandByAsync_ArquivarEReativar_SobeAVersaoNasDuasVezes`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.SetUserStandByAsync_Arquivar_SobeAVersaoDaSessao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.SetUserStandByAsync_SemMudarOEstado_NaoSobeAVersao`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: AuthB03B04B05Tests.ArquivarEReativar_ACookieAntigaContinuaRecusadaDepoisDeReativar`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: AuthB03B04B05Tests.ComRequiresPasswordChange_AEntradaPeloPostoRecusaMesmoComOPinCerto`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: AuthB03B04B05Tests.MudarOPin_FechaAsSessoesDoPostoAbertasComOPinAnterior`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: AuthB03B04B05Tests.ResetDeAcesso_ApagaOPinDoPosto_OPinAntigoJaNaoEntra`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_DentroDoLimite_OsPedidosContinuam`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_UmPedidoDentroDoLimite_JaNaoEstendeParaUmaHora`
+- mudou: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: (resto do ficheiro)`
+- saiu: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_EmUso_ASessaoContinua`
+
+Selo depois: `1db62a33a3fb0991`

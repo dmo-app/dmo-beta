@@ -96,21 +96,49 @@ public sealed class PostoSoRiTests : IClassFixture<CustomWebApplicationFactory>
     }
 
     [Fact]
-    public async Task PeloPosto_EmUso_ASessaoContinua()
+    public async Task PeloPosto_DentroDoLimite_OsPedidosContinuam()
     {
         var (factory, relogio, id) = Fabrica(minutos: null);
         using var _ = factory;
         using var posto = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
         await EntrarNoPostoAsync(posto, id);
 
-        // A página avisa que está a ser usada (dmo-posto.js) e a sessão renova-se.
-        for (var i = 0; i < 4; i++)
-        {
-            relogio.Avancar(TimeSpan.FromMinutes(2));
-            Assert.Equal(HttpStatusCode.NoContent, (await posto.GetAsync("/posto/ativo")).StatusCode);
-        }
-
+        // Dentro dos 3 minutos (por omissão) qualquer pedido continua a entrar,
+        // sem precisar de deslizar: o ExpiresUtc do login ainda não passou.
+        relogio.Avancar(TimeSpan.FromMinutes(1));
+        Assert.Equal(HttpStatusCode.NoContent, (await posto.GetAsync("/posto/ativo")).StatusCode);
+        relogio.Avancar(TimeSpan.FromMinutes(1));
         Assert.Equal(HttpStatusCode.OK, (await posto.GetAsync("/ReparacaoInterna")).StatusCode);
+    }
+
+    /// <summary>
+    /// AUTH-B05 (DMO-657): antes, o posto partilhava o cookie do login normal
+    /// (SlidingExpiration=true, ExpireTimeSpan de 1 hora) — um pedido feito
+    /// DENTRO do limite do posto (aqui, aos 2 min de um limite de 3) deslizava
+    /// o cookie para a hora inteira, e a sessão continuava válida muito depois
+    /// dos 3 minutos sem que mais nenhum pedido fosse preciso. Com o esquema
+    /// próprio do posto, sem deslizar, esse MESMO pedido já não estende nada:
+    /// o ExpiresUtc escrito no login continua a ser o único limite.
+    /// </summary>
+    [Fact]
+    public async Task PeloPosto_UmPedidoDentroDoLimite_JaNaoEstendeParaUmaHora()
+    {
+        var (factory, relogio, id) = Fabrica(minutos: null);
+        using var _ = factory;
+        using var posto = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
+        await EntrarNoPostoAsync(posto, id);
+
+        // Um único pedido a meio do limite de 3 minutos — exatamente o que
+        // deslizava o cookie do login partilhado para a hora inteira.
+        relogio.Avancar(TimeSpan.FromMinutes(2));
+        Assert.Equal(HttpStatusCode.NoContent, (await posto.GetAsync("/posto/ativo")).StatusCode);
+
+        // Passados os 3 minutos do login (muito antes da hora que o esquema
+        // partilhado teria concedido), a sessão já não vale.
+        relogio.Avancar(TimeSpan.FromMinutes(2));
+        var depois = await posto.GetAsync("/ReparacaoInterna");
+        Assert.Equal(HttpStatusCode.Redirect, depois.StatusCode);
+        Assert.Contains("/login", depois.Headers.Location?.OriginalString, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -166,7 +194,9 @@ public sealed class PostoSoRiTests : IClassFixture<CustomWebApplicationFactory>
         var factory = _factory.WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
         {
             services.AddScoped<IPostoRi>(_ => new PostoComUm(new PostoReparador(id, "Reparador Só RI")));
-            services.PostConfigure<CookieAuthenticationOptions>(CookieAuthenticationDefaults.AuthenticationScheme,
+            // AUTH-B05: o posto autentica pelo SEU esquema (DMO.Alpha.Web.Services.PostoAuthentication.Scheme),
+            // separado do login normal — é esse esquema que precisa do relógio de teste.
+            services.PostConfigure<CookieAuthenticationOptions>(DMO.Alpha.Web.Services.PostoAuthentication.Scheme,
                 o => o.TimeProvider = relogio);
         }));
         Semear(factory, id, minutos);

@@ -313,6 +313,18 @@ public sealed class UserAdminService : IUserAdminService
         var previousSessionVersion = user.SessionVersion;
         user.RequiresPasswordChange = true;
         user.SessionVersion++;
+
+        // AUTH-B03 (DMO-655): o reset também revoga o PIN do Posto — sem
+        // isto, quem guardava a password temporária continuava a entrar
+        // pelo posto com o PIN antigo mesmo depois do reset (o posto não
+        // passa pela password nem pelo RequiresPasswordChange).
+        var pinRow = await _dbContext.UserSettings
+            .FirstOrDefaultAsync(s => s.UserId == user.Id && s.Key == PostoRiRegras.Chave, cancellationToken);
+        if (pinRow is not null)
+        {
+            _dbContext.UserSettings.Remove(pinRow);
+        }
+
         try
         {
             await _dbContext.SaveChangesAsync(CancellationToken.None);
@@ -321,6 +333,10 @@ public sealed class UserAdminService : IUserAdminService
         {
             user.RequiresPasswordChange = previousRequiresChange;
             user.SessionVersion = previousSessionVersion;
+            if (pinRow is not null)
+            {
+                _dbContext.UserSettings.Add(pinRow);
+            }
             throw;
         }
 
@@ -334,6 +350,11 @@ public sealed class UserAdminService : IUserAdminService
         {
             user.RequiresPasswordChange = previousRequiresChange;
             user.SessionVersion = previousSessionVersion;
+            if (pinRow is not null && !await _dbContext.UserSettings
+                    .AnyAsync(s => s.UserId == user.Id && s.Key == PostoRiRegras.Chave, CancellationToken.None))
+            {
+                _dbContext.UserSettings.Add(pinRow);
+            }
             await _dbContext.SaveChangesAsync(CancellationToken.None);
             return new ResetUserAccessOutcome(result);
         }
@@ -410,6 +431,17 @@ public sealed class UserAdminService : IUserAdminService
         // Stand-by preserva o User E a atribuição corrente (USERS.md §1) —
         // desliga o acesso operacional corrente, nunca apaga configuração
         // nem história. A resolução de acesso efectivo já lê o estado.
+        //
+        // AUTH-B04 (DMO-656): a versão da sessão sobe em QUALQUER mudança
+        // (arquivar OU reativar), não só ao arquivar — sem isto, uma cookie
+        // emitida antes do arquivamento voltava a valer depois de reativar,
+        // sem passar outra vez pelo login (AdminSessionCookieValidator só
+        // recusa pelo IsStandBy corrente OU pela versão; reativar sem subir
+        // a versão deixava as duas condições a dar falso).
+        if (user.IsStandBy != command.IsStandBy)
+        {
+            user.SessionVersion++;
+        }
         user.IsStandBy = command.IsStandBy;
         await _dbContext.SaveChangesAsync(cancellationToken);
 
