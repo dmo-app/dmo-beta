@@ -115,7 +115,7 @@
 
   function mostrarTodas(todas) {
     const botao = cartao ? cartao.querySelector("[data-ferr-sap-todas]") : null;
-    if (botao) botao.textContent = todas ? "Pedir só as à espera" : "Pedir todas";
+    if (botao) botao.textContent = todas ? "Atualizar" : "Pedir todas";
   }
 
   async function esquecerPasta() {
