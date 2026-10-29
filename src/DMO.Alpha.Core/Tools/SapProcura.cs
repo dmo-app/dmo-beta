@@ -61,7 +61,7 @@ public sealed record SapProcuraRegra(ToolType Tipo, string Linha, string Antes, 
 
     private static string AteProcesso(string nome)
     {
-        var m = System.Text.RegularExpressions.Regex.Match(nome, "^AB.+?(NX|PX|SX)");
+        var m = System.Text.RegularExpressions.Regex.Match(nome, "^AB[A-Z0-9]{4}[A-Z]{2}");
         return m.Success ? m.Value : nome;
     }
 

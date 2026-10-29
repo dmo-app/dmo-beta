@@ -52,6 +52,10 @@ public sealed class SapProcuraRegrasTests
     [InlineData("ABC002NX345", "11", "ABC002NX*11")]
     [InlineData("ABC002NX345", "164", "ABC002NX*164")]
     [InlineData("ABT173PX7731", "3", "ABT173PX*03")]
+    // Todos os processos da lista de artigos (ARTIGOS-MG, Diogo 29/10/2026), não só NX/PX/SX.
+    [InlineData("ABS023SC4713", "13", "ABS023SC*13")]
+    [InlineData("ABC002NR571-B", "10", "ABC002NR*10")]
+    [InlineData("ABS561SR4710-A", "164", "ABS561SR*164")]
     public void ABq_ProcuraSePeloNomeTecnicoAteAoProcesso_EstrelaELote(string nomeTecnico, string lote, string esperado)
     {
         Assert.Equal(esperado, SapProcura.Codigo([], ToolType.Bq, [], null, nomeTecnico, "C002", lote));

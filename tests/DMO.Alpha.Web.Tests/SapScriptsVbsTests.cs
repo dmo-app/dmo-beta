@@ -24,4 +24,15 @@ public sealed class SapScriptsVbsTests
             Assert.DoesNotMatch(new Regex(@"\sLike\s", RegexOptions.IgnoreCase), codigo);
         }
     }
+
+    // Diogo, 29/10/2026: «consultar apenas MG» (plant): a ZPPG só procura no centro MG.
+    [Fact]
+    public void OScriptDaZppg_ProcuraSoNaPlantMg()
+    {
+        using var stream = typeof(SapScripts).Assembly.GetManifestResourceStream("Sap.DMO_USO_SAP.vbs")!;
+        var vbs = new StreamReader(stream).ReadToEnd();
+
+        Assert.Contains("Const CENTRO = \"MG\"", vbs);
+        Assert.Matches(new Regex(@"searchField\.Text = codigo\s+SoCentroMg session\s+session\.findById\(""wnd\[0\]""\)\.sendVKey 8"), vbs);
+    }
 }

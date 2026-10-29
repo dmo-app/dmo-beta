@@ -114,7 +114,7 @@
                         <select name="procura_meio" class="dmo-input">
                             <option value="nome" selected="@(r is null || r.Meio == DMO.Alpha.Core.Tools.SapProcuraMeio.NomeTecnico)">Nome técnico</option>
                             <option value="referencia" selected="@(r is not null && r.Meio == DMO.Alpha.Core.Tools.SapProcuraMeio.Referencia)">Referência</option>
-                            <option value="processo" selected="@(r is not null && r.Meio == DMO.Alpha.Core.Tools.SapProcuraMeio.NomeTecnicoAteProcesso)">Nome técnico até NX/PX</option>
+                            <option value="processo" selected="@(r is not null && r.Meio == DMO.Alpha.Core.Tools.SapProcuraMeio.NomeTecnicoAteProcesso)">Nome técnico até ao processo (NX, SC…)</option>
                         </select>
                     </label>
                     <label>Depois
