@@ -4929,3 +4929,18 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelMedio_AbreMaisLargo`
 
 Selo depois: `c07be0113f2cf44c`
+
+## A-0339 · 2026-10-29 · contagem-lista
+
+Porquê: DMO-634/635/636/637: adiciona testes para 4 fixes JS (espelho na recusa, Escape na lista de sugestões, link Por associar com data-dmo-dialog, CS furos limpa cs_furos); as mudanças nos ficheiros de teste são só os ajudantes (espelho na página de reparadores) à volta dos novos testes.
+Novos: 4 · mudaram: 3 · saíram: 0
+
+- novo: `tests/ShellProof/dmo-suggest.test.cjs :: DMO-635: Escape com a lista de sugestões aberta não sobe até ao painel/janela`
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: CS furos no Editar: apagar abertos e depois fechados limpa o campo escondido cs_furos`
+- novo: `tests/ShellProof/troca-parcial.test.cjs :: DMO-634: uma recusa ao editar no sítio também repõe o espelho da linha`
+- novo: `tests/ShellProof/troca-parcial.test.cjs :: DMO-636: um link «Por associar» que também abre uma janela não pede a página nem cria histórico`
+- mudou: `tests/ShellProof/dmo-suggest.test.cjs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/jobon-folha.test.cjs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/troca-parcial.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `c195df72148d3ca9`

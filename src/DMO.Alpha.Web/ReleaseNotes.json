@@ -562,7 +562,11 @@
     { "id": "DMO-598", "module": "Ferramentas", "description": "0.3.0-beta.235: No Opções do SAP, «Pedir só as à espera» passa a chamar-se «Atualizar»." },
     { "id": "DMO-591", "module": "Ferramentas", "description": "0.3.0-beta.235 (A-0329): nas Listas de reparação, o campo «Lista» mostra só o reparador (o dia aparece na lista aberta), sem passar por cima do «Reparador». Em «Procurar ferramentas», a Referência e o Lote procuram ao escrever (antes só com Enter, e escrever 1075 não mostrava nada); só os resultados mudam, o campo fica como estava." },
     { "id": "DMO-596", "module": "Boquilhas", "description": "0.3.0-beta.235 (A-0334): em Movimentos, o «Registo da …» mostra a ficha em cada barra (BQ, lote, produção), com as barras alinhadas, todas escolhíveis (a B1 também) e sem mexer ao mudar de dia. O quadro Saídas / Entradas / Entradas sem reparação saiu. O calendário passa a ter um modelo único (dmo-calendario.css) no Job On, Sumário, Revisão e Boquilhas, com o dia escolhido sempre marcado." },
-    { "id": "DMO-600", "module": "Job On", "description": "0.3.0-beta.235 (A-0338): o resumo do Job On no painel deslizante abre mais largo." }
+    { "id": "DMO-600", "module": "Job On", "description": "0.3.0-beta.235 (A-0338): o resumo do Job On no painel deslizante abre mais largo." },
+    { "id": "DMO-634", "module": "Boquilhas", "description": "Um nome recusado ao editar no sítio já repõe também o espelho da linha na tabela, em vez de ficar a mostrar o valor recusado até recarregar." },
+    { "id": "DMO-635", "module": "Aplicação", "description": "Escape com uma lista de sugestões aberta dentro de um painel ou janela fecha só a lista, não o painel ou a janela." },
+    { "id": "DMO-636", "module": "Reparação Interna", "description": "«Por associar» abre só a janela: já não vai buscar a página nem cria uma entrada no histórico (o Voltar a seguir não recarrega)." },
+    { "id": "DMO-637", "module": "Job On", "description": "Apagar os dois dígitos do CS Furos (Abertos/Fechados) limpa o campo escondido, em vez de ficar com o último valor combinado." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
