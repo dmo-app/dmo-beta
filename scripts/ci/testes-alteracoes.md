@@ -4862,3 +4862,18 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoComArtigo.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraOArtigoDeCadaProducao`
 
 Selo depois: `2ea04e4a0c3694fb`
+
+## A-0348 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-608: o Geral da ficha numa só linha (Linhas na vertical); DMO-609: o Histórico de produções sem Δ garrafas e com os dias à frente das datas
+Referência: Diogo cmsg_01K75FTs9bQnbhhH7qttpgraP8k4Sq3SFm2yW2yJiMKhi4, cmsg_01K75FTs9bQnbhhH7qttpgraTm2zMmYCwLg6k4ZBrdQp33, sim cmsg_01K75FTs9bQnbhhH7qttpgraMY9B9gYQvikPov9ExmSecF
+Novos: 4 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoSoBruto.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoSoBruto.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_SoGarrafasEmBruto_EOsDiasAFrenteDasDatas`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.GeralNumaLinha.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.GeralNumaLinha.cs :: FerramentasPagesTests.Ficha_Geral_LinhasNaVertical_EUtilizacaoNaMesmaLinha`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_DaODeltaDeGarrafasEAJanelaDoPeso`
+- mudou: `tests/visual/cobertura_a2_browser.py`
+
+Selo depois: `0c2e5405174ec261`
