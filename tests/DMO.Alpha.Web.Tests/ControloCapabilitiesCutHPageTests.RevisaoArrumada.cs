@@ -152,6 +152,21 @@ public sealed partial class ControloCapabilitiesCutHPageTests
         Assert.Matches(padrao, resumo);
     }
 
+    // Diogo, 29/10/2026: «remover pendente daqui, já aparece em baixo»
+    // (DMO-597): a barra dos filtros não repete a etiqueta «Pendente».
+    [Fact]
+    public async Task Approve_BarraDosFiltrosNaoRepeteAEtiquetaPendente()
+    {
+        var (jobOnId, _) = await SeedRealProductionAsync();
+        SeedUserWithTemplate("4862", "Chefe Filtros", "provider-filtros-pendente", "FiltrosPend1!",
+            "tpl-teste-filtros-pendente", "Chefe filtros", [DmoCapabilities.ControloApprove, DmoCapabilities.ControloCreate]);
+        using var client = await LoginClientAsync("4862", "FiltrosPend1!");
+        var html = await GetPageHtmlAsync(client, $"/Controlo/Approve?jobon_id={jobOnId}");
+        var filtros = html[html.IndexOf("id=\"revisaoFiltros\"", StringComparison.Ordinal)..html.IndexOf("id=\"revisaoDetalhe\"", StringComparison.Ordinal)];
+        Assert.Contains("id=\"revisaoAcoes\"", filtros);
+        Assert.DoesNotContain("revisao-pill", filtros);
+    }
+
     // Sem Peso não há nada para aprovar: nem botões nem nota, e o aviso diz
     // onde se regista (Diogo, 19/10/2026: «isto é uma aprovaçao do peso?»).
     [Fact]

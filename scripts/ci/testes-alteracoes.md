@@ -4573,3 +4573,13 @@ Novos: 5 · mudaram: 0 · saíram: 0
 - novo: `tests/ShellProof/aviso-dispensar.test.cjs :: uma mudança mais nova do que a que se fechou traz o aviso de volta`
 
 Selo depois: `c7e4abf6099e0b4c`
+
+## A-0335 · 2026-10-29 · teste-novo
+
+Porquê: Barra dos filtros do Aprovar sem a etiqueta «Pendente» (DMO-597)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraQhsrmB2N6KUBsjwFoahTBK
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: ControloCapabilitiesCutHPageTests.Approve_BarraDosFiltrosNaoRepeteAEtiquetaPendente`
+
+Selo depois: `dc96d69681fede07`

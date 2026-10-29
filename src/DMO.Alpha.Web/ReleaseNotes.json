@@ -544,7 +544,8 @@
     { "id": "DMO-579", "module": "Ferramentas", "description": "0.3.0-beta.231 (A-0315): na Reparação Programada, a Referência encontra como o Pesquisar das Ferramentas: a referência toda (ex. 1075C142) encontra a CM e o MF registados só com o modelo, e contam também a referência do MF e o nome técnico." },
     { "id": "DMO-580", "module": "Geral", "description": "0.3.0-beta.232 (A-0317): revisão dos testes contra as decisões do Diogo. O aviso «Sem registo» do Armazém vem ligado por omissão. Nos modelos de email do Peso sai o «×» de cada linha (Apagar fica no canto, em último) e na Consulta da Reparação Interna a linha «Por associar» abre a janela, sem link dentro da linha. Saem os testes de partes do Armazém que não têm página." },
     { "id": "DMO-594", "module": "Peso", "description": "Nova versão (A-0332): o aviso amarelo «O Job On mudou depois de este Peso ser gravado» tem um × para fechar; fechado, não volta para essas mudanças, só se o Job On mudar de novo." },
-    { "id": "DMO-595", "module": "Controlo", "description": "Nova versão (A-0332): no Controlo › Aprovar, o «Peso da produção anterior» mostra por baixo a diferença em g e em % ao peso médio atual, como o peso nominal." }
+    { "id": "DMO-595", "module": "Controlo", "description": "Nova versão (A-0332): no Controlo › Aprovar, o «Peso da produção anterior» mostra por baixo a diferença em g e em % ao peso médio atual, como o peso nominal." },
+    { "id": "DMO-597", "module": "Controlo", "description": "Nova versão (A-0335): no Controlo › Aprovar, a barra dos filtros já não mostra a etiqueta «Pendente» ao lado de Exportar, porque já aparece em baixo." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

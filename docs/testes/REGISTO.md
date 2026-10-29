@@ -5402,3 +5402,5 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | JobOnFichaTests.Peso_OAvisoDeQueOJobOnMudouTemUmXParaFechar | O aviso do Peso tem o ×, e o Resumo não | OK | A-0332 |
 | tests/ShellProof/aviso-dispensar.test.cjs (2) | O × fecha o aviso e não volta; uma mudança mais nova traz-o de volta | OK | A-0332 |
 | ControloCapabilitiesCutHPageTests.Approve_PesoDaProducaoAnteriorMostraAhDiferenca | «Peso da produção anterior» leva g e % por baixo, no Peso e no Resumo do controlo | OK | A-0332 |
+
+| ControloCapabilitiesCutHPageTests.Approve_BarraDosFiltrosNaoRepeteAEtiquetaPendente | A barra dos filtros do Aprovar não repete a etiqueta «Pendente» | OK | A-0335 (DMO-597) |
