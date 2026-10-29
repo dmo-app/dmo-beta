@@ -91,7 +91,7 @@ public sealed class ToolCandidateQuery : IToolCandidateQuery
             .Concat(_db.BqContexts.Where(c => reference != string.Empty && (c.JobOn != null ? c.JobOn.Reference : c.ReplacedJobOn!.Reference).ToUpper() == reference).Select(c => c.ToolId));
     }
 
-    private IQueryable<Tool> ApplyFilters(ToolCandidateFilter? filter)
+    internal IQueryable<Tool> ApplyFilters(ToolCandidateFilter? filter)
     {
         IQueryable<Tool> query = _db.Tools.AsNoTracking();
 

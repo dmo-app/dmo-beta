@@ -757,7 +757,7 @@
            anterior. *@
         <div id="bqHistFiltros" class="dmo-zona" data-dmo-fica data-dmo-parcial>
         <div class="card bq-history-filters">
-          <form method="get" asp-page="/Boquilhas/Index" id="bqHistoryFilters" data-dmo-ao-escrever="bqHistLista">
+          <form method="get" asp-page="/Boquilhas/Index" id="bqHistoryFilters" data-dmo-ao-escrever="bqHistLista" data-dmo-reference-scope="bq" data-dmo-reference-name="pesquisa">
             <input type="hidden" name="historico" value="1" />
             <div id="bqHistContexto" class="dmo-zona" data-dmo-regiao>
             <input type="hidden" name="ano" value="@Model.HistoryYear" />
@@ -805,24 +805,24 @@
               </div>
             </div>
             <div class="bq-history-filter-grid">
-              <div class="field dmo-field"><label for="vista"><span id="bqHistVistaAjuda" data-dmo-regiao title="@viewHelp">Vista</span></label><select id="vista" name="vista" data-dmo-autosubmit>
-                <option value="grupos" selected="@Model.ShowGrouped">Por linha / Job On</option>
-                <option value="matriz" selected="@Model.ShowMatrix">Resumo diário · 6 máquinas</option>
-                <option value="movimentos" selected="@Model.ShowMovements">Movimentos detalhados</option>
+              <div class="field dmo-field"><label for="vista"><span id="bqHistVistaAjuda" data-dmo-regiao title="@viewHelp">Vista</span></label><select id="vista" name="vista" data-dmo-autosubmit data-dmo-reference-select>
+                <option value="grupos" selected="@Model.ShowGrouped" data-dmo-reference-option>Por linha / Job On</option>
+                <option value="matriz" selected="@Model.ShowMatrix" data-dmo-reference-option>Resumo diário · 6 máquinas</option>
+                <option value="movimentos" selected="@Model.ShowMovements" data-dmo-reference-option>Movimentos detalhados</option>
               </select></div>
               @* Referência e Lote em dois campos (Diogo, 24/10/2026); uma BQ escolhida noutro sítio vem preenchida aqui. *@
               <div class="field dmo-field"><label for="pesquisa">Referência</label><input id="pesquisa" data-dmo-maiusculas autocapitalize="characters" name="pesquisa" value="@Model.FilterText" placeholder="Ex.: T173" data-dmo-suggest="referencias_bq" data-dmo-suggest-submit /></div>
               <div class="field dmo-field"><label for="lote">Lote</label><input id="lote" name="lote" value="@Model.FilterLote" inputmode="numeric" autocomplete="off" placeholder="Ex.: 182" /></div>
-              <div class="field dmo-field"><label for="maquina">Linha</label><select id="maquina" name="maquina" data-dmo-autosubmit><option value="">Todas</option>
+              <div class="field dmo-field"><label for="maquina">Linha</label><select id="maquina" name="maquina" data-dmo-autosubmit data-dmo-reference-select><option value="" data-dmo-reference-option>Todas</option>
                 @foreach (var code in houseMachines)
-                { <option value="@code" selected="@(Model.FilterMachine == code)">@code</option> }
+                { <option value="@code" selected="@(Model.FilterMachine == code)" data-dmo-reference-option>@code</option> }
               </select></div>
-              <div class="field dmo-field"><label for="tipo">Tipo</label><select id="tipo" name="tipo" data-dmo-autosubmit>
-                <option value="">Todos</option><option value="saida" selected="@(Model.FilterType == "saida")">Saída</option><option value="entrada" selected="@(Model.FilterType == "entrada")">Entrada</option><option value="entrada_sem_reparacao" selected="@(Model.FilterType == "entrada_sem_reparacao")">Sem reparação</option>
+              <div class="field dmo-field"><label for="tipo">Tipo</label><select id="tipo" name="tipo" data-dmo-autosubmit data-dmo-reference-select>
+                <option value="" data-dmo-reference-option>Todos</option><option value="saida" selected="@(Model.FilterType == "saida")" data-dmo-reference-option>Saída</option><option value="entrada" selected="@(Model.FilterType == "entrada")" data-dmo-reference-option>Entrada</option><option value="entrada_sem_reparacao" selected="@(Model.FilterType == "entrada_sem_reparacao")" data-dmo-reference-option>Sem reparação</option>
               </select></div>
               @* Onde param os AN de cada lote (Diogo, 28/10/2026): «AN» mostra só os movimentos com AN. *@
-              <div class="field dmo-field"><label for="peca">Peça</label><select id="peca" name="peca" data-dmo-autosubmit>
-                <option value="">Todas</option><option value="an" selected="@Model.FilterOnlyAn">AN</option>
+              <div class="field dmo-field"><label for="peca">Peça</label><select id="peca" name="peca" data-dmo-autosubmit data-dmo-reference-select>
+                <option value="" data-dmo-reference-option>Todas</option><option value="an" selected="@Model.FilterOnlyAn" data-dmo-reference-option>AN</option>
               </select></div>
               <div class="field dmo-field"><label for="reparador">Reparador</label><input id="reparador" name="reparador" value="@Model.FilterOperator" data-dmo-suggest="reparadores" data-dmo-suggest-submit /></div>
               <div id="bqHistDesdeZona" class="field dmo-field" data-dmo-regiao><label for="desde">Desde</label><input id="desde" name="desde" type="date" value="@(Model.FilterDesde?.ToString("yyyy-MM-dd"))" data-dmo-autosubmit /></div>

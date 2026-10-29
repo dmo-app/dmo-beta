@@ -102,9 +102,9 @@ test('Escolher a BQ deixa na Linha só as da ficha dela, com a primeira já esco
   assert.deepEqual(visiveis(linha), ['C3']);
   assert.equal(linha.selectedOptions[0].textContent, 'C3');
 
-  // Uma BQ sem linhas na ficha continua a mostrar todas, sem nenhuma escolhida.
+  // Nova regra do Diogo (29/10/2026): sem associações não se presume compatibilidade.
   escrever('s009'); escolherNaLista('TS');
-  assert.deepEqual(visiveis(linha).sort(), ['B1', 'B2', 'C1', 'C3']);
+  assert.deepEqual(visiveis(linha), []);
   assert.equal(linha.value, '');
   dom.window.close();
 });

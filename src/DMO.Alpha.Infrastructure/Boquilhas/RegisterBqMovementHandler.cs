@@ -269,6 +269,11 @@ public sealed class RegisterBqMovementHandler : IRegisterBqMovementHandler
                 .Where(m => m.Id == selectedMachineId).Select(m => m.Code)
                 .SingleOrDefaultAsync(cancellationToken);
             if (machineCode is null) return Refused(RegisterBqMovementResult.MachineNotFound);
+            var compatible = await _db.ToolMachineLinks.AsNoTracking()
+                .AnyAsync(l => l.ToolId == resolvedToolId && l.MachineId == selectedMachineId, cancellationToken);
+            var historicalMachine = await ProductionMachineAsync(trace, cancellationToken);
+            if (!compatible && historicalMachine != machineCode)
+                return Refused(RegisterBqMovementResult.MachineNotCompatible);
         }
         else
         {
@@ -395,6 +400,20 @@ public sealed class RegisterBqMovementHandler : IRegisterBqMovementHandler
         string effectiveToolId,
         CancellationToken cancellationToken)
     {
+        var production = await ProductionMachineAsync(trace, cancellationToken);
+        if (production is not null) return production;
+
+        // Compatibilidade não identifica a máquina real quando existem várias.
+        var machines = await _db.ToolMachineLinks
+            .AsNoTracking()
+            .Where(link => link.ToolId == effectiveToolId)
+            .Select(link => link.Machine.Code)
+            .Take(2)
+            .ToListAsync(cancellationToken);
+        return machines.Count == 1 ? machines[0] : null;
+    }
+    private async Task<string?> ProductionMachineAsync(BqRepairTrace trace, CancellationToken cancellationToken)
+    {
         // A máquina do CONTEXTO DE PRODUÇÃO (a do momento da saída — o
         // trace é do bq_id corrente dele, nunca de um contexto futuro).
         if (trace.BqContextId is int contextId)
@@ -410,13 +429,7 @@ public sealed class RegisterBqMovementHandler : IRegisterBqMovementHandler
             }
         }
 
-        // Compatibilidade não identifica a máquina real quando existem várias.
-        var machines = await _db.ToolMachineLinks
-            .AsNoTracking()
-            .Where(link => link.ToolId == effectiveToolId)
-            .Select(link => link.Machine.Code)
-            .Take(2)
-            .ToListAsync(cancellationToken);
-        return machines.Count == 1 ? machines[0] : null;
+        return null;
     }
+
 }

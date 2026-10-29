@@ -354,6 +354,7 @@ builder.Services.AddScoped<IProductionPickerQuery, ProductionPickerQuery>();
 // curta por pedido, servida por GET /Sugestoes e usada por js/dmo-suggest.js.
 builder.Services.AddScoped<DMO.Alpha.Core.Search.ISuggestionQuery, DMO.Alpha.Infrastructure.Search.SuggestionQuery>();
 builder.Services.AddScoped<IMachineListQuery, MachineListQuery>();
+builder.Services.AddScoped<DMO.Alpha.Infrastructure.Search.ReferenceOptionsQuery>();
 // Controlo read path (browser «Procurar resumo»): produções com os factos
 // mínimos de identificação, mais recentes primeiro, com filtro por
 // referência de IGUALDADE EXATA aplicado no servidor (query
@@ -826,6 +827,28 @@ app.MapGet("/sap/codigos", async (
     var codigos = await usoSap.TodosOsCodigosAsync(cancellationToken);
     return Results.Text(string.Concat(codigos.Select(c => c + "\r\n")), "text/plain");
 }).AllowAnonymous();
+app.MapGet("/OpcoesDaReferencia", async (
+    string scope, string reference, string? lot,
+    DMO.Alpha.Infrastructure.Search.ReferenceOptionsQuery query,
+    CurrentUserCapabilities capabilities, HttpContext context) =>
+{
+    var modules = scope switch
+    {
+        "bq" => new[] { DmoCapabilities.Boquilhas, DmoCapabilities.BoquilhasView },
+        "armazem" => new[] { DmoCapabilities.ArmazemGestao },
+        "ri" => new[] { DmoCapabilities.ReparacaoInterna, DmoCapabilities.ReparacaoInternaView },
+        "ferramentas" or "programada" => new[] { DmoCapabilities.Ferramentas },
+        "controlo" or "revisao" => new[] { DmoCapabilities.ControloCreate, DmoCapabilities.ControloApprove },
+        "jobon" or "jobon-historico" => new[] { DmoCapabilities.JobOnCreate, DmoCapabilities.JobOnView },
+        _ => Array.Empty<string>()
+    };
+    var granted = await capabilities.GetAsync(context.RequestAborted);
+    if (!modules.Any(granted.Contains)) return Results.StatusCode(StatusCodes.Status403Forbidden);
+    if (reference.Length > 200 || lot?.Length > 40) return Results.BadRequest();
+    context.Response.Headers.CacheControl = "no-store";
+    return Results.Json(await query.ReadAsync(scope, reference, lot, context.RequestAborted));
+}).RequireAuthorization();
+
 app.MapGet("/Sugestoes", async (
     string? fonte, string? q, string? tipo, int? linha,
     DMO.Alpha.Core.Search.ISuggestionQuery suggestions, CurrentUserCapabilities capabilities, HttpContext context) =>

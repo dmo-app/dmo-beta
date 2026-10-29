@@ -94,7 +94,7 @@ html body .arm-filtros .dmo-field select{width:auto;max-width:16ch}
         }
       </div>
 
-      <form id="armMovFiltros" method="get" asp-page="/Armazem/Ultimos" class="arm-filtros" role="search">
+      <form id="armMovFiltros" method="get" asp-page="/Armazem/Ultimos" class="arm-filtros" role="search" data-dmo-reference-scope="armazem" data-dmo-reference-name="referencia">
         @if (!string.IsNullOrWhiteSpace(Model.ToolId))
         {
           <input type="hidden" name="ferramenta" value="@Model.ToolId" />
@@ -114,11 +114,11 @@ html body .arm-filtros .dmo-field select{width:auto;max-width:16ch}
         </div>
         <div class="dmo-field">
           <label for="armMovTipo">Tipo</label>
-          <select id="armMovTipo" name="tipo" data-dmo-autosubmit>
-            <option value="" selected="@(Model.Tipo is null)">Todos</option>
+          <select id="armMovTipo" name="tipo" data-dmo-autosubmit data-dmo-reference-select>
+            <option value="" selected="@(Model.Tipo is null)" data-dmo-reference-option>Todos</option>
             @foreach (var t in new[] { "CM", "MF", "BQ" })
             {
-              <option value="@t" selected="@(Model.TipoTexto == t)">@t</option>
+              <option value="@t" selected="@(Model.TipoTexto == t)" data-dmo-reference-option>@t</option>
             }
           </select>
         </div>
@@ -132,21 +132,21 @@ html body .arm-filtros .dmo-field select{width:auto;max-width:16ch}
         </div>
         <div class="dmo-field">
           <label for="armMovLinha">Linha</label>
-          <select id="armMovLinha" name="linha" data-dmo-autosubmit>
-            <option value="" selected="@string.IsNullOrWhiteSpace(Model.Linha)">Todas</option>
+          <select id="armMovLinha" name="linha" data-dmo-autosubmit data-dmo-reference-select>
+            <option value="" selected="@string.IsNullOrWhiteSpace(Model.Linha)" data-dmo-reference-option>Todas</option>
             @foreach (var l in Model.Linhas)
             {
-              <option value="@l" selected="@(Model.Linha == l)">@l</option>
+              <option value="@l" selected="@(Model.Linha == l)" data-dmo-reference-option>@l</option>
             }
           </select>
         </div>
         <div class="dmo-field">
           <label for="armMovReparador">Reparador</label>
-          <select id="armMovReparador" name="reparador" data-dmo-autosubmit>
-            <option value="" selected="@string.IsNullOrWhiteSpace(Model.Reparador)">Todos</option>
+          <select id="armMovReparador" name="reparador" data-dmo-autosubmit data-dmo-reference-select>
+            <option value="" selected="@string.IsNullOrWhiteSpace(Model.Reparador)" data-dmo-reference-option>Todos</option>
             @foreach (var r in Model.Reparadores)
             {
-              <option value="@r" selected="@(Model.Reparador == r)">@r</option>
+              <option value="@r" selected="@(Model.Reparador == r)" data-dmo-reference-option>@r</option>
             }
           </select>
         </div>

@@ -453,6 +453,7 @@ public sealed class IndexModel : PageModel
             "O nº de produção está em branco. Nenhum Job On foi criado.",
         CreateJobOnResult.MissingReference =>
             "A referência está em branco. Nenhum Job On foi criado.",
+        CreateJobOnResult.ToolMachineMismatch => "Uma das ferramentas não está associada à linha escolhida. Confirme a ficha da ferramenta.",
         CreateJobOnResult.MachineNotFound =>
             "A máquina indicada não existe. Nenhum Job On foi criado.",
         CreateJobOnResult.MissingMfTool =>
@@ -483,6 +484,7 @@ public sealed class IndexModel : PageModel
     {
         UpdateJobOnResult.JobOnNotFound =>
             "A produção indicada não existe. Nenhuma alteração foi guardada.",
+        UpdateJobOnResult.ToolMachineMismatch => "Uma das ferramentas não está associada à linha escolhida. Confirme a ficha da ferramenta.",
         UpdateJobOnResult.MachineNotFound =>
             "A máquina indicada não existe. Nenhuma alteração foi guardada.",
         UpdateJobOnResult.MissingMfTool =>
