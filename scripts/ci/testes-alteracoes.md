@@ -4852,3 +4852,14 @@ Novos: 0 · mudaram: 3 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Editar_LoteDoAnVazioMostraODaBqComoSugestao_EGuardarOutraCoisaNaoOCopiaParaABase`
 
 Selo depois: `3f7b0c747f3b0cec`
+
+## A-0337 · 2026-10-29 · teste-novo
+
+Porquê: Teste novo: o Job On no painel deslizante abre o resumo (DMO-599).
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraSqBF3QGLt9P9ZqybZ6R37g
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.PainelResumo.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.PainelResumo.cs :: JobOnPageTests.Planeamento_NoPainel_AbreOResumoDaFolha`
+
+Selo depois: `5cf4a13809668a3d`
