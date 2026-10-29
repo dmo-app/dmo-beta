@@ -175,10 +175,16 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
             .Concat(await JobOnsPeloArmazemAsync(toolId, cancellationToken))
             .Distinct()
             .ToList();
-        var jobOns = (await db.JobOns.AsNoTracking()
-                .Where(j => ids.Contains(j.Id))
-                .Select(j => new { j.Id, j.Reference, j.ProductionNumber, Maquina = j.Machine.Code, j.InicioEm, j.FimEm })
-                .ToListAsync(cancellationToken))
+        // Uma só consulta a JobOns: as da própria ferramenta, mais (SAP-B01)
+        // todas as outras da mesma máquina com início, para saber onde para
+        // uma produção sem fim — sem gastar uma viagem à base a mais por
+        // ferramenta (o «antes» da comparação do Histórico conta isto).
+        var maquinasDaFerramenta = db.JobOns.Where(j => ids.Contains(j.Id) && j.InicioEm != null).Select(j => j.MachineId);
+        var todos = await db.JobOns.AsNoTracking()
+            .Where(j => ids.Contains(j.Id) || (j.InicioEm != null && maquinasDaFerramenta.Contains(j.MachineId)))
+            .Select(j => new { j.Id, j.Reference, j.ProductionNumber, Maquina = j.Machine.Code, j.InicioEm, j.FimEm })
+            .ToListAsync(cancellationToken);
+        var jobOns = todos.Where(j => ids.Contains(j.Id))
             .OrderByDescending(j => j.InicioEm.HasValue)
             .ThenByDescending(j => j.InicioEm)
             .ThenByDescending(j => j.Id)
@@ -195,7 +201,10 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
             sap = await db.SapFabricos.AsNoTracking()
                 .Where(s => maquinas.Contains(s.Linha) && s.InicioEm <= ate && s.FimEm >= de)
                 .ToListAsync(cancellationToken);
-            iniciosPorMaquina = await IniciosPorMaquinaAsync(maquinas, cancellationToken);
+            iniciosPorMaquina = todos
+                .Where(j => j.InicioEm != null)
+                .GroupBy(j => j.Maquina.ToUpperInvariant())
+                .ToDictionary(g => g.Key, g => g.Select(j => j.InicioEm!.Value).OrderBy(d => d).ToList(), StringComparer.Ordinal);
         }
 
         // As leituras da utilização, pela data em Portugal.
@@ -317,11 +326,15 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
         var ids = relacoes.Select(r => r.JobOnId).Distinct().ToList();
         // Todos os Job On das ferramentas (o filtro aplica-se a seguir): a
         // leitura «depois» de uma produção precisa de saber quando começou a
-        // seguinte, mesmo que essa fique fora do filtro.
-        var todosJobOns = (await db.JobOns.AsNoTracking()
-                .Where(j => ids.Contains(j.Id))
-                .Select(j => new { j.Id, j.Reference, j.ProductionNumber, Maquina = j.Machine.Code, j.InicioEm, j.FimEm })
-                .ToListAsync(cancellationToken))
+        // seguinte, mesmo que essa fique fora do filtro. Numa só consulta
+        // (SAP-B01): também as outras da mesma máquina com início, para saber
+        // onde para uma produção sem fim — sem uma viagem à base a mais.
+        var maquinasDasFerramentas = db.JobOns.Where(j => ids.Contains(j.Id) && j.InicioEm != null).Select(j => j.MachineId);
+        var todosGeral = await db.JobOns.AsNoTracking()
+            .Where(j => ids.Contains(j.Id) || (j.InicioEm != null && maquinasDasFerramentas.Contains(j.MachineId)))
+            .Select(j => new { j.Id, j.Reference, j.ProductionNumber, Maquina = j.Machine.Code, j.InicioEm, j.FimEm })
+            .ToListAsync(cancellationToken);
+        var todosJobOns = todosGeral.Where(j => ids.Contains(j.Id))
             .OrderByDescending(j => j.InicioEm.HasValue)
             .ThenByDescending(j => j.InicioEm)
             .ThenByDescending(j => j.Id)
@@ -348,7 +361,10 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
             sap = await db.SapFabricos.AsNoTracking()
                 .Where(s => maquinas.Contains(s.Linha) && s.InicioEm <= ate && s.FimEm >= de)
                 .ToListAsync(cancellationToken);
-            iniciosPorMaquina = await IniciosPorMaquinaAsync(maquinas, cancellationToken);
+            iniciosPorMaquina = todosGeral
+                .Where(j => j.InicioEm != null)
+                .GroupBy(j => j.Maquina.ToUpperInvariant())
+                .ToDictionary(g => g.Key, g => g.Select(j => j.InicioEm!.Value).OrderBy(d => d).ToList(), StringComparer.Ordinal);
         }
 
         var comProducao = relacoes.Select(r => r.ToolId).Distinct().ToList();
