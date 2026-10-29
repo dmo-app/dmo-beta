@@ -1,5 +1,5 @@
 {
-  "selo": "88d81159021341b1",
+  "selo": "09cea02a345007d1",
   "unidades": {
     "scripts/ci/ci-local.sh": "1a59d8b99e5c19b9",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2303,6 +2303,8 @@
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ResumoPdf.cs :: (resto do ficheiro)": "8b5162daea7ee919",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ResumoPdf.cs :: ControloCapabilitiesCutHPageTests.PdfDoResumo_NaRevisaoENoResumo_MesmoFicheiroEMesmaPasta": "428d382e552304b5",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: (resto do ficheiro)": "0fddf57c253fbf03",
+    "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: ControloCapabilitiesCutHPageTests.Approve_BarraDosFiltrosNaoRepeteAEtiquetaPendente": "3b54b59e7732d9fb",
+    "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: ControloCapabilitiesCutHPageTests.Approve_PesoDaProducaoAnteriorMostraAhDiferenca": "fae1c7f7a6f28aa3",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: ControloCapabilitiesCutHPageTests.ResumoDoControlo_CartoesDasAreas_GravamEVoltamAoResumo": "c4a8407c36a20974",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: ControloCapabilitiesCutHPageTests.ResumoDoControlo_PuECs_EscrevemAReferenciaECmNao": "fa4b7885c487e317",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: ControloCapabilitiesCutHPageTests.ResumoDoControlo_SeparadorComProcura_MostraOControloInteiro": "636936e105501384",
@@ -2638,6 +2640,7 @@
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.MudarACm_VerificarOPeso_AbreOPesoDaProducao": "8af71c6b78777c03",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.OQueMudou_SoAsAlteracoesFeitasDepoisDoInicio": "2ffb480bda265caf",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Opcoes_EditarPrimeiro_SemDuplicarLote_EFecharVoltaAFicha": "a132df3724b188a2",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Peso_OAvisoDeQueOJobOnMudouTemUmXParaFechar": "7d8a7bca968f97fa",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.PrepararProducao_AMaquinaVaziaAbreOJobOnVazio_ComDiaEMaquina": "6d8ca715758d6687",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ProducoesDoDia_DuasNaMesmaMaquina_NaoMarcamSobreposicao": "edb7947c20c2399f",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.ProducoesDoDia_LinhaNuncaFicaVermelha_PorProducoesQueSeCruzam": "91672d10142a7e21",
@@ -3155,6 +3158,9 @@
     "tests/DMO.Alpha.Web.Tests/UiStyleRuleTests.cs :: UiStyleRuleTests.TableRows_AreWhite_HoverLightBlue_SelectedInverted_RoundedInsideTheCard_WithoutVisibleRadio": "c6c915f96dfa623d",
     "tests/DMO.Alpha.Web.Tests/ZonasGravacao.cs :: (resto do ficheiro)": "918cdce265201432",
     "tests/DMO.Alpha.Web.Tests/xunit.runner.json": "889f5e8d025c25c9",
+    "tests/ShellProof/aviso-dispensar.test.cjs :: (resto do ficheiro)": "951d0e03621700d7",
+    "tests/ShellProof/aviso-dispensar.test.cjs :: o × fecha o aviso e ele não volta ao reabrir a página": "532eb0085a3e7aa9",
+    "tests/ShellProof/aviso-dispensar.test.cjs :: uma mudança mais nova do que a que se fechou traz o aviso de volta": "c61ff3fae03d9901",
     "tests/ShellProof/bq-registo.test.cjs :: (resto do ficheiro)": "1832f1aaab4df37d",
     "tests/ShellProof/bq-registo.test.cjs :: gravar um movimento não mexe no scroll": "b0cd8a804a964504",
     "tests/ShellProof/bq-registo.test.cjs :: o registo aberto fora do ecrã vem à vista": "3e3c265eb872a99b",

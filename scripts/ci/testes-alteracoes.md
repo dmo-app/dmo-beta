@@ -4863,3 +4863,18 @@ Novos: 1 · mudaram: 1 · saíram: 0
 - mudou: `scripts/ci/ci-local.sh`
 
 Selo depois: `88d81159021341b1`
+
+## A-0332 · 2026-10-29 · teste-novo
+
+Porquê: Peso (#295): × para fechar o aviso «O Job On mudou» (DMO-594) e barra dos filtros do Aprovar sem a etiqueta «Pendente» (DMO-597); testes novos.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraL37Lbd4WXdmt65HTzFQZEw; cmsg_01K75FTs9bQnbhhH7qttpgraQhsrmB2N6KUBsjwFoahTBK
+Novos: 6 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: ControloCapabilitiesCutHPageTests.Approve_BarraDosFiltrosNaoRepeteAEtiquetaPendente`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: ControloCapabilitiesCutHPageTests.Approve_PesoDaProducaoAnteriorMostraAhDiferenca`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Peso_OAvisoDeQueOJobOnMudouTemUmXParaFechar`
+- novo: `tests/ShellProof/aviso-dispensar.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/aviso-dispensar.test.cjs :: o × fecha o aviso e ele não volta ao reabrir a página`
+- novo: `tests/ShellProof/aviso-dispensar.test.cjs :: uma mudança mais nova do que a que se fechou traz o aviso de volta`
+
+Selo depois: `09cea02a345007d1`
