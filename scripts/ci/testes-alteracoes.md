@@ -5168,7 +5168,7 @@ Novos: 3 · mudaram: 0 · saíram: 0
 
 Selo depois: `78b84285abd75ac5`
 
-## A-0388 · 2026-10-29 · ok-do-diogo
+## A-0389 · 2026-10-29 · ok-do-diogo
 
 Porquê: Lote .237: junta as impressões já explicadas em A-0358 (#313) e A-0387 (#314)
 Referência: A-0358; A-0387
