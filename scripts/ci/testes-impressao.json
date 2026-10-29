@@ -1,5 +1,5 @@
 {
-  "selo": "83b9fedd9a164a8c",
+  "selo": "73a57477ea5d6e48",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -588,8 +588,8 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosFolhaPorFerramentasTests.cs :: PegamentosFolhaPorFerramentasTests.BackToAnEarlierCombination_ReusesItsSheet_NoThirdSheet": "bfa18794c58c9a65",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosFolhaPorFerramentasTests.cs :: PegamentosFolhaPorFerramentasTests.NewSheet_FreezesTheCurrentTolerance_TheOldOneKeepsItsOwn": "0f705d334ab72a63",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosFolhaPorFerramentasTests.cs :: PegamentosFolhaPorFerramentasTests.OldSheet_RefusesNewReadings_ButItsReadingsAreStillCorrectedAndDeleted": "460dc291042f6219",
-    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosFolhaPorFerramentasTests.cs :: PegamentosFolhaPorFerramentasTests.ResumoPdfCompleto_FolhaDeFora_SemLigacao_ACardLigaAFolhaQueEntra": "c93abe89aa325972",
-    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosFolhaPorFerramentasTests.cs :: PegamentosFolhaPorFerramentasTests.ResumoPdf_TwoSheets_OneSectionPerSheet_TheAlertOfTheSecondIsNotHidden": "050890149fbd935d",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosFolhaPorFerramentasTests.cs :: PegamentosFolhaPorFerramentasTests.ResumoPdfCompleto_FolhaDeFora_SemLigacao_ACardLigaAFolhaQueEntra": "0a25d221168c3ca1",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosFolhaPorFerramentasTests.cs :: PegamentosFolhaPorFerramentasTests.ResumoPdf_TwoSheets_OneSectionPerSheet_TheAlertOfTheSecondIsNotHidden": "0dcecb7ae63694e4",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosFolhaPorFerramentasTests.cs :: PegamentosFolhaPorFerramentasTests.SingleSheet_LooksAsBefore_NoSheetLabelOrSuffix": "d3c1874e89901b17",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosFolhaPorFerramentasTests.cs :: PegamentosFolhaPorFerramentasTests.ToolChangedMidProduction_FirstReadingStartsANewSheet_TheOldOneStaysAsItWas": "0c26a1cea1a2c5f7",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosFolhaPorFerramentasTests.cs :: PegamentosFolhaPorFerramentasTests.WithoutMf_ReadingsShareOneSheet_AndAnMfAddedLaterStartsANewSheet": "499b831541450cf5",
@@ -814,7 +814,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.InvalidInput_IsRefused_AndNothingIsWritten": "c8baa8965c3d4998",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.NnpbProduction_RegistersPunches_SeenByDefault_WithLotAndAlteracao": "a0bca76dd284d2e9",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.NumeroRepetido_ComOLoteDessaPuncao_RegistaComEsseLote_EOLoteDeCimaFica": "04ff17f5b0f4ee21",
-    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes": "4d39293f99ae82a7",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes": "6c8fd95c2c9b912d",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_StandaloneRegister_SaysSemJobOn": "d60bc4c14c385f5c",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.PsOrUnknownProcess_IsNotNnpb_AndCannotStartARegisto": "5827d5d54d5ee73f",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.RepeatedClicks_StartTheRegisterAndRegisterThePunchOnlyOnce": "fd15e3f10f2c1bcd",

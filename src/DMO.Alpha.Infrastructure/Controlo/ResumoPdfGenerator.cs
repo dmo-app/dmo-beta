@@ -409,7 +409,7 @@ public sealed class ResumoPdfGenerator
                 c.Item().Row(r =>
                 {
                     r.RelativeItem().Text("Peso").FontSize(10).SemiBold();
-                    if (linked && (input.Peso is null ? "peso" : input.Peso.Section) is { } pesoSection) r.AutoItem().SectionLink(pesoSection).Text("Ver detalhe →").FontSize(8).FontColor(Blue).Underline();
+                    if (linked && (input.Peso is null ? "peso" : input.Peso.Section) is { } pesoSection) r.AutoItem().SectionLink(pesoSection).Text("Ver detalhe").FontSize(8).FontColor(Blue).Underline();
                 });
                 c.Item().PaddingTop(8).Text(t =>
                 {
@@ -440,7 +440,7 @@ public sealed class ResumoPdfGenerator
                     c.Item().PaddingTop(5).Row(r =>
                     {
                         r.RelativeItem().Text(linha.Label).FontSize(7.5f).SemiBold();
-                        if (linked && linha.Section is { } linhaSection) r.AutoItem().PaddingLeft(4).SectionLink(linhaSection).Text("Ver →").FontSize(7.5f).FontColor(Blue).Underline();
+                        if (linked && linha.Section is { } linhaSection) r.AutoItem().PaddingLeft(4).SectionLink(linhaSection).Text("Ver").FontSize(7.5f).FontColor(Blue).Underline();
                     });
                     var linhaDesvio = PesoCalculation.NominalDeviation(linha.AverageGlassWeightGrams, linha.NominalWeightGrams);
                     c.Item().Text($"{linha.ReadingCount} leitura(s)"
@@ -463,7 +463,7 @@ public sealed class ResumoPdfGenerator
             c.Item().Row(r =>
             {
                 r.RelativeItem().Text("Pegamentos").FontSize(10).SemiBold();
-                if (linked && (summary is null ? "pegamentos" : summary.Section) is { } pegSection) r.AutoItem().SectionLink(pegSection).Text("Ver detalhe →").FontSize(8).FontColor(Blue).Underline();
+                if (linked && (summary is null ? "pegamentos" : summary.Section) is { } pegSection) r.AutoItem().SectionLink(pegSection).Text("Ver detalhe").FontSize(8).FontColor(Blue).Underline();
             });
             c.Item().PaddingTop(8).Text(status).FontSize(13).SemiBold().FontColor(color);
             if (summary is { MeasurementCount: > 0 })
@@ -484,7 +484,7 @@ public sealed class ResumoPdfGenerator
                     c.Item().PaddingTop(5).Row(r =>
                     {
                         r.RelativeItem().Text(folha.Label).FontSize(7.5f).SemiBold();
-                        if (linked && folha.Section is { } folhaSection) r.AutoItem().PaddingLeft(4).SectionLink(folhaSection).Text("Ver →").FontSize(7.5f).FontColor(Blue).Underline();
+                        if (linked && folha.Section is { } folhaSection) r.AutoItem().PaddingLeft(4).SectionLink(folhaSection).Text("Ver").FontSize(7.5f).FontColor(Blue).Underline();
                     });
                     c.Item().Text(t =>
                     {
@@ -512,7 +512,7 @@ public sealed class ResumoPdfGenerator
             {
                 r.RelativeItem().Text("PU NNPB").FontSize(10).SemiBold();
                 // O PDF das punções é outro ficheiro, na mesma pasta: a ligação abre-o pelo nome.
-                if (ficheiro is not null) r.AutoItem().Hyperlink(Uri.EscapeDataString(ficheiro)).Text("Abrir PDF das punções →").FontSize(8).FontColor(Blue).Underline();
+                if (ficheiro is not null) r.AutoItem().Hyperlink(Uri.EscapeDataString(ficheiro)).Text("Abrir PDF das punções").FontSize(8).FontColor(Blue).Underline();
             });
             c.Item().PaddingTop(8).Text(status).FontSize(13).SemiBold().FontColor(color);
             if (summary.Total > 0)

@@ -5806,3 +5806,15 @@ Novos: 0 · mudaram: 3 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes`
 
 Selo depois: `83b9fedd9a164a8c`
+
+## A-0439 · 2026-10-29 · ok-do-diogo
+
+Porquê: Mesmos 3 testes, agora sem setas (Diogo 27/10: PDFs sem «→»): «Ver detalhe», «Ver», «Abrir PDF das punções» e «Voltar ao Resumo»
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraLpRKn2Ee6HEGuUErfEpr1d
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosFolhaPorFerramentasTests.cs :: PegamentosFolhaPorFerramentasTests.ResumoPdfCompleto_FolhaDeFora_SemLigacao_ACardLigaAFolhaQueEntra`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosFolhaPorFerramentasTests.cs :: PegamentosFolhaPorFerramentasTests.ResumoPdf_TwoSheets_OneSectionPerSheet_TheAlertOfTheSecondIsNotHidden`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes`
+
+Selo depois: `73a57477ea5d6e48`

@@ -324,8 +324,8 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | PegamentosFolhaPorFerramentasTests.BackToAnEarlierCombination_ReusesItsSheet_NoThirdSheet | Voltar a uma combinação anterior reutiliza a folha | OK |  |
 | PegamentosFolhaPorFerramentasTests.NewSheet_FreezesTheCurrentTolerance_TheOldOneKeepsItsOwn | Folha nova congela a tolerância; a antiga mantém a sua | OK |  |
 | PegamentosFolhaPorFerramentasTests.OldSheet_RefusesNewReadings_ButItsReadingsAreStillCorrectedAndDeleted | Folha antiga recusa leituras novas mas aceita correções | OK |  |
-| PegamentosFolhaPorFerramentasTests.ResumoPdfCompleto_FolhaDeFora_SemLigacao_ACardLigaAFolhaQueEntra | PDF completo com «Ver →», «Ver detalhe →» e «← Voltar ao Resumo» e só com a folha certa (DMO-684, Diogo 29/10) | OK | A-0438 |
-| PegamentosFolhaPorFerramentasTests.ResumoPdf_TwoSheets_OneSectionPerSheet_TheAlertOfTheSecondIsNotHidden | PDF do Resumo com duas folhas, com «Ver →», não esconde o alerta da segunda (DMO-684, Diogo 29/10) | OK | A-0438 |
+| PegamentosFolhaPorFerramentasTests.ResumoPdfCompleto_FolhaDeFora_SemLigacao_ACardLigaAFolhaQueEntra | PDF completo com «Ver», «Ver detalhe» e «Voltar ao Resumo» e só com a folha certa (DMO-684, Diogo 29/10) | OK | A-0439 |
+| PegamentosFolhaPorFerramentasTests.ResumoPdf_TwoSheets_OneSectionPerSheet_TheAlertOfTheSecondIsNotHidden | PDF do Resumo com duas folhas, com «Ver», não esconde o alerta da segunda (DMO-684, Diogo 29/10) | OK | A-0439 |
 | PegamentosFolhaPorFerramentasTests.SingleSheet_LooksAsBefore_NoSheetLabelOrSuffix | Folha única sem etiqueta nem sufixo | OK |  |
 | PegamentosFolhaPorFerramentasTests.ToolChangedMidProduction_FirstReadingStartsANewSheet_TheOldOneStaysAsItWas | Trocar CM, BQ ou MF abre folha nova; a antiga fica como estava | OK |  |
 | PegamentosFolhaPorFerramentasTests.WithoutMf_ReadingsShareOneSheet_AndAnMfAddedLaterStartsANewSheet | Sem MF as leituras partilham a folha; MF novo abre outra | OK |  |
@@ -5946,4 +5946,4 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | PesoFolhaProducaoAnteriorPageTests.NovoPesoComJobOn_ASelecaoDeMaquina_SoMostraAsDaReferencia | Teste novo: o Novo Peso com Job On só lista as máquinas da referência (DMO-676, Diogo 29/10) | OK | A-0427 |
 | `O número do botão «Linhas» fica num círculo com contorno, centrado com o texto` | Na folha do Job On, o número do botão «Linhas» aparece num círculo visível e alinhado ao centro com o texto. | OK | A-0433 |
 | PesoPdfGeneratorCoberturaBTests.ProducaoAnterior_ComMediaEModa_OsCartoesDizemMediaEModa_EAModaMostraOsDiasSemDiferenca | Teste novo: o PDF do Peso diz «Média» e «Moda» nos cartões e a moda mostra os dias, sem diferença (DMO-682, Diogo 29/10) | OK | A-0435 |
-| PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes | O Resumo volta a ter «Abrir PDF das punções →» (DMO-684, Diogo 29/10) | OK | A-0438 |
+| PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes | O Resumo volta a ter «Abrir PDF das punções» (DMO-684, Diogo 29/10) | OK | A-0439 |
