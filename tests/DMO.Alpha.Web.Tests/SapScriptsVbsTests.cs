@@ -50,4 +50,14 @@ public sealed class SapScriptsVbsTests
         Assert.True(vbs.IndexOf("WScript.Quit 1", StringComparison.Ordinal) < vbs.IndexOf("Do", vbs.IndexOf("Falta a senha", StringComparison.Ordinal), StringComparison.Ordinal));
         Assert.DoesNotContain("Or sapAberto", vbs);
     }
+
+    // Diogo, 29/10/2026: no modo Normal sem ferramentas à espera, a app dizia «A leitura do SAP falhou» (DMO-662).
+    [Fact]
+    public void SemCodigosAEspera_OUsoAcabaSemErro()
+    {
+        using var stream = typeof(SapScripts).Assembly.GetManifestResourceStream("Sap.DMO_USO_SAP.vbs")!;
+        var vbs = new StreamReader(stream).ReadToEnd();
+
+        Assert.Matches(new Regex(@"If total = 0 Then(\s+'[^\n]*)*\s+If Not automatico Then MsgBox[^\n]*\s+WScript\.Quit 0"), vbs);
+    }
 }

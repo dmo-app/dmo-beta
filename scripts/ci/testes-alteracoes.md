@@ -5411,3 +5411,13 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.SemSenha_OScriptParaLogo`
 
 Selo depois: `5dd9004e5e11ea1f`
+
+## A-0409 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-664: sem ferramentas à espera o uso do SAP acaba sem erro (Diogo 29/10, «A leitura do SAP falhou»)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraHYrksKjJRFizcpFcHB7tKz
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.SemCodigosAEspera_OUsoAcabaSemErro`
+
+Selo depois: `4a55af040cab0651`
