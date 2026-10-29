@@ -5619,3 +5619,13 @@ Novos: 3 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: (resto do ficheiro)`
 
 Selo depois: `3e7437e38d1637ff`
+
+## A-0425 · 2026-10-29 · teste-novo
+
+Porquê: Teste novo: os dados técnicos do Peso (volumes, densidade, TP/calote) ficam num dobrável fechado por omissão
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraEivdTWrHp8gVA2VQQjDEY5
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_DadosTecnicos_FicamNumDobravelFechadoPorOmissao`
+
+Selo depois: `bffe122afda559ff`
