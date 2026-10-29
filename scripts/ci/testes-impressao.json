@@ -1,5 +1,5 @@
 {
-  "selo": "4390bbb2cbbcc0af",
+  "selo": "ce60ee745ffd910a",
   "unidades": {
     "scripts/ci/ci-local.sh": "b85e4195bb3ac186",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2444,6 +2444,7 @@
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapMaisAntigo.cs :: (resto do ficheiro)": "6d6aca8933b8917d",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapMaisAntigo.cs :: DefinicoesPorModuloPageTests.UmFicheiroDoSapMaisAntigoDoQueOUltimoLido_NaoGrava": "8ad1c34d3f2274ac",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: (resto do ficheiro)": "20b422bec4da6f5d",
+    "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.AHoraEOsDiasDoSap_FicamNaMesmaLinha": "c41538712833c9d5",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.ATabelaDosCodigosDeProcura_GravaNoAdminEMudaOsCodigosPedidos": "3c6918149277456f",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.OBotaoDoSap_DizAtualizar_ENaoPedirSoAsAEspera": "10cd71dc1af6345e",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.OCodigoSapDaFicha_GanhaATabela_EVazioVoltaAEla": "9d09f6288aa4cf51",
@@ -3129,6 +3130,8 @@
     "tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.OsPedidosComZonas_LeemMenosDaBaseQueAPaginaInteira_NoPostgres": "3b9101ef6dba3d5c",
     "tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.SemOCabecalho_AResposta_EAPaginaInteiraDeSempre": "63ebe67559a643d7",
     "tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.ZonaDesconhecidaOuDeOutraVista_RespondeComAPaginaInteira": "fb45713dc9fe7014",
+    "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: (resto do ficheiro)": "d38fd88e828f8294",
+    "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OsScriptsDoSap_NaoUsamOLikeDoVba": "b6343316fdb3f4ef",
     "tests/DMO.Alpha.Web.Tests/SemVigiarFicheiros.cs :: (resto do ficheiro)": "fba9c266d00c8477",
     "tests/DMO.Alpha.Web.Tests/SemVigiarFicheirosTests.cs :: (resto do ficheiro)": "c763cea9fe9b49f6",
     "tests/DMO.Alpha.Web.Tests/SemVigiarFicheirosTests.cs :: SemVigiarFicheirosTests.UmaAplicacaoDeTeste_ArrancaEAbreOLogin_SemGastarVigiasDeFicheiros": "44a8fbe58f05c8de",
