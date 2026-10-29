@@ -1218,6 +1218,44 @@ test('a janela numa zona trocada abre e fecha; gravar nela fecha-a e o foco volt
   }
 });
 
+test('DMO-636: um link «Por associar» que também abre uma janela não pede a página nem cria histórico', async () => {
+  // «Por associar» (Pages/ReparacaoInterna/Consultar.cshtml): um <a href="#...">
+  // com data-dmo-dialog, dentro da zona parcial (#riConsultaResultados). Só o
+  // showModal deve correr: nem fetch, nem # no endereço, nem histórico novo.
+  const virtualConsole = new VirtualConsole();
+  const navegou = [];
+  virtualConsole.on('jsdomError', (error) => { if (/navigation/i.test(error.message)) navegou.push(error.message); });
+  const html = `<main data-dmo-troca><h2 id="titulo">Reparação Interna</h2>
+    <div id="riConsultaResultados" data-dmo-parcial>
+      <a href="#riAssociar-1" id="porAssociar" data-dmo-dialog="riAssociar-1">Por associar</a>
+    </div>
+    <dialog id="riAssociar-1" class="dmo-dialog"><button type="button" data-dmo-dialog-close>Fechar</button></dialog>
+  </main>`;
+  const dom = new JSDOM(`<!doctype html><title>Reparação Interna</title><body>${html}</body>`,
+    { url: 'http://dmo.test/ReparacaoInterna/Consultar', runScripts: 'outside-only', virtualConsole });
+  const { window } = dom;
+  const document = window.document;
+  window.HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open', ''); };
+  window.HTMLDialogElement.prototype.close = function () { this.removeAttribute('open'); };
+  const pedidos = [];
+  window.fetch = async (url) => { pedidos.push(String(url)); return { ok: true, url: String(url), text: async () => '' }; };
+  window.Element.prototype.scrollIntoView = function () {};
+  window.eval(fs.readFileSync(path.join(assets, '0_ASSET_CANONICAL_INTERACTIONS.js'), 'utf8'));
+  window.eval(fs.readFileSync(path.join(assets, 'dmo-live.js'), 'utf8'));
+  try {
+    const historico = window.history.length;
+    document.getElementById('porAssociar').click();
+    await esperar();
+    assert.ok(document.getElementById('riAssociar-1').hasAttribute('open'), 'a janela abre');
+    assert.deepEqual(pedidos, [], 'não vai buscar a página');
+    assert.equal(window.location.hash, '', 'o # não entra no endereço');
+    assert.equal(window.history.length, historico, 'não cria entrada no histórico');
+    assert.deepEqual(navegou, []);
+  } finally {
+    dom.window.close();
+  }
+});
+
 test('uma zona que traz uma janela aberta com a página (data-dmo-dialog-aberta) abre a página inteira', async () => {
   const { dom, window, navegou } = await abrirResumo({
     inicial: '<div id="aviso" data-dmo-regiao></div>',
@@ -1860,6 +1898,9 @@ test('linhas das produções: um clique abre, outro na mesma tira, um noutra tro
 function paginaReparadores(nomes, aviso = '') {
   const linhas = nomes.map((nome, i) => `<tr><td><input type="hidden" name="repairer_id" value="${i + 1}">`
     + `<input id="rep-${i + 1}" class="dmo-valor" data-dmo-valor name="name" value="${nome}"></td></tr>`).join('');
+  // O espelho (data-dmo-espelho): o nome repete-se noutra lista fora do form,
+  // e segue o campo em "change" (DMO-634).
+  const espelhos = nomes.map((nome, i) => `<li data-dmo-espelho="rep-${i + 1}">${nome}</li>`).join('');
   return `<main data-dmo-troca><h2 id="titulo">Definições das Boquilhas</h2>
     <div id="bqAvisos" class="dmo-zona" data-dmo-regiao>${aviso}</div>
     <section id="bqReparadores" data-dmo-regiao data-dmo-parcial>
@@ -1871,6 +1912,7 @@ function paginaReparadores(nomes, aviso = '') {
         <input name="__RequestVerificationToken" type="hidden" value="tok">
         <table><tbody>${linhas}</tbody></table>
       </form>
+      <ul id="bqEspelhos">${espelhos}</ul>
     </section>
   </main>`;
 }
@@ -1986,6 +2028,25 @@ test('E10: uma recusa ao editar no sítio vai para o canto e repõe o valor; a g
     assert.equal(campo.hasAttribute('aria-invalid'), false);
     assert.equal(campo.defaultValue, 'Moldes Sul');
     assert.deepEqual(navegou, []);
+  } finally {
+    dom.window.close();
+  }
+});
+
+test('DMO-634: uma recusa ao editar no sítio também repõe o espelho da linha', async () => {
+  const resposta = { ok: false, aviso: 'Já existe um reparador com esse nome.' };
+  const { dom, window, document } = await abrirPu(() => ({ tipo: 'application/json', body: JSON.stringify(resposta) }),
+    { html: paginaReparadores(['Bia', 'Moldes']), endereco: DEFINICOES_BQ });
+  try {
+    const campo = document.getElementById('rep-1');
+    const espelho = document.querySelector('[data-dmo-espelho="rep-1"]');
+    assert.equal(espelho.textContent, 'Bia');
+
+    mudarValor(window, campo, 'Ana');
+    await esperar();
+
+    assert.equal(campo.value, 'Bia', 'o campo volta ao valor antigo');
+    assert.equal(espelho.textContent, 'Bia', 'o espelho da linha também volta, não fica em "Ana"');
   } finally {
     dom.window.close();
   }

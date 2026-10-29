@@ -1115,7 +1115,11 @@
       const link = event.target.closest && event.target.closest("a[href]");
       if (!link || link.closest("[data-dmo-completa]") || link.hasAttribute("data-dmo-calendar-unselect")
         || !link.closest("[data-dmo-parcial]") || event.defaultPrevented || event.button !== 0
-        || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || link.target || link.hasAttribute("download")) return;
+        || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || link.target || link.hasAttribute("download")
+        // Um link que também abre uma janela (data-dmo-dialog, «Por associar»,
+        // DMO-636) é só do ouvinte dessa janela: senão também vinha aqui, ia
+        // buscar a página e empurrava um # para o histórico.
+        || link.hasAttribute("data-dmo-dialog")) return;
       event.preventDefault();
       ir(link.href, link);
     });
@@ -1570,6 +1574,14 @@
         if (mostrar) {
           input.value = input.defaultValue;
           input.setAttribute("aria-invalid", "true");
+          // O espelho da linha (data-dmo-espelho) só muda com "change"; a
+          // recusa repõe o valor sem disparar esse evento, por isso fica a
+          // mostrar o texto recusado até recarregar a página (DMO-634).
+          if (input.id) {
+            document.querySelectorAll(`[data-dmo-espelho="${input.id}"]`).forEach((alvo) => {
+              alvo.textContent = input.defaultValue.trim();
+            });
+          }
         }
         if (data.aviso && window.DMOLive && window.DMOLive.mostrarMensagens) {
           const aviso = document.createElement("p");

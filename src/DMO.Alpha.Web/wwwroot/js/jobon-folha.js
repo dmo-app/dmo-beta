@@ -495,8 +495,9 @@
       function digito(i) { var d = (i.value || '').replace(/[^0-9]/g, '').slice(0, 1); if (i.value !== d) i.value = d; return d; }
       function juntar() {
         var a = digito(abertos), f = digito(fechados);
-        if (!a && !f) return; // nada escrito: o valor antigo fica
-        valor.value = a && f ? 'Abertos ' + a + ' / Fechados ' + f : a ? 'Abertos ' + a : 'Fechados ' + f;
+        // Os dois vazios (DMO-637): o campo escondido também fica vazio, em
+        // vez de guardar o último valor combinado que já não aparece no ecrã.
+        valor.value = a && f ? 'Abertos ' + a + ' / Fechados ' + f : a ? 'Abertos ' + a : f ? 'Fechados ' + f : '';
         valor.dispatchEvent(new Event('input', { bubbles: true }));
       }
       abertos.addEventListener('input', juntar);

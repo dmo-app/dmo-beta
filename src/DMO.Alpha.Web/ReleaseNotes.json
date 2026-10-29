@@ -595,7 +595,11 @@
     { "id": "DMO-640", "module": "Job On", "description": "0.3.0-beta.235 (A-0380): eliminar um Job On deixa de falhar quando uma das suas CM tinha uma escolha «Colocar de parte» numa comparação do Peso; essa escolha sai junto com a produção." },
     { "id": "DMO-625", "module": "Peso", "description": "0.3.0-beta.235 (A-0365): na comparação de pesos, «01» e «1» voltam a emparelhar como o mesmo CM (só zeros à esquerda); com uma letra (ex. «01A» vs «1A») continua a comparação de texto, nunca inventada." },
     { "id": "DMO-626", "module": "Peso", "description": "0.3.0-beta.235 (A-0366): a produção anterior gravada no Peso é revalidada contra as datas de hoje; se deixou de ser anterior (as datas mudaram), a folha avisa em vez de continuar a usá-la sem dizer." },
-    { "id": "DMO-627", "module": "Peso", "description": "0.3.0-beta.235 (A-0367): o corte das últimas 5 produções para comparar conta produções distintas com leituras, não Pesos; um Peso vazio criado depois de um com leituras já não esconde a leitura real da mesma produção." }
+    { "id": "DMO-627", "module": "Peso", "description": "0.3.0-beta.235 (A-0367): o corte das últimas 5 produções para comparar conta produções distintas com leituras, não Pesos; um Peso vazio criado depois de um com leituras já não esconde a leitura real da mesma produção." },
+    { "id": "DMO-634", "module": "Boquilhas", "description": "Um nome recusado ao editar no sítio já repõe também o espelho da linha na tabela, em vez de ficar a mostrar o valor recusado até recarregar." },
+    { "id": "DMO-635", "module": "Aplicação", "description": "Escape com uma lista de sugestões aberta dentro de um painel ou janela fecha só a lista, não o painel ou a janela." },
+    { "id": "DMO-636", "module": "Reparação Interna", "description": "«Por associar» abre só a janela: já não vai buscar a página nem cria uma entrada no histórico (o Voltar a seguir não recarrega)." },
+    { "id": "DMO-637", "module": "Job On", "description": "Apagar os dois dígitos do CS Furos (Abertos/Fechados) limpa o campo escondido, em vez de ficar com o último valor combinado." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
