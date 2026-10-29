@@ -4559,3 +4559,13 @@ Novos: 1 · mudaram: 2 · saíram: 27
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisoArmazemEmEsperaTests.cs :: JobOnAvisoArmazemEmEsperaTests.PorOmissao_AAplicacaoNaoOLigaNasDefinicoes`
 
 Selo depois: `5c318483048cbfe4`
+
+## A-0328 · 2026-10-29 · contagem-lista
+
+Porquê: C03 da auditoria do Codex de 28/10/2026 (DMO-590): teste de browser novo tests/visual/bq_historico_lista_browser.py, que garante que a lista de Movimentos das Boquilhas fica sempre com o cabeçalho e uma linha inteira, mesmo com o painel de linhas de produção cheio, a 1290×646, 1366×768 e 1100×646; no ci-local.sh só se acrescenta o passo que o corre.
+Novos: 1 · mudaram: 1 · saíram: 0
+
+- novo: `tests/visual/bq_historico_lista_browser.py`
+- mudou: `scripts/ci/ci-local.sh`
+
+Selo depois: `60bb20125ceed2e2`
