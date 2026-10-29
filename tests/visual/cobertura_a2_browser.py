@@ -355,12 +355,42 @@ def pegamentos(browser, fixtures):
         context.close()
 
 
+# DMO-608: o Geral da ficha numa só linha, também à largura do painel lateral
+# (Diogo, 29/10/2026): as Linhas uma por baixo da outra, a Utilização na mesma linha.
+def ficha_geral(browser, fixtures):
+    for largura in (1366, 1100, 900):
+        context, page, erros = abrir(browser, fixtures, 'cobertura-a2-ferr-ficha-geral.html', '/Ferramentas/Ficha', largura, 768)
+        onde = f'Ficha Geral {largura}px'
+        m = page.evaluate('''() => {
+          const f = document.querySelector('#ferrGeral > .dmo-facts');
+          if (!f) return null;
+          const caixas = [...f.children].filter(e => e.getClientRects().length).map(e => e.getBoundingClientRect());
+          const linhas = [...document.querySelectorAll('#ferrLinhas strong > span')].map(e => e.getBoundingClientRect());
+          return { n: caixas.length, topos: caixas.map(c => Math.round(c.top)),
+                   fora: f.scrollWidth - f.clientWidth,
+                   linhas: linhas.map(l => ({ x: Math.round(l.left), y: Math.round(l.top) })),
+                   util: !!f.querySelector('#ferrUtilizacao') };
+        }''')
+        if m is None:
+            falhas.append(f'{onde}: falta o quadro do Geral')
+        else:
+            if not m['util'] or m['n'] < 5:
+                falhas.append(f'{onde}: faltam dados no Geral ({m})')
+            if max(m['topos']) - min(m['topos']) > 1 or m['fora'] > 0:
+                falhas.append(f'{onde}: o Geral não está numa só linha ({m})')
+            if len(m['linhas']) != 2 or m['linhas'][0]['x'] != m['linhas'][1]['x'] or m['linhas'][1]['y'] <= m['linhas'][0]['y']:
+                falhas.append(f'{onde}: as Linhas não estão uma por baixo da outra ({m["linhas"]})')
+        if erros:
+            falhas.append(f'{onde}: erros na página {erros}')
+        context.close()
+
+
 with sync_playwright() as playwright:
     browser = launch_chromium(playwright)
     painel_lateral(browser)
     if len(sys.argv) > 1:
         fixtures = Path(sys.argv[1]).resolve()
-        for parte in (jobon_cabecalho, jobon_imprimir, ficha_e_utilizadores, revisao, resumo_peso, registo_bq, sem_jobon, pegamentos):
+        for parte in (jobon_cabecalho, jobon_imprimir, ficha_e_utilizadores, ficha_geral, revisao, resumo_peso, registo_bq, sem_jobon, pegamentos):
             parte(browser, fixtures)
     browser.close()
 

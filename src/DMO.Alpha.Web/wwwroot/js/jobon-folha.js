@@ -116,7 +116,7 @@
           botao.setAttribute('data-jof-ficha', '/Ferramentas/Ficha?tool_id=' + encodeURIComponent(select.value) + '&voltar=' + encodeURIComponent(location.pathname + location.search));
           // A cor do uso cheio era da ferramenta antiga.
           [ref, lt].forEach(b => b && b.classList.remove('dmo-uso-cheio'));
-          dadosDaFerramenta(folha, tipo, select.value);
+          dadosDaFerramenta(folha, tipo, select, select.value);
         }
         procura.hidden = true;
         slot.classList.remove('is-mudar');
@@ -132,15 +132,20 @@
   // «quando altero para ferramenta nova não atualiza em tempo real»): a % de uso
   // dela (0 se é nova), e as notas e a informação técnica do último Job On em
   // que foi usada. Sem esse Job On, o resto fica como está.
-  async function dadosDaFerramenta(folha, tipo, toolId) {
+  async function dadosDaFerramenta(folha, tipo, select, toolId) {
     const query = new URLSearchParams({ handler: 'DadosDaFerramenta', tipo: tipo, tool_id: toolId });
     const jobOnId = new URLSearchParams(location.search).get('jobon_id');
     if (jobOnId) query.set('jobon_id', jobOnId);
     let dados;
     try {
       const response = await fetch('/JobOn/Folha?' + query, { credentials: 'same-origin' });
+      // Entretanto escolheram outra ferramenta: a resposta é de quem já não
+      // está escolhido, não se aplica (auditoria do Codex de 29/10/2026,
+      // bug alto: a resposta atrasada de A sobrepunha o cartão de B).
+      if (select.value !== toolId) return;
       if (!response.ok) return;
       dados = await response.json();
+      if (select.value !== toolId) return;
     } catch (e) { return; }
     const por = (id, valor) => {
       const campo = document.getElementById(id);
@@ -783,11 +788,14 @@
       const partes = td.textContent.trim().split(' / ');
       if (partes.length < 2) return;
       const envolucro = document.createElement('span');
-      partes.forEach((parte, i) => {
+      envolucro.className = 'calv-pilha';
+      td.title = td.textContent.trim();
+      partes.forEach(parte => {
         const seg = document.createElement('span');
         seg.className = 'calv-seg';
-        seg.textContent = i < partes.length - 1 ? parte + ' /' : parte;
-        if (i) envolucro.append(' ');
+        // Sem a «/»: um valor por cima do outro (Diogo, 29/10/2026: «remover / do extrator, ficam separados
+        // alinhar eles um em cima do outro»).
+        seg.textContent = parte;
         envolucro.append(seg);
       });
       td.textContent = '';
@@ -826,7 +834,30 @@
     });
   }
 
+  // Os avisos dos cartões CM, MF e BQ (B2 sem Dupla/Tripla, «não registada no Armazém») ficavam cortados
+  // dentro do cartão (Diogo, 29/10/2026: «meter estes alertas aparecer no canto superior direito, com x para
+  // remover»): no ver, saem do cartão para uma pilha no canto superior direito, cada um com o seu botão e um ×.
+  function avisosNoCanto() {
+    const avisos = document.querySelectorAll('.jof2:not(.editing) .sec :is([data-dmo-aviso-b2],[data-dmo-aviso-armazem])');
+    if (!avisos.length) return;
+    const pilha = document.createElement('div');
+    pilha.className = 'jof-avisos-canto';
+    pilha.setAttribute('data-jof-avisos-canto', '');
+    avisos.forEach(aviso => {
+      const fechar = document.createElement('button');
+      fechar.type = 'button';
+      fechar.className = 'jof-aviso-fechar';
+      fechar.setAttribute('aria-label', 'Fechar este aviso');
+      fechar.textContent = '×';
+      fechar.addEventListener('click', () => { aviso.remove(); if (!pilha.children.length) pilha.remove(); });
+      aviso.append(fechar);
+      pilha.append(aviso);
+    });
+    document.body.append(pilha);
+  }
+
   function init() {
+    avisosNoCanto();
     cancelarNoPainel();
     calibresValores();
     dimensoesLongas();

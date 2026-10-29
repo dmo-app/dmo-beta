@@ -5,6 +5,7 @@ using DMO.Alpha.Core.Tools;
 using DMO.Alpha.Infrastructure.Controlo;
 using DMO.Alpha.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace DMO.Alpha.Infrastructure.Tools;
 
@@ -15,7 +16,7 @@ namespace DMO.Alpha.Infrastructure.Tools;
 /// ela foi a CM, o MF ou a BQ (também os em que foi trocada), com a soma das
 /// linhas do SAP da mesma referência, máquina e datas.
 /// </summary>
-public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContext account) : IFerramentasFabricoSap
+public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContext account, ILogger<FerramentasFabricoSap> logger) : IFerramentasFabricoSap
 {
     public async Task<ImportarFabricoSapOutcome> ImportarAsync(IReadOnlyList<FabricoSapLinha> linhas, string? ficheiro, DateTime? ficheiroModificadoEmUtc,
         IReadOnlyList<FabricoSapDetalhe>? detalhes = null, CancellationToken cancellationToken = default)
@@ -27,10 +28,18 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
         var actor = account.Current;
         var autor = actor.IsAuthenticated ? (string.IsNullOrWhiteSpace(actor.DisplayName) ? actor.OperatorId : actor.DisplayName) : null;
         var nome = ficheiro is { Length: > 0 } f ? f[..Math.Min(f.Length, FerramentaUtilizacao.FicheiroMaxLength)] : null;
-        var unicas = linhas
-            .GroupBy(l => (l.Material, l.Linha, l.InicioEm, l.FimEm))
-            .Select(g => g.Last())
-            .ToList();
+        var agrupadas = linhas.GroupBy(l => (l.Material, l.Linha, l.InicioEm, l.FimEm)).ToList();
+        var unicas = agrupadas.Select(g => g.Last()).ToList();
+        foreach (var grupo in agrupadas)
+        {
+            if (grupo.Count() > 1)
+            {
+                logger.LogWarning(
+                    "SAP fabrico: {Count} linhas do mesmo material {Material}, linha {Linha}, {Inicio}..{Fim} colapsadas numa só (ficheiro {Ficheiro}).",
+                    grupo.Count(), grupo.Key.Material, grupo.Key.Linha, grupo.Key.InicioEm, grupo.Key.FimEm, nome);
+            }
+        }
+
         var materiais = unicas.Select(l => l.Material).Distinct().ToList();
         var existentes = await db.SapFabricos
             .Where(s => materiais.Contains(s.Material))
@@ -46,10 +55,29 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
                 novas++;
             }
 
-            existente.ProducaoBruta = linha.ProducaoBruta;
-            existente.ProducaoLiquida = linha.ProducaoLiquida;
-            existente.PesoMedioGramas = linha.PesoMedioGramas;
-            existente.DiasProducao = linha.DiasProducao;
+            // SAP-B02: um relatório parcial (só com Net Prod., ou sem a coluna
+            // Avg weight) não tem estes campos; um `null` dele é «não sei», não
+            // «apaga» o que um relatório anterior já tinha lido.
+            if (linha.ProducaoBruta is { } bruta)
+            {
+                existente.ProducaoBruta = bruta;
+            }
+
+            if (linha.ProducaoLiquida is { } liquida)
+            {
+                existente.ProducaoLiquida = liquida;
+            }
+
+            if (linha.PesoMedioGramas is { } peso)
+            {
+                existente.PesoMedioGramas = peso;
+            }
+
+            if (linha.DiasProducao is { } dias)
+            {
+                existente.DiasProducao = dias;
+            }
+
             if (detalheDe.TryGetValue((linha.Material, linha.Linha, linha.InicioEm, linha.FimEm), out var detalhe))
             {
                 existente.Cadencia = detalhe.Cadencia;
@@ -61,8 +89,36 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
             existente.FicheiroModificadoEmUtc = ficheiroModificadoEmUtc;
         }
 
+        // SAP-03: o relatório é o retrato da sua janela (início..fim de todas
+        // as linhas lidas); uma ordem que lá estava e já não vem foi anulada
+        // ou corrigida no SAP e não pode continuar a contar para sempre. A
+        // janela vem só das linhas devolvidas (o relatório não diz que datas
+        // pediu ao SAP): se a ordem retirada for a mais antiga ou a mais
+        // recente do conjunto, a janela encolhe com ela e essa ordem não é
+        // detetada. Isso cobre o caso comum (uma ordem a meio desaparece,
+        // com outras antes e depois dela no mesmo relatório).
+        var retiradas = 0;
+        if (unicas.Count > 0)
+        {
+            var desde = unicas.Min(l => l.InicioEm);
+            var ate = unicas.Max(l => l.FimEm);
+            var chaves = unicas.Select(l => (l.Material, l.Linha, l.InicioEm, l.FimEm)).ToHashSet();
+            var naJanela = await db.SapFabricos
+                .Where(s => s.InicioEm >= desde && s.FimEm <= ate)
+                .ToListAsync(cancellationToken);
+            var fora = naJanela.Where(s => !chaves.Contains((s.Material, s.Linha, s.InicioEm, s.FimEm))).ToList();
+            if (fora.Count > 0)
+            {
+                logger.LogWarning(
+                    "SAP fabrico: {Count} ordens retiradas (já não vêm no relatório {Ficheiro}, janela {Desde}..{Ate}): {Chaves}.",
+                    fora.Count, nome, desde, ate, string.Join(", ", fora.Select(s => $"{s.Material}/{s.Linha}/{s.InicioEm}..{s.FimEm}")));
+                db.SapFabricos.RemoveRange(fora);
+                retiradas = fora.Count;
+            }
+        }
+
         await db.SaveChangesAsync(cancellationToken);
-        return new ImportarFabricoSapOutcome(unicas.Count, novas);
+        return new ImportarFabricoSapOutcome(unicas.Count, novas, retiradas);
     }
 
     public Task<DateTime?> UltimoFicheiroAsync(CancellationToken cancellationToken = default) =>
@@ -99,9 +155,11 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
         var sap = await db.SapFabricos.AsNoTracking()
             .Where(s => maquinas.Contains(s.Linha) && s.FimEm >= de && s.Cadencia != null)
             .ToListAsync(cancellationToken);
+        var iniciosPorMaquina = await IniciosPorMaquinaAsync(maquinas, cancellationToken);
         foreach (var j in producoes)
         {
-            var ordens = sap.Where(s => FabricoSapExportacao.Corresponde(s.Material, s.Linha, s.InicioEm, s.FimEm, j.Reference, j.Maquina, j.InicioEm, j.FimEm));
+            var proximo = ProximoNaMaquina(iniciosPorMaquina, j.Maquina, j.InicioEm!.Value);
+            var ordens = sap.Where(s => FabricoSapExportacao.Corresponde(s.Material, s.Linha, s.InicioEm, s.FimEm, j.Reference, j.Maquina, j.InicioEm, j.FimEm, proximo));
             if (FabricoSapCadencia.Resumo(ordens, j.InicioEm!.Value, j.FimEm) is { } resumo)
             {
                 return j.Id == atual.Id
@@ -130,9 +188,11 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
         var sap = await db.SapFabricos.AsNoTracking()
             .Where(s => maquinas.Contains(s.Linha) && s.FimEm >= de && s.PesoMedioGramas != null)
             .ToListAsync(cancellationToken);
+        var iniciosPorMaquina = await IniciosPorMaquinaAsync(maquinas, cancellationToken);
         foreach (var j in jobOns)
         {
-            var ordens = sap.Where(s => FabricoSapExportacao.Corresponde(s.Material, s.Linha, s.InicioEm, s.FimEm, j.Reference, j.Maquina, j.InicioEm, j.FimEm));
+            var proximo = ProximoNaMaquina(iniciosPorMaquina, j.Maquina, j.InicioEm!.Value);
+            var ordens = sap.Where(s => FabricoSapExportacao.Corresponde(s.Material, s.Linha, s.InicioEm, s.FimEm, j.Reference, j.Maquina, j.InicioEm, j.FimEm, proximo));
             if (FabricoSapPeso.Resumo(ordens, j.InicioEm!.Value, j.FimEm) is { } resumo)
             {
                 resumos[j.Id] = resumo;
@@ -152,16 +212,23 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
             .Concat(await JobOnsPeloArmazemAsync(toolId, cancellationToken))
             .Distinct()
             .ToList();
-        var jobOns = (await db.JobOns.AsNoTracking()
-                .Where(j => ids.Contains(j.Id))
-                .Select(j => new { j.Id, j.Reference, j.ProductionNumber, Maquina = j.Machine.Code, j.InicioEm, j.FimEm })
-                .ToListAsync(cancellationToken))
+        // Uma só consulta a JobOns: as da própria ferramenta, mais (SAP-B01)
+        // todas as outras da mesma máquina com início, para saber onde para
+        // uma produção sem fim — sem gastar uma viagem à base a mais por
+        // ferramenta (o «antes» da comparação do Histórico conta isto).
+        var maquinasDaFerramenta = db.JobOns.Where(j => ids.Contains(j.Id) && j.InicioEm != null).Select(j => j.MachineId);
+        var todos = await db.JobOns.AsNoTracking()
+            .Where(j => ids.Contains(j.Id) || (j.InicioEm != null && maquinasDaFerramenta.Contains(j.MachineId)))
+            .Select(j => new { j.Id, j.Reference, j.ProductionNumber, Maquina = j.Machine.Code, j.InicioEm, j.FimEm })
+            .ToListAsync(cancellationToken);
+        var jobOns = todos.Where(j => ids.Contains(j.Id))
             .OrderByDescending(j => j.InicioEm.HasValue)
             .ThenByDescending(j => j.InicioEm)
             .ThenByDescending(j => j.Id)
             .ToList();
         var comDatas = jobOns.Where(j => j.InicioEm.HasValue).ToList();
         var sap = new List<SapFabrico>();
+        var iniciosPorMaquina = new Dictionary<string, List<DateOnly>>(StringComparer.Ordinal);
         if (comDatas.Count > 0)
         {
             var maquinas = comDatas.Select(j => j.Maquina.ToUpperInvariant()).Distinct().ToList();
@@ -171,6 +238,10 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
             sap = await db.SapFabricos.AsNoTracking()
                 .Where(s => maquinas.Contains(s.Linha) && s.InicioEm <= ate && s.FimEm >= de)
                 .ToListAsync(cancellationToken);
+            iniciosPorMaquina = todos
+                .Where(j => j.InicioEm != null)
+                .GroupBy(j => j.Maquina.ToUpperInvariant())
+                .ToDictionary(g => g.Key, g => g.Select(j => j.InicioEm!.Value).OrderBy(d => d).ToList(), StringComparer.Ordinal);
         }
 
         // As leituras da utilização, pela data em Portugal.
@@ -184,7 +255,8 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
             .ToList();
 
         var inicios = jobOns.Select(j => j.InicioEm).ToList();
-        var itens = jobOns.Select(j => Montar(j.Id, j.Reference, j.ProductionNumber, j.Maquina, j.InicioEm, j.FimEm, sap, leituras, ProximoInicio(inicios, j.InicioEm))).ToList();
+        var itens = jobOns.Select(j => Montar(j.Id, j.Reference, j.ProductionNumber, j.Maquina, j.InicioEm, j.FimEm, sap, leituras, ProximoInicio(inicios, j.InicioEm),
+            j.InicioEm is { } de ? ProximoNaMaquina(iniciosPorMaquina, j.Maquina, de) : null)).ToList();
         return new FerramentaProducoes(
             PagedList<FerramentaProducao>.FromLoaded(itens, pagina, porPagina),
             itens.Any(p => p.ProducaoBruta.HasValue) ? itens.Sum(p => p.ProducaoBruta ?? 0) : null,
@@ -291,11 +363,15 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
         var ids = relacoes.Select(r => r.JobOnId).Distinct().ToList();
         // Todos os Job On das ferramentas (o filtro aplica-se a seguir): a
         // leitura «depois» de uma produção precisa de saber quando começou a
-        // seguinte, mesmo que essa fique fora do filtro.
-        var todosJobOns = (await db.JobOns.AsNoTracking()
-                .Where(j => ids.Contains(j.Id))
-                .Select(j => new { j.Id, j.Reference, j.ProductionNumber, Maquina = j.Machine.Code, j.InicioEm, j.FimEm })
-                .ToListAsync(cancellationToken))
+        // seguinte, mesmo que essa fique fora do filtro. Numa só consulta
+        // (SAP-B01): também as outras da mesma máquina com início, para saber
+        // onde para uma produção sem fim — sem uma viagem à base a mais.
+        var maquinasDasFerramentas = db.JobOns.Where(j => ids.Contains(j.Id) && j.InicioEm != null).Select(j => j.MachineId);
+        var todosGeral = await db.JobOns.AsNoTracking()
+            .Where(j => ids.Contains(j.Id) || (j.InicioEm != null && maquinasDasFerramentas.Contains(j.MachineId)))
+            .Select(j => new { j.Id, j.Reference, j.ProductionNumber, Maquina = j.Machine.Code, j.InicioEm, j.FimEm })
+            .ToListAsync(cancellationToken);
+        var todosJobOns = todosGeral.Where(j => ids.Contains(j.Id))
             .OrderByDescending(j => j.InicioEm.HasValue)
             .ThenByDescending(j => j.InicioEm)
             .ThenByDescending(j => j.Id)
@@ -312,6 +388,7 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
         }
 
         var sap = new List<SapFabrico>();
+        var iniciosPorMaquina = new Dictionary<string, List<DateOnly>>(StringComparer.Ordinal);
         var comDatas = jobOns.Where(j => j.InicioEm.HasValue).ToList();
         if (comDatas.Count > 0)
         {
@@ -321,6 +398,10 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
             sap = await db.SapFabricos.AsNoTracking()
                 .Where(s => maquinas.Contains(s.Linha) && s.InicioEm <= ate && s.FimEm >= de)
                 .ToListAsync(cancellationToken);
+            iniciosPorMaquina = todosGeral
+                .Where(j => j.InicioEm != null)
+                .GroupBy(j => j.Maquina.ToUpperInvariant())
+                .ToDictionary(g => g.Key, g => g.Select(j => j.InicioEm!.Value).OrderBy(d => d).ToList(), StringComparer.Ordinal);
         }
 
         var comProducao = relacoes.Select(r => r.ToolId).Distinct().ToList();
@@ -339,7 +420,8 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
             var l = leituras.TryGetValue(toolId, out var dela) ? dela : [];
             var inicios = todosJobOns.Where(j => seus.Contains(j.Id)).Select(j => j.InicioEm).ToList();
             var itens = jobOns.Where(j => seus.Contains(j.Id))
-                .Select(j => Montar(j.Id, j.Reference, j.ProductionNumber, j.Maquina, j.InicioEm, j.FimEm, sap, l, ProximoInicio(inicios, j.InicioEm)))
+                .Select(j => Montar(j.Id, j.Reference, j.ProductionNumber, j.Maquina, j.InicioEm, j.FimEm, sap, l, ProximoInicio(inicios, j.InicioEm),
+                    j.InicioEm is { } de ? ProximoNaMaquina(iniciosPorMaquina, j.Maquina, de) : null))
                 .ToList();
             if (itens.Count > 0)
             {
@@ -357,10 +439,30 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
         ? inicios.Where(i => i > de).Min()
         : null;
 
-    private static FerramentaProducao Montar(int id, string reference, string producao, string maquina, DateOnly? inicio, DateOnly? fim,
-        IReadOnlyList<SapFabrico> sap, IReadOnlyList<(DateOnly Dia, decimal Percentagem)> leituras, DateOnly? proximoInicio)
+    // SAP-B01: para uma produção sem fim, o início da próxima produção na
+    // mesma máquina (de qualquer referência) limita qual linha do SAP lhe
+    // pode pertencer — senão engolia também as linhas das produções
+    // seguintes na mesma máquina, contando-as a dobrar.
+    private async Task<Dictionary<string, List<DateOnly>>> IniciosPorMaquinaAsync(IReadOnlyCollection<string> maquinasMaiusculas, CancellationToken cancellationToken)
     {
-        var linhas = sap.Where(s => FabricoSapExportacao.Corresponde(s.Material, s.Linha, s.InicioEm, s.FimEm, reference, maquina, inicio, fim)).ToList();
+        var todos = await db.JobOns.AsNoTracking()
+            .Where(j => j.InicioEm != null && maquinasMaiusculas.Contains(j.Machine.Code.ToUpper()))
+            .Select(j => new { Maquina = j.Machine.Code, j.InicioEm })
+            .ToListAsync(cancellationToken);
+        return todos
+            .GroupBy(j => j.Maquina.ToUpperInvariant())
+            .ToDictionary(g => g.Key, g => g.Select(j => j.InicioEm!.Value).OrderBy(d => d).ToList(), StringComparer.Ordinal);
+    }
+
+    private static DateOnly? ProximoNaMaquina(Dictionary<string, List<DateOnly>> iniciosPorMaquina, string maquina, DateOnly inicio) =>
+        iniciosPorMaquina.TryGetValue(maquina.ToUpperInvariant(), out var lista)
+            ? lista.Where(d => d > inicio).Select(d => (DateOnly?)d).DefaultIfEmpty(null).Min()
+            : null;
+
+    private static FerramentaProducao Montar(int id, string reference, string producao, string maquina, DateOnly? inicio, DateOnly? fim,
+        IReadOnlyList<SapFabrico> sap, IReadOnlyList<(DateOnly Dia, decimal Percentagem)> leituras, DateOnly? proximoInicio, DateOnly? proximoInicioNaMaquina = null)
+    {
+        var linhas = sap.Where(s => FabricoSapExportacao.Corresponde(s.Material, s.Linha, s.InicioEm, s.FimEm, reference, maquina, inicio, fim, proximoInicioNaMaquina)).ToList();
         return new FerramentaProducao(
             id,
             reference,

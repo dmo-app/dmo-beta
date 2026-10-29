@@ -61,4 +61,37 @@ public sealed partial class DefinicoesPorModuloPageTests
         Assert.Contains("Moda <strong>78 g</strong>", janela, StringComparison.Ordinal);
         Assert.Contains("data-ferr-peso-lugar", janela, StringComparison.Ordinal);
     }
+
+    // Diogo, 29/10/2026: «anterior o que? isto é produção 202603 logo tem de
+    // existir anterior» (DMO-602): o Δ compara com a produção anterior que
+    // tem peso, saltando as que o SAP não tem.
+    [Fact]
+    public async Task OPesoDoHistorico_DeltaSaltaAsProducoesAnterioresSemPeso()
+    {
+        var (toolId, referencia, maquina) = SeedJobOnComCm();
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            var meio = new JobOn
+            {
+                Reference = referencia, ProductionNumber = "202501", Machine = db.Machines.First(m => m.Code == maquina),
+                InicioEm = new DateOnly(2025, 2, 10), FimEm = new DateOnly(2025, 2, 20)
+            };
+            var recente = new JobOn
+            {
+                Reference = referencia, ProductionNumber = "202502", Machine = db.Machines.First(m => m.Code == maquina),
+                InicioEm = new DateOnly(2025, 3, 1), FimEm = new DateOnly(2025, 3, 10)
+            };
+            db.JobOns.AddRange(meio, recente);
+            db.CmContexts.AddRange(new CmContext { JobOn = meio, ToolId = toolId }, new CmContext { JobOn = recente, ToolId = toolId });
+            db.SapFabricos.AddRange(
+                new SapFabrico { Material = referencia + "BRA", Linha = maquina, InicioEm = new DateOnly(2025, 1, 21), FimEm = new DateOnly(2025, 2, 4), ProducaoBruta = 1_000_000, PesoMedioGramas = 80m, LidoEmUtc = DateTime.UtcNow },
+                new SapFabrico { Material = referencia + "BRA", Linha = maquina, InicioEm = new DateOnly(2025, 3, 1), FimEm = new DateOnly(2025, 3, 10), ProducaoBruta = 1_250_000, PesoMedioGramas = 78m, LidoEmUtc = DateTime.UtcNow });
+            db.SaveChanges();
+        }
+
+        var client = await LoginOperatorAsync("7391", DmoCapabilities.Ferramentas);
+        var historico = WebUtility.HtmlDecode(ZonaUsoSap(await (await client.GetAsync($"/Ferramentas/Ficha?tool_id={toolId}")).Content.ReadAsStringAsync(), "ferrHistoricoProducoes"));
+        Assert.Contains("−2 g · −2.50 %", ZonaUsoSap(historico, "ferrPesoTabela"), StringComparison.Ordinal);
+    }
 }

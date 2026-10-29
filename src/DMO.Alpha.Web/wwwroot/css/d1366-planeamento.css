@@ -513,3 +513,13 @@ html[data-theme="dark"] body a.dmo-tab-novo:not(:hover):not(.active){color:#fff;
   html:root:not([data-theme="dark"]) body .jof2-gaveta .rail-item.dmo-linha-cor:not(.selected):not(:hover):not(:focus-visible){background:color-mix(in srgb,var(--dmo-machine-color) 16%,var(--rail-item))}
   html:root:not([data-theme="dark"]) body main.sumario-page .sumario-item:not(:hover):not(:focus-within){background:color-mix(in srgb,var(--dmo-machine-color) 16%,transparent)}
 }
+
+/* Gaveta Planeamento no Job On (Diogo, 29/10/2026: «cards estão mal», «as cores devem ser iguais ao planeamento em
+   rest e hover/press»): em repouso o fundo claro da cor da linha, como as linhas do dia no Planeamento (16% da cor
+   sobre o fundo do cartão, não sobre o azul escuro do painel), com letra normal; no hover e no escolhido a cor da
+   linha cheia com letra branca, como no Planeamento. Igual no claro e no escuro. */
+html:root body .jof2-gaveta .rail-item.dmo-linha-cor:not(.selected):not(:hover):not(:focus-visible):not(#_){background:color-mix(in srgb,var(--dmo-machine-color) 16%,var(--dmo-card));color:var(--dmo-text);border:1px solid transparent;outline:0}
+html:root body .jof2-gaveta .rail-item.dmo-linha-cor:not(.selected):not(:hover):not(:focus-visible):not(#_) small{color:var(--dmo-muted);opacity:1}
+html:root body .jof2-gaveta .rail-item.dmo-linha-cor:not(.selected):not(:hover):not(:focus-visible):not(#_) .mch.mch{color:var(--dmo-text)!important}
+html:root body .jof2-gaveta .rail-item.dmo-linha-cor:is(.selected,:hover,:focus-visible,:active):not(#_){background:var(--dmo-linha-cheia,var(--dmo-machine-color));color:var(--dmo-text-on-color,#fff);border:1px solid transparent;outline:0}
+html:root body .jof2-gaveta .rail-item.dmo-linha-cor:is(.selected,:hover,:focus-visible,:active):not(#_) :is(b,small,.mch.mch){color:var(--dmo-text-on-color,#fff)!important;opacity:1}

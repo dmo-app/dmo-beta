@@ -45,7 +45,7 @@ public sealed class FabricoSapCadenciaPorProducaoTests
             new SapFabrico { Material = "9122Y100BRZ", Linha = "C3", InicioEm = new DateOnly(2026, 5, 1), FimEm = new DateOnly(2026, 5, 10), Cadencia = 470, LidoEmUtc = DateTime.UtcNow },
             new SapFabrico { Material = "9122Y100BRZ", Linha = "C3", InicioEm = new DateOnly(2026, 6, 30), FimEm = new DateOnly(2026, 7, 6), Cadencia = 489, LidoEmUtc = DateTime.UtcNow });
         await db.SaveChangesAsync();
-        var servico = new FerramentasFabricoSap(db, new Sessao());
+        var servico = new FerramentasFabricoSap(db, new Sessao(), Microsoft.Extensions.Logging.Abstractions.NullLogger<DMO.Alpha.Infrastructure.Tools.FerramentasFabricoSap>.Instance);
 
         // A própria produção, depois de feita.
         Assert.Equal(new CadenciaDoJobOn(new CadenciaSapResumo(489m, 489, 6, 1)), await servico.CadenciaDoJobOnAsync(anterior.Id));
@@ -75,7 +75,7 @@ public sealed class FabricoSapCadenciaPorProducaoTests
             new SapFabrico { Material = "9122Y100BRZ", Linha = "C3", InicioEm = new DateOnly(2026, 7, 7), FimEm = new DateOnly(2026, 7, 10), ProducaoBruta = 120_000, Cadencia = 500, LidoEmUtc = DateTime.UtcNow });
         await db.SaveChangesAsync();
 
-        var producoes = (await new FerramentasFabricoSap(db, new Sessao()).ProducoesAsync("CM-1", 1, 10)).Pagina.Items;
+        var producoes = (await new FerramentasFabricoSap(db, new Sessao(), Microsoft.Extensions.Logging.Abstractions.NullLogger<DMO.Alpha.Infrastructure.Tools.FerramentasFabricoSap>.Instance).ProducoesAsync("CM-1", 1, 10)).Pagina.Items;
 
         // 489 × 7 dias e 500 × 3: média 492.3, moda 489. Sem SAP, nenhuma.
         Assert.Equal(new CadenciaSapResumo(492.3m, 489, 10, 2), producoes.Single(p => p.JobOnId == com.Id).Cadencia);

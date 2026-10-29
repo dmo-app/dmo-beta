@@ -54,7 +54,9 @@ Set shell = CreateObject("WScript.Shell")
 
 pasta = fso.GetParentFolderName(WScript.ScriptFullName)
 atalho = fso.BuildPath(pasta, "Moldes Existentes.SAP")
-saida = fso.BuildPath(pasta, "dmo-fabrico-sap.txt")
+' Nome com a hora desta corrida (SAP-02): um ficheiro novo a cada corrida, nunca
+' a substituir o anterior; se a app estiver fechada, fica tudo para importar.
+saida = fso.BuildPath(pasta, "dmo-fabrico-sap-" & Carimbo() & ".txt")
 temporario = fso.BuildPath(pasta, "dmo-fabrico-sap.a-gravar")
 
 ' Uma sessão do SAP: a que já está aberta ou a que o atalho abre.
@@ -169,7 +171,9 @@ Err.Clear
 On Error GoTo 0
 stream.SaveToFile temporario, 2
 stream.Close
-If fso.FileExists(saida) Then fso.DeleteFile saida, True
+' «saida» tem a hora desta corrida: nunca existe já, por isso não se apaga
+' nada antes do MoveFile (SAP-02: apagar antes de mover perdia o ficheiro
+' anterior se o MoveFile falhasse a seguir).
 fso.MoveFile temporario, saida
 
 ' Voltar ao menu do SAP.
@@ -225,6 +229,12 @@ End Function
 
 Function DataSap(ByVal d)
     DataSap = Right("0" & Day(d), 2) & "." & Right("0" & Month(d), 2) & "." & Year(d)
+End Function
+
+' AAAAMMDD-HHMM desta corrida, para o nome do ficheiro de saída (SAP-02).
+Function Carimbo()
+    Carimbo = Year(Now) & Right("0" & Month(Now), 2) & Right("0" & Day(Now), 2) & "-" & _
+              Right("0" & Hour(Now), 2) & Right("0" & Minute(Now), 2)
 End Function
 
 Function Limpo(ByVal texto)

@@ -42,8 +42,8 @@ html body main.ajuda-page .ajuda-card{padding:12px 16px;display:flex;flex-direct
         <dt>Sistema</dt><dd>BAS (SAP Logon 750), mandante 100</dd>
         <dt>Transação</dt><dd>ZPPG «Moldes Existentes» (% de uso de cada ferramenta)</dd>
         <dt>Script</dt><dd><code>DMO_USO_SAP.vbs</code>, com o atalho <code>Moldes Existentes.SAP</code></dd>
-        <dt>Pasta</dt><dd>A pasta ligada em Definições › Este computador › Utilização pela produção</dd>
-        <dt>Ficheiros</dt><dd><code>dmo-codigos.txt</code> (o DMO escreve), <code>dmo-uso-sap.csv</code> (o script escreve), relatório de fabrico da produção</dd>
+        <dt>Pasta</dt><dd>A pasta liga-se em Admin › Definições › SAP; depois de ligada, as Ferramentas também a leem</dd>
+        <dt>Ficheiros</dt><dd><code>dmo-codigos.txt</code> (o DMO escreve), <code>dmo-uso-sap-AAAAMMDD-HHMM.csv</code> (o script escreve, um por corrida), relatório de fabrico da produção</dd>
         </dl>
 
         <div class="ajuda-corpo"><div class="ajuda-colunas">
@@ -60,9 +60,9 @@ html body main.ajuda-page .ajuda-card{padding:12px 16px;display:flex;flex-direct
         <h4>2. Preparar uma vez</h4>
         <ol>
             <li>Criar uma pasta no computador, por exemplo <code>C:\temp\DMO-SAP</code>.</li>
-            <li>No DMO: Admin › Definições › SAP › «Ligar pasta» (ou o primeiro «Atualizar do SAP») e escolher essa pasta. Quando o browser perguntar, carregar em «Permitir» (se aparecer, «Permitir em todas as visitas»).</li>
-            <li>Utilização pela produção › «Instalar»: o DMO escreve na pasta os scripts e o <code>INSTALAR.cmd</code>. Duplo clique no <code>INSTALAR.cmd</code>, só uma vez.</li>
-            <li>O utilizador, a senha, a hora da leitura diária e os dias de produções ficam em Admin › Definições › SAP. Os scripts também se abrem e mudam lá.</li>
+            <li>No DMO: Admin › Definições › SAP › «Ligar pasta» e escolher essa pasta. Quando o browser perguntar, carregar em «Permitir» (se aparecer, «Permitir em todas as visitas»).</li>
+            <li>Admin › Definições › SAP › «Instalar»: o DMO escreve na pasta os scripts e o <code>INSTALAR.cmd</code>. Duplo clique no <code>INSTALAR.cmd</code>, só uma vez.</li>
+            <li>O utilizador, a senha, a hora da leitura diária e os dias de produções ficam em Admin › Definições › SAP. Os scripts também se abrem e mudam lá. Só o ADMIN vê e prepara isto (SEC-01, 29/10/2026): a senha fica fora do alcance de quem só tem as Ferramentas.</li>
         </ol>
         </section>
         <section class="ajuda-secao">
@@ -72,9 +72,9 @@ html body main.ajuda-page .ajuda-card{padding:12px 16px;display:flex;flex-direct
         <section class="ajuda-secao">
         <h4>4. Atualizar a % de uso</h4>
         <ol>
-            <li>«Atualizar do SAP» e escolher: como nas definições (as produções e a % uso de todas), por data (só as produções, mês e ano) ou por referência (só a % uso dessas ferramentas, CM, MF, BQ ou todas).</li>
+            <li>Em Admin › Definições › SAP, «Atualizar do SAP» e escolher: como nas definições (as produções e a % uso de todas), por data (só as produções, mês e ano) ou por referência (só a % uso dessas ferramentas, CM, MF, BQ ou todas).</li>
             <li>O script lê os códigos, abre o SAP na ZPPG (espera até 90 segundos), procura cada código e lê o PERC da lista.</li>
-            <li>Grava tudo no <code>dmo-uso-sap.csv</code>, na mesma pasta. Primeiro grava num ficheiro à parte e só no fim lhe dá o nome final, para o DMO nunca ler uma lista a meio.</li>
+            <li>Grava tudo num <code>dmo-uso-sap-AAAAMMDD-HHMM.csv</code> novo, na mesma pasta, com a hora desta corrida no nome: nunca apaga o de uma corrida anterior ainda por ler. Primeiro grava num ficheiro à parte e só no fim lhe dá o nome final, para o DMO nunca ler uma lista a meio.</li>
             <li>Ao abrir as Ferramentas no DMO, o DMO lê o ficheiro mais recente da pasta e, se for mais novo do que o último lido, grava a % de uso na ferramenta certa (pelo nome técnico e o lote). Depois do «Atualizar do SAP» grava sozinho quando o SAP acaba.</li>
         </ol>
         <p>Sem script: no SAP, no campo Equipment Code, seleção múltipla › «Carregar da área de transferência» (depois de «Copiar códigos»), F8 e exportar a lista para a pasta. O DMO lê-a da mesma forma.</p>
@@ -95,11 +95,11 @@ html body main.ajuda-page .ajuda-card{padding:12px 16px;display:flex;flex-direct
             <li><b>Mudaram as colunas da lista:</b> o script lê as colunas <code>EQUNR</code> (equipamento), <code>PERC</code> (% de uso), <code>DATA_UF</code> (última produção) e <code>DESC_LOTE</code> (lote); se mudarem de nome, trocá-las no <code>.vbs</code>.</li>
             <li><b>O SAP demora mais a abrir:</b> no <code>.vbs</code>, subir <code>SAP_WAIT_SECONDS = 90</code>.</li>
         </ul>
-        <p>Depois de mudar, correr o script uma vez e ver se o <code>dmo-uso-sap.csv</code> traz <code>FOUND</code> na coluna <code>status</code>. As linhas com <code>ERROR</code> dizem na coluna <code>error</code> o que falhou.</p>
+        <p>Depois de mudar, correr o script uma vez e ver se o <code>dmo-uso-sap-AAAAMMDD-HHMM.csv</code> que escreveu traz <code>FOUND</code> na coluna <code>status</code>. As linhas com <code>ERROR</code> dizem na coluna <code>error</code> o que falhou.</p>
         </section>
         <section class="ajuda-secao">
         <h4>7. Segurança</h4>
-        <p>Nenhuma palavra-passe fica nos ficheiros: o SAP pede-a ao abrir, como sempre. O DMO só lê a pasta ligada e só escreve o <code>dmo-codigos.txt</code>. A pasta fica ligada só no computador e no browser onde foi escolhida.</p>
+        <p>A senha do SAP fica cifrada na base de dados do DMO e fica embebida nos scripts que o «Instalar»/«Atualizar do SAP» escrevem na pasta (é assim que correm sem abrir o SAP à mão); por isso esses dois botões, e a senha em si, só estão em Admin › Definições › SAP (SEC-01, 29/10/2026). Quem só tem as Ferramentas lê os ficheiros que já estão na pasta (uso, fabrico, «Copiar códigos», «Pedir todas», «Apagar lidos»), mas não chega à senha.</p>
         </section>
         </div></div>
     </article>

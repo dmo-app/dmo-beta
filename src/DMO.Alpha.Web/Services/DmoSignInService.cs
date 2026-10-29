@@ -21,11 +21,16 @@ public sealed class DmoSignInService
     private readonly DmoDbContext _dbContext;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMemoryCache _cache;
+    private readonly TravaoDoPosto _travao;
 
     // Diogo, 26/10/2026: depois de 5 palavras-passe erradas seguidas, o ecrã
-    // manda falar com o ADMIN. A conta NUNCA fica bloqueada nem à espera
-    // (Diogo, 18/10 e 26/10): outra pessoa podia trancá-la de propósito, por
-    // isso a palavra-passe certa entra sempre.
+    // manda falar com o ADMIN. Revisto em 29/10/2026 (auditoria AUTH-B01: um
+    // PIN temporário de 4 dígitos dava 10 000 tentativas online sem travão
+    // real): a partir da 5.ª falha a conta passa a ESPERAR antes da
+    // tentativa seguinte, como o Posto já fazia (TravaoDoPosto, reutilizado
+    // aqui pela identidade da conta, não pela origem do pedido) — a espera
+    // esgota-se sozinha, nunca é um bloqueio que precise do ADMIN para
+    // acabar, e a palavra-passe certa continua a entrar depois da espera.
     public const int TentativasAntesDoAviso = 5;
     private const string ConsulteAdmin = "Demasiadas tentativas erradas. Consulte o ADMIN para rever a palavra-passe.";
 
@@ -43,7 +48,8 @@ public sealed class DmoSignInService
         IAdminEmailSettings adminEmailSettings,
         DmoDbContext dbContext,
         IHttpContextAccessor httpContextAccessor,
-        IMemoryCache cache)
+        IMemoryCache cache,
+        TravaoDoPosto travao)
     {
         _cache = cache;
         _provider = provider;
@@ -51,6 +57,7 @@ public sealed class DmoSignInService
         _adminEmailSettings = adminEmailSettings;
         _dbContext = dbContext;
         _httpContextAccessor = httpContextAccessor;
+        _travao = travao;
     }
 
     public Task<SignInOutcome> SignInAsync(string identifier, string password, string? returnUrl = null)
@@ -97,6 +104,12 @@ public sealed class DmoSignInService
 
         // A contagem é pela identidade da conta, guardada só em memória.
         var chaveFalhas = "dmo-login-falhas:" + providerIdentifier.ToLowerInvariant();
+
+        // O travão (AUTH-B01): espera pela vez da CONTA (não da origem do
+        // pedido, ao contrário do Posto) antes de confirmar; a 6.ª tentativa
+        // seguida a uma sequência de falhas espera, a palavra-passe certa
+        // incluída, porque a espera acontece antes de a confirmar.
+        using var vez = await _travao.EsperarVezAsync(chaveFalhas, httpContext.RequestAborted);
         var authResult = await _provider.AuthenticateAsync(providerIdentifier, password);
 
         if (authResult.Success)
@@ -105,6 +118,7 @@ public sealed class DmoSignInService
         }
         else if (!authResult.ProviderUnavailable)
         {
+            vez.Falhou();
             var falhas = _cache.GetOrCreate(chaveFalhas, entrada =>
             {
                 entrada.SlidingExpiration = TimeSpan.FromHours(1);

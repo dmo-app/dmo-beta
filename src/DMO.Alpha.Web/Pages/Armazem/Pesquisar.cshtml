@@ -1,0 +1,47 @@
+@page "/Armazem/Pesquisar"
+@model DMO.Alpha.Web.Pages.Armazem.PesquisarModel
+@using DMO.Alpha.Web.Pages.Armazem
+@{
+    Layout = "_DmoShellLayout";
+}
+@section Head {
+<style>
+.arm-pesq-card{padding:18px;min-width:0}
+.arm-pesq-filtros{display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin:0 0 12px}
+.arm-pesq-filtros .dmo-field{margin:0;min-width:0}
+html body .arm-pesq-filtros .dmo-field input.arm-pesq-texto{width:22ch}
+html body .arm-pesq-filtros .dmo-field select{width:auto;max-width:16ch}
+.arm-pesq-card .dmo-table td{padding:6px 8px;vertical-align:middle}
+</style>
+}
+
+@* A Pesquisa só lê: procura ao escrever (data-dmo-ao-escrever) e só a zona
+   dos resultados troca. Sem botões nas linhas: a linha abre o registo da
+   ferramenta. *@
+<main class="dmo-workspace" aria-labelledby="arm-pesq-title" data-dmo-troca>
+  <div class="page-head">
+    <div>
+      <h1 id="arm-pesq-title">Pesquisar</h1>
+    </div>
+  </div>
+
+  <section class="dmo-card arm-pesq-card" aria-labelledby="arm-pesq-title">
+    <form id="armPesqFiltros" method="get" asp-page="/Armazem/Pesquisar" class="arm-pesq-filtros" role="search" data-dmo-fica data-dmo-parcial data-dmo-handler="Resultados" data-dmo-alvo="armPesqResultados" data-dmo-ao-escrever="armPesqResultados">
+      <div class="dmo-field">
+        <label for="armPesqTexto">Referência, lote ou posição</label>
+        <input id="armPesqTexto" name="q" class="arm-pesq-texto" value="@Model.Procura" autocomplete="off" data-dmo-maiusculas autocapitalize="characters" placeholder="5447" autofocus />
+      </div>
+      <div class="dmo-field">
+        <label for="armPesqTipo">Tipo</label>
+        <select id="armPesqTipo" name="tipo" data-dmo-autosubmit>
+          <option value="" selected="@(Model.Tipo is null)">Todos</option>
+          <option value="CM" selected="@(Model.TipoTexto == "CM")">CM</option>
+          <option value="MF" selected="@(Model.TipoTexto == "MF")">MF</option>
+          <option value="BQ" selected="@(Model.TipoTexto == "BQ")">BQ</option>
+        </select>
+      </div>
+      <a class="dmo-button" id="armPesqLimpar" data-dmo-completa href="@Url.Page("/Armazem/Pesquisar")">Limpar filtros</a>
+    </form>
+    <partial name="_ArmazemPesquisaResultados" model="Model" />
+  </section>
+</main>

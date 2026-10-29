@@ -4929,3 +4929,218 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelMedio_AbreMaisLargo`
 
 Selo depois: `c07be0113f2cf44c`
+
+## A-0340 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-601: o Histórico de produções da ficha deixa de ter o quadro «Referência: … (n)»; o teste garante que não aparece
+Referência: Diogo cmsg_01K75FTs9bQnbhhH7qttpgraKAikKZHUHqxozwSr6bXXZT, sim cmsg_01K75FTs9bQnbhhH7qttpgraBdSHRV6GZHaqDPaN7n3ZfT
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoComArtigo.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraOArtigoDeCadaProducao`
+
+Selo depois: `2ea04e4a0c3694fb`
+
+## A-0348 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-608: o Geral da ficha numa só linha (Linhas na vertical); DMO-609: o Histórico de produções sem Δ garrafas e com os dias à frente das datas
+Referência: Diogo cmsg_01K75FTs9bQnbhhH7qttpgraP8k4Sq3SFm2yW2yJiMKhi4, cmsg_01K75FTs9bQnbhhH7qttpgraTm2zMmYCwLg6k4ZBrdQp33, sim cmsg_01K75FTs9bQnbhhH7qttpgraMY9B9gYQvikPov9ExmSecF
+Novos: 4 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoSoBruto.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoSoBruto.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_SoGarrafasEmBruto_EOsDiasAFrenteDasDatas`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.GeralNumaLinha.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.GeralNumaLinha.cs :: FerramentasPagesTests.Ficha_Geral_LinhasNaVertical_EUtilizacaoNaMesmaLinha`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_DaODeltaDeGarrafasEAJanelaDoPeso`
+- mudou: `tests/visual/cobertura_a2_browser.py`
+
+Selo depois: `0c2e5405174ec261`
+
+## A-0341 · 2026-10-29 · teste-novo
+
+Porquê: Δ anterior do peso por produção salta as anteriores sem peso (DMO-602)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraUgL2ipM5RzYX6UEZx6Kunt
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PesoPorProducao.cs :: DefinicoesPorModuloPageTests.OPesoDoHistorico_DeltaSaltaAsProducoesAnterioresSemPeso`
+
+Selo depois: `199918b21337a0b9`
+
+## A-0343 · 2026-10-29 · contagem-lista
+
+Porquê: Lote 0 da auditoria .230 (Codex, SAP-01..03): logger no FerramentasFabricoSap (apaga ordens que saíram da janela do relatório, avisa colisões), testes novos para isso, teste novo do «Atualizar do SAP» quando o diário diz «erro», e a ajuda do SAP já não diz que nenhuma senha fica nos ficheiros.
+Novos: 5 · mudaram: 12 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.DuasLinhasComAMesmaChave_FicamColapsadasNumaSoSemApagarNada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.UmaOrdemForaDaJanelaDoRelatorioNovo_NaoEApagada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.UmaOrdemQueDeixaDeVirNoRelatorio_EApagadaDaJanelaDoRelatorio`
+- novo: `tests/ShellProof/ferramentas-sap_feito-com-falha.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/ferramentas-sap_feito-com-falha.test.cjs :: Atualizar do SAP: quando o diário escreve «erro», o cartão mostra falha e não «feito»`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.FabricoSap.cs :: PostgresMigrationIntegrationTests.FabricoSap_LerDuasVezesUmaSoLinha_NoPostgreSql`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: HistoriaCenario.HistoriaDeUmaProducao_TodosOsModulosVeemOMesmo`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoricoLote.cs :: PostgresMigrationIntegrationTests.HistoricoFerramentas_ProducoesEmLote_IguaisAUmaAUma_ComConsultasFixas`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.SapFabricoCadencia.cs :: PostgresMigrationIntegrationTests.SapFabricoCadencia_GravaSoACadencia_NoPostgreSql`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaPorProducaoTests.cs :: FabricoSapCadenciaPorProducaoTests.CadaProducaoDaFerramenta_TemASuaCadencia`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaPorProducaoTests.cs :: FabricoSapCadenciaPorProducaoTests.OJobOnSemCadencia_FicaComADaProducaoAnteriorDaMesmaReferencia`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaTests.cs :: FabricoSapCadenciaTests.Importar_GravaACadencia_ESemElaNaoApagaAJaGravada`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AjudaSap.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_AAjudaDoSapAbreAPaginaDeAjuda`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `4cba7644ecb57f38`
+
+## A-0349 · 2026-10-29 · contagem-lista
+
+Porquê: Só entrou o ficheiro novo voltar-automatico.test.cjs na lista de testes (package.json); Diogo 29/10: «nos ja criamos o voltar para todas as paginas'?»
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra4mH2zZ2eTtEjgoducXvkiA
+Novos: 2 · mudaram: 1 · saíram: 0
+
+- novo: `tests/ShellProof/voltar-automatico.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/voltar-automatico.test.cjs :: a página sem Voltar escrito ganha-o no canto, só se vier de outra página`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `1667b4002ee21767`
+
+## A-0350 · 2026-10-29 · ok-do-diogo
+
+Porquê: Lote .236: junta as impressões já aprovadas em A-0340/A-0348 (#302 DMO-601/608/609), A-0341 (#304 DMO-602), A-0343 (#305 DMO-605/606/607), A-0349 (#306 DMO-610) e o #301 (DMO-603, sem testes)
+Referência: A-0340; A-0341; A-0343; A-0348; A-0349
+Novos: 2 · mudaram: 1 · saíram: 0
+
+- novo: `tests/ShellProof/voltar-automatico.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/voltar-automatico.test.cjs :: a página sem Voltar escrito ganha-o no canto, só se vier de outra página`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `48fb94b315990dac`
+
+## A-0381 · 2026-10-29 · teste-novo
+
+Porquê: DMO-641 Pesquisa no Armazém e DMO-643 (A-0383) link da % uso: testes novos
+Novos: 8 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.LinkDaPercentagemDeUso_TemOEstiloDaApp`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.OSeparador_EstaAoLadoDoRegistoEDosMovimentos_EAPaginaAbreVazia`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.Pesquisar_PelaPosicao_EComNada_AvisaQueNaoEncontrou`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.Pesquisar_ProcuraCmMfEBq_EACadaLinhaAbreORegistoDaFerramenta`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.ProcuraAoEscrever_DevolveSoAZonaDosResultados`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.SemAChave_NaoEntra`
+- novo: `tests/visual/armazem_pesquisar_browser.py`
+
+Selo depois: `70ba42c3e40f4230`
+
+## A-0351 · 2026-10-29 · contagem-lista
+
+Porquê: 2.ª passagem da auditoria .230, lote 1: travão do Posto por X-Forwarded-For falsificável (AUTH-B02), resposta atrasada de ferramenta sobrepõe o cartão (Job On), Enter sem navegar limpa a CM em silêncio (Job On).
+Novos: 3 · mudaram: 3 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: PostoTravaoTests.Posto_PinsErrados_ComXForwardedForDiferenteDeCadaVez_EsperaNaMesma`
+- novo: `tests/ShellProof/dmo-suggest.test.cjs :: Enter sem navegar nas flechas confirma a ferramenta já escolhida, não a limpa (auditoria do Codex, 29/10/2026)`
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: Editar: a resposta atrasada de uma ferramenta trocada não sobrepõe o cartão da escolhida a seguir`
+- mudou: `tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/dmo-suggest.test.cjs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/jobon-folha.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `9a278c4dad62b6a0`
+
+## A-0360 · 2026-10-29 · contagem-lista
+
+Porquê: AUTH-B01 (auditoria de 29/10/2026, decisão do Diogo): o login passa a esperar a sério depois de várias palavras-passe erradas seguidas, reutilizando o travão do Posto (TravaoDoPosto) chaveado pela conta; a espera esgota-se sozinha, nunca bloqueia para sempre.
+Novos: 4 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.TravaoDeLogin.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.TravaoDeLogin.cs :: AuthenticationTests.Login_DuasFalhasEDepoisACerta_NaoEspera`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.TravaoDeLogin.cs :: AuthenticationTests.Login_MesmaContaDuasOrigens_UmaPalavraPasseDeCadaVez`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.TravaoDeLogin.cs :: AuthenticationTests.Login_PalavrasPasseErradas_EsperamCadaVezMais_EACertaEntraNaMesmaAposEsperar`
+
+Selo depois: `5d4ac9207aa000f8`
+
+## A-0354 · 2026-10-29 · contagem-lista
+
+Porquê: 2.ª passagem da auditoria .230 (Codex/Qoder, 29/10): fabrico SAP — SAP-B01 (linha contada a dobrar numa produção sem fim), SAP-B02 (reimportação apaga valores já lidos) e SAP-B03 (referência truncada apanha o material errado).
+Novos: 4 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ProducaoQueAcabaAMeioDaLinha_LigaELevaALinhaInteira`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ProducaoSemFim_ComProximaNaMesmaMaquina_NaoEngoleALinhaDaSeguinte`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ReferenciaCorresponde_ExigeFronteiraAposOPrefixo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ReimportarComRelatorioParcial_NaoApagaOQueJaEstavaGravado`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ALinhaDoSap_LigaSeAoJobOnPelaReferenciaMaquinaEDatas`
+
+Selo depois: `eb7e46cd07d185de`
+
+## A-0344 · 2026-10-29 · contagem-lista
+
+Porquê: SEC-01 (auditoria Codex 29/10/2026): «Atualizar do SAP» e «Instalar», que escreviam a senha do SAP nos scripts, saem da página Ferramentas (qualquer conta com o módulo chegava-lhes); ficam só em Admin › Definições › SAP. Teste novo confirma que o operador perde o handler (ScriptsSap) e o Admin mantém a senha; teste novo do browser confirma que o cartão sem esses botões não rebenta e «Apagar lidos» continua.
+Novos: 1 · mudaram: 4 · saíram: 0
+
+- novo: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: Sem «Atualizar do SAP» no cartão (Admin ficou com ele), o script não rebenta e «Apagar lidos» continua a funcionar`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.AsPastas_SaoGerais_SoAsAcoesFicamParaTodos`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OAdmin_MudaOSap_EOsScriptsDaPastaLevamAsDefinicoes`
+- mudou: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `07d1b1e410dc2fdb`
+
+## A-0382 · 2026-10-29 · ok-do-diogo
+
+Porquê: Lote .236: junta as impressões já explicadas em A-0344 (#311), A-0351 (#308), A-0354 (#310), A-0360 (#309) e A-0381 (#307), além das do lote anterior (A-0350)
+Referência: A-0344; A-0351; A-0354; A-0360; A-0381
+Novos: 20 · mudaram: 8 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ProducaoQueAcabaAMeioDaLinha_LigaELevaALinhaInteira`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ProducaoSemFim_ComProximaNaMesmaMaquina_NaoEngoleALinhaDaSeguinte`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ReferenciaCorresponde_ExigeFronteiraAposOPrefixo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ReimportarComRelatorioParcial_NaoApagaOQueJaEstavaGravado`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.LinkDaPercentagemDeUso_TemOEstiloDaApp`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.OSeparador_EstaAoLadoDoRegistoEDosMovimentos_EAPaginaAbreVazia`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.Pesquisar_PelaPosicao_EComNada_AvisaQueNaoEncontrou`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.Pesquisar_ProcuraCmMfEBq_EACadaLinhaAbreORegistoDaFerramenta`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.ProcuraAoEscrever_DevolveSoAZonaDosResultados`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.SemAChave_NaoEntra`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.TravaoDeLogin.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.TravaoDeLogin.cs :: AuthenticationTests.Login_DuasFalhasEDepoisACerta_NaoEspera`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.TravaoDeLogin.cs :: AuthenticationTests.Login_MesmaContaDuasOrigens_UmaPalavraPasseDeCadaVez`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.TravaoDeLogin.cs :: AuthenticationTests.Login_PalavrasPasseErradas_EsperamCadaVezMais_EACertaEntraNaMesmaAposEsperar`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: PostoTravaoTests.Posto_PinsErrados_ComXForwardedForDiferenteDeCadaVez_EsperaNaMesma`
+- novo: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: Sem «Atualizar do SAP» no cartão (Admin ficou com ele), o script não rebenta e «Apagar lidos» continua a funcionar`
+- novo: `tests/ShellProof/dmo-suggest.test.cjs :: Enter sem navegar nas flechas confirma a ferramenta já escolhida, não a limpa (auditoria do Codex, 29/10/2026)`
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: Editar: a resposta atrasada de uma ferramenta trocada não sobrepõe o cartão da escolhida a seguir`
+- novo: `tests/visual/armazem_pesquisar_browser.py`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ALinhaDoSap_LigaSeAoJobOnPelaReferenciaMaquinaEDatas`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.AsPastas_SaoGerais_SoAsAcoesFicamParaTodos`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OAdmin_MudaOSap_EOsScriptsDaPastaLevamAsDefinicoes`
+- mudou: `tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/dmo-suggest.test.cjs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/jobon-folha.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `201be6b94f26e7e5`
+
+## A-0384 · 2026-10-29 · ok-do-diogo
+
+Porquê: Avisos dos cartões no canto superior direito com × (teste novo, DMO-644); nos Calibres o «P / M» fica um por cima do outro sem a barra, como o Diogo pediu (DMO-645): o teste do Extrator passa a esperar os valores sem «/» e o texto escrito no título.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra8XrmodJiio6g6eC4ixneHQ
+Novos: 3 · mudaram: 1 · saíram: 0
+
+- novo: `tests/ShellProof/jobon-folha-avisos-canto.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/jobon-folha-avisos-canto.test.cjs :: Editar: os avisos ficam onde estão`
+- novo: `tests/ShellProof/jobon-folha-avisos-canto.test.cjs :: Ver: avisos do CM e da BQ vão para o canto, com o botão e um × que fecha`
+- mudou: `tests/ShellProof/cobertura_a1_folha-js.test.cjs :: Calibres: «P 59.20 / M 58.60» quebra só na barra, em dois segmentos inteiros`
+
+Selo depois: `7a4c93168414ea60`
+
+## A-0385 · 2026-10-29 · ok-do-diogo
+
+Porquê: Lote .236: junta as impressões do #301 (DMO-644/645/646) já explicadas em A-0384
+Referência: A-0384
+Novos: 3 · mudaram: 1 · saíram: 0
+
+- novo: `tests/ShellProof/jobon-folha-avisos-canto.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/jobon-folha-avisos-canto.test.cjs :: Editar: os avisos ficam onde estão`
+- novo: `tests/ShellProof/jobon-folha-avisos-canto.test.cjs :: Ver: avisos do CM e da BQ vão para o canto, com o botão e um × que fecha`
+- mudou: `tests/ShellProof/cobertura_a1_folha-js.test.cjs :: Calibres: «P 59.20 / M 58.60» quebra só na barra, em dois segmentos inteiros`
+
+Selo depois: `4390bbb2cbbcc0af`

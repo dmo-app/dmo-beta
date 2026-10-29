@@ -229,3 +229,51 @@ test('Editar: a procura da BQ leva a CM e a MF escolhidas, e a lista mostra a li
   assert.equal((await bq.dmoSource('T1')).note, '');
   window.close();
 });
+
+// Escolher A e depois B muda logo para B; a resposta de A, atrasada, não pode
+// sobrepor o cartão de B (auditoria do Codex de 29/10/2026, bug alto).
+test('Editar: a resposta atrasada de uma ferramenta trocada não sobrepõe o cartão da escolhida a seguir', async () => {
+  const dom = new JSDOM(`<!doctype html><body><form data-jof-folha="editar">
+    <input type="hidden" id="lightReference" value="5810T188" />
+    <div class="jof-tool-slot" data-jof-tool-slot="CM">
+      <button type="button" class="jof-tool" data-jof-tool="CM" data-jof-ficha="/Ferramentas/Ficha?tool_id=TA"><span class="hv"><b data-jof-tool-ref>A</b></span><span class="hv"><b data-jof-tool-lote>1</b></span></button>
+      <div class="jof-tool-procura" data-jof-tool-procura hidden><select name="cm_tool_id" data-facts-type="CM" data-dmo-filter>
+        <option value="">Escreva</option><option value="TA" selected>A · Lote 1</option><option value="TB">B · Lote 2</option></select></div>
+    </div>
+    <div class="hv" data-jof-nota><input id="cm_utilizacao" /></div>
+    </form></body>`, { url: 'http://dmo.test/JobOn/Folha?jobon_id=1', runScripts: 'outside-only' });
+  const { window } = dom;
+  const respostas = {};
+  window.fetch = url => new Promise(resolver => {
+    const toolId = new URL(url, 'http://dmo.test').searchParams.get('tool_id');
+    respostas[toolId] = resolver;
+  });
+  window.eval(fs.readFileSync(path.join(assets, 'js/jobon-folha.js'), 'utf8'));
+  if (window.document.readyState === 'loading') await new Promise(r => window.addEventListener('DOMContentLoaded', r));
+  const doc = window.document;
+  const select = doc.querySelector('select[name="cm_tool_id"]');
+  const utilizacao = doc.getElementById('cm_utilizacao');
+
+  // Escolhe A: o pedido dos dados de A fica à espera.
+  select.value = 'TA';
+  select.dispatchEvent(new window.Event('change', { bubbles: true }));
+  await espera(5);
+  assert.ok(respostas.TA, 'o pedido da A foi feito');
+
+  // Escolhe B antes de A responder: o pedido de B também fica à espera.
+  select.value = 'TB';
+  select.dispatchEvent(new window.Event('change', { bubbles: true }));
+  await espera(5);
+  assert.ok(respostas.TB, 'o pedido da B foi feito');
+
+  // B responde primeiro, como é normal.
+  respostas.TB({ ok: true, json: async () => ({ utilizacao: { id: 'cm_utilizacao', valor: '22.00' }, campos: [] }) });
+  await espera(5);
+  assert.equal(utilizacao.value, '22.00', 'o cartão já mostra a B');
+
+  // A resposta atrasada de A chega a seguir: já não é a ferramenta escolhida.
+  respostas.TA({ ok: true, json: async () => ({ utilizacao: { id: 'cm_utilizacao', valor: '11.00' }, campos: [] }) });
+  await espera(5);
+  assert.equal(utilizacao.value, '22.00', 'a resposta atrasada da A não pode sobrepor o cartão da B');
+  window.close();
+});

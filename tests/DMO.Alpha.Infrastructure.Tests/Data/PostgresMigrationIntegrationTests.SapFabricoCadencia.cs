@@ -24,7 +24,7 @@ public sealed partial class PostgresMigrationIntegrationTests
         {
             await using (var db = CreateContext())
             {
-                await new FerramentasFabricoSap(db, new SessaoUsoSap()).ImportarAsync(leitura.Linhas, "dmo-fabrico-sap.txt", DateTime.UtcNow, leitura.Detalhes);
+                await new FerramentasFabricoSap(db, new SessaoUsoSap(), Microsoft.Extensions.Logging.Abstractions.NullLogger<DMO.Alpha.Infrastructure.Tools.FerramentasFabricoSap>.Instance).ImportarAsync(leitura.Linhas, "dmo-fabrico-sap.txt", DateTime.UtcNow, leitura.Detalhes);
             }
 
             await using var depois = CreateContext();

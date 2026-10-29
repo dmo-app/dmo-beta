@@ -140,8 +140,8 @@ test('Calibres: «P 59.20 / M 58.60» quebra só na barra, em dois segmentos int
     </tbody></table></div>
     <div class="jof2 editing"><table data-jof-cal><tbody><tr><td id="editar">P 59.20 / M 58.60</td></tr></tbody></table></div>`);
   const segmentos = [...doc.querySelectorAll('#duas .calv-seg')].map(s => s.textContent);
-  assert.deepEqual(segmentos, ['P 59.20 /', 'M 58.60']);
-  assert.equal(doc.getElementById('duas').textContent, 'P 59.20 / M 58.60', 'o texto lido é o mesmo');
+  assert.deepEqual(segmentos, ['P 59.20', 'M 58.60']);
+  assert.equal(doc.getElementById('duas').title, 'P 59.20 / M 58.60', 'o texto escrito fica no título');
   assert.equal(doc.querySelectorAll('#uma .calv-seg').length, 0, 'um só valor fica como está');
   assert.equal(doc.querySelectorAll('#editar .calv-seg').length, 0, 'no Editar a caixa de escrever não se mexe');
   window.close();

@@ -206,8 +206,14 @@
       } else if (event.key === "Enter" && (active >= 0 || (pickFirstOnEnter && items.length && !(waiting && waiting())))) {
         // No filtro de um select, Enter escolhe a primeira opção filtrada,
         // mas não a da lista anterior enquanto a procura não responde.
+        // Sem destaque (não se navegou com as flechas), a primeira linha pode
+        // ser o «limpar» que o campo vazio põe à frente da já escolhida
+        // (showRemote): Enter sozinho confirma o que já está escolhido, não
+        // limpa-o em silêncio (auditoria do Codex de 29/10/2026, bug alto).
+        var escolha = active >= 0 ? items[active] : items.find(function (item) { return item.value !== ""; });
         event.preventDefault();
-        onPick(items[active >= 0 ? active : 0]);
+        if (!escolha) { close(); return; }
+        onPick(escolha);
         close();
       } else if (event.key === "Escape") {
         event.preventDefault();

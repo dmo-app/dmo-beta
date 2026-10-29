@@ -38,8 +38,8 @@ public sealed partial class DefinicoesPorModuloPageTests
         var historico = WebUtility.HtmlDecode(ZonaUsoSap(await (await client.GetAsync($"/Ferramentas/Ficha?tool_id={toolId}")).Content.ReadAsStringAsync(), "ferrHistoricoProducoes"));
 
         Assert.Contains($"<small class=\"ferr-producao-maquina\">{referencia} · {maquina}</small>", historico, StringComparison.Ordinal);
-        // E a lista de todas as referências em que trabalhou, com as produções de cada uma.
-        Assert.Contains($"Referência: {referencia} (2)", ZonaUsoSap(historico, "ferrHistoricoReferencias"), StringComparison.Ordinal);
+        // Sem o quadro «Referência: … (n)» por cima (Diogo, 29/10/2026: «a tabela em baixo já mostra»).
+        Assert.DoesNotContain("ferrHistoricoReferencias", historico, StringComparison.Ordinal);
         // «em curso» na que está na máquina hoje, não nas que já acabaram.
         Assert.Single(System.Text.RegularExpressions.Regex.Matches(historico, " · em curso"));
         Assert.Contains("209905", historico, StringComparison.Ordinal);

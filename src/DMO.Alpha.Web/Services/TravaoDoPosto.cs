@@ -13,6 +13,15 @@ namespace DMO.Alpha.Web.Services;
 /// </summary>
 public sealed class TravaoDoPosto
 {
+    /// <summary>
+    /// A chave em HttpContext.Items onde o IP verdadeiro da ligação TCP fica
+    /// guardado antes do middleware do X-Forwarded-For o substituir
+    /// (Program.cs). Usar isto, nunca HttpContext.Connection.RemoteIpAddress
+    /// depois desse middleware correr: esse já é o que o cliente escreveu no
+    /// cabeçalho (auditoria do Codex de 29/10/2026, AUTH-B02).
+    /// </summary>
+    public const string ChaveIpDaLigacao = "dmo-ip-da-ligacao";
+
     public const int FalhasSemEspera = 5;
 
     public static readonly TimeSpan EsperaMaxima = TimeSpan.FromSeconds(30);

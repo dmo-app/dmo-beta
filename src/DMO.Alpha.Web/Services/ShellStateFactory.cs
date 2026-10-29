@@ -274,7 +274,8 @@ public sealed class ShellStateFactory
         new[]
         {
             new FunctionPresentation("movimentos", "Registo", "/Armazem/Movimentos", null, activeKey == "movimentos", true, true),
-            new FunctionPresentation("ultimos", "Movimentos", "/Armazem/Ultimos", null, activeKey == "ultimos", true, true)
+            new FunctionPresentation("ultimos", "Movimentos", "/Armazem/Ultimos", null, activeKey == "ultimos", true, true),
+            new FunctionPresentation("pesquisar", "Pesquisar", "/Armazem/Pesquisar", null, activeKey == "pesquisar", true, true)
         };
 
     /// <summary>

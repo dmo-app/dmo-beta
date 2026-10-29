@@ -123,7 +123,7 @@ public sealed partial class PostgresMigrationIntegrationTests
                     var contaAntes = new ContaConsultas();
                     await using (var ctx = CreateContextWith(contaAntes))
                     {
-                        var fabrico = new FerramentasFabricoSap(ctx, new SessaoUsoSap());
+                        var fabrico = new FerramentasFabricoSap(ctx, new SessaoUsoSap(), Microsoft.Extensions.Logging.Abstractions.NullLogger<DMO.Alpha.Infrastructure.Tools.FerramentasFabricoSap>.Instance);
                         foreach (var id in pedidas)
                         {
                             var itens = (await fabrico.ProducoesAsync(id, 1, 100_000)).Pagina.Items.Where(p => CabeNoFiltro(p, filtro)).ToList();
@@ -138,7 +138,7 @@ public sealed partial class PostgresMigrationIntegrationTests
                     IReadOnlyDictionary<string, IReadOnlyList<FerramentaProducao>> novas;
                     await using (var ctx = CreateContextWith(contaDepois))
                     {
-                        novas = await new FerramentasFabricoSap(ctx, new SessaoUsoSap()).ProducoesDeFerramentasAsync(pedidas, filtro);
+                        novas = await new FerramentasFabricoSap(ctx, new SessaoUsoSap(), Microsoft.Extensions.Logging.Abstractions.NullLogger<DMO.Alpha.Infrastructure.Tools.FerramentasFabricoSap>.Instance).ProducoesDeFerramentasAsync(pedidas, filtro);
                     }
 
                     Assert.Equal(antigas.Keys.OrderBy(x => x, StringComparer.Ordinal), novas.Keys.OrderBy(x => x, StringComparer.Ordinal));
@@ -158,7 +158,7 @@ public sealed partial class PostgresMigrationIntegrationTests
             }
 
             // Os casos que importam existem: em curso, sem SAP, sem leituras, trocada.
-            var todas = await new FerramentasFabricoSap(db, new SessaoUsoSap()).ProducoesDeFerramentasAsync(ids, null);
+            var todas = await new FerramentasFabricoSap(db, new SessaoUsoSap(), Microsoft.Extensions.Logging.Abstractions.NullLogger<DMO.Alpha.Infrastructure.Tools.FerramentasFabricoSap>.Instance).ProducoesDeFerramentasAsync(ids, null);
             var todasItens = todas.Values.SelectMany(x => x).ToList();
             Assert.Contains(todasItens, p => p.FimEm is null && p.InicioEm is not null && p.ProducaoBruta is not null);
             Assert.Contains(todasItens, p => p.ProducaoBruta is null && p.InicioEm is not null);
@@ -172,7 +172,7 @@ public sealed partial class PostgresMigrationIntegrationTests
             {
                 var conta = new ContaConsultas();
                 await using var ctx = CreateContextWith(conta);
-                var procura = await new FerramentaHistoricoQuery(ctx, new FerramentasFabricoSap(ctx, new SessaoUsoSap()))
+                var procura = await new FerramentaHistoricoQuery(ctx, new FerramentasFabricoSap(ctx, new SessaoUsoSap(), Microsoft.Extensions.Logging.Abstractions.NullLogger<DMO.Alpha.Infrastructure.Tools.FerramentasFabricoSap>.Instance))
                     .ProcurarAsync(new HistoricoFiltro(referencia, null, null, null, null));
                 Assert.Equal(cortada, procura.Cortada);
                 Assert.Equal(esperadas, procura.Linhas.Select(l => l.Ferramenta.ToolId).Distinct().Count());

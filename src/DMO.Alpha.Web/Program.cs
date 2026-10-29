@@ -517,8 +517,13 @@ else if (OperatingSystem.IsWindows())
 // O Railway (e o Tailscale Funnel no portátil) termina o HTTPS à frente da app e passa o pedido em HTTP com
 // X-Forwarded-Proto/For. Sem ler esses cabeçalhos a app julga-se em HTTP:
 // os cookies da sessão saíam sem Secure e o HSTS nunca era enviado. A rede
-// do proxy não é fixa, por isso aceita-se o cabeçalho de qualquer origem
-// (o pior que um cliente consegue é marcar o próprio cookie como Secure).
+// do proxy não é fixa, por isso aceita-se o cabeçalho de qualquer origem.
+// Quem manda o pedido também manda o X-Forwarded-For: qualquer cliente
+// escolhe o IP que o resto da app vê a partir daqui (auditoria do Codex de
+// 29/10/2026, AUTH-B02 — o travão do Posto confiava nesse IP). Por isso o
+// IP verdadeiro da ligação fica guardado em HttpContext.Items ANTES deste
+// middleware o substituir, para quem precisa de um IP que o cliente não
+// escolhe (TravaoDoPosto).
 builder.Services.Configure<Microsoft.AspNetCore.Builder.ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor
@@ -534,6 +539,11 @@ builder.Services.AddScoped<DMO.Alpha.Web.Services.InstalacaoInicial>();
 
 var app = builder.Build();
 
+app.Use(async (context, next) =>
+{
+    context.Items[DMO.Alpha.Web.Services.TravaoDoPosto.ChaveIpDaLigacao] = context.Connection.RemoteIpAddress?.ToString();
+    await next();
+});
 app.UseForwardedHeaders();
 
 // A configuração em falta fica no log do arranque, pelo nome da variável e
