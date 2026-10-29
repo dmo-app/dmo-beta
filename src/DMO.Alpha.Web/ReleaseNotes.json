@@ -633,7 +633,8 @@
     { "id": "DMO-669", "module": "Job On", "description": "Um diâmetro antigo com dois números (ex.: «52.60 / 0.05») separa-se sozinho: o primeiro fica no valor e o segundo vai para a «Tol.». O Guardar deixa de ser recusado por isso." },
     { "id": "DMO-677", "module": "Ferramentas", "description": "0.3.0-beta.245 (A-0428): SAP: com o SAP já aberto, o «Atualizar do SAP» já não escreve o utilizador e a senha na janela do SAP em uso («Função impossível»)." },
     { "id": "DMO-678", "module": "Controlo", "description": "0.3.0-beta.246 (A-0430): na Revisão do Controlo, os botões «Medições no mcaliper» (CM, MF, BQ) abrem o link no mcaliper num separador novo, em vez de o copiarem." },
-    { "id": "DMO-676", "module": "Controlo", "description": "0.3.0-beta.246 (A-0427): no Peso, a lista de máquinas do Novo Peso com Job On só mostra as máquinas onde a referência pode trabalhar; e a tabela do Controlo anterior passa a «Controlo atual · n.º da produção» com as colunas iguais." }
+    { "id": "DMO-676", "module": "Controlo", "description": "0.3.0-beta.246 (A-0427): no Peso, a lista de máquinas do Novo Peso com Job On só mostra as máquinas onde a referência pode trabalhar; e a tabela do Controlo anterior passa a «Controlo atual · n.º da produção» com as colunas iguais." },
+    { "id": "DMO-682", "module": "Peso", "description": "Nova versão (A-0435): no PDF do Peso, os cartões da produção anterior dizem «Média» e «Moda» (antes tinham o mesmo título repetido), e a moda mostra os dias em que esse peso se usou (ex.: «9 de 9 dias») em vez da diferença." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

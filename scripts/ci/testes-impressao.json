@@ -1,5 +1,5 @@
 {
-  "selo": "e25ab73ba7eeb751",
+  "selo": "7cffc9e0a88f482f",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -753,6 +753,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.CoberturaBPdf.cs :: (resto do ficheiro)": "da307baec650426a",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.CoberturaBPdf.cs :: PesoPdfGeneratorCoberturaBTests.PdfDoPeso_NaoRepeteRotulosNemExplicacoesRetiradas": "77db7792475b8171",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.CoberturaBPdf.cs :: PesoPdfGeneratorCoberturaBTests.ProducaoAnterior_ComMediaEModa_OPdfDizAsDuasEOsDiasDaModa": "80dc21ff0005664e",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.CoberturaBPdf.cs :: PesoPdfGeneratorCoberturaBTests.ProducaoAnterior_ComMediaEModa_OsCartoesDizemMediaEModa_EAModaMostraOsDiasSemDiferenca": "5c4e2ee6388f7075",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.CoberturaBPdf.cs :: PesoPdfGeneratorCoberturaBTests.ProducaoAnterior_SemMediaNemModa_UsaOPesoGuardado_ESemDizerMedia": "9a58adeea472c9e9",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.cs :: (resto do ficheiro)": "f56e7e2cbe8dedc0",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.cs :: PesoPdfGeneratorTests.GenerateBytes_ProducesARealPdf_InMemory": "e06386b7d14b30eb",
