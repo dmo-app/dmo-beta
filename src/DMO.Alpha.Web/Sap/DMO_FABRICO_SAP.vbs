@@ -31,6 +31,13 @@ Const SENHA = "{{SENHA}}"
 Const UTILIZADOR = "{{UTILIZADOR}}"
 Const JANELA_LOGON = "Moldes Existentes"
 
+' Sem senha do SAP o script pára logo (Diogo, 29/10/2026: «prendeu na pass»,
+' o PC bloqueou): nunca fica à espera da janela da senha.
+If SENHA = "" Or InStr(SENHA, Chr(123) & Chr(123)) > 0 Then
+    CreateObject("WScript.Shell").Popup "Falta a senha do SAP. Grave-a no DMO em Admin › SAP e carregue outra vez em «Instalar».", 30, TITULO, 48
+    WScript.Quit 1
+End If
+
 ' /auto: sem mensagem final. /inicio:dd.mm.aaaa e /fim:dd.mm.aaaa: as datas
 ' escolhidas no DMO («Atualizar do SAP» por data). Sem elas, os últimos DIAS dias.
 Dim automatico, dataInicio, dataFim, argumento

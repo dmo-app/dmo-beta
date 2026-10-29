@@ -73,6 +73,12 @@ public class IndexModel(
     /// <summary>GET: os scripts do SAP para o «Atualizar do SAP» do Admin › SAP (escritos na pasta pelo browser).</summary>
     public async Task<IActionResult> OnGetScriptsSapAsync()
     {
+        // Diogo, 29/10/2026: sem senha o script prendeu o PC na janela da senha (DMO-661).
+        if (!await sapScripts.TemSenhaAsync(HttpContext.RequestAborted))
+        {
+            return new ConflictObjectResult(new { erro = "Falta a senha do SAP: escreva-a em «Senha do SAP», grave e carregue outra vez." });
+        }
+
         var ficheiros = await sapScripts.FicheirosAsync($"{Request.Scheme}://{Request.Host}{Request.PathBase}", HttpContext.RequestAborted);
         Response.Headers.CacheControl = "no-store";
         return new JsonResult(ficheiros.Select(f => new { nome = f.Nome, base64 = Convert.ToBase64String(f.Conteudo) }));

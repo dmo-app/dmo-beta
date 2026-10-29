@@ -35,4 +35,19 @@ public sealed class SapScriptsVbsTests
         Assert.Contains("Const CENTRO = \"MG\"", vbs);
         Assert.Matches(new Regex(@"searchField\.Text = codigo\s+SoCentroMg session\s+session\.findById\(""wnd\[0\]""\)\.sendVKey 8"), vbs);
     }
+
+    // Diogo, 29/10/2026: «prendeu na pass» e bloqueou o PC (DMO-661): sem senha os
+    // scripts que entram no SAP param logo; com o SAP já aberto a senha ainda se escreve.
+    [Theory]
+    [InlineData("Sap.DMO_USO_SAP.vbs")]
+    [InlineData("Sap.DMO_FABRICO_SAP.vbs")]
+    public void SemSenha_OScriptParaLogo(string nome)
+    {
+        using var stream = typeof(SapScripts).Assembly.GetManifestResourceStream(nome)!;
+        var vbs = new StreamReader(stream).ReadToEnd();
+
+        Assert.Matches(new Regex(@"If SENHA = """" Or InStr\(SENHA, Chr\(123\) & Chr\(123\)\) > 0 Then\s+\S.*Falta a senha do SAP.*\s+WScript\.Quit 1"), vbs);
+        Assert.True(vbs.IndexOf("WScript.Quit 1", StringComparison.Ordinal) < vbs.IndexOf("Do", vbs.IndexOf("Falta a senha", StringComparison.Ordinal), StringComparison.Ordinal));
+        Assert.DoesNotContain("Or sapAberto", vbs);
+    }
 }
