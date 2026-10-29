@@ -27,14 +27,19 @@ public sealed class SapScripts(ISapDefinicoes definicoes)
     public async Task<string> TextoAsync(string nome, CancellationToken cancellationToken = default) =>
         await definicoes.ScriptEditadoAsync(nome, cancellationToken) ?? Original(nome);
 
-    public async Task<IReadOnlyList<Ficheiro>> FicheirosAsync(CancellationToken cancellationToken = default)
+    /// <param name="urlBase">O endereço da app como o browser a vê: o script envia para lá o que leu (DMO-582).</param>
+    public async Task<IReadOnlyList<Ficheiro>> FicheirosAsync(string urlBase, CancellationToken cancellationToken = default)
     {
         var dados = await definicoes.LerAsync(cancellationToken);
         var senha = await definicoes.SenhaAsync(cancellationToken) ?? string.Empty;
+        var chave = await definicoes.ChaveDeEnvioAsync(cancellationToken);
         var ficheiros = new List<Ficheiro>();
         foreach (var nome in SapScriptsRegras.Nomes)
         {
-            var texto = Preencher(await TextoAsync(nome, cancellationToken), dados, senha).Replace("\n", "\r\n");
+            var texto = Preencher(await TextoAsync(nome, cancellationToken), dados, senha)
+                .Replace("{{URL}}", urlBase.Replace("\"", string.Empty), StringComparison.Ordinal)
+                .Replace("{{CHAVE}}", chave, StringComparison.Ordinal)
+                .Replace("\n", "\r\n");
             ficheiros.Add(new Ficheiro(nome, Codificar(nome, texto)));
         }
 
@@ -47,6 +52,32 @@ public sealed class SapScripts(ISapDefinicoes definicoes)
             .Replace("{{SENHA}}", senha.Replace("\"", "\"\""), StringComparison.Ordinal)
             .Replace("{{HORA}}", dados.Hora.ToString(CultureInfo.InvariantCulture), StringComparison.Ordinal)
             .Replace("{{DIAS}}", dados.Dias.ToString(CultureInfo.InvariantCulture), StringComparison.Ordinal);
+
+    /// <summary>
+    /// O texto de um ficheiro enviado pelo script: UTF-16 ou UTF-8 com BOM,
+    /// UTF-8 sem BOM, ou o Windows-1252 do CreateTextFile do VBScript.
+    /// </summary>
+    public static string Texto(byte[] bytes)
+    {
+        if (bytes is [0xFF, 0xFE, ..])
+        {
+            return Encoding.Unicode.GetString(bytes, 2, bytes.Length - 2);
+        }
+
+        if (bytes is [0xEF, 0xBB, 0xBF, ..])
+        {
+            return Encoding.UTF8.GetString(bytes, 3, bytes.Length - 3);
+        }
+
+        try
+        {
+            return new UTF8Encoding(false, true).GetString(bytes);
+        }
+        catch (DecoderFallbackException)
+        {
+            return Encoding.Latin1.GetString(bytes);
+        }
+    }
 
     /// <summary>O .vbs em Unicode (o WScript lê os acentos), o resto em Windows-1252/ASCII.</summary>
     private static byte[] Codificar(string nome, string texto)

@@ -42,7 +42,7 @@ Dim fso, shell, pasta, atalho, ficheiroCodigos, saida, temporario
 Dim SapGuiAuto, application, connection, session
 Dim searchField, grid, outFile
 Dim codigo, linha, i, r, startedAt, encontrados
-Dim equipment, percentUse, lastProduction, batchDesc, statusText, errorText
+Dim equipment, percentUse, lastProduction, batchDesc, statusText, errorText, consumo, vida, pecas, colConsumo, colVida, colPecas
 
 ' Com /auto (o Agendador de Tarefas, ao fim do dia) não mostra a mensagem final.
 ' /codigos:<ficheiro>: os códigos de outro ficheiro desta pasta (o «Atualizar do
@@ -171,7 +171,7 @@ On Error GoTo 0
 
 ' Grava primeiro num ficheiro à parte: o DMO só vê a lista quando estiver completa.
 Set outFile = fso.CreateTextFile(temporario, True)
-outFile.WriteLine "search,equipment,percent_use,last_production,batch_description,status,error"
+outFile.WriteLine "search,equipment,percent_use,last_production,batch_description,status,error,consumption,expected life,pieces"
 encontrados = 0
 
 For i = 0 To total - 1
@@ -221,6 +221,11 @@ For i = 0 To total - 1
             GoBackToSearch session
         Else
             If codigo = "*" Then Registo "lista de todos os moldes: " & grid.RowCount & " linhas"
+            ' As colunas das peças pelo título (o id no SAP não se conhece):
+            ' Consumption, Expected life e No. of pieces.
+            colConsumo = ColunaPorTitulo(grid, "consumption")
+            colVida = ColunaPorTitulo(grid, "expected life")
+            colPecas = ColunaPorTitulo(grid, "no. of pieces")
             For r = 0 To grid.RowCount - 1
                 ' Numa lista grande o SAP só carrega as linhas à vista: desce a lista.
                 If r Mod 20 = 0 Then
@@ -242,6 +247,12 @@ For i = 0 To total - 1
                 percentUse = Trim(CStr(grid.GetCellValue(r, "PERC")))
                 lastProduction = Trim(CStr(grid.GetCellValue(r, "DATA_UF")))
                 batchDesc = Trim(CStr(grid.GetCellValue(r, "DESC_LOTE")))
+                consumo = ""
+                vida = ""
+                pecas = ""
+                If Len(colConsumo) > 0 Then consumo = Trim(CStr(grid.GetCellValue(r, colConsumo)))
+                If Len(colVida) > 0 Then vida = Trim(CStr(grid.GetCellValue(r, colVida)))
+                If Len(colPecas) > 0 Then pecas = Trim(CStr(grid.GetCellValue(r, colPecas)))
                 If Err.Number <> 0 Then
                     statusText = "ERROR"
                     errorText = Err.Description
@@ -252,7 +263,8 @@ For i = 0 To total - 1
                 If statusText = "FOUND" Then encontrados = encontrados + 1
                 outFile.WriteLine CsvValue(codigo) & "," & CsvValue(equipment) & "," & CsvValue(percentUse) & "," & _
                                   CsvValue(lastProduction) & "," & CsvValue(batchDesc) & "," & _
-                                  CsvValue(statusText) & "," & CsvValue(errorText)
+                                  CsvValue(statusText) & "," & CsvValue(errorText) & "," & _
+                                  CsvValue(consumo) & "," & CsvValue(vida) & "," & CsvValue(pecas)
             Next
             GoBackToSearch session
         End If
@@ -401,6 +413,25 @@ End Sub
 Sub WriteErrorRow(ByVal fileHandle, ByVal procura, ByVal message)
     fileHandle.WriteLine CsvValue(procura) & ",,,,," & CsvValue("ERROR") & "," & CsvValue(message)
 End Sub
+
+' O id da coluna da lista cujo título começa por «inicio» (vazio se não houver).
+Function ColunaPorTitulo(grid, inicio)
+    Dim i, id, titulo
+    ColunaPorTitulo = ""
+    On Error Resume Next
+    For i = 0 To grid.ColumnCount - 1
+        id = grid.ColumnOrder(i)
+        titulo = LCase(Trim(CStr(grid.GetDisplayedColumnTitle(id))))
+        If Err.Number <> 0 Then
+            Err.Clear
+        ElseIf Left(titulo, Len(inicio)) = inicio Then
+            ColunaPorTitulo = id
+            Exit For
+        End If
+    Next
+    Err.Clear
+    On Error GoTo 0
+End Function
 
 Function CsvValue(ByVal textValue)
     CsvValue = Chr(34) & Replace(CStr(textValue), Chr(34), Chr(34) & Chr(34)) & Chr(34)

@@ -83,7 +83,8 @@ public sealed class FerramentaLembreteUtilizacao
 }
 
 /// <summary>Uma linha da lista do SAP: o código do equipamento e o uso.</summary>
-public sealed record UsoSapLinha(string CodigoEquipamento, decimal PercentagemUso, long? Consumo, long? VidaPrevista);
+/// <param name="Procura">O código que o script procurou (a coluna «search» do CSV): liga a linha à ferramenta quando a procura tem «*» ou não é o nome técnico.</param>
+public sealed record UsoSapLinha(string CodigoEquipamento, decimal PercentagemUso, long? Consumo, long? VidaPrevista, string? Procura = null);
 
 /// <summary>
 /// A leitura de uma exportação do relatório «Gestão de Moldes»: em HTML (o
@@ -122,6 +123,7 @@ public static class UsoSapExportacao
 
             var consumo = Coluna(cabecalho, c => c.StartsWith("consumption", StringComparison.Ordinal));
             var vida = Coluna(cabecalho, c => c.StartsWith("expected life", StringComparison.Ordinal));
+            var procura = Coluna(cabecalho, c => c is "search" or "procura");
             var linhas = new List<UsoSapLinha>();
             foreach (var celulas in tabela.Skip(i + 1))
             {
@@ -135,7 +137,8 @@ public static class UsoSapExportacao
                     codigo,
                     Math.Round(percentagem, 2),
                     Numero(Celula_(celulas, consumo), out var c) ? (long)Math.Round(c) : null,
-                    Numero(Celula_(celulas, vida), out var v) ? (long)Math.Round(v) : null));
+                    Numero(Celula_(celulas, vida), out var v) ? (long)Math.Round(v) : null,
+                    Celula_(celulas, procura).Replace(" ", "", StringComparison.Ordinal).ToUpperInvariant() is { Length: > 0 } p ? p : null));
             }
 
             return new Leitura(true, linhas);
@@ -152,7 +155,9 @@ public static class UsoSapExportacao
     public static bool Numero(string? texto, out decimal valor)
     {
         valor = 0;
-        var bruto = texto?.Trim().Replace(" ", "", StringComparison.Ordinal);
+        // Os espaços (também os inquebráveis) e o «%» pegado ao número saem.
+        var bruto = texto?.Trim().Replace(" ", "", StringComparison.Ordinal).Replace("\u00A0", "", StringComparison.Ordinal)
+            .Replace("\u202F", "", StringComparison.Ordinal).TrimEnd('%');
         // Um só ponto com uma ou duas casas a seguir (90.2) é a vírgula das
         // décimas noutro formato: os milhares têm sempre três algarismos.
         var limpo = bruto is not null && !bruto.Contains(',') && Regex.IsMatch(bruto, @"^\d+\.\d{1,2}$")

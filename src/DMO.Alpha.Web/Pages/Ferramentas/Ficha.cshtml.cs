@@ -115,8 +115,10 @@ public sealed class FichaModel : PageModel
         CurrentUserCapabilities capabilities,
         IFerramentasUsoSap usoSap,
         IFerramentasFabricoSap fabricoSap,
-        DMO.Alpha.Core.Armazem.IFabricasBa fabricasBa)
+        DMO.Alpha.Core.Armazem.IFabricasBa fabricasBa,
+        ISapProcuraRegras sapProcura)
     {
+        _sapProcura = sapProcura;
         _fabricasBa = fabricasBa;
         _usoSap = usoSap;
         _fabricoSap = fabricoSap;
@@ -137,6 +139,26 @@ public sealed class FichaModel : PageModel
     private readonly IFerramentasUsoSap _usoSap;
     private readonly IFerramentasFabricoSap _fabricoSap;
     private readonly DMO.Alpha.Core.Armazem.IFabricasBa _fabricasBa;
+    private readonly ISapProcuraRegras _sapProcura;
+
+    /// <summary>O código que o script procura no SAP e o «Código SAP» escrito à mão (DMO-586).</summary>
+    public (string? Codigo, string? AMao) CodigoSap { get; private set; }
+
+    public const string SavedCodigoSap = "codigo-sap";
+
+    /// <summary>
+    /// POST: o «Código SAP» da ferramenta (Diogo, 28/10/2026: «se precisar de
+    /// alterar algum nome de uma ferramenta para o script procurar»). Vazio
+    /// volta à tabela dos códigos de procura do Admin › SAP.
+    /// </summary>
+    public async Task<IActionResult> OnPostCodigoSapAsync(
+        [FromForm(Name = "tool_id")] string? toolId,
+        [FromForm(Name = "codigo_sap")] string? codigo)
+    {
+        var canonicalToolId = IndexModel.Sanitize(toolId) ?? string.Empty;
+        var gravado = await _sapProcura.GravarCodigoAsync(canonicalToolId, codigo, HttpContext.RequestAborted);
+        return RedirectToPage("/Ferramentas/Ficha", new { tool_id = canonicalToolId, guardado = gravado ? SavedCodigoSap : null });
+    }
 
     /// <summary>As siglas das fábricas da BA ativas, para a Fábrica de origem (Diogo, 28/10/2026).</summary>
     public IReadOnlyList<string> Fabricas { get; private set; } = Array.Empty<string>();
@@ -523,7 +545,7 @@ public sealed class FichaModel : PageModel
             .Select(field => (Label: field.Value, Typed: impossibleTyped[field.Key]))
             .ToList();
         UnreadableTyped = unreadableTyped.Concat(impossibleTyped).ToDictionary(field => field.Key, field => field.Value);
-        SavedSection = guardado is SavedGeneral or SavedTechnical or SavedDuplicateWarningCleared or SavedUtilizacaoPedida ? guardado : null;
+        SavedSection = guardado is SavedGeneral or SavedTechnical or SavedDuplicateWarningCleared or SavedUtilizacaoPedida or SavedCodigoSap ? guardado : null;
         ExistingToolId = FactsRefusal == EditToolFactsResult.LotAlreadyExists
             || DuplicateRefusal == DuplicateToolResult.LotAlreadyExists
                 ? IndexModel.Sanitize(existingToolId)
@@ -548,6 +570,7 @@ public sealed class FichaModel : PageModel
         if (Sheet is not null)
         {
             Utilizacao = await _usoSap.DaFerramentaAsync(Sheet.ToolId, HttpContext.RequestAborted);
+            CodigoSap = await _sapProcura.DaFerramentaAsync(Sheet.ToolId, HttpContext.RequestAborted);
             Producoes = await _fabricoSap.ProducoesAsync(Sheet.ToolId, paginaJobOn, ProducoesPorPagina, HttpContext.RequestAborted);
             ProducoesAbertas = jobOn == "1";
             PesoProducoes = await _fabricoSap.PesoDosJobOnsAsync(Producoes.Pagina.Items.Select(p => p.JobOnId).ToList(), HttpContext.RequestAborted);

@@ -1,0 +1,35 @@
+    @* As três maneiras de ler (Diogo, 28/10/2026 15:35): como nas definições; por data (Início e Fim, ou Desde, só mês e ano); por referência, com o tipo. *@
+    <dialog id="ferrSapJanela" class="dmo-dialog" aria-labelledby="ferr-sap-janela-titulo" data-ferr-sap-janela>
+      <h3 id="ferr-sap-janela-titulo">Atualizar do SAP</h3>
+      <div class="rp-modo" role="group" aria-label="O que ler">
+        <button type="button" class="dmo-button rp-modo-ativo" data-ferr-sap-modo="normal" aria-pressed="true">Como nas definições</button>
+        <button type="button" class="dmo-button" data-ferr-sap-modo="data" aria-pressed="false">Por data</button>
+        <button type="button" class="dmo-button" data-ferr-sap-modo="ref" aria-pressed="false">Por referência</button>
+      </div>
+      <p class="ferr-sap-modo-texto" data-ferr-sap-parte="normal">As produções dos últimos dias e a % uso de todas as ferramentas (Admin › Definições › SAP).</p>
+      <div class="ferr-sap-modo-campos" data-ferr-sap-parte="data" hidden>
+        <div class="rp-modo" role="group" aria-label="Datas">
+          <button type="button" class="dmo-button rp-modo-ativo" data-ferr-sap-datas="entre" aria-pressed="true">Início e Fim</button>
+          <button type="button" class="dmo-button" data-ferr-sap-datas="desde" aria-pressed="false">Desde</button>
+        </div>
+        <label>Início <input type="month" class="dmo-input" data-ferr-sap-inicio /></label>
+        <label data-ferr-sap-fim-campo>Fim <input type="month" class="dmo-input" data-ferr-sap-fim /></label>
+        <p class="ferr-sap-modo-texto">Só as produções destes meses.</p>
+      </div>
+      <div class="ferr-sap-modo-campos" data-ferr-sap-parte="ref" hidden>
+        <label>Referência <input type="text" class="dmo-input" maxlength="40" size="12" autocomplete="off" data-ferr-sap-referencia /></label>
+        <label>Tipo <select class="dmo-input" data-ferr-sap-tipo><option value="">Todos</option><option value="cm">CM</option><option value="mf">MF</option><option value="bq">BQ</option></select></label>
+        <p class="ferr-sap-modo-texto">Só a % uso das ferramentas desta referência.</p>
+      </div>
+      <div class="dmo-dialog-actions">
+        <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+        <button type="button" class="dmo-button" data-ferr-sap-correr>Atualizar</button>
+      </div>
+    </dialog>
+<style>
+#ferrSapJanela .rp-modo{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+#ferrSapJanela .ferr-sap-modo-campos{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+#ferrSapJanela .ferr-sap-modo-campos label{display:flex;flex-direction:column;gap:4px;font-size:12.5px}
+#ferrSapJanela .ferr-sap-modo-campos .rp-modo{flex-basis:100%;margin:0}
+#ferrSapJanela .ferr-sap-modo-texto{flex-basis:100%;margin:6px 0 14px;color:var(--dmo-muted);font-size:12.5px}
+</style>

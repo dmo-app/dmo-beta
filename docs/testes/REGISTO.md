@@ -5394,3 +5394,441 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 |---|---|---|---|
 | validate_pdf_evidence.py (script) | Valida o conteúdo dos PDFs de Controlo | OK | Fora do CI por desenho (testes.md: precisa de PDF de referência do Diogo). |
 
+
+## Testes novos da auditoria de cobertura (28/10/2026, DMO-588)
+
+173 testes novos para as correções DMO-380…577 que a auditoria do agente externo marcou «sem teste» ou «de raspão». Todos OK. A última coluna diz a correção que cada um guarda.
+
+### `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BqSaldoNoHistoricoCoberturaA2Tests.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| BqSaldoNoHistoricoCoberturaA2Tests.Historico_BqQueSaiuNumJobOnEVoltaNoutro_NaoMostraSaldo_MesmoComUmSaldoAntigoGravado | Histórico ignora saldo antigo gravado e recalcula | OK | DMO-574 |
+| BqSaldoNoHistoricoCoberturaA2Tests.Historico_EntraMaisDoQueSaiu_MostraOSaldoNaEntrada_ENoPdf | Excedente mostra saldo na entrada, no ecrã e no PDF | OK | DMO-574 |
+
+### `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.CoberturaBPdf.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| PesoPdfGeneratorCoberturaBTests.PdfDoPeso_NaoRepeteRotulosNemExplicacoesRetiradas | O PDF do Peso já não leva «Diferença indisponível» nem as explicações retiradas. | OK | DMO-526 |
+| PesoPdfGeneratorCoberturaBTests.ProducaoAnterior_ComMediaEModa_OPdfDizAsDuasEOsDiasDaModa | O PDF do Peso mostra média e moda da produção anterior, com os dias. | OK | DMO-426 |
+| PesoPdfGeneratorCoberturaBTests.ProducaoAnterior_SemMediaNemModa_UsaOPesoGuardado_ESemDizerMedia | Sem média nem moda, o PDF usa o peso guardado da produção anterior. | OK | DMO-534 |
+
+### `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesPosicoesPdfCoberturaB.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| PuncoesPosicoesPdfCoberturaBTests.PdfDasPuncoes_AsLinhasSaoAsGotasDaLinha_ETresGotasDeixamMaisNaReserva | O PDF das punções tem uma linha por gota e a reserva certa. | OK | DMO-508 |
+| PuncoesPosicoesPdfCoberturaBTests.PdfDasPuncoes_SaiNumaSoFolhaA4_ComAReservaCheiaOuNao | O PDF das punções sai numa só folha A4, também com a reserva cheia. | OK | DMO-511 |
+| PuncoesPosicoesPdfCoberturaBTests.PdfDasPuncoes_SaiNumaSoFolhaA4_ComAReservaCheiaOuNao | O PDF das punções cabe numa só folha A4 deitada. | OK | DMO-516 |
+
+### `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.CoberturaA2TrincoCorrigir.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| PostgresMigrationIntegrationTests.ApagarUmaLeituraDoPeso_EsperaPelaLeituraNovaEmCurso_ENaoDeixaBuracoNasPosicoes | Apagar leitura espera pela leitura nova e não deixa buracos | OK | DMO-546 |
+| PostgresMigrationIntegrationTests.CorrigirUmaLeituraDoPeso_EsperaPelaLeituraNovaEmCurso | Corrigir leitura espera pela leitura nova em curso | OK | DMO-546 |
+
+### `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.CoberturaBTrincoDoPeso.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| PostgresMigrationIntegrationTests.CorrigirEApagarUmaLeituraDoPeso_EsperamPeloTrincoDeQuemRegista | Corrigir e apagar uma leitura do Peso esperam pelo trinco do Peso. | OK | DMO-546 |
+
+### `tests/DMO.Alpha.Infrastructure.Tests/Production/CoberturaA1ProducaoEmCursoTests.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| CoberturaA1ProducaoEmCursoTests.ComOMesmoDiaDeInicio_FicaALancadaPorUltimo | Em curso e experiência de um dia: ComOMesmoDiaDeInicio_FicaALancadaPorUltimo | OK | DMO-459 |
+| CoberturaA1ProducaoEmCursoTests.DuasExperienciasDeUmDiaNaMesmaLinha_FicaAUltimaLancada | Em curso e experiência de um dia: DuasExperienciasDeUmDiaNaMesmaLinha_FicaAUlti | OK | DMO-459 |
+| CoberturaA1ProducaoEmCursoTests.DuasProducoesQueCobremODiaNaMesmaLinha_FicaAQueComecouPorUltimo | Em curso e experiência de um dia: DuasProducoesQueCobremODiaNaMesmaLinha_FicaAQ | OK | DMO-459 |
+| CoberturaA1ProducaoEmCursoTests.EntradasPorDia_ExperienciaDeUmDiaEntraAoLadoDaProducaoDessaLinha | Em curso e experiência de um dia: EntradasPorDia_ExperienciaDeUmDiaEntraAoLadoD | OK | DMO-459 |
+| CoberturaA1ProducaoEmCursoTests.EntradasPorDia_PelaOrdemDeEntrada_ESemAsQueNaoTemDiaDeInicio | Em curso e experiência de um dia: EntradasPorDia_PelaOrdemDeEntrada_ESemAsQueNa | OK | DMO-459 |
+| CoberturaA1ProducaoEmCursoTests.EntradasPorDia_UmaPorLinhaEPorDia_AUltimaLancada | Em curso e experiência de um dia: EntradasPorDia_UmaPorLinhaEPorDia_AUltimaLanc | OK | DMO-459 |
+| CoberturaA1ProducaoEmCursoTests.ExperienciaDeUmDiaSozinha_AparecenaLinhaSemProducao | Em curso e experiência de um dia: ExperienciaDeUmDiaSozinha_AparecenaLinhaSemPr | OK | DMO-459 |
+| CoberturaA1ProducaoEmCursoTests.ExperienciaDeUmDia_NaoTiraAProducaoNemSubstituiAEscolhaDaLinha | Em curso e experiência de um dia: ExperienciaDeUmDia_NaoTiraAProducaoNemSubstit | OK | DMO-459 |
+| CoberturaA1ProducaoEmCursoTests.ExperienciaDeUmDia_SoApareceNoSeuDia | Em curso e experiência de um dia: ExperienciaDeUmDia_SoApareceNoSeuDia | OK | DMO-459 |
+| CoberturaA1ProducaoEmCursoTests.ExperienciaQueEntraESaiNoDia_FicaAoLadoDaProducaoDaLinha_SemATirar | Em curso e experiência de um dia: ExperienciaQueEntraESaiNoDia_FicaAoLadoDaProd | OK | DMO-459 |
+| CoberturaA1ProducaoEmCursoTests.ExperienciaSemFim_NaoEDeUmDia | Em curso e experiência de um dia: ExperienciaSemFim_NaoEDeUmDia | OK | DMO-459 |
+| CoberturaA1ProducaoEmCursoTests.OFimCobreOUltimoDia_ESoNesse_NoLimiteELogoAbaixoELogoAcima | Em curso e experiência de um dia: OFimCobreOUltimoDia_ESoNesse_NoLimiteELogoAba | OK | DMO-459 |
+| CoberturaA1ProducaoEmCursoTests.ProducaoSemDiaDeInicio_NaoEstaEmCurso | Em curso e experiência de um dia: ProducaoSemDiaDeInicio_NaoEstaEmCurso | OK | DMO-459 |
+| CoberturaA1ProducaoEmCursoTests.ProducaoSemFim_CobreOsDiasDepoisDoInicio_ENaoOsAntes | Em curso e experiência de um dia: ProducaoSemFim_CobreOsDiasDepoisDoInicio_ENao | OK | DMO-459 |
+| CoberturaA1ProducaoEmCursoTests.QuadroDoDia_ExperienciaDeDoisDias_NaoFicaAoLado_ECompeteComAProducaoDaLinha | Em curso e experiência de um dia: QuadroDoDia_ExperienciaDeDoisDias_NaoFicaAoLa | OK | DMO-459 |
+| CoberturaA1ProducaoEmCursoTests.QuadroDoDia_ExperienciaDeUmDiaFicaAoLadoDaProducao_EVemMarcadaComoExperiencia | Em curso e experiência de um dia: QuadroDoDia_ExperienciaDeUmDiaFicaAoLadoDaPro | OK | DMO-459 |
+
+### `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasDuplicarCoberturaA2Tests.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| FerramentasDuplicarCoberturaA2Tests.DuplicarParaLoteNovo_LevaOLinkMcaliperEAFabricaDeOrigem_ESemUtilizacao | Duplicar ferramenta leva link McAliper e fábrica, sem utilização | OK | DMO-403 |
+
+### `tests/DMO.Alpha.Web.Tests/Admin/CoberturaCRegistosPorUtilizadorTests.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| CoberturaCRegistosPorUtilizadorTests.OFiltroDosDias_DeEAteIncluemOsDiasEscolhidos_ESoElesTrazemORegistoDoUltimoMinuto | Filtro De/Até inclui os dias, até ao último minuto | OK | DMO-392 |
+| CoberturaCRegistosPorUtilizadorTests.OsRegistos_VemDosMaisRecentesParaOsMaisAntigos_ComOQueCorrigiuOuAnulou | Registos do mais recente ao mais antigo, com correções | OK | DMO-392 |
+
+### `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.CoberturaA2Exporta.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| AdminUsersAndTemplatesPagesTests.ListaDosUtilizadores_ComMaisDe25_ParaOBrowser | Exporta lista de utilizadores longa para medir no browser | OK | DMO-447 |
+
+### `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CoberturaA2FiltroLote.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| BoquilhasRegistoPageTests.FichaDaBoquilha_TemOsBotoesNoTopo_ESeguemOsQuatroMiniCartoesDeDados | Ficha da BQ tem botões no topo antes dos mini-cartões | OK | DMO-404 |
+| BoquilhasRegistoPageTests.ProcurarBoquilha_OFiltroLoteVemLogoDepoisDaReferencia_EFiltraPorEsseLote | Filtro Lote no catálogo de BQ vem após referência e filtra | OK | DMO-404 |
+
+### `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CoberturaA2LinhaCor.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| BoquilhasRegistoPageTests.PainelDasMaquinas_CadaCartaoLevaALinhaDele_ESoAsLinhasComCor | Cada cartão do painel leva a sua linha; só as com cor | OK | DMO-381 |
+
+### `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CoberturaA2SemJobOn.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| BoquilhasRegistoPageTests.RegistarSemJobOn_ALinhaVemJaEscolhidaComAUltimaOndeABqTeveMovimentos | Registar sem Job On pré-escolhe a última linha com movimentos | OK | DMO-572 |
+| BoquilhasRegistoPageTests.RegistarSemJobOn_UmaBqSemLinhasNaFicha_MostraTodasAsLinhasSemNenhumaEscolhida | BQ sem linhas na ficha mostra todas, nenhuma escolhida | OK | DMO-572 |
+
+### `tests/DMO.Alpha.Web.Tests/CoberturaA1EntradasDaSemanaTests.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| CoberturaA1EntradasDaSemanaTests.Faixa_ExperienciaQueEntraESaiNoMesmoDia_FicaAoLadoDaProducaoDessaLinha | Faixa Planeamento da semana: ExperienciaQueEntraESaiNoMesmoDia FicaAoLadoD | OK | DMO-506 |
+| CoberturaA1EntradasDaSemanaTests.Faixa_PelaOrdemEmQueEntram | Faixa Planeamento da semana: PelaOrdemEmQueEntram | OK | DMO-506 |
+| CoberturaA1EntradasDaSemanaTests.Faixa_SoTemOQueEntraDeHojeAteUmaSemana_OQueJaEntrouSai | Faixa Planeamento da semana: SoTemOQueEntraDeHojeAteUmaSemana OQueJaEntrou | OK | DMO-506 |
+| CoberturaA1EntradasDaSemanaTests.Faixa_VariasAEntrarNaMesmaLinhaNoMesmoDia_SoAUltimaLancada | Faixa Planeamento da semana: VariasAEntrarNaMesmaLinhaNoMesmoDia SoAUltima | OK | DMO-506 |
+| CoberturaA1EntradasDaSemanaTests.Gaveta_AsEmCurso_UmaPorLinha_VemAntesDasQueEntram | Gaveta Linhas da folha: AsEmCurso UmaPorLinha VemAntesDasQueEntram | OK | DMO-506 |
+| CoberturaA1EntradasDaSemanaTests.Gaveta_ExperienciaDeUmDia_NaoEEmCurso | Gaveta Linhas da folha: ExperienciaDeUmDia NaoEEmCurso | OK | DMO-506 |
+
+### `tests/DMO.Alpha.Web.Tests/CoberturaBExportaParaOBrowserTests.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| CoberturaBExportaParaOBrowserTests.ExportaAsDefinicoesDoControlo | Guarda as Definições do Controlo para medir as duas colunas. | OK | DMO-467 |
+| CoberturaBExportaParaOBrowserTests.ExportaOLoginComAPalavraPasseErrada | Guarda o login com erro para medir o escuro e o erro discreto. | OK | DMO-505 |
+| CoberturaBExportaParaOBrowserTests.ExportaORegistoDoArmazemComUmaFerramentaAberta | Guarda o Registo do Armazém para medir o Registar junto ao Entrada. | OK | DMO-487 |
+
+### `tests/DMO.Alpha.Web.Tests/CoberturaCContaETopoTests.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| CoberturaCContaETopoTests.ADuracaoDaSessao_OferecePeloMenosUmaHoraAteVinteEQuatro_ESoGravaAsPermitidas_SoDeQuemAEscolhe | Duração da sessão: 1 a 24 horas, só valores permitidos | OK | DMO-398 |
+| CoberturaCContaETopoTests.AFichaDoUtilizador_TemOVoltarPorCimaDoTitulo_ENaoRepeteONumeroDeOperadorNosFactos | Ficha: Voltar acima do título, sem número repetido | OK | DMO-480 |
+| CoberturaCContaETopoTests.AMinhaConta_EscondeOEmailInventadoDoLoginPorNumero_EMostraOEmailRealDoAdmin | A conta esconde o email inventado e mostra o real | OK | DMO-480 |
+| CoberturaCContaETopoTests.ASessaoNova_DuraAsHorasQueOUtilizadorEscolheu_ESemEscolhaDuraUmaHora | A sessão dura as horas escolhidas; sem escolha, uma hora | OK | DMO-398 |
+| CoberturaCContaETopoTests.OTopo_MostraONomeEOTituloDoOperadorAntesDoSair_ESemTituloOAdminSoTemONome | Topo mostra nome e título antes do Sair | OK | DMO-414 |
+
+### `tests/DMO.Alpha.Web.Tests/CoberturaCInstalarPaginaTests.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| CoberturaCInstalarPaginaTests.ABaseSemAdmin_MostraOFormularioDaPrimeiraInstalacao | Base sem admin mostra o formulário de instalação | OK | DMO-382 |
+| CoberturaCInstalarPaginaTests.ComOCodigoCerto_CriaOAdmin_VaiParaOLogin_ADepoisDeFeitaJaNaoServe | Código certo cria o admin; depois a página fecha | OK | DMO-382 |
+| CoberturaCInstalarPaginaTests.SemOLoginProprio_NaoHaPrimeiraInstalacao_ELevaAoLogin | Sem login próprio não há primeira instalação | OK | DMO-382 |
+| CoberturaCInstalarPaginaTests.UmCampoMalPreenchido_VoltaComOAviso_GuardaOEmailEscrito_ENadaSeCria | Campo inválido avisa, guarda o email e não cria nada | OK | DMO-382 |
+
+### `tests/DMO.Alpha.Web.Tests/CoberturaCPostoDaReparacaoTests.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| CoberturaCPostoDaReparacaoTests.OBotaoReparacaoDoLogin_AbreOPosto_EOPostoTemOVoltarAoLogin | Botão Reparação do login abre o posto, com Voltar | OK | DMO-436 |
+| CoberturaCPostoDaReparacaoTests.OPinGuardadoPeloAdmin_FicaEmHash_ESoComEleOReparadorEntraNoPosto | PIN do posto guardado em hash; só com ele se entra | OK | DMO-429 |
+| CoberturaCPostoDaReparacaoTests.QuemNaoTemAReparacaoInterna_TemPinMasNaoApareceNoPosto | Sem Reparação Interna não aparece no posto | OK | DMO-429 |
+| CoberturaCPostoDaReparacaoTests.UmPinNovoSubstituiOAnterior_ENaoSeAceitaUmPinForaDosQuatroAosDozeAlgarismos | PIN novo substitui o antigo; só 4 a 12 algarismos | OK | DMO-429 |
+
+### `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.CoberturaBExporta.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| PesoComparacaoPageTests.Comparacao_ComBase_TemALinhaDestacada_ParaOBrowser | Guarda a Comparação de Peso para medir a cor da linha. | OK | DMO-469 |
+
+### `tests/DMO.Alpha.Web.Tests/Controlo/PesoComparacaoPageTests.CoberturaBUmaLinha.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| PesoComparacaoPageTests.Comparacao_ComecaComUmaSoLinhaDeLeitura_EDepoisDeCompararVoltaComAsEscritas | A comparação abre com uma só linha de leitura. | OK | DMO-407 |
+
+### `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaA2Abrir.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_AbrirLevaAoPesoDaProducaoEscolhidaNoSelect | Abrir produção anterior leva ao peso da produção escolhida | OK | DMO-402 |
+
+### `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaA2ResumoLongo.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| PesoFolhaProducaoAnteriorPageTests.Resumo_ComPesoDaProducaoAnteriorLongo_ParaOBrowser | Exporta resumo com peso anterior longo para o browser | OK | DMO-479 |
+
+### `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBAgrupamento.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDaComparacao_AgrupaEsteControlo_ControloAnterior_EDiferenca_PorEstaOrdem | A tabela agrupa Este controlo, Controlo anterior e Diferença por esta ordem. | OK | DMO-491 |
+
+### `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBCartao.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_NomeSoNoTitulo_BotaoAbrir_EInicioEFimNoCartaoDoPeso | Produção anterior: nome só no título, botão Abrir, datas no cartão do peso. | OK | DMO-504 |
+
+### `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBExporta.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| PesoFolhaProducaoAnteriorPageTests.Peso_NoPainel_TemOsNumerosEALeituraNova_ParaOBrowser | Guarda o Peso no painel do Resumo para medir a faixa e o Registar. | OK | DMO-502 |
+
+### `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBResumo.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| PesoFolhaProducaoAnteriorPageTests.Resumo_TabelaDoPeso_TemAsColunasValorGEPercentagem_EACadaLinhaAsDuasDiferencas | A tabela do Peso no Resumo tem as colunas Valor, g e %. | OK | DMO-496 |
+
+### `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.CoberturaA1Aspeto.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| ControloCapabilitiesCutHPageTests.ResumoComPainelDeApoioEBotaoDosPegamentos_ExportadoParaOBrowser | Exporta o Resumo com painel de apoio e botão dos Pegamentos | OK | DMO-485 |
+
+### `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.CoberturaA2Revisao.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| ControloCapabilitiesCutHPageTests.ConsultaDosPegamentos_VoltarPorCimaDoTitulo_SemOQuadroLeituras_EOMapaDepoisDasTabelas | Consulta de pegamentos: voltar acima do título, mapa no fim | OK | DMO-483 |
+| ControloCapabilitiesCutHPageTests.Revisao_TemOTituloRevisao_EAsConsultasJuntoAoTituloDoResumo | Revisão tem título Revisão e consultas junto ao resumo | OK | DMO-483 |
+
+### `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.CoberturaBExporta.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| ControloCapabilitiesCutHPageTests.PesoSemJobOn_ComCmEBq_ParaOBrowser | Guarda o Peso sem Job On para medir a faixa das ferramentas. | OK | DMO-473 |
+
+### `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.CoberturaBLoteCm.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| ControloCapabilitiesCutHPageTests.PesoSemJobOn_CmComVariosLotes_PedeOLote_ESoResolveQuandoEscolhido | Uma CM com vários lotes pede o lote e só resolve ao escolhê-lo. | OK | DMO-400 |
+
+### `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.CoberturaBVoltar.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| ControloCapabilitiesCutHPageTests.PaginasDeRegisto_TemOVoltarAoResumoDaProducao_AntesDoTitulo | Peso, Pegamentos e Punções têm «Voltar» ao Resumo antes do título. | OK | DMO-460 |
+
+### `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.CoberturaA2Ficha.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| FerramentasPagesTests.Ficha_ParaOBrowser_CabeNoEcraSemDeslizar | Exporta a ficha da ferramenta para medir no browser | OK | DMO-431 |
+
+### `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.CoberturaA2FiltroLote.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| FerramentasPagesTests.Pesquisar_OFiltroLoteVemLogoDepoisDaReferencia_EFiltraPorEsseLote | Filtro Lote nas ferramentas vem após referência e filtra | OK | DMO-404 |
+
+### `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.CoberturaCLinhasCompativeis.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| FerramentasPagesTests.Registar_DaUmaCaixaPorLinhaComOCodigoDela_EVaiParaOBrowser | Uma caixa por linha compatível, com o código dela | OK | DMO-405 |
+
+### `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Browser.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| JobOnPageTests.Folha_Cheia_ComOitoCalibresENotasCompridas_ExportadaParaOBrowser | Exporta folha cheia para o browser | OK | DMO-495 |
+
+### `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| JobOnPageTests.Duplicar_TrazOCabecalhoDaOrigem_OPuEACalote_EGravaAProducaoNovaComEles | Duplicar traz cabeçalho, PU e calote da origem | OK | DMO-395 |
+| JobOnPageTests.Editar_LoteDoAnEscritoNoEditar_GravaSeEFicaComoLoteDoAn | Lote do AN escrito no Editar fica gravado | OK | DMO-430 |
+| JobOnPageTests.Editar_LoteDoAnVazioMostraODaBqComoSugestao_EGuardarOutraCoisaNaoOCopiaParaABase | Editar mostra o lote da BQ só como sugestão | OK | DMO-430 |
+| JobOnPageTests.Folha_CaloteDoTp_SemCaloteDaProducaoMostraABaciaPs_ComElaMandaACalote | Calote do TP: bacia PS ou calote da produção | OK | DMO-395 |
+| JobOnPageTests.Folha_LoteDoAnEscritoAMao_FicaEMantemSeQuandoATrocaDeBq | Lote do AN escrito à mão mantém-se na troca | OK | DMO-430 |
+| JobOnPageTests.Folha_LoteDoAnSemEscrever_ESempreODaBq_NoEcraENaImpressao_MesmoDepoisDeTrocarAsBq | Lote do AN segue o da BQ, mesmo após troca | OK | DMO-430 |
+| JobOnPageTests.Folha_NaoTemOContadorDeSessaoNemOBotaoDeDesbloquearDoPainel | Folha sem contador de sessão nem desbloquear | OK | DMO-454 |
+| JobOnPageTests.Folha_PosicaoDoArmazem_ELinkParaOArmazemDaFerramenta_SoParaQuemTemOArmazem | Posição do armazém com ligação só com permissão | OK | DMO-557 |
+| JobOnPageTests.Imprimir_UsaAsPincasDoCartaoPiInteiras_ComODiametro_SemALinhaTipo | Imprimir usa as pinças inteiras do cartão PI | OK | DMO-478 |
+| JobOnPageTests.Painel_FolhaNoPainel_EUmResumoComAbrirFolha_SemOsCartoesDaFolha | Folha no painel é resumo com Abrir folha | OK | DMO-521 |
+| JobOnPageTests.Planeamento_FaixaDoJobOn_TemOQueEntraEstaSemana_ENaoOQueJaEntrou | Faixa do Job On só com o que entra | OK | DMO-506 |
+
+### `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaBExperiencia.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| JobOnPageTests.FolhaNova_Duplicar_NaoTemOBotaoExperiencia | O Duplicar não oferece a Experiência. | OK | DMO-399 |
+| JobOnPageTests.FolhaNova_Experiencia_AbreEmBrancoComONumeroAnoZeroZero_EMarcadaComoExperiencia | A experiência abre em branco com o número AAAA00 e marcada. | OK | DMO-399 |
+| JobOnPageTests.FolhaNova_TemOsDoisBotoes_ProducaoEExperiencia_ComAProducaoEscolhida | O Job On novo tem os botões Produção e Experiência. | OK | DMO-399 |
+
+### `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.CoberturaA2Mapa.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| PegamentosPageTests.FolhaComMedicoes_OMapaDeLimitesFicaPorBaixoDasLeituras_SemTextoDeAjuda | Mapa de limites fica abaixo das leituras, sem texto de ajuda | OK | DMO-563 |
+
+### `tests/DMO.Alpha.Web.Tests/PegamentosPageTests.CoberturaBPassos.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| PegamentosPageTests.Folha_TemAsLeiturasEOMapa_SemOsPassosContextoMedicoesMapa | Os Pegamentos já não têm os passos Contexto, Medições e Mapa. | OK | DMO-482 |
+
+### `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/CoberturaCReparacaoInternaTests.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| CoberturaCReparacaoInternaTests.ANaoSerReparacao_AConsultaMostraOTrabalhoNaLinha_EFiltraPeloTipoDeTrabalho | Consulta mostra o trabalho e filtra por ele | OK | DMO-415 |
+| CoberturaCReparacaoInternaTests.OTrabalhoEscolhidoNoRegisto_FicaGravado_ESemEscolhaOuComUmValorDesconhecidoEReparacao | O trabalho escolhido fica gravado; por omissão Reparação | OK | DMO-415 |
+| CoberturaCReparacaoInternaTests.OsFiltrosDaConsulta_VemPelaOrdemPedida_ESemJobOnTemUmaDica | Filtros da consulta pela ordem pedida; dica sem Job On | OK | DMO-428 |
+| CoberturaCReparacaoInternaTests.OsFiltrosDoHistorico_VemPelaMesmaOrdem_SemQuemNemCmMf | Filtros do histórico pela mesma ordem, sem Quem nem CM/MF | OK | DMO-428 |
+
+### `tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaConsultaCoberturaBTests.cs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| ReparacaoInternaConsultaCoberturaBTests.Consulta_ReferenciaPrimeiro_ProducaoLogoAseguir_ETodosOsFiltrosNumSoFormulario | Na Consulta RI a Referência vem primeiro e a Produção a seguir. | OK | DMO-577 |
+
+### `tests/ShellProof/cobertura_a1_ficha-na-lista.test.cjs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| ficha-na-lista.teste1 | Triângulo da ficha em cada ferramenta da lista | OK | DMO-559 |
+| ficha-na-lista.teste2 | Triângulo da ficha em cada ferramenta da lista | OK | DMO-559 |
+| ficha-na-lista.teste3 | Triângulo da ficha em cada ferramenta da lista | OK | DMO-559 |
+| ficha-na-lista.teste4 | Triângulo da ficha em cada ferramenta da lista | OK | DMO-559 |
+| ficha-na-lista.teste5 | Triângulo da ficha em cada ferramenta da lista | OK | DMO-559 |
+| ficha-na-lista.teste6 | Triângulo da ficha em cada ferramenta da lista | OK | DMO-559 |
+
+### `tests/ShellProof/cobertura_a1_folha-js.test.cjs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| folha-js.teste1 | Comportamentos do jobon-folha.js: notas, calibres, imagem | OK | DMO-509/558/562/417/495/395/410 |
+| folha-js.teste10 | Comportamentos do jobon-folha.js: notas, calibres, imagem | OK | DMO-509/558/562/417/495/395/410 |
+| folha-js.teste11 | Comportamentos do jobon-folha.js: notas, calibres, imagem | OK | DMO-509/558/562/417/495/395/410 |
+| folha-js.teste2 | Comportamentos do jobon-folha.js: notas, calibres, imagem | OK | DMO-509/558/562/417/495/395/410 |
+| folha-js.teste3 | Comportamentos do jobon-folha.js: notas, calibres, imagem | OK | DMO-509/558/562/417/495/395/410 |
+| folha-js.teste4 | Comportamentos do jobon-folha.js: notas, calibres, imagem | OK | DMO-509/558/562/417/495/395/410 |
+| folha-js.teste5 | Comportamentos do jobon-folha.js: notas, calibres, imagem | OK | DMO-509/558/562/417/495/395/410 |
+| folha-js.teste6 | Comportamentos do jobon-folha.js: notas, calibres, imagem | OK | DMO-509/558/562/417/495/395/410 |
+| folha-js.teste7 | Comportamentos do jobon-folha.js: notas, calibres, imagem | OK | DMO-509/558/562/417/495/395/410 |
+| folha-js.teste8 | Comportamentos do jobon-folha.js: notas, calibres, imagem | OK | DMO-509/558/562/417/495/395/410 |
+| folha-js.teste9 | Comportamentos do jobon-folha.js: notas, calibres, imagem | OK | DMO-509/558/562/417/495/395/410 |
+
+### `tests/ShellProof/cobertura_a2_artigo-recorte.test.cjs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| Cancelar o recorte não grava nada e a imagem anterior fica como estava | Recorte da imagem do artigo: gravar, cancelar e colar | OK | DMO-445 |
+| Colar algo que não é imagem não abre o recorte | Recorte da imagem do artigo: gravar, cancelar e colar | OK | DMO-445 |
+| Colar dentro de um campo de escrita fica no campo e não grava imagem | Recorte da imagem do artigo: gravar, cancelar e colar | OK | DMO-445 |
+| Colar uma imagem (Ctrl+V) fora dos campos abre o recorte e grava o recorte | Recorte da imagem do artigo: gravar, cancelar e colar | OK | DMO-445 |
+| Guardar recorte com imagem anterior: a anterior fica guardada e o artigo.png é o novo | Recorte da imagem do artigo: gravar, cancelar e colar | OK | DMO-445 |
+| Guardar recorte grava na pasta da referência o recorte, não a imagem inteira | Recorte da imagem do artigo: gravar, cancelar e colar | OK | DMO-445 |
+
+### `tests/ShellProof/cobertura_a2_bq-sem-jobon.test.cjs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| As sugestões da BQ só aparecem depois de escrever, e o rótulo é «BQ C002 · Lote 18» | Registar BQ sem Job On: sugestões, linha e Job On anterior | OK | DMO-412 |
+| Com a BQ já escolhida ao abrir, a Linha só tem as da ficha e vem com a primeira | Registar BQ sem Job On: sugestões, linha e Job On anterior | OK | DMO-572 |
+| Escolher a BQ deixa na Linha só as da ficha dela, com a primeira já escolhida | Registar BQ sem Job On: sugestões, linha e Job On anterior | OK | DMO-572 |
+| Job On anterior: a BQ mostra as referências dela, a referência as produções, e a produção põe a linha do Job On | Registar BQ sem Job On: sugestões, linha e Job On anterior | OK | DMO-573 |
+
+### `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| A primeira leitura da pasta envia todos os ficheiros do SAP, do mais antigo para o mais novo, e nenhum do DMO | Leitura da pasta do SAP e apagar ficheiros lidos | OK | DMO-418 |
+| Apagar lidos: pergunta antes e apaga só os ficheiros do SAP já lidos | Leitura da pasta do SAP e apagar ficheiros lidos | OK | DMO-492 |
+| Apagar lidos: se a pessoa não confirma, nada é apagado | Leitura da pasta do SAP e apagar ficheiros lidos | OK | DMO-492 |
+| Apagar lidos: sem nada lido ainda, avisa e não apaga nem pergunta | Leitura da pasta do SAP e apagar ficheiros lidos | OK | DMO-492 |
+| Com um ficheiro já lido, só os mais novos do que o último lido vão para o servidor | Leitura da pasta do SAP e apagar ficheiros lidos | OK | DMO-418 |
+| Numa pasta com mais de dez listas por ler, vão as dez mais recentes | Leitura da pasta do SAP e apagar ficheiros lidos | OK | DMO-418 |
+| Se a lista mais recente já foi lida, nada vai para o servidor e o cartão diz isso | Leitura da pasta do SAP e apagar ficheiros lidos | OK | DMO-418 |
+
+### `tests/ShellProof/cobertura_b_peso-faixa.test.cjs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| A diferença nominal positiva leva «+» e duas casas, mesmo inteira | A diferença nominal leva sinal e duas casas. | OK | DMO-504 |
+| A faixa escreve inteiros sem casas e decimais com duas, como o servidor | A faixa do Peso escreve inteiros sem casas e decimais com duas. | OK | DMO-504 |
+
+### `tests/ShellProof/cobertura_b_peso-menos.test.cjs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| Esc dentro da correção sai da correção e não chega ao resto da página | Esc na correção sai da correção sem fechar o painel. | OK | DMO-499 |
+| Um pedido de apagar anterior não fica no endereço do novo | O pedido de apagar não herda parâmetros do anterior. | OK | DMO-499 |
+| «−» com duas linhas só tira a linha vazia, sem perguntar nada | O «−» com duas linhas só tira a linha vazia. | OK | DMO-499 |
+| «−» com uma só linha abre a pergunta de apagar a última leitura gravada, sem apagar nada | O «−» com uma linha pede para apagar a última leitura gravada. | OK | DMO-499 |
+| «−» com uma só linha e nenhuma leitura gravada não faz nada | O «−» sem leituras gravadas não faz nada. | OK | DMO-499 |
+
+### `tests/ShellProof/cobertura_b_ri-consulta.test.cjs`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| A Produção fechada mostra só o número; aberta, o resto por baixo de cada uma | Na Consulta RI a Produção mostra só o número e o resto por baixo. | OK | DMO-577 |
+| Carregar numa pessoa do resumo escolhe-a no «Quem» e aplica; uma que não está na lista segue o link | Carregar numa pessoa do resumo aplica-a no filtro Quem. | OK | DMO-577 |
+| Esc fecha a lista aberta sem escolher nada | Esc fecha a lista das produções sem escolher. | OK | DMO-577 |
+| Escolher uma produção fecha a lista, fica só o número e o select muda e avisa | Escolher uma produção fecha a lista e aplica o filtro. | OK | DMO-577 |
+
+### `tests/visual/cobertura_a1_browser.py`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| cobertura_a1_browser.aspeto_da_folha | Reparador na linha, aviso sob a Utilização, escuro e zoom 125% | OK | DMO-468/570/537/409 |
+| cobertura_a1_browser.botoes_e_cabecalho | Botões sem sublinhado e cabeçalho Nome · Título | OK | DMO-489 |
+| cobertura_a1_browser.folha | Folha cheia sem deslizar, calibres e Imprimir no A4 | OK | DMO-486 |
+| cobertura_a1_browser.painel_e_pegamentos | Painel de apoio cabe a 1366×768 e botão Pegamentos à vista | OK | DMO-485 |
+| cobertura_a1_browser.planeamento | Cartão escolhido da faixa Planeamento com aspeto de hover | OK | DMO-561 |
+| cobertura_a1_browser.sumario | Linha do Sumário enche-se ao passar o rato | OK | DMO-380 |
+
+### `tests/visual/cobertura_a2_browser.py`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| cobertura_a2_browser.py | Barra de cor de cada linha do painel, claro e escuro | OK | DMO-381 |
+| cobertura_a2_browser.py | Ficha da ferramenta cabe no ecrã sem deslizar | OK | DMO-431 |
+| cobertura_a2_browser.py | Lista de utilizadores longa cabe e desliza no sítio certo | OK | DMO-447 |
+| cobertura_a2_browser.py | Resumo com peso anterior longo não rebenta o layout | OK | DMO-479 |
+| cobertura_a2_browser.py | Imprimir a preto e branco legível no browser | OK | DMO-493 |
+| cobertura_a2_browser.py | Revisão e consulta de pegamentos medidas no ecrã | OK | DMO-483 |
+| cobertura_a2_browser.py | Ecrã de Job On cabe a 1366×768 e 1290×646 | OK | DMO-510 |
+| cobertura_a2_browser.py | Ecrã de registo cabe a 1366×768 e 1290×646 | OK | DMO-522 |
+| cobertura_a2_browser.py | Ecrã de registo sem deslizar na horizontal | OK | DMO-531 |
+| cobertura_a2_browser.py | Mapa de limites dos pegamentos medido no ecrã | OK | DMO-563 |
+
+### `tests/visual/cobertura_b_browser.py`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| cobertura_b_browser.py (1290x646 e 1366x768) | Sem setas nos botões das punções. | OK | DMO-514 |
+| cobertura_b_browser.py (1290x646 e 1366x768) | Número e «+ Adicionar punção» na mesma linha, no canto direito. | OK | DMO-484 |
+| cobertura_b_browser.py (1290x646 e 1366x768) | A página dos Pegamentos não desliza; só a folha por dentro. | OK | DMO-482 |
+| cobertura_b_browser.py (1290x646 e 1366x768) | Leitura nova do Peso estreita, registar com a largura dos campos. | OK | DMO-499 |
+| cobertura_b_browser.py (1290x646 e 1366x768) | Login com erro: traço fino, sem caixa, vermelho; escuro mais claro (claro e escuro). | OK | DMO-505 |
+| cobertura_b_browser.py (1290x646 e 1366x768) | Peso no painel: números à esquerda da leitura nova, Registar encostado. | OK | DMO-502 |
+| cobertura_b_browser.py (1290x646 e 1366x768) | Armazém sem deslizar a 1290x646 e 1366x768; Registar junto ao Entrada \| Saída. | OK | DMO-487 |
+| cobertura_b_browser.py (1290x646 e 1366x768) | Peso, Resumo, Definições, Armazém e login sem deslizar; hover da linha muda de cor. | OK | DMO-523 |
+| cobertura_b_browser.py (1290x646 e 1366x768) | Controlo nas Definições em duas colunas, sem círculos de ajuda. | OK | DMO-467 |
+| cobertura_b_browser.py (1290x646 e 1366x768) | Linha destacada da Comparação com fundo e letra azul; campos estreitos. | OK | DMO-469 |
+| cobertura_b_browser.py (1290x646 e 1366x768) | Peso sem Job On: CM e BQ numa só faixa, sem deslizar para os lados. | OK | DMO-473 |
+| cobertura_b_browser.py (1290x646 e 1366x768) | Aviso do artigo dentro do cartão do artigo, por cima das Pinças. | OK | DMO-576 |
+
+### `tests/visual/cobertura_c_browser.py`
+
+| Teste | Garante | Estado | Correção |
+|---|---|---|---|
+| cobertura_c_browser.linhas_compativeis | Linhas compatíveis: cores em repouso, rato e escolhida | OK | DMO-405 |
+| cobertura_c_browser.login | Login: botão Reparação, logótipo e cores certas a 1366 e 1290 | OK | DMO-436 |
+| cobertura_c_browser.topo_e_ecras | Topo e ecrãs cabem a 1366x768, sem sublinhados | OK | DMO-481 |
+
