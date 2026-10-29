@@ -1119,8 +1119,9 @@ public sealed partial class IndexModel : PageModel
                     : null))
             : generator.GenerateMovementList(new(
                 ShowMovements ? "Boquilhas · Movimentos detalhados" : "Boquilhas · Por linha / Job On",
-                (FilterSemBq is not null ? FilterSemBq : ListLimitWarning is not null ? $"Os {HistoryMovementCount} movimentos mais recentes" : $"{HistoryMovementCount} {(HistoryMovementCount == 1 ? "movimento" : "movimentos")}")
+                (ListLimitWarning is not null ? $"Os {HistoryMovementCount} movimentos mais recentes" : $"{HistoryMovementCount} {(HistoryMovementCount == 1 ? "movimento" : "movimentos")}")
                     + $" · {HistoryPeriodLabel}"
+                    + (FilterSemBq is not null ? $" · {FilterSemBq}" : "")
                     + (FilterMachine is { Length: > 0 } ? $" · Máquina {FilterMachine}" : "")
                     + (FilterType is { Length: > 0 } ? $" · {BqMovementLabels.Of(FilterType)}" : "")
                     + (FilterOnlyAn ? " · Só AN" : "")
