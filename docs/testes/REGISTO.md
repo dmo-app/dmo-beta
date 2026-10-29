@@ -5730,6 +5730,12 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 |---|---|---|---|
 | FerramentasPagesTests.Ficha_Geral_LinhasNaVertical_EUtilizacaoNaMesmaLinha | Geral da ficha: Linhas uma por baixo da outra e Utilização no mesmo quadro; o browser confirma uma só linha (DMO-608) | OK |  |
 
+### `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoOrdem.cs`
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| DefinicoesPorModuloPageTests.OHistoricoDeProducoes_NumeraAsProducoesDaFerramenta_A1EAMaisAntiga | Histórico de produções da ficha: cada produção com o número de ordem na ferramenta, 1 = a mais antiga, também noutro artigo; sem início, sem número (DMO-679) | OK |  |
+
 ### `tests/ShellProof/cobertura_a1_ficha-na-lista.test.cjs`
 
 | Teste | Garante | Estado | Correção |
@@ -5913,6 +5919,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | PostoSoRiTests.PeloPosto_PedidoQueNaoPassaPorAtivo_NaoRenova | AUTH-B05 (DMO-657): cookie próprio do Posto sem deslizar; o endpoint /posto/ativo (só a partir de uma ação real da pessoa) renova o limite, outros pedidos não renovam | OK | A-0406 |
 | SapScriptsVbsTests.SemCodigosAEspera_OUsoAcabaSemErro | DMO-664: sem ferramentas à espera o uso do SAP acaba sem erro (Diogo 29/10, «A leitura do SAP falhou») | OK | A-0409 |
 | SapScriptsVbsTests.SemCaixaDaSenha_NaoEscrevePeloTeclado | DMO-677: com o SAP já aberto, sem caixa da senha o script não escreve pelo teclado na janela do SAP em uso (Diogo 29/10, «Função impossível») | OK | A-0428 |
+| SapScriptsVbsTests.PorData_TambemLeAPercentagemDeUso | DMO-681: o «Atualizar do SAP › Por data» lê as produções e também a % uso de todas (Diogo 29/10, «não tenho de andar a carregar várias vezes») | OK | A-0434 |
 | DefinicoesPorModuloPageTests.AJanelaDoSap_EscondeAsPartesQueNaoEstaoEscolhidas | DMO-665: a janela Atualizar do SAP mostra só a parte escolhida (Diogo 29/10) | OK | A-0410 |
 | ArmazemMovimentosPaginaTests.Registo_VoltarFicaPorCimaDoTitulo_EAFabricaDoEmprestimoEUmaLista | DMO-667/A-0412 (Diogo 29/10): no Registo do Armazém, «Voltar» por cima do título e a Fábrica do Empréstimo sempre em lista (Definições). 1 teste novo; nenhum antigo mudou | OK | A-0412 |
 | JobOnPageTests.Folha_PainelDasLinhas_SoOQueEntraNosProximosCincoDias | Teste novo: o painel das linhas da Folha só mostra o que entra nos próximos 5 dias (DMO-671) | OK | A-0416 |
@@ -5937,3 +5944,5 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | `Os avisos carregados depois de uma troca parcial também se podem fechar` | O × continua a funcionar nos avisos recebidos numa troca parcial. | OK | A-0408 |
 | PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDoControloAnterior_ChamaControloAtualComONumeroDaProducao | Teste novo: a coluna «Controlo atual · n.º da produção» (DMO-676, Diogo 29/10) | OK | A-0427 |
 | PesoFolhaProducaoAnteriorPageTests.NovoPesoComJobOn_ASelecaoDeMaquina_SoMostraAsDaReferencia | Teste novo: o Novo Peso com Job On só lista as máquinas da referência (DMO-676, Diogo 29/10) | OK | A-0427 |
+| `O número do botão «Linhas» fica num círculo com contorno, centrado com o texto` | Na folha do Job On, o número do botão «Linhas» aparece num círculo visível e alinhado ao centro com o texto. | OK | A-0433 |
+| PesoPdfGeneratorCoberturaBTests.ProducaoAnterior_ComMediaEModa_OsCartoesDizemMediaEModa_EAModaMostraOsDiasSemDiferenca | Teste novo: o PDF do Peso diz «Média» e «Moda» nos cartões e a moda mostra os dias, sem diferença (DMO-682, Diogo 29/10) | OK | A-0435 |

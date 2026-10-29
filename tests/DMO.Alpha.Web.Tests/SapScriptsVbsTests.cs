@@ -74,4 +74,17 @@ public sealed class SapScriptsVbsTests
         Assert.Contains("If codigo <> 0 And codigo <> 3 Then", vbs);
         Assert.DoesNotContain("If codigo <> 0 Then", vbs);
     }
+
+    // Diogo, 29/10/2026: «não tenho de andar a carregar várias vezes» (DMO-681): o «Por data»
+    // lê as produções e também a % uso de todas as ferramentas.
+    [Fact]
+    public void PorData_TambemLeAPercentagemDeUso()
+    {
+        using var stream = typeof(SapScripts).Assembly.GetManifestResourceStream("Sap.DMO_SAP_DIARIO.vbs")!;
+        var vbs = new StreamReader(stream).ReadToEnd();
+        var data = vbs[vbs.IndexOf("Case \"data\"", StringComparison.Ordinal)..vbs.IndexOf("Case \"ref\"", StringComparison.Ordinal)];
+
+        Assert.Contains("BaixarCodigos", data);
+        Assert.Contains("Correr \"DMO_USO_SAP.vbs\", \"\"", data);
+    }
 }

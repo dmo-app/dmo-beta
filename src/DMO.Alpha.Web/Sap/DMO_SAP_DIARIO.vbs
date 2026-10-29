@@ -58,6 +58,10 @@ Select Case modo
         Else
             Correr "DMO_FABRICO_SAP.vbs", " /inicio:" & PrimeiroDia(inicio) & " /fim:" & UltimoDia(fim)
         End If
+        ' Num só clique faz tudo (Diogo, 29/10/2026: «não tenho de andar a
+        ' carregar várias vezes», DMO-681): também a % uso de todas.
+        BaixarCodigos
+        Correr "DMO_USO_SAP.vbs", ""
     Case "ref"
         Correr "DMO_USO_SAP.vbs", " /codigos:dmo-codigos-pedido.txt"
     Case Else

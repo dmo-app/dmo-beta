@@ -173,12 +173,11 @@ public sealed class PesoPdfGenerator
                     {
                         var titulo = "Produção anterior" + (anteriorComPeso.ProductionNumber is { } np ? " · " + np : "");
                         var deltaMedia = PesoCalculation.NominalDeviation(atual, pesoProducao.MediaGramas);
-                        var deltaModa = PesoCalculation.NominalDeviation(atual, pesoProducao.ModaGramas);
-                        PairedCard(row.RelativeItem(), titulo, Fmt(pesoProducao.MediaGramas) + " g",
-                            SignedOrDash(deltaMedia.Grams) + " g", SignedOrDash(deltaMedia.Percent) + " %", "Média");
-                        PairedCard(row.RelativeItem(), titulo, Fmt(pesoProducao.ModaGramas) + " g",
-                            SignedOrDash(deltaModa.Grams) + " g", SignedOrDash(deltaModa.Percent) + " %",
-                            "Moda · " + pesoProducao.ModaDias + " de " + pesoProducao.Dias + " dias");
+                        PairedCard(row.RelativeItem(), titulo + " · Média", Fmt(pesoProducao.MediaGramas) + " g",
+                            SignedOrDash(deltaMedia.Grams) + " g", SignedOrDash(deltaMedia.Percent) + " %");
+                        // A moda mostra os dias em que esse peso se usou, não a diferença (Diogo, 29/10/2026).
+                        PairedCard(row.RelativeItem(), titulo + " · Moda", Fmt(pesoProducao.ModaGramas) + " g",
+                            "", "", pesoProducao.ModaDias + " de " + pesoProducao.Dias + " dias");
                     }
                     else if (input.ProducaoAnterior is { PesoGramas: { } pesoSap } anterior)
                     {
@@ -233,13 +232,18 @@ public sealed class PesoPdfGenerator
             if (caption.Length > 0) c.Item().PaddingTop(4).Text(caption).FontSize(7).FontColor(Muted);
         });
 
-    private static void PairedCard(IContainer container, string label, string weight, string difference, string percent, string? weightLabel = null) =>
+    private static void PairedCard(IContainer container, string label, string weight, string difference, string percent, string? dias = null) =>
         container.Element(c => Box(c)).Padding(9).Column(c =>
         {
             c.Item().Text(label).FontSize(7).FontColor(Muted);
             c.Item().PaddingTop(4).Text(t =>
             {
                 t.Span(weight).FontSize(17).SemiBold();
+                if (dias is not null)
+                {
+                    t.Span("   " + dias).FontSize(12).SemiBold();
+                    return;
+                }
                 t.Span("   " + difference).FontSize(14).SemiBold();
                 t.Span(" · " + percent).FontSize(10).FontColor(Muted);
             });

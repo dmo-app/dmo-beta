@@ -5739,3 +5739,58 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.NovoPesoComJobOn_ASelecaoDeMaquina_SoMostraAsDaReferencia`
 
 Selo depois: `e25ab73ba7eeb751`
+
+## A-0434 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-681: o Atualizar do SAP Por data também lê a % uso de todas (Diogo 29/10, «não tenho de andar a carregar várias vezes»)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraWn7GmLYrUFJPvpDpKaR7ee
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.PorData_TambemLeAPercentagemDeUso`
+
+Selo depois: `cb397e242565943f`
+
+## A-0432 · 2026-10-29 · teste-novo
+
+Porquê: DMO-679: o Histórico de produções da ficha numera as produções da ferramenta (1 = a mais antiga).
+Referência: DMO-679
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoOrdem.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoOrdem.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_NumeraAsProducoesDaFerramenta_A1EAMaisAntiga`
+
+Selo depois: `7f03434c7663c234`
+
+## A-0433 · 2026-10-29 · teste-novo
+
+Porquê: Teste novo: círculo do número do botão Linhas centrado (DMO-680).
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/ShellProof/jobon-folha-linhas-contagem.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/jobon-folha-linhas-contagem.test.cjs :: O número do botão «Linhas» fica num círculo com contorno, centrado com o texto`
+
+Selo depois: `549fc74ecc34e53f`
+
+## A-0435 · 2026-10-29 · teste-novo
+
+Porquê: Teste novo: no PDF do Peso os cartões da produção anterior dizem Média e Moda e a moda mostra os dias, sem diferença
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraVWrMyXjaN86X1eqUqaxfhd
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.CoberturaBPdf.cs :: PesoPdfGeneratorCoberturaBTests.ProducaoAnterior_ComMediaEModa_OsCartoesDizemMediaEModa_EAModaMostraOsDiasSemDiferenca`
+
+Selo depois: `7cffc9e0a88f482f`
+
+## A-0436 · 2026-10-29 · teste-novo
+
+Porquê: Lote .247: junta #350, #351, #353 e #354; os testes novos estão explicados em A-0432..A-0435.
+Referência: lote .247
+Novos: 5 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.CoberturaBPdf.cs :: PesoPdfGeneratorCoberturaBTests.ProducaoAnterior_ComMediaEModa_OsCartoesDizemMediaEModa_EAModaMostraOsDiasSemDiferenca`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoOrdem.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoOrdem.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_NumeraAsProducoesDaFerramenta_A1EAMaisAntiga`
+- novo: `tests/ShellProof/jobon-folha-linhas-contagem.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/jobon-folha-linhas-contagem.test.cjs :: O número do botão «Linhas» fica num círculo com contorno, centrado com o texto`
+
+Selo depois: `d1db188e2d7bbb02`
