@@ -24,6 +24,8 @@
                 <label for="admSapSenha">Senha do SAP</label>
                 <input id="admSapSenha" name="sap_senha" type="password" maxlength="@DMO.Alpha.Core.Tools.SapDefinicoesRegras.SenhaMaxima" size="14" autocomplete="new-password" placeholder="@(sap.TemSenha ? "guardada" : "por escrever")" />
             </div>
+            @* A hora e os dias na mesma linha (Diogo, 29/10/2026). *@
+            <div class="adm-sap-hora-dias" style="display:flex;gap:16px;flex-wrap:wrap">
             <div class="dmo-field">
                 <label for="admSapHora">Hora da leitura diária</label>
                 <input id="admSapHora" name="sap_hora" type="number" min="0" max="23" value="@sap.Hora" style="width:6ch" required />
@@ -31,6 +33,7 @@
             <div class="dmo-field">
                 <label for="admSapDias">Dias de produções</label>
                 <input id="admSapDias" name="sap_dias" type="number" min="@DMO.Alpha.Core.Tools.SapDefinicoesRegras.DiasMinimo" max="@DMO.Alpha.Core.Tools.SapDefinicoesRegras.DiasMaximo" value="@sap.Dias" style="width:7ch" required />
+            </div>
             </div>
         </form>
     </section>

@@ -197,7 +197,8 @@ Function Valor(ByVal texto, ByVal nome)
             limpo = ""
             For j = 1 To Len(Valor)
                 c = Mid(Valor, j, 1)
-                If c Like "[A-Za-z0-9-]" Then limpo = limpo & c
+                ' O VBScript não tem o «Like» do VBA (erro 800A0023 no PC do SAP).
+                If InStr(1, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-", c, 0) > 0 Then limpo = limpo & c
             Next
             Valor = limpo
         End If
