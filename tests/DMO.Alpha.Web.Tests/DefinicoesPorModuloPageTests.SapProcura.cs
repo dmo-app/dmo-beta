@@ -93,4 +93,14 @@ public sealed partial class DefinicoesPorModuloPageTests
         Assert.Contains("todas ? \"Atualizar\" : \"Pedir todas\"", js);
         Assert.DoesNotContain("Pedir só as à espera", js);
     }
+
+    // Diogo, 29/10/2026: «Dias de produções» na mesma linha, à frente da hora.
+    [Fact]
+    public async Task AHoraEOsDiasDoSap_FicamNaMesmaLinha()
+    {
+        using var admin = await LoginAdminAsync();
+        var html = await (await admin.GetAsync("/Definicoes?secao=admin&sub=sap")).Content.ReadAsStringAsync();
+
+        Assert.Matches(new System.Text.RegularExpressions.Regex("<div class=\"adm-sap-hora-dias\"[^>]*display:flex[^>]*>\\s*<div class=\"dmo-field\">\\s*<label for=\"admSapHora\">.*?<label for=\"admSapDias\">", System.Text.RegularExpressions.RegexOptions.Singleline), html);
+    }
 }
