@@ -157,7 +157,8 @@ public sealed class ConsultarModel(
         {
             Producoes = await producoes.ListByReferenceAsync(referencia, cancelar);
             if (ProducaoId is { } pedida && Producoes.All(p => p.JobOnId != pedida)
-                && await producoes.FindAsync(pedida, cancelar) is { } guardada)
+                && await producoes.FindAsync(pedida, cancelar) is { } guardada
+                && DMO.Alpha.Infrastructure.Search.ReferenceMatch.Matches(guardada.Reference, referencia))
             {
                 Producoes = [.. Producoes, guardada];
             }

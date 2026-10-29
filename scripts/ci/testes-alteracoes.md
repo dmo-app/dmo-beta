@@ -5605,3 +5605,71 @@ Novos: 1 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBResumo.cs :: PesoFolhaProducaoAnteriorPageTests.Resumo_TabelaDoPeso_TemAsColunasValorGEPercentagem_EACadaLinhaAsDuasDiferencas`
 
 Selo depois: `ffd1b58d9d7cece0`
+
+## A-0424 · 2026-10-29 · ok-do-diogo
+
+Porquê: Referência restringe opções de linhas, lotes, reparadores e restantes campos; mudança de BQ limpa produção/linha; sem associações não propõe linhas; preserva produção histórica; gravação recusa linha incompatível sem escrever. Novos testes JS (9), regras de gravação (3), consulta PostgreSQL multisscope (1) e páginas/permissões (2). Testes existentes: corrigir expectativa de todas as linhas sem associação, acrescentar associações válidas aos cenários de gravação e limpar associações nos resets em memória para evitar ligações órfãs com IDs reutilizados; mantém verificações de persistência, texto e navegação.
+Referência: Pedido do Diogo nesta conversa em 29/10/2026: aplicar alterações e adaptar testes para englobar a alteração.
+Novos: 20 · mudaram: 7 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/ReferenciaCompatibilidadeTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/ReferenciaCompatibilidadeTests.cs :: ReferenciaCompatibilidadeTests.CriarJobOnComFerramentaAssociadaAOutraLinhaNaoGrava`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/ReferenciaCompatibilidadeTests.cs :: ReferenciaCompatibilidadeTests.UmaLinhaForaDaFichaNaoGravaMovimento_SalvoAProducaoHistorica`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ReferenceOptions.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ReferenceOptions.cs :: PostgresMigrationIntegrationTests.OpcoesDaReferencia_SeparamCompatibilidadeAtualDaLinhaHistorica_ERecusamOutraLinha`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CoberturaA2SemJobOn.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_UmaBqSemLinhasNaFicha_NaoPermiteEscolherLinhas`
+- novo: `tests/DMO.Alpha.Web.Tests/ReferenceFilterPagesTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ReferenceFilterPagesTests.cs :: ReferenceFilterPagesTests.AsOpcoesNaoRevelamDadosDeModulosSemPermissao`
+- novo: `tests/DMO.Alpha.Web.Tests/ReferenceFilterPagesTests.cs :: ReferenceFilterPagesTests.NoHistoricoAReferenciaRestringeAsLinhasNaPaginaENasOpcoes`
+- novo: `tests/ShellProof/filtros-referencia.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/filtros-referencia.test.cjs :: A resposta atrasada da referência anterior não substitui as opções da referência atual`
+- novo: `tests/ShellProof/filtros-referencia.test.cjs :: Enter no lote envia os filtros mesmo sem botão no formulário`
+- novo: `tests/ShellProof/filtros-referencia.test.cjs :: Falha de leitura bloqueia escolhas antigas e avisa; uma nova pesquisa recupera`
+- novo: `tests/ShellProof/filtros-referencia.test.cjs :: Uma consulta sem resultados não oferece linhas de outras referências`
+- novo: `tests/ShellProof/filtros-referencia.test.cjs :: Uma escolha ainda válida conserva-se e apagar a referência repõe as opções gerais`
+- novo: `tests/ShellProof/filtros-referencia.test.cjs :: Uma referência restringe linhas e reparadores e elimina a linha anterior incompatível`
+- novo: `tests/ShellProof/referencia-dependencias.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/referencia-dependencias.test.cjs :: Escrever outra referência limpa a produção e as linhas da BQ anterior`
+- novo: `tests/ShellProof/referencia-dependencias.test.cjs :: Retirar o Job On anterior repõe apenas as linhas da ficha da BQ`
+- novo: `tests/ShellProof/referencia-dependencias.test.cjs :: Uma ferramenta sem linhas configuradas não propõe linhas compatíveis`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.FormularioDaPagina.cs :: BoquilhasRegistoPageTests.MovimentoPeloFormularioDaPagina_GravaAQuantidadeEAMaquinaNaBQ`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.RegisterMovement_ChosenMachineIsSavedAndShownInTheRegister`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_NaPaginaBoquilhas_GravaEMostraOMovimento`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/cobertura_a2_bq-sem-jobon.test.cjs :: Escolher a BQ deixa na Linha só as da ficha dela, com a primeira já escolhida`
+- mudou: `tests/ShellProof/package.json`
+- saiu: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CoberturaA2SemJobOn.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_UmaBqSemLinhasNaFicha_MostraTodasAsLinhasSemNenhumaEscolhida`
+
+Selo depois: `ab6e0c3d9e63146e`
+
+## A-0425 · 2026-10-29 · ok-do-diogo
+
+Porquê: Cenário de BQ com associação C2 agora verifica a opção selecionada e o texto descodificado da última linha, sem depender da ordem dos atributos nem da codificação HTML. Consulta PostgreSQL garante também que criar Job On usa apenas associações atuais, mesmo existindo outra linha histórica.
+Referência: Pedido do Diogo de 29/10/2026 nesta conversa: adaptar testes para englobar a alteração.
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ReferenceOptions.cs :: PostgresMigrationIntegrationTests.OpcoesDaReferencia_SeparamCompatibilidadeAtualDaLinhaHistorica_ERecusamOutraLinha`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_NaPaginaBoquilhas_GravaEMostraOMovimento`
+
+Selo depois: `dff5b2e15e7de51c`
+
+## A-0426 · 2026-10-29 · ok-do-diogo
+
+Porquê: O teste PostgreSQL cobre referência completa de produção 987654321T173 e ferramenta MF registada só como 987654321: as linhas vêm das associações das ferramentas correspondentes, usando a regra de pesquisa existente no catálogo.
+Referência: Pedido do Diogo de 29/10/2026: aplicar e adaptar testes.
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ReferenceOptions.cs :: PostgresMigrationIntegrationTests.OpcoesDaReferencia_SeparamCompatibilidadeAtualDaLinhaHistorica_ERecusamOutraLinha`
+
+Selo depois: `928dfdb624cd9d35`
+
+## A-0427 · 2026-10-29 · ok-do-diogo
+
+Porquê: Executa no PostgreSQL também as opções da Revisão, cuja procura reutiliza a consulta existente para não perder pesquisas por lote, produção ou referências congeladas.
+Referência: Pedido do Diogo de 29/10/2026: englobar alterações nos testes.
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ReferenceOptions.cs :: PostgresMigrationIntegrationTests.OpcoesDaReferencia_SeparamCompatibilidadeAtualDaLinhaHistorica_ERecusamOutraLinha`
+
+Selo depois: `2900497420d04143`

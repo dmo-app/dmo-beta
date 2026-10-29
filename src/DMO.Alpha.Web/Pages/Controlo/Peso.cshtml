@@ -1076,7 +1076,7 @@
     }
     </div>
     <div class="dmo-zona" data-dmo-fica data-dmo-parcial>
-    <form method="get" asp-page="/Controlo/Peso" class="dmo-filter-bar dmo-filter-bar-conteudo" id="pesoJobOnProcura">
+    <form method="get" asp-page="/Controlo/Peso" class="dmo-filter-bar dmo-filter-bar-conteudo" id="pesoJobOnProcura" data-dmo-reference-scope="controlo" data-dmo-reference-name="referencia">
       <input type="hidden" name="modo" value="@PesoModel.ModoJobOnValor" />
       <div class="dmo-field">
         <label for="pesoJobOnReferencia">Referência</label>
@@ -1084,11 +1084,11 @@
       </div>
       <div class="dmo-field dmo-field-maquina">
         <label for="pesoJobOnMaquina">Máquina</label>
-        <select id="pesoJobOnMaquina" name="maquina" data-dmo-autosubmit>
-          <option value="">Todas</option>
+        <select id="pesoJobOnMaquina" name="maquina" data-dmo-autosubmit data-dmo-reference-select>
+          <option value="" data-dmo-reference-option>Todas</option>
           @foreach (var maquinaOpcao in Model.Maquinas)
           {
-            <option value="@maquinaOpcao" selected="@(string.Equals(Model.JobOnMaquina, maquinaOpcao, StringComparison.Ordinal) ? "selected" : null)">@maquinaOpcao</option>
+            <option value="@maquinaOpcao" selected="@(string.Equals(Model.JobOnMaquina, maquinaOpcao, StringComparison.Ordinal) ? "selected" : null)" data-dmo-reference-option>@maquinaOpcao</option>
           }
         </select>
       </div>
@@ -1099,11 +1099,11 @@
       @if (Model.JobOnReferencia is not null && Model.ProducoesJobOn.Count > 0)
       {
         <label for="pesoJobOn">Produção</label>
-        <select id="pesoJobOn" name="jobon_id" form="pesoJobOnEscolha" required data-dmo-autosubmit="valor" data-dmo-depende="pesoJobOnReferencia" data-dmo-depende-valor="@Model.JobOnReferencia">
-          <option value="">Escolher produção</option>
+        <select id="pesoJobOn" name="jobon_id" form="pesoJobOnEscolha" required data-dmo-autosubmit="valor" data-dmo-depende="pesoJobOnReferencia" data-dmo-depende-valor="@Model.JobOnReferencia" data-dmo-reference-select>
+          <option value="" data-dmo-reference-option>Escolher produção</option>
           @foreach (var producao in Model.ProducoesJobOn)
           {
-            <option value="@producao.JobOnId">@producao.ProductionNumber · @producao.Machine</option>
+            <option value="@producao.JobOnId" data-dmo-reference-option>@producao.ProductionNumber · @producao.Machine</option>
           }
         </select>
       }

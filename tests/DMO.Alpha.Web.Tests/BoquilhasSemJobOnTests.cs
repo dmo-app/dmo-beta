@@ -26,21 +26,24 @@ public partial class BoquilhasRegistoPageTests
             db.Machines.AddRange(new DMO.Alpha.Core.Production.Machine { Code = "B1" }, c2);
             await db.SaveChangesAsync();
             c2Id = c2.Id;
+            db.ToolMachineLinks.Add(new DMO.Alpha.Core.Tools.ToolMachineLink { ToolId = "BQ-SEMJOB-2", MachineId = c2Id });
+            await db.SaveChangesAsync();
         }
         SeedUser("4291", "Registo Sem Job", "provider-registo-semjob", "RegistoSemJob1!");
         using var client = await LoginClientAsync("4291", "RegistoSemJob1!");
 
         // O Registo não tem a janela; a página Boquilhas tem.
         Assert.DoesNotContain("bqSemJobOnDialog", await GetPageHtmlAsync(client, PagePath));
-        var page = await GetPageHtmlAsync(client, $"{PagePath}?ficheiros=1");
+        var page = await GetPageHtmlAsync(client, $"{PagePath}?ficheiros=1&ferramenta=BQ-SEMJOB-2");
         Assert.Contains("<button type=\"button\" class=\"bq-sem-jobon-link\" data-dmo-dialog=\"bqSemJobOnDialog\">Registar sem Job On</button>", page);
         // Uma só escolha: cada opção é uma BQ (tool_id) com o que a identifica.
         Assert.Contains("<select id=\"bqSemJobOnBq\" name=\"tool_id\" data-bq-escolha required>", page);
         Assert.Contains("<option value=\"BQ-SEMJOB-1\" data-procura=\"qs173 · lote 5\">QS173 · Lote 5</option>", page);
-        Assert.Contains("<option value=\"BQ-SEMJOB-2\" data-procura=\"qs173 · lote 6\">QS173 · Lote 6</option>", page);
+        Assert.Contains("data-linhas=\"C2\"", page);
+        Assert.Contains("QS173 · Lote 6", page);
         Assert.DoesNotContain("bqSemJobOnLote", page);
         // A linha (Diogo, 22/10/2026): ajuda a distinguir a BQ.
-        Assert.Contains($"<option value=\"{c2Id}\">C2</option>", page);
+        Assert.Contains($"<option value=\"{c2Id}\" selected=\"selected\">C2</option>", page);
 
         var (acao, campos) = EnvioDoFormulario.Enviar(page,
             [("bqSemJobOnBq", "BQ-SEMJOB-2"), ("bqSemJobOnLinha", c2Id.ToString()), ("bqSemJobOnQtd", "4"), ("bqSemJobOnData", "2026-10-01T08:00")],
@@ -68,7 +71,10 @@ public partial class BoquilhasRegistoPageTests
         Assert.Contains("Movimento registado sem Job On.", depois);
         Assert.Contains("<td>01/10/2026 08:00</td><td>Entrada</td><td>4</td><td>C2</td>", depois);
         // Com um movimento, a opção passa a mostrar a última linha dela.
-        Assert.Contains("<option value=\"BQ-SEMJOB-2\" data-procura=\"qs173 · lote 6 · última linha c2\" selected=\"selected\">QS173 · Lote 6 · Última linha C2</option>", depois);
+        var opcao = System.Text.RegularExpressions.Regex.Match(depois, "<option[^>]*value=\\\"BQ-SEMJOB-2\\\"[^>]*>([^<]*)</option>");
+        Assert.True(opcao.Success, "A BQ registada continua na escolha.");
+        Assert.Contains("selected", opcao.Value);
+        Assert.Contains("Última linha C2", System.Net.WebUtility.HtmlDecode(opcao.Groups[1].Value));
     }
 
     [Fact]

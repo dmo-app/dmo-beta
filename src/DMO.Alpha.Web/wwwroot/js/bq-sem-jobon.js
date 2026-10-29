@@ -69,7 +69,11 @@
       select.dispatchEvent(new Event('change', { bubbles: true }));
       fechar();
     };
-    input.addEventListener('input', () => { select.value = ''; filtrar(); });
+    input.addEventListener('input', () => {
+      select.value = '';
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+      filtrar();
+    });
     input.addEventListener('focus', () => { input.select(); if (!select.value && input.value) filtrar(); });
     input.addEventListener('keydown', e => {
       const v = visiveis();
@@ -95,14 +99,14 @@
 
     // A Linha só com as da ficha da BQ escolhida, já com uma escolhida (a
     // última onde teve movimentos, se for da ficha; senão a primeira) (Diogo,
-    // 28/10/2026). Sem linhas na ficha, ficam todas.
+    // 28/10/2026). Sem linhas na ficha, não se propõem linhas.
     const linha = document.querySelector(`[data-bq-linhas-da="${select.id}"]`);
-    if (linha) {
-      const acertar = trocou => {
+    const acertarLinha = trocou => {
+      if (linha) {
         const daFicha = (select.selectedOptions[0]?.dataset.linhas || '').toUpperCase().split(' ').filter(Boolean);
         const opcoesLinha = [...linha.options].filter(o => o.value);
         for (const o of opcoesLinha) {
-          const fora = daFicha.length > 0 && !daFicha.includes(o.text.trim().toUpperCase());
+          const fora = !daFicha.includes(o.text.trim().toUpperCase());
           o.hidden = fora;
           o.disabled = fora;
         }
@@ -110,10 +114,10 @@
           const primeira = daFicha.map(c => opcoesLinha.find(o => o.text.trim().toUpperCase() === c)).find(Boolean);
           linha.value = primeira ? primeira.value : '';
         }
-      };
-      select.addEventListener('change', () => acertar(true));
-      if (select.value) acertar(false);
-    }
+      }
+    };
+    select.addEventListener('change', () => acertarLinha(true));
+    acertarLinha(false);
 
     // Um Job On anterior (Diogo, 28/10/2026): com a BQ, as referências em
     // que trabalhou; com a referência, as produções dela; a produção põe a
@@ -144,6 +148,7 @@
       };
       // A linha do Job On escolhido, mesmo que não esteja na ficha da BQ (foi lá que trabalhou).
       producao.addEventListener('change', () => {
+        acertarLinha(true);
         const escolhida = producao.selectedOptions[0];
         const linhaDoJobOn = escolhida?.value && linha ? [...linha.options].find(o => o.value === escolhida.dataset.linha) : null;
         if (!linhaDoJobOn) return;

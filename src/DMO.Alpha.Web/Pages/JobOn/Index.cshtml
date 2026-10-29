@@ -289,7 +289,7 @@
         {
           <div data-dmo-toast="erro" class="jobon-aviso" role="alert">@(Model.CreateRefusal is not null ? Model.CreateRefusalMessage : Model.UpdateRefusalMessage)</div>
         }
-        <form id="lightForm" data-dmo-script data-jobon-rascunho="@(Model.FolhaEdicao ? $"editar:{Model.OpenJobOn!.JobOnId}" : Model.DuplicarDe is { } duplicada ? $"duplicar:{duplicada}" : "novo")" data-jobon-rascunho-dono="@(User.FindFirst(DMO.Alpha.Web.Services.DmoClaimTypes.ActorId)?.Value)" method="post" asp-page="/JobOn/Index" asp-page-handler="@(Model.FolhaEdicao ? "Update" : "Create")">
+        <form id="lightForm" data-dmo-script data-jobon-rascunho="@(Model.FolhaEdicao ? $"editar:{Model.OpenJobOn!.JobOnId}" : Model.DuplicarDe is { } duplicada ? $"duplicar:{duplicada}" : "novo")" data-jobon-rascunho-dono="@(User.FindFirst(DMO.Alpha.Web.Services.DmoClaimTypes.ActorId)?.Value)" method="post" asp-page="/JobOn/Index" asp-page-handler="@(Model.FolhaEdicao ? "Update" : "Create")" data-dmo-reference-scope="jobon" data-dmo-reference-name="reference">
           @* O MODO EDIÇÃO: o jobon_edit_id vai no POST (a produção
              re-planeada — o jobon_id é o MESMO; a identidade read-only). *@
           @if (Model.FolhaEdicao)
@@ -309,11 +309,11 @@
               {
                 <span class="jobon-confirmar">Confirmar</span>
               }
-              <select id="lightMachine" name="machine_id" required>
+              <select id="lightMachine" name="machine_id" required data-dmo-reference-select>
                 <option value="">Selecionar</option>
                 @foreach (var machine in Model.Machines)
                 {
-                  <option value="@machine.MachineId" selected="@(Model.RequestedMachineId == machine.MachineId ? "selected" : null)">@machine.Code</option>
+                  <option value="@machine.MachineId" selected="@(Model.RequestedMachineId == machine.MachineId ? "selected" : null)" data-dmo-reference-option>@machine.Code</option>
                 }
               </select>
             </label>
@@ -490,7 +490,7 @@
          produção escolhida para a referência anterior sai ao escrever
          (data-dmo-depende). *@
       <div class="dmo-zona" data-dmo-fica data-dmo-parcial>
-      <form method="get" asp-page="/JobOn/Index" class="dmo-filter-bar" style="margin-bottom:12px" id="jobonHistFiltros" data-dmo-ao-escrever="jobonHistoricoResultados">
+      <form method="get" asp-page="/JobOn/Index" class="dmo-filter-bar" style="margin-bottom:12px" id="jobonHistFiltros" data-dmo-ao-escrever="jobonHistoricoResultados" data-dmo-reference-scope="jobon-historico" data-dmo-reference-name="referencia">
         <input type="hidden" name="historico" value="1" />
         <div class="dmo-field">
           <label for="jobonHistReferencia">Referência</label>
@@ -498,11 +498,11 @@
         </div>
         <div class="dmo-field">
           <label for="jobonHistMaquina">Máquina</label>
-          <select id="jobonHistMaquina" name="maquina" data-dmo-autosubmit>
-            <option value="" selected="@(Model.HistoryMachineId is null ? "selected" : null)">Todas</option>
+          <select id="jobonHistMaquina" name="maquina" data-dmo-autosubmit data-dmo-reference-select>
+            <option value="" selected="@(Model.HistoryMachineId is null ? "selected" : null)" data-dmo-reference-option>Todas</option>
             @foreach (var maquina in Model.Machines)
             {
-              <option value="@maquina.MachineId" selected="@(maquina.MachineId == Model.HistoryMachineId ? "selected" : null)">@maquina.Code</option>
+              <option value="@maquina.MachineId" selected="@(maquina.MachineId == Model.HistoryMachineId ? "selected" : null)" data-dmo-reference-option>@maquina.Code</option>
             }
           </select>
         </div>
@@ -516,11 +516,11 @@
              produção, mesmo com o mesmo nº noutra referência. *@
           var variasReferencias = Model.HistoryProductionsSpanReferences;
             <label for="jobonHistProducao">Produção</label>
-            <select id="jobonHistProducao" name="producao" data-dmo-autosubmit data-dmo-depende="jobonHistReferencia">
-              <option value="" selected="@(Model.HistoryProduction is null ? "selected" : null)">Todas</option>
+            <select id="jobonHistProducao" name="producao" data-dmo-autosubmit data-dmo-depende="jobonHistReferencia" data-dmo-reference-select>
+              <option value="" selected="@(Model.HistoryProduction is null ? "selected" : null)" data-dmo-reference-option>Todas</option>
               @foreach (var producao in Model.HistoryProductions)
               {
-                <option value="@Model.HistoryProductionValue(producao)" selected="@(Model.IsHistoryProductionSelected(producao) ? "selected" : null)">@producao.ProductionNumber@(variasReferencias ? $" · {producao.Reference}" : "")</option>
+                <option value="@Model.HistoryProductionValue(producao)" selected="@(Model.IsHistoryProductionSelected(producao) ? "selected" : null)" data-dmo-reference-option>@producao.ProductionNumber@(variasReferencias ? $" · {producao.Reference}" : "")</option>
               }
             </select>
         }

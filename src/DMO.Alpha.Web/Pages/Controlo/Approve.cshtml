@@ -42,7 +42,7 @@
      a lista é a do período, os mais recentes primeiro. Escrever e escolher
      trocam só a lista. *@
   <section id="revisaoFiltros" data-dmo-regiao class="dmo-card revisao-filtros-card" aria-label="Filtrar controlos">
-    <form id="revisaoFiltrosForm" method="get" action="/Controlo/Approve" class="revisao-filters" data-dmo-ao-escrever="revisaoResultados" data-dmo-parcial data-dmo-handler="Resultados" data-dmo-alvo="revisaoResultados">
+    <form id="revisaoFiltrosForm" method="get" action="/Controlo/Approve" class="revisao-filters" data-dmo-ao-escrever="revisaoResultados" data-dmo-parcial data-dmo-handler="Resultados" data-dmo-alvo="revisaoResultados" data-dmo-reference-scope="revisao" data-dmo-reference-name="procura">
       @if (Model.ListSelectedJobOnId is { } selectedId)
       {
         <input type="hidden" name="jobon_id" value="@selectedId" />
@@ -63,20 +63,20 @@
       </div>
       <div class="dmo-field revisao-w-estado">
         <label for="revisao-estado">Estado</label>
-        <select id="revisao-estado" name="estado" data-dmo-autosubmit>
-          <option value="" selected="@(estadoParam is null ? "selected" : null)">Todos</option>
-          <option value="pendente" selected="@(estadoParam == "pendente" ? "selected" : null)">Pendente</option>
-          <option value="aprovado" selected="@(estadoParam == "aprovado" ? "selected" : null)">Aprovado</option>
-          <option value="nao-aprovado" selected="@(estadoParam == "nao-aprovado" ? "selected" : null)">Não aprovado</option>
+        <select id="revisao-estado" name="estado" data-dmo-autosubmit data-dmo-reference-select>
+          <option value="" selected="@(estadoParam is null ? "selected" : null)" data-dmo-reference-option>Todos</option>
+          <option value="pendente" selected="@(estadoParam == "pendente" ? "selected" : null)" data-dmo-reference-option>Pendente</option>
+          <option value="aprovado" selected="@(estadoParam == "aprovado" ? "selected" : null)" data-dmo-reference-option>Aprovado</option>
+          <option value="nao-aprovado" selected="@(estadoParam == "nao-aprovado" ? "selected" : null)" data-dmo-reference-option>Não aprovado</option>
         </select>
       </div>
       <div class="dmo-field revisao-w-maquina">
         <label for="revisao-maquina">Máquina</label>
-        <select id="revisao-maquina" name="maquina" data-dmo-autosubmit>
-          <option value="">Todas</option>
+        <select id="revisao-maquina" name="maquina" data-dmo-autosubmit data-dmo-reference-select>
+          <option value="" data-dmo-reference-option>Todas</option>
           @foreach (var machine in Model.Machines)
           {
-            <option value="@machine.Code" selected="@(Model.Maquina == machine.Code.ToUpperInvariant() ? "selected" : null)">@machine.Code</option>
+            <option value="@machine.Code" selected="@(Model.Maquina == machine.Code.ToUpperInvariant() ? "selected" : null)" data-dmo-reference-option>@machine.Code</option>
           }
         </select>
       </div>

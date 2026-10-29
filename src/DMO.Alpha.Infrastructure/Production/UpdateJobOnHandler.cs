@@ -81,12 +81,13 @@ public sealed class UpdateJobOnHandler : IUpdateJobOnHandler
         // Tools escolhidas: as mesmas regras do Criar, num só sítio e com uma
         // só consulta às ferramentas (sweep de 19/10/2026, J-4).
         var checks = await JobOnCommandChecks.CheckAsync(
-            _db, command.MachineId, command.CmToolId, command.MfToolId, command.BqToolId, cancellationToken);
+            _db, command.MachineId, command.CmToolId, command.MfToolId, command.BqToolId, cancellationToken, jobOn);
         if (checks.Refused is { } refused)
         {
             return Refused(refused switch
             {
                 JobOnCommandChecks.Refusal.MachineNotFound => UpdateJobOnResult.MachineNotFound,
+                JobOnCommandChecks.Refusal.ToolMachineMismatch => UpdateJobOnResult.ToolMachineMismatch,
                 JobOnCommandChecks.Refusal.MissingMfTool => UpdateJobOnResult.MissingMfTool,
                 JobOnCommandChecks.Refusal.CmToolNotFound => UpdateJobOnResult.CmToolNotFound,
                 JobOnCommandChecks.Refusal.MfToolNotFound => UpdateJobOnResult.MfToolNotFound,

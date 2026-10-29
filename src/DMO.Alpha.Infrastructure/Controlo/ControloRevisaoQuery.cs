@@ -215,6 +215,10 @@ public sealed class ControloRevisaoQuery : IControloRevisaoQuery
                 .FirstOrDefault()
         };
 
+    // As opções da Revisão devem usar a mesma procura (incluindo produção, lote e referências congeladas).
+    internal IQueryable<int> MatchingJobOnIds(string procura) =>
+        Filter(Rows(), procura, null).Select(r => r.JobOnId);
+
     private IQueryable<Row> Filter(IQueryable<Row> rows, string? procura, ControloRevisaoEstado? estado, string? maquina = null)
     {
         if (!string.IsNullOrWhiteSpace(maquina))

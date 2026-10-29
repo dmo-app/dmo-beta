@@ -5903,3 +5903,24 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | DefinicoesPorModuloPageTests.AJanelaDoSap_EscondeAsPartesQueNaoEstaoEscolhidas | DMO-665: a janela Atualizar do SAP mostra só a parte escolhida (Diogo 29/10) | OK | A-0410 |
 | ArmazemMovimentosPaginaTests.Registo_VoltarFicaPorCimaDoTitulo_EAFabricaDoEmprestimoEUmaLista | DMO-667/A-0412 (Diogo 29/10): no Registo do Armazém, «Voltar» por cima do título e a Fábrica do Empréstimo sempre em lista (Definições). 1 teste novo; nenhum antigo mudou | OK | A-0412 |
 | JobOnPageTests.Folha_PainelDasLinhas_SoOQueEntraNosProximosCincoDias | Teste novo: o painel das linhas da Folha só mostra o que entra nos próximos 5 dias (DMO-671) | OK | A-0416 |
+
+## Filtros dependentes da referência — 29/10/2026
+
+Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; novas gravações usam as linhas associadas na ficha da ferramenta e o histórico conserva a linha original.
+
+| Ficheiro / teste | Garante | Estado |
+|---|---|---|
+| ReferenciaCompatibilidadeTests.UmaLinhaForaDaFichaNaoGravaMovimento_SalvoAProducaoHistorica (2 casos) | Recusa uma linha incompatível sem gravar; aceita a linha da produção histórica. | OK |
+| ReferenciaCompatibilidadeTests.CriarJobOnComFerramentaAssociadaAOutraLinhaNaoGrava | Job On incompatível não fica gravado. | OK |
+| PostgresMigrationIntegrationTests.OpcoesDaReferencia_SeparamCompatibilidadeAtualDaLinhaHistorica_ERecusamOutraLinha | PostgreSQL distingue ficha atual e histórico, restringe reparador/lote, e recusa gravação incompatível. | OK |
+| ReferenceFilterPagesTests.NoHistoricoAReferenciaRestringeAsLinhasNaPaginaENasOpcoes | A página e a resposta de opções apresentam apenas as linhas e reparadores da referência. | OK |
+| ReferenceFilterPagesTests.AsOpcoesNaoRevelamDadosDeModulosSemPermissao | Um utilizador sem acesso ao módulo não consulta as suas opções. | OK |
+| referencia-dependencias.test.cjs: trocar referência | Limpa produção e linha da BQ anterior. | OK |
+| referencia-dependencias.test.cjs: retirar produção histórica | Repõe apenas linhas da ficha atual. | OK |
+| referencia-dependencias.test.cjs: sem associações | Não propõe linhas sem associação. | OK |
+| filtros-referencia.test.cjs: opções contextuais | Restringe linhas e reparadores e limpa escolhas incompatíveis. | OK |
+| filtros-referencia.test.cjs: escolhas válidas e referência vazia | Conserva escolhas válidas e repõe opções gerais quando se limpa a referência. | OK |
+| filtros-referencia.test.cjs: respostas atrasadas | Uma resposta antiga não substitui a referência atual. | OK |
+| filtros-referencia.test.cjs: referência inexistente | Não apresenta opções de outras referências. | OK |
+| filtros-referencia.test.cjs: falha e recuperação | Uma falha de rede bloqueia opções desatualizadas e permite repetir. | OK |
+| filtros-referencia.test.cjs: Enter no lote | Aplica a pesquisa mesmo sem botão de submissão. | OK |

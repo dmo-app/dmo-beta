@@ -52,7 +52,7 @@
        resto»): os filtros com a largura do conteúdo e os dois botões no fim
        da mesma linha, encostados à direita. Os links abrem a página inteira
        (data-dmo-completa): o formulário troca só a lista dos resultados. *@
-    <form method="get" asp-page="/Ferramentas/Index" id="ferrFiltros" class="ferr-filters" data-dmo-fica data-dmo-parcial data-dmo-handler="Resultados" data-dmo-alvo="ferrResultados" data-dmo-ao-escrever="ferrResultados">
+    <form method="get" asp-page="/Ferramentas/Index" id="ferrFiltros" class="ferr-filters" data-dmo-fica data-dmo-parcial data-dmo-handler="Resultados" data-dmo-alvo="ferrResultados" data-dmo-ao-escrever="ferrResultados" data-dmo-reference-scope="ferramentas" data-dmo-reference-name="reference">
       @if (Model.ReturnTemplate is not null)
       {
         <input type="hidden" name="return" value="@Model.ReturnTemplate" />
@@ -68,20 +68,20 @@
       </div>
       <div class="dmo-field ferr-w-type">
         <label for="ferr-type">Tipo</label>
-        <select id="ferr-type" name="type" data-dmo-autosubmit>
-          <option value="">Todos</option>
-          <option value="CM" selected="@(Model.RequestedTypeToken == "CM")">CM — Contra-molde</option>
-          <option value="BQ" selected="@(Model.RequestedTypeToken == "BQ")">BQ — Boquilha</option>
-          <option value="MF" selected="@(Model.RequestedTypeToken == "MF")">MF — Molde final</option>
+        <select id="ferr-type" name="type" data-dmo-autosubmit data-dmo-reference-select>
+          <option value="" data-dmo-reference-option>Todos</option>
+          <option value="CM" selected="@(Model.RequestedTypeToken == "CM")" data-dmo-reference-option>CM — Contra-molde</option>
+          <option value="BQ" selected="@(Model.RequestedTypeToken == "BQ")" data-dmo-reference-option>BQ — Boquilha</option>
+          <option value="MF" selected="@(Model.RequestedTypeToken == "MF")" data-dmo-reference-option>MF — Molde final</option>
         </select>
       </div>
       <div class="dmo-field ferr-w-machine">
         <label for="ferr-machine">Linha</label>
-        <select id="ferr-machine" name="machine_id" data-dmo-autosubmit>
-          <option value="">Todas</option>
+        <select id="ferr-machine" name="machine_id" data-dmo-autosubmit data-dmo-reference-select>
+          <option value="" data-dmo-reference-option>Todas</option>
           @foreach (var machine in Model.Machines)
           {
-            <option value="@machine.MachineId" selected="@(Model.RequestedMachineId == machine.MachineId)">@machine.Code</option>
+            <option value="@machine.MachineId" selected="@(Model.RequestedMachineId == machine.MachineId)" data-dmo-reference-option>@machine.Code</option>
           }
         </select>
       </div>
@@ -90,27 +90,27 @@
          Definições. *@
       <div class="dmo-field ferr-w-estado">
         <label for="ferr-estado">Estado</label>
-        <select id="ferr-estado" name="estado" data-dmo-autosubmit>
-          <option value="">Todos</option>
+        <select id="ferr-estado" name="estado" data-dmo-autosubmit data-dmo-reference-select>
+          <option value="" data-dmo-reference-option>Todos</option>
           @foreach (var estado in DMO.Alpha.Web.Pages.Ferramentas.IndexModel.Estados)
           {
-            <option value="@estado.Valor" selected="@(Model.RequestedEstado == estado.Valor)">@estado.Texto</option>
+            <option value="@estado.Valor" selected="@(Model.RequestedEstado == estado.Valor)" data-dmo-reference-option>@estado.Texto</option>
           }
         </select>
       </div>
       <div class="dmo-field ferr-w-local">
         <label for="ferr-local">Localização</label>
-        <select id="ferr-local" name="local" data-dmo-autosubmit>
-          <option value="">Todas</option>
+        <select id="ferr-local" name="local" data-dmo-autosubmit data-dmo-reference-select>
+          <option value="" data-dmo-reference-option>Todas</option>
           @foreach (var local in DMO.Alpha.Web.Pages.Ferramentas.IndexModel.Locais)
           {
-            <option value="@local.Valor" selected="@(Model.RequestedLocal == local.Valor)">@local.Texto</option>
+            <option value="@local.Valor" selected="@(Model.RequestedLocal == local.Valor)" data-dmo-reference-option>@local.Texto</option>
             @if (local.Valor == "reparacao")
             {
               foreach (var reparador in Model.Reparadores)
               {
                 var valor = DMO.Alpha.Web.Pages.Ferramentas.IndexModel.LocalReparador(reparador);
-                <option value="@valor" selected="@(Model.RequestedLocal == valor)">Reparação · @reparador</option>
+                <option value="@valor" selected="@(Model.RequestedLocal == valor)" data-dmo-reference-option>Reparação · @reparador</option>
               }
             }
             @if (local.Valor == "emprestado")
@@ -118,7 +118,7 @@
               foreach (var fabrica in Model.Fabricas)
               {
                 var valor = DMO.Alpha.Web.Pages.Ferramentas.IndexModel.LocalFabrica(fabrica.Sigla);
-                <option value="@valor" title="@fabrica.Nome" selected="@(Model.RequestedLocal == valor)">Empréstimo · @fabrica.Sigla</option>
+                <option value="@valor" title="@fabrica.Nome" selected="@(Model.RequestedLocal == valor)" data-dmo-reference-option>Empréstimo · @fabrica.Sigla</option>
               }
             }
           }
@@ -129,15 +129,15 @@
         @* As fábricas da BA das Definições; sem elas, o texto livre. *@
         @if (Model.Fabricas.Count > 0)
         {
-          <select id="ferr-fabrica" name="fabrica" data-dmo-autosubmit>
-            <option value="">Todas</option>
+          <select id="ferr-fabrica" name="fabrica" data-dmo-autosubmit data-dmo-reference-select>
+            <option value="" data-dmo-reference-option>Todas</option>
             @if (Model.RequestedFabrica is { } escolhida && Model.Fabricas.All(f => f.Sigla != escolhida))
             {
-              <option value="@escolhida" selected>@escolhida</option>
+              <option value="@escolhida" selected data-dmo-reference-option>@escolhida</option>
             }
             @foreach (var fabrica in Model.Fabricas)
             {
-              <option value="@fabrica.Sigla" title="@fabrica.Nome" selected="@(Model.RequestedFabrica == fabrica.Sigla)">@fabrica.Sigla</option>
+              <option value="@fabrica.Sigla" title="@fabrica.Nome" selected="@(Model.RequestedFabrica == fabrica.Sigla)" data-dmo-reference-option>@fabrica.Sigla</option>
             }
           </select>
         }

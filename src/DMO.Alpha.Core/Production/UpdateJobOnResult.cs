@@ -21,6 +21,9 @@ public enum UpdateJobOnResult
     /// </summary>
     MachineNotFound,
 
+    /// <summary>Uma ferramenta está associada a outras linhas, mas não à escolhida.</summary>
+    ToolMachineMismatch,
+
     /// <summary>
     /// O MF (molde final) é OBRIGATÓRIO em todo o Job On — a regra do
     /// Owner 2026-10-10 («jobon necessita sempre de MF, senao nao faz

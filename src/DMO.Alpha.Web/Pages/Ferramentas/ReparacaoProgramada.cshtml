@@ -257,7 +257,7 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
       <h4 id="rp-procura-title" title="Só CM e MF (as BQ vão ao reparador pelas Boquilhas). Os dropdowns aplicam logo; a referência e o lote ao escrever. Marque as ferramentas e «Adicionar» junta-as à lista escolhida em cima.">Procurar ferramentas</h4>
     </div>
 
-    <form id="rpFiltros" method="get" asp-page="/Ferramentas/ReparacaoProgramada" class="rp-filtros" role="search" data-dmo-fica data-dmo-handler="Resultados" data-dmo-alvo="rpResultados" data-dmo-ao-escrever="rpResultados">
+    <form id="rpFiltros" method="get" asp-page="/Ferramentas/ReparacaoProgramada" class="rp-filtros" role="search" data-dmo-fica data-dmo-handler="Resultados" data-dmo-alvo="rpResultados" data-dmo-ao-escrever="rpResultados" data-dmo-reference-scope="programada" data-dmo-reference-name="referencia">
       @if (Model.ListaId is { } listaAtual)
       {
         <input type="hidden" name="lista" value="@listaAtual" />
@@ -272,29 +272,29 @@ html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted
       </div>
       <div class="dmo-field">
         <label for="rpTipo">Tipo</label>
-        <select id="rpTipo" name="tipo" data-dmo-autosubmit>
-          <option value="" selected="@(Model.Tipo is null)">Todos</option>
-          <option value="CM" selected="@(Model.TipoTexto == "CM")">CM</option>
-          <option value="MF" selected="@(Model.TipoTexto == "MF")">MF</option>
+        <select id="rpTipo" name="tipo" data-dmo-autosubmit data-dmo-reference-select>
+          <option value="" selected="@(Model.Tipo is null)" data-dmo-reference-option>Todos</option>
+          <option value="CM" selected="@(Model.TipoTexto == "CM")" data-dmo-reference-option>CM</option>
+          <option value="MF" selected="@(Model.TipoTexto == "MF")" data-dmo-reference-option>MF</option>
         </select>
       </div>
       <div class="dmo-field">
         <label for="rpLinha">Linha</label>
-        <select id="rpLinha" name="linha" data-dmo-autosubmit>
-          <option value="" selected="@string.IsNullOrWhiteSpace(Model.Linha)">Todas</option>
+        <select id="rpLinha" name="linha" data-dmo-autosubmit data-dmo-reference-select>
+          <option value="" selected="@string.IsNullOrWhiteSpace(Model.Linha)" data-dmo-reference-option>Todas</option>
           @foreach (var l in Model.Linhas)
           {
-            <option value="@l" selected="@(Model.Linha == l)">@l</option>
+            <option value="@l" selected="@(Model.Linha == l)" data-dmo-reference-option>@l</option>
           }
         </select>
       </div>
       <div class="dmo-field">
         <label for="rpEstado">Estado</label>
-        <select id="rpEstado" name="estado" data-dmo-autosubmit>
-          <option value="" selected="@(Model.Estado is null)">Todos</option>
+        <select id="rpEstado" name="estado" data-dmo-autosubmit data-dmo-reference-select>
+          <option value="" selected="@(Model.Estado is null)" data-dmo-reference-option>Todos</option>
           @foreach (var e in ReparacaoProgramadaModel.Estados)
           {
-            <option value="@e" selected="@(Model.Estado == e)">@ArmazemTextos.Estado(e)</option>
+            <option value="@e" selected="@(Model.Estado == e)" data-dmo-reference-option>@ArmazemTextos.Estado(e)</option>
           }
         </select>
       </div>
