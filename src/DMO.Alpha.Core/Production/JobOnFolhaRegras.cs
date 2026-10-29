@@ -100,7 +100,7 @@ public static class JobOnFolhaRegras
             foreach (var campo in JobOnFolhaCampos.Todos)
             {
                 if (folha.TryGetValue(campo.Chave, out var valor) && valor is { } texto
-                    && (texto.Length > campo.Maximo || (EFolga(campo.Chave) && JobOnFolgas.Numeros(texto) > 1)))
+                    && (texto.Length > campo.Maximo || (UmNumero(campo.Chave) && JobOnFolgas.Numeros(texto) > 1)))
                 {
                     return campo.Chave;
                 }
@@ -251,6 +251,16 @@ public static class JobOnFolhaRegras
     /// </summary>
     /// <summary>A chave é uma das três folgas do CM ou do MF (um número só).</summary>
     public static bool EFolga(string chave) => JobOnFolhaCampos.Encontrar(chave)?.Grupo == "Folgas (mm)";
+
+    /// <summary>
+    /// Os diâmetros do CM e do MF: um valor só, a tolerância vai no campo ao lado
+    /// (Diogo, 28/10: «no corpo não deve ter dois valores»).
+    /// </summary>
+    public static bool EDiametro(string chave) => chave is
+        "cm_pata" or "cm_gargalo" or "cm_exterior" or "mf_corpo" or "mf_gargalo" or "mf_exterior";
+
+    /// <summary>A chave só aceita um número: as folgas e os diâmetros.</summary>
+    public static bool UmNumero(string chave) => EFolga(chave) || EDiametro(chave);
 
     public static string? RotuloDaChave(string chave)
     {

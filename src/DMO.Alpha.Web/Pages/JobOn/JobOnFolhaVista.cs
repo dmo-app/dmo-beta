@@ -149,6 +149,8 @@ public sealed class FolhaDoJobOnVista
     public string? MensagemTextoLongo(string fim) =>
         ChaveRecusada is { } folga && JobOnFolhaRegras.EFolga(folga) && JobOnFolhaRegras.RotuloDaChave(folga) is { } rotuloFolga
             ? $"«{rotuloFolga}» só leva um número: a folga no primeiro espaço, a tolerância no do meio e a folga da flecha no último. {fim}"
+        : ChaveRecusada is { } diametro && JobOnFolhaRegras.EDiametro(diametro) && JobOnFolhaRegras.RotuloDaChave(diametro) is { } rotuloDiametro
+            ? $"«{rotuloDiametro}» só leva um número: o valor; a tolerância vai no campo «Tol.» ao lado. {fim}"
         : ChaveRecusada is { } chave
         && JobOnFolhaRegras.RotuloDaChave(chave) is { } rotulo
         && JobOnFolhaRegras.MaximoDaChave(chave) is { } maximo

@@ -496,7 +496,8 @@ html body .beta-bq-layout #bqRegisterFacts>.dmo-fact{flex:1 1 0;min-width:0}
    para nada ficar cortado. As larguras continuam fixas, não mudam com o texto. */
 html body .beta-bq-layout #bqRegisterFacts>.dmo-fact:nth-child(2):nth-last-child(4){flex-grow:1.25}
 html body .beta-bq-layout #bqRegisterFacts>.dmo-fact:nth-child(3):nth-last-child(3){flex-grow:.8}
-html body .beta-bq-layout #bqRegisterFacts>.dmo-fact:nth-child(4):nth-last-child(2){flex-grow:1.4}
+html body .beta-bq-layout #bqRegisterFacts>.dmo-fact:nth-child(4):nth-last-child(2){flex-grow:1.5}
+html body .beta-bq-layout #bqRegisterFacts>.dmo-fact:nth-child(5):last-child{flex-grow:.9}
 html body .beta-bq-layout #bqRegisterFacts>.dmo-fact>:is(span,strong){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 html body .beta-bq-layout #bqTraceMovements{table-layout:fixed;width:100%}
 html body .beta-bq-layout #bqTraceMovements :is(th,td){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
