@@ -304,6 +304,20 @@ elif python3 tests/visual/cabecalho_nome_comprido_browser.py "$ui" >"$logs/ui-ca
 else
   tail -30 "$logs/ui-cabecalho.log"
   summary+=("FALHOU  Browser no cabeçalho com nome comprido")
+fi
+
+echo
+echo "== Browser na lista de Movimentos das Boquilhas"
+echo "   A 1290×646, 1366×768 e 1100×646, em claro e em escuro, com poucas e com muitas linhas de produção: a lista fica sempre com o cabeçalho e uma linha inteira, e a página não desliza."
+if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then
+  echo "   não corrido (CI_SEM_BROWSER=1)"
+  summary+=("--      Browser na lista de Movimentos das Boquilhas (CI_SEM_BROWSER=1)")
+elif python3 tests/visual/bq_historico_lista_browser.py "$ui" >"$logs/ui-bq-historico.log" 2>&1; then
+  echo "   passaram"
+  summary+=("OK      Browser na lista de Movimentos das Boquilhas")
+else
+  tail -30 "$logs/ui-bq-historico.log"
+  summary+=("FALHOU  Browser na lista de Movimentos das Boquilhas")
   failed=1
 fi
 
