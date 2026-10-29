@@ -1,7 +1,7 @@
 {
-  "selo": "ec9ba3ad5cec76c3",
+  "selo": "d622c4c1cd418d0b",
   "unidades": {
-    "scripts/ci/ci-local.sh": "b85e4195bb3ac186",
+    "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
     "scripts/ci/guarda-testes.py": "5b1b5836ee0813fa",
     "scripts/ci/testes.md": "022484bbe94c4c69",
@@ -2546,7 +2546,9 @@
     "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaHistoricoTests.cs :: (resto do ficheiro)": "e650a4894dab8a31",
     "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaHistoricoTests.cs :: ReparacaoProgramadaHistoricoTests.Imprimir_SoMostraAsPorRetirar_EAsFechadasAbremVazias_EFiltramPeloReparador": "224c8131a25de833",
     "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaHistoricoTests.cs :: ReparacaoProgramadaHistoricoTests.NovaLista_CriaComOReparador_ESemListaOAdicionarAvisa": "a28f9bf4d3fc79ed",
-    "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: (resto do ficheiro)": "31a6a9fc5c3b4450",
+    "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.Artigo.cs :: (resto do ficheiro)": "ea57d19ed6a95b56",
+    "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.Artigo.cs :: ReparacaoProgramadaPaginaTests.ListaEProcura_MostramAReferenciaCompletaAFrenteDaFerramenta": "2e40164e41219de9",
+    "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: (resto do ficheiro)": "3f7c8e0c6e0e4a9e",
     "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.ArmazemEntrada_DeFerramentaNaLista_SugereReparado_AvisaAoMudar_EALinhaFicaCinza": "5cdc3167dcc7bcf8",
     "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.Ferramentas_VeOSeparador_AProcuraAbreVazia_EAssociaAUmaListaNova": "58e8868da28a4d09",
     "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.Lista_MostraSoOReparador_EAProcuraCorreAoEscrever": "1beecaa4f76c42b3",
@@ -3659,6 +3661,7 @@
     "tests/visual/revisao_aprovar_browser.py": "3235b5e5b374469e",
     "tests/visual/revisao_parcial_servidor_browser.py": "ee856f2f81d2d82c",
     "tests/visual/ri_hora_browser.py": "fec11fc5a281eadc",
+    "tests/visual/rp_botoes_browser.py": "54431f4062ca1b65",
     "tests/visual/tecnica_alinhada_browser.py": "edabb391211d458b",
     "tests/visual/validate_pdf_evidence.py": "3916d2bfac88188e"
   }

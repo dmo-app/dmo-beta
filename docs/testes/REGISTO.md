@@ -2970,6 +2970,12 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | ReparacaoProgramadaPaginaTests.Ferramentas_VeOSeparador_AProcuraAbreVazia_EAssociaAUmaListaNova | Procura abre vazia e associa a lista nova | OK | Algumas verificações são de classes CSS (dmo-com-ajuda); o essencial lê a base. |
 | ReparacaoProgramadaPaginaTests.SemFerramentas_NaoEntra_NemAssocia_NemImprime | Sem módulo Ferramentas não entra nem associa | OK |  |
 
+### `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.Artigo.cs`
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| ReparacaoProgramadaPaginaTests.ListaEProcura_MostramAReferenciaCompletaAFrenteDaFerramenta | Registar Reparação: em frente à ferramenta, a referência completa do artigo da última produção, na lista e na procura; exporta rp-lista.html para o browser (DMO-674) | OK |  |
+
 ### `tests/DMO.Alpha.Web.Tests/FerramentasFichaTrocaTests.cs`
 
 | Teste | Garante | Estado | Nota |
@@ -5857,6 +5863,12 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | cobertura_c_browser.linhas_compativeis | Linhas compatíveis: cores em repouso, rato e escolhida | OK | DMO-405 |
 | cobertura_c_browser.login | Login: botão Reparação, logótipo e cores certas a 1366 e 1290 | OK | DMO-436 |
 | cobertura_c_browser.topo_e_ecras | Topo e ecrãs cabem a 1366x768, sem sublinhados | OK | DMO-481 |
+
+### `tests/visual/rp_botoes_browser.py`
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| rp_botoes_browser.py (script, 1366 px) | Imprimir, Listas, Histórico, Adicionar e Limpar filtros com o mesmo espaço entre si (DMO-674) | OK |  |
 
 
 ### Peso › aviso «O Job On mudou» e Approve › diferença da produção (DMO-594, DMO-595)

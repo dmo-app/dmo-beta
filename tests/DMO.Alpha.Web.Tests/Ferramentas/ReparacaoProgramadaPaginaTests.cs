@@ -20,7 +20,7 @@ namespace DMO.Alpha.Web.Tests.Ferramentas;
 /// com o dia, a posição e quem deu entrada; «Imprimir» abre a vista do
 /// browser.
 /// </summary>
-public sealed class ReparacaoProgramadaPaginaTests : IClassFixture<CustomWebApplicationFactory>
+public sealed partial class ReparacaoProgramadaPaginaTests : IClassFixture<CustomWebApplicationFactory>
 {
     private const string Cm = "rp-cm-5447-3";
     private const string Pagina = "/Ferramentas/ReparacaoProgramada";

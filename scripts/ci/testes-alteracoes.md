@@ -5575,3 +5575,17 @@ Novos: 2 · mudaram: 6 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.Historico.cs :: FerramentasPagesTests.Historico_ComControloERi_OMenuTemOsTresDestinos`
 
 Selo depois: `ec9ba3ad5cec76c3`
+
+## A-0424 · 2026-10-29 · contagem-lista
+
+Porquê: DMO-674: teste novo da referência completa e do espaço entre botões no Registar Reparação. Mudanças a ficheiros antigos só de lista: a classe ReparacaoProgramadaPaginaTests passa a partial (o teste novo vive em ReparacaoProgramadaPaginaTests.Artigo.cs) e o ci-local.sh ganha o passo do rp_botoes_browser.py. Nenhum teste existente muda o que verifica.
+Referência: DMO-674
+Novos: 3 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.Artigo.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.Artigo.cs :: ReparacaoProgramadaPaginaTests.ListaEProcura_MostramAReferenciaCompletaAFrenteDaFerramenta`
+- novo: `tests/visual/rp_botoes_browser.py`
+- mudou: `scripts/ci/ci-local.sh`
+- mudou: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: (resto do ficheiro)`
+
+Selo depois: `d622c4c1cd418d0b`
