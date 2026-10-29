@@ -5358,3 +5358,14 @@ Novos: 2 · mudaram: 4 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.AtualizarPorReferencia_DaOsCodigosDessaReferenciaEDoTipo`
 
 Selo depois: `d750d0d392be5ec3`
+
+## A-0401 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-659: ZPPG só na plant MG; BQ procura até ao processo de 2 letras, mais casos (Diogo 29/10, ARTIGOS-MG)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra17ZmcRmgwGkHQK9FSJwe6E
+Novos: 1 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OScriptDaZppg_ProcuraSoNaPlantMg`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.ABq_ProcuraSePeloNomeTecnicoAteAoProcesso_EstrelaELote`
+
+Selo depois: `d6778ba23b53272e`

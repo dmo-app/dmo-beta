@@ -1,5 +1,5 @@
 {
-  "selo": "d750d0d392be5ec3",
+  "selo": "d6778ba23b53272e",
   "unidades": {
     "scripts/ci/ci-local.sh": "b85e4195bb3ac186",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1664,7 +1664,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: Sessao.PorAtualizar_SaoOsLembretesAbertos_OsMaisAntigosPrimeiro": "b8a4a9643f1e3963",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/RegistosAntigos.cs :: (resto do ficheiro)": "971facc40e45b3c5",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: (resto do ficheiro)": "a85ae6ba3feba150",
-    "tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.ABq_ProcuraSePeloNomeTecnicoAteAoProcesso_EstrelaELote": "bcbb5bcdc872dd97",
+    "tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.ABq_ProcuraSePeloNomeTecnicoAteAoProcesso_EstrelaELote": "b7489ffdad4c7cec",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.ACodigo_PorOmissao_EONomeTecnicoComOLote": "2f41e96589f3150f",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.ARegraDaLinha_GanhaAGeral_EOCodigoAMaoGanhaATudo": "f019ebd4c4ee1eed",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.AsTresGerais_EstaoSempre_EAsGravadasLeemSeDeVolta": "518a1d4c46be8514",
@@ -3157,6 +3157,7 @@
     "tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.SemOCabecalho_AResposta_EAPaginaInteiraDeSempre": "63ebe67559a643d7",
     "tests/DMO.Alpha.Web.Tests/ReparacaoInterna/ReparacaoInternaZonasPaginaTests.cs :: ReparacaoInternaZonasPaginaTests.ZonaDesconhecidaOuDeOutraVista_RespondeComAPaginaInteira": "fb45713dc9fe7014",
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: (resto do ficheiro)": "d38fd88e828f8294",
+    "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OScriptDaZppg_ProcuraSoNaPlantMg": "ef9aa9ed84f29785",
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OsScriptsDoSap_NaoUsamOLikeDoVba": "b6343316fdb3f4ef",
     "tests/DMO.Alpha.Web.Tests/SemVigiarFicheiros.cs :: (resto do ficheiro)": "fba9c266d00c8477",
     "tests/DMO.Alpha.Web.Tests/SemVigiarFicheirosTests.cs :: (resto do ficheiro)": "c763cea9fe9b49f6",
