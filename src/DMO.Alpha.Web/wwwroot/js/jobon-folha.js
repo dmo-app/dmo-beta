@@ -843,6 +843,8 @@
     if (!avisos.length) return;
     // Como os outros alertas da app: na pilha do canto do ecrã (DMOLive), com o seu × (Diogo, 29/10/2026:
     // «deve aparecer como aparecem os alertas»).
+    // No telemóvel os alertas ficam em baixo a toda a largura e tapavam a folha: lá ficam no cartão.
+    if (window.matchMedia && window.matchMedia('(max-width: 640px)').matches) return;
     if (window.DMOLive && window.DMOLive.mostrarMensagens) {
       const caixa = document.createElement('div');
       avisos.forEach(aviso => {
