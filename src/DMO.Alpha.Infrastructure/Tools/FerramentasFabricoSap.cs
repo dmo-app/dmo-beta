@@ -427,6 +427,10 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
                 .Select(j => Montar(j.Id, j.Reference, j.ProductionNumber, j.Maquina, j.InicioEm, j.FimEm, sap, l, ProximoInicio(inicios, j.InicioEm),
                     j.InicioEm is { } de ? ProximoNaMaquina(iniciosPorMaquina, j.Maquina, de) : null))
                 .ToList();
+            // O mesmo número de ordem da ficha, contado em todas as produções
+            // da ferramenta (não só nas que passam o filtro).
+            var datadas = todosJobOns.Where(j => seus.Contains(j.Id) && j.InicioEm.HasValue).Select(j => j.Id).ToList();
+            itens = itens.Select(p => p.InicioEm is null ? p : p with { Ordem = datadas.Count - datadas.IndexOf(p.JobOnId) }).ToList();
             if (itens.Count > 0)
             {
                 resultado[toolId] = itens;
