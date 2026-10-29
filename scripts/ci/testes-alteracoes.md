@@ -5509,20 +5509,23 @@ Selo depois: `cc3bd3e5d96c86c2`
 
 ## A-0417 · 2026-10-29 · teste-novo
 
-Porquê: Folha do Peso sem vazios e + − dentro da caixa da Comparação (DMO-672)
-Referência: cmsg_01K75FTs9bQnbhhH7qttpgraBWU6FVRkEeLpJiTrcXdcAD
-Novos: 1 · mudaram: 0 · saíram: 0
+Porquê: Peso volta a deslizar; Enter não volta ao topo; + − dentro da caixa (DMO-672)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra4341FR3J1Tyu38gwWqzNfJ
+Novos: 2 · mudaram: 0 · saíram: 0
 
-- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Peso_OsCartoesDaFolhaEsticamSemVazios`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_DiferencasFicamForaDaTroca_RegistarNaoVoltaAoTopo`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Peso_ComparacaoTemOMaisEOMenosDentroDaCaixa`
 
-Selo depois: `a5844820eeb1b7d1`
+Selo depois: `7bf7f2456fd5e9bc`
 
 ## A-0418 · 2026-10-29 · ok-do-diogo
 
-Porquê: Lote .243: junta #330, #331, #334, #335, #338; as entradas A-0404..A-0417 explicam os testes (PeloPosto_EmUso_ASessaoContinua saiu em A-0406).
+Porquê: Lote .243: junta #330, #331, #334, #335, #338; as entradas A-0404..A-0417 explicam os testes (PeloPosto_EmUso_ASessaoContinua saiu em A-0406; Peso_OsCartoesDaFolhaEsticamSemVazios, nova no #338 numa versão anterior, foi trocada pelas duas de A-0417).
 Referência: lote .243
-Novos: 1 · mudaram: 0 · saíram: 0
+Novos: 2 · mudaram: 0 · saíram: 1
 
-- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Peso_OsCartoesDaFolhaEsticamSemVazios`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_DiferencasFicamForaDaTroca_RegistarNaoVoltaAoTopo`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Peso_ComparacaoTemOMaisEOMenosDentroDaCaixa`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Peso_OsCartoesDaFolhaEsticamSemVazios`
 
-Selo depois: `61d4bf97b6defe5b`
+Selo depois: `41832da76741bb74`
