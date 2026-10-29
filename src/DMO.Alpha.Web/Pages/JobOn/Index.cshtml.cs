@@ -983,6 +983,10 @@ public sealed class IndexModel : PageModel
         [FromQuery(Name = "mes")] int? mes,
         [FromQuery(Name = "dia")] int? dia)
     {
+        if (await SoVerAsync())
+        {
+            return Redirect(PagePath);
+        }
         var resultados = await ProcurarProducoesAsync(search, procuraRef, ano, mes, dia);
         return Partial("_JobOnProcuraProducoes", resultados);
     }
@@ -1039,6 +1043,10 @@ public sealed class IndexModel : PageModel
         [FromQuery(Name = "all")] bool showAll = false,
         [FromServices] DMO.Alpha.Core.Tools.IFerramentasUsoSap? usoSap = null)
     {
+        if (await SoVerAsync())
+        {
+            return Redirect(PagePath);
+        }
         ToolType? toolType = Sanitize(type)?.ToUpperInvariant() switch
         {
             "CM" => ToolType.Cm,
@@ -1735,6 +1743,10 @@ public sealed class IndexModel : PageModel
         [FromQuery(Name = "inicio_em")] DateOnly? inicioEm,
         [FromQuery(Name = "fim_em")] DateOnly? fimEm)
     {
+        if (await SoVerAsync())
+        {
+            return Redirect(PagePath);
+        }
         var machineCode = machineId is int id
             ? await _pagina.CodigoDaMaquinaAsync(id, HttpContext.RequestAborted)
             : null;
