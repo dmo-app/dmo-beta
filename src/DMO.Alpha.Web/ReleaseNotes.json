@@ -584,7 +584,9 @@
     { "id": "DMO-604", "module": "SAP", "description": "0.3.0-beta.236 (A-0344): «Atualizar do SAP» e «Instalar» saem das Definições das Ferramentas; ficam só em Admin › Definições › SAP, que já tinha a mesma funcionalidade (auditoria do Codex de 29/10/2026, SEC-01). Qualquer conta com as Ferramentas chegava à senha do SAP, escrita nos scripts que esses dois botões geravam. «Copiar códigos», «Pedir todas» e «Apagar lidos» (sem senha) continuam nas Ferramentas." },
     { "id": "DMO-644", "module": "Job On", "description": "0.3.0-beta.236 na folha do Job On, os avisos dos cartões CM, MF e BQ (B2 sem Dupla/Tripla, «não registada no Armazém») deixam de ficar cortados dentro do cartão: aparecem no canto superior direito, empilhados, com o botão que já tinham e um × para fechar." },
     { "id": "DMO-645", "module": "Job On", "description": "0.3.0-beta.236 nos Calibres do Job On, um valor «P 59.20 / M 58.60» aparece sem a barra, com o P por cima do M." },
-    { "id": "DMO-646", "module": "Job On", "description": "0.3.0-beta.236 na faixa do cabeçalho do Job On, Dias, Secções e Gota ficam mais estreitos e o Início e a Cadência usada deixam de ficar colados às pontas." }
+    { "id": "DMO-646", "module": "Job On", "description": "0.3.0-beta.236 na faixa do cabeçalho do Job On, Dias, Secções e Gota ficam mais estreitos e o Início e a Cadência usada deixam de ficar colados às pontas." },
+    { "id": "DMO-618", "module": "Peso", "description": "0.3.0-beta.235 (A-0358): um Peso associado a uma produção DEPOIS de ela ser aprovada já não fica «Aprovado» só por ter sido criado antes — fica «Por aprovar», como um Peso novo (2.ª passagem do sweep .230, PESO-B03)." },
+    { "id": "DMO-619", "module": "Boquilhas", "description": "0.3.0-beta.235 (A-0358): eliminar uma BQ já não deixa o Histórico nem o Excel sem referência/lote; usam agora a referência e o lote congelados no registo (2.ª passagem do sweep .230, BQ-B01)." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

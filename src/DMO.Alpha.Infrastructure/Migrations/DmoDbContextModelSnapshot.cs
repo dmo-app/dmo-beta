@@ -1287,6 +1287,9 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime?>("AssociadoAoControloEmUtc")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("BqToolId")
                         .IsRequired()
                         .HasColumnType("text");
