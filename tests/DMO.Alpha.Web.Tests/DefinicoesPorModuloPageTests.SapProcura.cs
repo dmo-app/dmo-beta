@@ -30,7 +30,7 @@ public sealed partial class DefinicoesPorModuloPageTests
         var token = HtmlFormHelpers.ExtractRequestVerificationToken(sap)!;
 
         var invalido = await admin.PostAsync("/Admin/Definicoes?handler=SaveSapProcura", HtmlFormHelpers.BuildFormPost(
-            ("procura_tipo", "mf"), ("procura_linha", ""), ("procura_antes", "M*"), ("procura_meio", "referencia"),
+            ("procura_tipo", "mf"), ("procura_linha", ""), ("procura_antes", "M\""), ("procura_meio", "referencia"),
             ("procura_depois", ""), ("procura_lote", "true"), ("__RequestVerificationToken", token)));
         Assert.EndsWith("sap=procura-invalida", invalido.Headers.Location!.OriginalString);
 

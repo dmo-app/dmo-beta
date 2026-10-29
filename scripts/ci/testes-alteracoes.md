@@ -5343,3 +5343,18 @@ Novos: 26 · mudaram: 12 · saíram: 2
 - saiu: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: Numa pasta com mais de dez listas por ler, vão as dez mais recentes`
 
 Selo depois: `526996f9f225191c`
+
+## A-0400 · 2026-10-29 · ok-do-diogo
+
+Porquê: As BQ procuram-se por nome técnico até NX/PX + * + lote (ABC002NX*64) e o «*» passa a ser aceite nos códigos de procura; os testes que recusavam o «*» usam agora aspas/«*» sozinho, e os códigos esperados das BQ levam o «*» (DMO-658).
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraFHmPWCijtGmxuoRj5jRi4i
+Novos: 2 · mudaram: 4 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.ABq_ProcuraSePeloNomeTecnicoAteAoProcesso_EstrelaELote`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.OCsvDoScript_DaABqPeloCodigoComEstrela`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.AsTresGerais_EstaoSempre_EAsGravadasLeemSeDeVolta`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.OsCodigosPedidosAoSap_SeguemATabelaEOCodigoSap_DeTodosOsTipos`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.ATabelaDosCodigosDeProcura_GravaNoAdminEMudaOsCodigosPedidos`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.AtualizarPorReferencia_DaOsCodigosDessaReferenciaEDoTipo`
+
+Selo depois: `d750d0d392be5ec3`

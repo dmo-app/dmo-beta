@@ -46,6 +46,34 @@ public sealed class SapProcuraRegrasTests
         Assert.Equal("M544744MPPSX03", codigo);
     }
 
+    // A BQ no SAP tem características depois do NX/PX (ABC002NX3460164): procura-se
+    // pelo nome técnico até ao NX/PX, «*» e o lote, de 2 ou 3 algarismos (Diogo, 29/10/2026).
+    [Theory]
+    [InlineData("ABC002NX345", "11", "ABC002NX*11")]
+    [InlineData("ABC002NX345", "164", "ABC002NX*164")]
+    [InlineData("ABT173PX7731", "3", "ABT173PX*03")]
+    public void ABq_ProcuraSePeloNomeTecnicoAteAoProcesso_EstrelaELote(string nomeTecnico, string lote, string esperado)
+    {
+        Assert.Equal(esperado, SapProcura.Codigo([], ToolType.Bq, [], null, nomeTecnico, "C002", lote));
+    }
+
+    [Fact]
+    public async Task OCsvDoScript_DaABqPeloCodigoComEstrela()
+    {
+        await using var db = CreateContext();
+        db.Tools.Add(new Tool { ToolId = "bqC002", Type = ToolType.Bq, Reference = "C002", Lot = "64", TechnicalName = "ABC002NX345" });
+        await db.SaveChangesAsync();
+        const string csv = """
+            search,equipment,percent_use,last_production,batch_description,status,error
+            "ABC002NX*64","ABC002NX3460164","12,5","21.10.2026","ABC002NX","FOUND",""
+            """;
+
+        var outcome = await new FerramentasUsoSap(db, new Sessao()).ImportarAsync(csv, "dmo-uso-sap.csv", null);
+
+        Assert.Empty(outcome.SemFerramenta);
+        Assert.Equal("bqC002", Assert.Single(await db.FerramentaUtilizacoes.ToListAsync()).ToolId);
+    }
+
     [Fact]
     public void ARegraDaLinha_GanhaAGeral_EOCodigoAMaoGanhaATudo()
     {
@@ -71,7 +99,7 @@ public sealed class SapProcuraRegrasTests
         Assert.Equal(new[] { ToolType.Cm, ToolType.Mf, ToolType.Bq }, (await regras.LerAsync()).Select(r => r.Tipo));
 
         Assert.Equal(SapProcuraGravacao.Gravado, await regras.GravarAsync(new SapProcuraRegra(ToolType.Bq, "b1", "ab", SapProcuraMeio.Referencia, "nx", true)));
-        Assert.Equal(SapProcuraGravacao.TextoInvalido, await regras.GravarAsync(new SapProcuraRegra(ToolType.Bq, "C2", "AB*", SapProcuraMeio.Referencia, "", true)));
+        Assert.Equal(SapProcuraGravacao.TextoInvalido, await regras.GravarAsync(new SapProcuraRegra(ToolType.Bq, "C2", "AB\"", SapProcuraMeio.Referencia, "", true)));
         Assert.Equal(SapProcuraGravacao.LinhaInvalida, await regras.GravarAsync(new SapProcuraRegra(ToolType.Bq, "C 2", "AB", SapProcuraMeio.Referencia, "", true)));
 
         var lidas = await regras.LerAsync();
@@ -89,11 +117,11 @@ public sealed class SapProcuraRegrasTests
         var regras = new SapProcuraRegras(db);
         await regras.GravarAsync(new SapProcuraRegra(ToolType.Bq, "B1", "AB", SapProcuraMeio.Referencia, "NX", true));
         Assert.True(await regras.GravarCodigoAsync("bqSem", "ab7001zz05"));
-        Assert.False(await regras.GravarCodigoAsync("bqSem", "AB*"));
+        Assert.False(await regras.GravarCodigoAsync("bqSem", "*"));
 
         var codigos = await new FerramentasUsoSap(db, new Sessao()).TodosOsCodigosAsync();
 
-        Assert.Equal(new[] { "AB5447NX03", "AB7001ZZ05", "ABPX45604", "M544744MPPSX11" }, codigos);
+        Assert.Equal(new[] { "AB5447NX03", "AB7001ZZ05", "ABPX456*04", "M544744MPPSX11" }, codigos);
         Assert.Equal(("AB7001ZZ05", "AB7001ZZ05"), await regras.DaFerramentaAsync("bqSem"));
         Assert.Equal(("AB5447NX03", (string?)null), await regras.DaFerramentaAsync("bqB1"));
 

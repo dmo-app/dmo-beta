@@ -60,7 +60,12 @@ public class IndexModel(
         }
 
         var regra = new SapProcuraRegra(t, linha ?? string.Empty, antes ?? string.Empty,
-            string.Equals(meio, "referencia", StringComparison.OrdinalIgnoreCase) ? SapProcuraMeio.Referencia : SapProcuraMeio.NomeTecnico, depois ?? string.Empty, lote);
+            meio?.ToLowerInvariant() switch
+            {
+                "referencia" => SapProcuraMeio.Referencia,
+                "processo" => SapProcuraMeio.NomeTecnicoAteProcesso,
+                _ => SapProcuraMeio.NomeTecnico
+            }, depois ?? string.Empty, lote);
         var resultado = await sapProcura.GravarAsync(regra, HttpContext.RequestAborted);
         return VoltarSap(resultado == SapProcuraGravacao.Gravado ? "ok-procura" : "procura-invalida");
     }
@@ -106,7 +111,7 @@ public class IndexModel(
         "ok-repor" => "Script reposto como o da app.",
         "ok-procura" => "Código de procura guardado. Vale no próximo «Atualizar do SAP».",
         "ok-procura-tirada" => "Linha tirada da tabela dos códigos de procura.",
-        "procura-invalida" => "O código de procura só pode ter letras, algarismos, «-» e «_» (até 20; o «*» bloqueia a ZPPG).",
+        "procura-invalida" => "O código de procura só pode ter letras, algarismos, «-», «_» e «*» (até 20).",
         nameof(SapGravacao.UtilizadorInvalido) => "O utilizador do SAP não pode ficar vazio nem levar aspas.",
         nameof(SapGravacao.SenhaInvalida) => $"A senha tem no máximo {SapDefinicoesRegras.SenhaMaxima} letras.",
         nameof(SapGravacao.HoraInvalida) => "A hora é de 0 a 23.",

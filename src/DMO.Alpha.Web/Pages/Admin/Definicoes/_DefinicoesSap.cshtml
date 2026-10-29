@@ -61,7 +61,7 @@
        como se monta o código que o script procura na ZPPG. Sem linha própria vale a «Todas» do tipo. Cada ferramenta pode ter o seu «Código SAP» (Opções da ficha). *@
     <section id="admSapProcura" class="dmo-card adm-card" aria-labelledby="admin-sap-procura-title">
         <div class="dmo-card-topo">
-            <h3 id="admin-sap-procura-title">Códigos de procura no SAP<partial name="_DmoHelp" model="@("O código que o script procura na ZPPG para cada ferramenta: o que começa por, o meio (nome técnico ou referência), o que vem depois e o lote (letras, algarismos, «-» e «_»; o «*» bloqueia a ZPPG). Ex.: BQ da B1 = AB + nome técnico + NX + lote. Uma Linha sem regra usa a «Todas».")" /></h3>
+            <h3 id="admin-sap-procura-title">Códigos de procura no SAP<partial name="_DmoHelp" model="@("O código que o script procura na ZPPG para cada ferramenta: o que começa por, o meio (nome técnico ou referência), o que vem depois («*» = qualquer coisa) e o lote. Ex.: BQ = nome técnico até NX/PX + * + lote (ABC002NX*64). Uma Linha sem regra usa a «Todas».")" /></h3>
             <div class="dmo-card-topo-acoes">
                 <button type="button" class="dmo-button" data-dmo-dialog="admSapProcuraNova">Nova linha</button>
             </div>
@@ -114,6 +114,7 @@
                         <select name="procura_meio" class="dmo-input">
                             <option value="nome" selected="@(r is null || r.Meio == DMO.Alpha.Core.Tools.SapProcuraMeio.NomeTecnico)">Nome técnico</option>
                             <option value="referencia" selected="@(r is not null && r.Meio == DMO.Alpha.Core.Tools.SapProcuraMeio.Referencia)">Referência</option>
+                            <option value="processo" selected="@(r is not null && r.Meio == DMO.Alpha.Core.Tools.SapProcuraMeio.NomeTecnicoAteProcesso)">Nome técnico até NX/PX</option>
                         </select>
                     </label>
                     <label>Depois

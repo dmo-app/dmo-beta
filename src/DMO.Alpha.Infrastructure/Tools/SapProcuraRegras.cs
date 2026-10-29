@@ -116,7 +116,7 @@ public sealed class SapProcuraRegras(DmoDbContext db) : ISapProcuraRegras
     public async Task<bool> GravarCodigoAsync(string toolId, string? codigo, CancellationToken cancellationToken = default)
     {
         var limpo = (codigo ?? "").Trim().ToUpperInvariant().Replace(" ", "", StringComparison.Ordinal);
-        if (limpo.Length > FerramentaUtilizacao.CodigoMaxLength || !limpo.All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_' or '.'))
+        if (limpo.Length > FerramentaUtilizacao.CodigoMaxLength || !limpo.All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_' or '.' or '*') || limpo == "*")
         {
             return false;
         }
@@ -132,10 +132,11 @@ public sealed class SapProcuraRegras(DmoDbContext db) : ISapProcuraRegras
         return true;
     }
 
-    // Letras, algarismos, «-» e «_»; o «*» bloqueia a ZPPG (Diogo), nada de aspas nem espaços.
+    // Letras, algarismos, «-», «_» e «*» (ABC002NX*64, Diogo 29/10/2026); o
+    // «*» sozinho na ZPPG bloqueia, mas o meio da regra nunca fica vazio.
     private static bool TextoValido(string? texto) =>
         (texto ?? "").Trim().Length <= SapProcuraRegra.TextoMaximo
-        && (texto ?? "").Trim().All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_');
+        && (texto ?? "").Trim().All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_' or '*');
 
     private static ToolType? ToolTypeDe(string token)
     {

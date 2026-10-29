@@ -6,7 +6,9 @@ namespace DMO.Alpha.Core.Tools;
 public enum SapProcuraMeio
 {
     NomeTecnico,
-    Referencia
+    Referencia,
+    /// <summary>O nome técnico da BQ até ao NX/PX/SX (ABC002NX3460 → ABC002NX): os algarismos a seguir são características.</summary>
+    NomeTecnicoAteProcesso
 }
 
 /// <summary>
@@ -22,12 +24,22 @@ public sealed record SapProcuraRegra(ToolType Tipo, string Linha, string Antes, 
     public const int TextoMaximo = 20;
 
     /// <summary>A regra de sempre: o nome técnico seguido do lote (M544744MPPSX + 11).</summary>
-    public static SapProcuraRegra PorOmissao(ToolType tipo) => new(tipo, string.Empty, string.Empty, SapProcuraMeio.NomeTecnico, string.Empty, true);
+    /// A BQ procura-se pelo início e o lote vem no fim (Diogo, 28/10/2026 11:56:
+    /// «AB + referência + NX + * + lote»; 29/10 «ABC002NX*LOTE»; o SAP tem ABC002NX3460164).
+    public static SapProcuraRegra PorOmissao(ToolType tipo) => tipo == ToolType.Bq
+        ? new(tipo, string.Empty, string.Empty, SapProcuraMeio.NomeTecnicoAteProcesso, "*", true)
+        : new(tipo, string.Empty, string.Empty, SapProcuraMeio.NomeTecnico, string.Empty, true);
+
 
     /// <summary>O código desta regra para uma ferramenta; null quando falta o nome técnico, a referência ou o lote em número.</summary>
     public string? Codigo(string? nomeTecnico, string? referencia, string? lote)
     {
-        var meio = Limpo(Meio == SapProcuraMeio.NomeTecnico ? nomeTecnico : referencia);
+        var meio = Meio switch
+        {
+            SapProcuraMeio.Referencia => Limpo(referencia),
+            SapProcuraMeio.NomeTecnicoAteProcesso => AteProcesso(Limpo(nomeTecnico)),
+            _ => Limpo(nomeTecnico)
+        };
         if (meio.Length == 0)
         {
             return null;
@@ -47,9 +59,20 @@ public sealed record SapProcuraRegra(ToolType Tipo, string Linha, string Antes, 
         return codigo.Length <= FerramentaUtilizacao.CodigoMaxLength ? codigo : null;
     }
 
+    private static string AteProcesso(string nome)
+    {
+        var m = System.Text.RegularExpressions.Regex.Match(nome, "^AB.+?(NX|PX|SX)");
+        return m.Success ? m.Value : nome;
+    }
+
     /// <summary>Como fica, com nomes em vez de valores (para a tabela do Admin).</summary>
     public string Exemplo =>
-        Limpo(Antes) + (Meio == SapProcuraMeio.NomeTecnico ? "[nome técnico]" : "[referência]") + Limpo(Depois) + (ComLote ? "[lote]" : string.Empty);
+        Limpo(Antes) + Meio switch
+        {
+            SapProcuraMeio.Referencia => "[referência]",
+            SapProcuraMeio.NomeTecnicoAteProcesso => "[nome técnico até NX/PX]",
+            _ => "[nome técnico]"
+        } + Limpo(Depois) + (ComLote ? "[lote]" : string.Empty);
 
     internal static string Limpo(string? texto) =>
         (texto ?? "").Trim().ToUpperInvariant().Replace(".", "", StringComparison.Ordinal).Replace(" ", "", StringComparison.Ordinal);
