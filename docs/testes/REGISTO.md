@@ -5935,3 +5935,4 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | `Sap_UmaDecisaoSemAntiforgeryNaoGrava` | Uma decisão sem o token de antifalsificação é recusada. | OK | A-0408 |
 | `O × fecha só o aviso escolhido, sem decidir «Não» nem enviar o formulário` | O × fecha apenas o aviso escolhido, sem enviar uma decisão ao servidor. | OK | A-0408 |
 | `Os avisos carregados depois de uma troca parcial também se podem fechar` | O × continua a funcionar nos avisos recebidos numa troca parcial. | OK | A-0408 |
+| `O número do botão «Linhas» fica num círculo com contorno, centrado com o texto` | Na folha do Job On, o número do botão «Linhas» aparece num círculo visível e alinhado ao centro com o texto. | OK | A-0433 |

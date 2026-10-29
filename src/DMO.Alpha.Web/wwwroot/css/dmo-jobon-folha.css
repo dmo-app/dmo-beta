@@ -1283,3 +1283,6 @@ html body .jfn-folha table.jfn-dim.dmo-table td:last-child{width:14mm}
 html:root body .jof2.jof2.jof2 .side>.article{position:relative}
 html:root body .jof2.jof2.jof2 .jof-artigo-aviso{position:absolute;left:6px;right:6px;bottom:6px;z-index:2;margin:0;padding:6px 8px;background:var(--dmo-card);border:1px solid var(--dmo-border);border-radius:6px;font-size:12px;line-height:1.3}
 html:root body .jof2.jof2.jof2 .jof-artigo-aviso[hidden]{display:none}
+/* O número do botão «Linhas» num círculo que se vê, centrado com o texto (Diogo, 29/10/2026: «alinhar o círculo com 1»). */
+html body .jof2 .rail-toggle:not(#_){display:inline-flex;align-items:center;gap:8px}
+html body .jof2 .rail-toggle .count:not(#_){display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-width:22px;height:22px;padding:0 6px;line-height:1;border-radius:999px;border:1px solid currentColor;opacity:1}

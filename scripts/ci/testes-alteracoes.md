@@ -5706,3 +5706,13 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.SemCaixaDaSenha_NaoEscrevePeloTeclado`
 
 Selo depois: `a6aba0b16d9e9794`
+
+## A-0433 · 2026-10-29 · teste-novo
+
+Porquê: Teste novo: círculo do número do botão Linhas centrado (DMO-680).
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/ShellProof/jobon-folha-linhas-contagem.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/jobon-folha-linhas-contagem.test.cjs :: O número do botão «Linhas» fica num círculo com contorno, centrado com o texto`
+
+Selo depois: `549fc74ecc34e53f`
