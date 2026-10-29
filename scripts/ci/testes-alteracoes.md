@@ -5794,3 +5794,13 @@ Novos: 5 · mudaram: 0 · saíram: 0
 - novo: `tests/ShellProof/jobon-folha-linhas-contagem.test.cjs :: O número do botão «Linhas» fica num círculo com contorno, centrado com o texto`
 
 Selo depois: `d1db188e2d7bbb02`
+
+## A-0437 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-682: a entrada no SAP preenche-se pelo próprio SAP, sem Windows nem teclado (Diogo 29/10, «preciso disto automático»)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraLZfB7rqPmjWrM9XaMWkQW1
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.AEntrada_PreencheSePeloProprioSap`
+
+Selo depois: `eadd20c480b6a87b`

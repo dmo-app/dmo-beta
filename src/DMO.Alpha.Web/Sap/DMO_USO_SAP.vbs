@@ -143,6 +143,10 @@ Dim senhaEscrita
 senhaEscrita = False
 Do
     ' A janela da senha: escrever a senha e carregar em Logon.
+    ' Primeiro pelo próprio SAP (o ecrã de entrada tem as caixas
+    ' RSYST-BNAME e RSYST-BCODE): sem Windows nem teclado (Diogo,
+    ' 29/10/2026: «preciso disto automático», DMO-682).
+    If Not senhaEscrita Then senhaEscrita = EntrarPeloSap()
     If Not senhaEscrita Then
         If shell.AppActivate(JANELA_LOGON) Then
             WScript.Sleep 500
@@ -639,4 +643,36 @@ End Function
 Function Carimbo()
     Carimbo = Year(Now) & Right("0" & Month(Now), 2) & Right("0" & Day(Now), 2) & "-" & _
               Right("0" & Hour(Now), 2) & Right("0" & Minute(Now), 2)
+End Function
+
+' O ecrã de entrada do SAP numa sessão aberta pelo atalho: preenche o
+' utilizador e a senha pelo SAP GUI Scripting e carrega em Enter.
+Function EntrarPeloSap()
+    Dim gui, app, cn, s, senhaCampo
+    EntrarPeloSap = False
+    On Error Resume Next
+    Set gui = GetObject("SAPGUI")
+    If Err.Number <> 0 Or gui Is Nothing Then Err.Clear: On Error GoTo 0: Exit Function
+    Set app = gui.GetScriptingEngine
+    For Each cn In app.Children
+        For Each s In cn.Children
+            Set senhaCampo = Nothing
+            Set senhaCampo = s.findById("wnd[0]/usr/pwdRSYST-BCODE")
+            If Err.Number = 0 And Not senhaCampo Is Nothing Then
+                s.findById("wnd[0]/usr/txtRSYST-BNAME").Text = UTILIZADOR
+                senhaCampo.Text = SENHA
+                s.findById("wnd[0]").sendVKey 0
+                If Err.Number = 0 Then
+                    Registo "entrada preenchida pelo SAP"
+                    EntrarPeloSap = True
+                    Err.Clear
+                    On Error GoTo 0
+                    Exit Function
+                End If
+            End If
+            Err.Clear
+        Next
+    Next
+    Err.Clear
+    On Error GoTo 0
 End Function
