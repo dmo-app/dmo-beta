@@ -5950,3 +5950,4 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | `Duplicar_UtilizacaoEAPercentagemAtualDaFerramenta_NaoADaOrigem` | No Duplicar e no ver, a Utilização do CM é a % atual da ferramenta, não o valor escrito na folha de origem. | OK | A-0441 |
 | `PrimeiraProducao_ComecaAZero` | A primeira produção de uma ferramenta nova mostra a Utilização a 0. | OK | A-0441 |
 | `ProducaoQueAindaNaoCorreu_ComecaNaPercentagemAtual` | Uma produção que ainda não correu mostra a % de uso atual da ferramenta. | OK | A-0441 |
+| `No ver, a Informação técnica aberta fica por cima (absoluta, por baixo do cartão) e não faz a folha crescer` | A Informação técnica abre por cima dos elementos de baixo sem empurrar os cartões. | OK | A-0445 |

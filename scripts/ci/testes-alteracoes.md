@@ -5831,3 +5831,13 @@ Novos: 5 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.ProducaoQueAindaNaoCorreu_ComecaNaPercentagemAtual`
 
 Selo depois: `6de950ab4d1ff1a5`
+
+## A-0445 · 2026-10-29 · teste-novo
+
+Porquê: Teste novo: Informação técnica por cima, sem empurrar (DMO-688).
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/ShellProof/jobon-folha-tecnica-por-cima.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/jobon-folha-tecnica-por-cima.test.cjs :: No ver, a Informação técnica aberta fica por cima (absoluta, por baixo do cartão) e não faz a folha crescer`
+
+Selo depois: `c43c160dd147b593`

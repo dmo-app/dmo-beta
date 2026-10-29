@@ -872,7 +872,21 @@
     document.body.append(pilha);
   }
 
+  // A «Informação técnica» aberta fica por cima do que está por baixo e acaba no fundo do ecrã, para a página
+  // não crescer nem mexer (Diogo, 29/10/2026: «o minimizar/maximizar voltou a empurrar elementos»).
+  function tecnicaPorCima() {
+    document.querySelectorAll('.jof2:not(.editing) .sec>details.more').forEach(det => {
+      det.addEventListener('toggle', () => {
+        const corpo = det.querySelector(':scope>.more-body');
+        if (!corpo || !det.open) return;
+        const topo = det.getBoundingClientRect().bottom + 2;
+        corpo.style.maxHeight = Math.max(120, window.innerHeight - topo - 8) + 'px';
+      });
+    });
+  }
+
   function init() {
+    tecnicaPorCima();
     avisosNoCanto();
     cancelarNoPainel();
     calibresValores();
