@@ -5832,3 +5832,13 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | cobertura_c_browser.login | Login: botão Reparação, logótipo e cores certas a 1366 e 1290 | OK | DMO-436 |
 | cobertura_c_browser.topo_e_ecras | Topo e ecrãs cabem a 1366x768, sem sublinhados | OK | DMO-481 |
 
+
+### Peso › aviso «O Job On mudou» e Approve › diferença da produção (DMO-594, DMO-595)
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| JobOnFichaTests.Peso_OAvisoDeQueOJobOnMudouTemUmXParaFechar | O aviso do Peso tem o ×, e o Resumo não | OK | A-0332 |
+| tests/ShellProof/aviso-dispensar.test.cjs (2) | O × fecha o aviso e não volta; uma mudança mais nova traz-o de volta | OK | A-0332 |
+| ControloCapabilitiesCutHPageTests.Approve_PesoDaProducaoAnteriorMostraAhDiferenca | «Peso da produção anterior» leva g e % por baixo, no Peso e no Resumo do controlo | OK | A-0332 |
+
+| ControloCapabilitiesCutHPageTests.Approve_BarraDosFiltrosNaoRepeteAEtiquetaPendente | A barra dos filtros do Aprovar não repete a etiqueta «Pendente» | OK | A-0335 (DMO-597) |

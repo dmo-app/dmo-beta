@@ -1392,7 +1392,7 @@
         : (decimal?)null;
     @if (Model.JobOnNotice is { } jobOnNotice)
     {
-      <partial name="_JobOnChangeNotice" model="jobOnNotice" />
+      <partial name="_JobOnChangeNotice" model="jobOnNotice" view-data="@(new ViewDataDictionary(ViewData) { ["DispensarChave"] = $"peso-{peso.PesoId}" })" />
     }
     @* Registar leituras grava e troca as leituras, o resumo e os cartões
        gravados; a leitura nova (data-dmo-fica) só é limpa pelo peso-live.js
@@ -2154,6 +2154,7 @@
 
 @section Scripts {
 <script src="~/peso-live.js" asp-append-version="true"></script>
+<script src="~/dmo-aviso-dispensar.js" asp-append-version="true"></script>
 <script>
 // O «Comparar peso» do Histórico leva a referência que está escrita agora.
 (() => {
