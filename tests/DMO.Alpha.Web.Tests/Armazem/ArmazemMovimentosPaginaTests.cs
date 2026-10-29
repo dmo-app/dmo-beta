@@ -360,6 +360,42 @@ public sealed class ArmazemMovimentosPaginaTests : IClassFixture<CustomWebApplic
     }
 
     [Fact]
+    public async Task Saida_DeBq_ParaReparacao_OferecePorGruposOsReparadoresDasBqEDoArmazem()
+    {
+        // DMO-668 (Diogo, 29/10/2026): ao dar saída a uma BQ há a opção dos reparadores das BQ e, a seguir,
+        // os do Armazém («Moldes Lda»); a CM e o MF só veem os do Armazém.
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            if (!db.BqRepairers.Any(r => r.Name == "Pingos"))
+            {
+                db.BqRepairers.Add(new DMO.Alpha.Core.Boquilhas.BqRepairer { Name = "Pingos" });
+                db.SaveChanges();
+            }
+        }
+
+        using var client = await LoginOperatorAsync("6210", DmoCapabilities.ArmazemGestao);
+        var pagina = await client.GetStringAsync($"/Armazem/Movimentos?ferramenta={Bq}");
+        pagina = await GravarAsync(client, pagina, "armEntRegistar",
+            ("armEntPosicao", "0042"),
+            ("armEntOrigem", EnvioDoFormulario.Opcao(pagina, "armEntOrigem", "Nova")),
+            ("armEntEstado", EnvioDoFormulario.Opcao(pagina, "armEntEstado", "Novo")));
+
+        var reparacao = EnvioDoFormulario.Opcao(pagina, "armSaiDestino", "Reparação");
+        var comDestino = await client.GetStringAsync($"/Armazem/Movimentos?ferramenta={Bq}&destino={reparacao}");
+        var lista = Elemento(comDestino, "id=\"armSaiReparador\"");
+        Assert.Contains("label=\"Reparadores das BQ\"", lista);
+        Assert.Contains("label=\"Reparadores do Armazém\"", lista);
+        Assert.Contains(">Pingos<", lista);
+        Assert.Contains(">Moldes Lda<", lista);
+
+        var depois = await GravarAsync(client, comDestino, "armSaiRegistar",
+            ("armSaiReparador", EnvioDoFormulario.Opcao(comDestino, "armSaiReparador", "Moldes Lda")));
+        Assert.Contains("Saída registada.", Elemento(depois, "id=\"armMovAvisos\""));
+        Assert.Contains("Reparação · Moldes Lda", Elemento(depois, "data-dmo-onde"));
+    }
+
+    [Fact]
     public async Task Saida_ODestinoEscolheOsCamposEDepoisAEntradaPropoe()
     {
         using var client = await LoginOperatorAsync("6205", DmoCapabilities.ArmazemGestao);

@@ -406,9 +406,27 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
                 <label for="armSaiReparador">Reparador</label>
                 <select id="armSaiReparador" name="reparador" required>
                   <option value="">Escolha…</option>
-                  @foreach (var r in s.Reparadores)
+                  @if (s.Tipo == ToolType.Bq)
                   {
-                    <option value="@r.Id" selected="@(recusaSaida && Model.ReparadorEscolhido == r.Id.ToString(System.Globalization.CultureInfo.InvariantCulture))">@r.Nome</option>
+                    <optgroup label="Reparadores das BQ">
+                      @foreach (var r in s.Reparadores.Where(x => x.Id > 0))
+                      {
+                        <option value="@r.Id" selected="@(recusaSaida && Model.ReparadorEscolhido == r.Id.ToString(System.Globalization.CultureInfo.InvariantCulture))">@r.Nome</option>
+                      }
+                    </optgroup>
+                    <optgroup label="Reparadores do Armazém">
+                      @foreach (var r in s.Reparadores.Where(x => x.Id < 0))
+                      {
+                        <option value="@r.Id" selected="@(recusaSaida && Model.ReparadorEscolhido == r.Id.ToString(System.Globalization.CultureInfo.InvariantCulture))">@r.Nome</option>
+                      }
+                    </optgroup>
+                  }
+                  else
+                  {
+                    @foreach (var r in s.Reparadores)
+                    {
+                      <option value="@r.Id" selected="@(recusaSaida && Model.ReparadorEscolhido == r.Id.ToString(System.Globalization.CultureInfo.InvariantCulture))">@r.Nome</option>
+                    }
                   }
                 </select>
               </div>
