@@ -173,7 +173,7 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         db.Machines.Add(b1);
         db.Machines.Add(c3);
 
-        db.Tools.Add(new Tool { ToolId = "T3", Type = ToolType.Cm, Reference = "5447", Lot = "3" });
+        db.Tools.Add(new Tool { ToolId = "T3", Type = ToolType.Cm, Reference = "5447", AssociatedMfReference = "1075", Lot = "3" });
         db.Tools.Add(new Tool { ToolId = "BQ-TOOL-9", Type = ToolType.Bq, Reference = "T194", Lot = "12", BqAccountedQuantity = 800 });
         db.Tools.Add(new Tool { ToolId = "MF-TOOL-9", Type = ToolType.Mf, Reference = "5810", Lot = "1" });
 

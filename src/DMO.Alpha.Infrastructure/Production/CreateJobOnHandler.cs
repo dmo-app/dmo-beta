@@ -89,6 +89,7 @@ public sealed class CreateJobOnHandler : ICreateJobOnHandler
             return Refused(refused switch
             {
                 JobOnCommandChecks.Refusal.MachineNotFound => CreateJobOnResult.MachineNotFound,
+                JobOnCommandChecks.Refusal.ToolMachineMismatch => CreateJobOnResult.ToolMachineMismatch,
                 JobOnCommandChecks.Refusal.MissingMfTool => CreateJobOnResult.MissingMfTool,
                 JobOnCommandChecks.Refusal.CmToolNotFound => CreateJobOnResult.CmToolNotFound,
                 JobOnCommandChecks.Refusal.MfToolNotFound => CreateJobOnResult.MfToolNotFound,

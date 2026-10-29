@@ -53,6 +53,7 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         db.MfContexts.RemoveRange(db.MfContexts);
         db.CmContexts.RemoveRange(db.CmContexts);
         db.JobOns.RemoveRange(db.JobOns);
+        db.ToolMachineLinks.RemoveRange(db.ToolMachineLinks);
         db.Tools.RemoveRange(db.Tools);
         db.Machines.RemoveRange(db.Machines);
         db.SaveChanges();
@@ -119,6 +120,9 @@ public class JobOnFolhaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         db.CmContexts.Add(new CmContext { JobOn = jobOn, ToolId = "CM-FOLHA" });
         db.BqContexts.Add(new BqContext { JobOn = jobOn, ToolId = "BQ-FOLHA" });
         await db.SaveChangesAsync();
+        // Cenário válido para criar uma folha: as três ferramentas estão configuradas para B1.
+        foreach (var toolId in new[] { "CM-FOLHA", "MF-FOLHA", "BQ-FOLHA" })
+            db.ToolMachineLinks.Add(new ToolMachineLink { ToolId = toolId, MachineId = b1.Id });
         db.Controlos.Add(new DMO.Alpha.Core.Controlo.Controlo { JobOnId = jobOn.Id });
         await db.SaveChangesAsync();
         return (jobOn.Id, b1.Id);

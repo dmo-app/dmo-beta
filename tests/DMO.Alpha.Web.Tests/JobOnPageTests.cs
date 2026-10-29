@@ -83,6 +83,7 @@ public partial class JobOnPageTests : IClassFixture<CustomWebApplicationFactory>
         db.CmContexts.RemoveRange(db.CmContexts);
         db.JobOnChanges.RemoveRange(db.JobOnChanges);
         db.JobOns.RemoveRange(db.JobOns);
+        db.ToolMachineLinks.RemoveRange(db.ToolMachineLinks);
         db.Machines.RemoveRange(db.Machines);
         db.Tools.RemoveRange(db.Tools);
         db.SaveChanges();

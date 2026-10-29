@@ -211,6 +211,7 @@ public sealed partial class IndexModel : PageModel
 
     public string MovementRefusalMessage => MovementRefusal switch
     {
+        RegisterBqMovementResult.MachineNotCompatible => "A linha não está associada a esta ferramenta. Escolha uma linha da ficha ou da produção selecionada.",
         RegisterBqMovementResult.MachineNotFound => "A máquina indicada não existe. Selecione a máquina em uso e volte a guardar.",
         RegisterBqMovementResult.TraceNotFound =>
             "O registo indicado não existe. Nenhum movimento foi registado.",
@@ -1337,7 +1338,8 @@ public sealed partial class IndexModel : PageModel
             {
                 RegisterBqMovementResult.InvalidQuantity => "Indique a quantidade como um número inteiro igual ou superior a 1. Nenhum movimento foi registado.",
                 RegisterBqMovementResult.InvalidAnQuantity => AnQuantityRefusal,
-                RegisterBqMovementResult.MachineNotFound => "A linha indicada não existe. Nenhum movimento foi registado.",
+                RegisterBqMovementResult.MachineNotCompatible => "A linha não está associada a esta ferramenta. Escolha uma linha da ficha ou da produção selecionada.",
+        RegisterBqMovementResult.MachineNotFound => "A linha indicada não existe. Nenhum movimento foi registado.",
                 RegisterBqMovementResult.UnknownMovementType => "Escolha Saída, Entrada ou Entrada sem reparação. Nenhum movimento foi registado.",
                 _ => "O movimento não foi registado."
             },
