@@ -9,7 +9,7 @@ namespace DMO.Alpha.Web.Tests;
 /// <summary>
 /// DMO-572 (A-0263): em «Registar sem Job On» a Linha já vem com a última
 /// onde a BQ teve movimentos, se for da ficha; e uma BQ sem linhas na ficha
-/// continua a mostrar todas.
+/// não permite escolher linhas não configuradas.
 /// </summary>
 public partial class BoquilhasRegistoPageTests
 {
@@ -56,7 +56,7 @@ public partial class BoquilhasRegistoPageTests
     }
 
     [Fact]
-    public async Task RegistarSemJobOn_UmaBqSemLinhasNaFicha_MostraTodasAsLinhasSemNenhumaEscolhida()
+    public async Task RegistarSemJobOn_UmaBqSemLinhasNaFicha_NaoPermiteEscolherLinhas()
     {
         await SeedToolAsync("BQ-SEMLIN-1", "QL301", "1");
         int b2Id, c1Id;
@@ -76,9 +76,9 @@ public partial class BoquilhasRegistoPageTests
 
         var janela = html[html.IndexOf("id=\"bqSemJobOnLinha\"", StringComparison.Ordinal)..];
         janela = janela[..janela.IndexOf("</select>", StringComparison.Ordinal)];
-        Assert.Contains($"<option value=\"{b2Id}\">B2</option>", janela);
-        Assert.Contains($"<option value=\"{c1Id}\">C1</option>", janela);
-        Assert.DoesNotContain("disabled", janela);
+        Assert.Contains($"<option value=\"{b2Id}\" hidden=\"hidden\" disabled=\"disabled\">B2</option>", janela);
+        Assert.Contains($"<option value=\"{c1Id}\" hidden=\"hidden\" disabled=\"disabled\">C1</option>", janela);
+        Assert.Contains("disabled", janela);
         Assert.DoesNotContain("selected", janela);
     }
 }

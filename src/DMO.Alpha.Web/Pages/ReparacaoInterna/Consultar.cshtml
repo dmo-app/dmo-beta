@@ -79,7 +79,7 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
 
   <section class="dmo-card ri-filtros-card" aria-label="Filtros da consulta">
     <div class="dmo-zona" data-dmo-fica data-dmo-parcial>
-      <form id="riConsultaFiltros" method="get" asp-page="/ReparacaoInterna/Consultar" class="dmo-filter-bar" role="search">
+      <form id="riConsultaFiltros" method="get" asp-page="/ReparacaoInterna/Consultar" class="dmo-filter-bar" role="search" data-dmo-reference-scope="ri" data-dmo-reference-name="referencia">
         <div class="dmo-field ri-w-referencia">
           <label for="riConsultaReferencia">Referência<partial name="_DmoHelp" model="@("Escreva o início da referência e carregue Enter (ou escolha a sugestão): «60» traz todas as que começam por 60. Depois pode escolher uma das últimas 5 produções.")" /></label>
           <input id="riConsultaReferencia" name="referencia" value="@Model.Referencia" placeholder="Ex.: 5538" autocomplete="off"
@@ -93,43 +93,43 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
           <label for="riConsultaProducao">Produção</label>
           @if (Model.Referencia is null)
           {
-            <select id="riConsultaProducao" name="producao" disabled>
-              <option value="">Produção</option>
+            <select id="riConsultaProducao" name="producao" disabled data-dmo-reference-select>
+              <option value="" data-dmo-reference-option>Produção</option>
             </select>
           }
           else if (Model.Producoes.Count == 0)
           {
-            <select id="riConsultaProducao" name="producao" disabled>
-              <option value="">Sem produções desta referência</option>
+            <select id="riConsultaProducao" name="producao" disabled data-dmo-reference-select>
+              <option value="" data-dmo-reference-option>Sem produções desta referência</option>
             </select>
           }
           else
           {
-            <select id="riConsultaProducao" name="producao" data-dmo-autosubmit data-dmo-depende="riConsultaReferencia">
-              <option value="" selected="@(Model.Producoes.All(p => !Model.ProducaoEscolhida(p)))">Todas</option>
+            <select id="riConsultaProducao" name="producao" data-dmo-autosubmit data-dmo-depende="riConsultaReferencia" data-dmo-reference-select>
+              <option value="" selected="@(Model.Producoes.All(p => !Model.ProducaoEscolhida(p)))" data-dmo-reference-option>Todas</option>
               @foreach (var p in Model.Producoes)
               {
-                <option value="@p.JobOnId" selected="@Model.ProducaoEscolhida(p)">@p.Label</option>
+                <option value="@p.JobOnId" selected="@Model.ProducaoEscolhida(p)" data-dmo-reference-option>@p.Label</option>
               }
             </select>
           }
         </div>
         <div class="dmo-field ri-w-tipo">
           <label for="riConsultaTrabalho">Tipo de trabalho</label>
-          <select id="riConsultaTrabalho" name="trabalho" data-dmo-autosubmit>
-            <option value="" selected="@(Model.Trabalho is null)">Todos</option>
-            <option value="reparacao" selected="@(Model.Trabalho == ReparacaoTrabalho.Reparacao)">Reparação</option>
-            <option value="soldar" selected="@(Model.Trabalho == ReparacaoTrabalho.Soldar)">Soldar</option>
-            <option value="polir" selected="@(Model.Trabalho == ReparacaoTrabalho.Polir)">Polir</option>
+          <select id="riConsultaTrabalho" name="trabalho" data-dmo-autosubmit data-dmo-reference-select>
+            <option value="" selected="@(Model.Trabalho is null)" data-dmo-reference-option>Todos</option>
+            <option value="reparacao" selected="@(Model.Trabalho == ReparacaoTrabalho.Reparacao)" data-dmo-reference-option>Reparação</option>
+            <option value="soldar" selected="@(Model.Trabalho == ReparacaoTrabalho.Soldar)" data-dmo-reference-option>Soldar</option>
+            <option value="polir" selected="@(Model.Trabalho == ReparacaoTrabalho.Polir)" data-dmo-reference-option>Polir</option>
           </select>
         </div>
         <div class="dmo-field ri-w-maquina">
           <label for="riConsultaMaquina">Linha</label>
-          <select id="riConsultaMaquina" name="maquina" data-dmo-autosubmit>
-            <option value="" selected="@(Model.Maquina is null)">Todas</option>
+          <select id="riConsultaMaquina" name="maquina" data-dmo-autosubmit data-dmo-reference-select>
+            <option value="" selected="@(Model.Maquina is null)" data-dmo-reference-option>Todas</option>
             @foreach (var m in Model.Maquinas)
             {
-              <option value="@m.Code" selected="@(Model.Maquina?.MachineId == m.MachineId)">@m.Code</option>
+              <option value="@m.Code" selected="@(Model.Maquina?.MachineId == m.MachineId)" data-dmo-reference-option>@m.Code</option>
             }
           </select>
         </div>
@@ -137,20 +137,20 @@ html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px
            utilizador, nunca copiado para a reparação). *@
         <div class="dmo-field ri-w-pessoa">
           <label for="riConsultaPessoa">Quem</label>
-          <select id="riConsultaPessoa" name="pessoa" data-dmo-autosubmit>
-            <option value="" selected="@(Model.Pessoas.All(p => p.Id != Model.PessoaId))">Todos</option>
+          <select id="riConsultaPessoa" name="pessoa" data-dmo-autosubmit data-dmo-reference-select>
+            <option value="" selected="@(Model.Pessoas.All(p => p.Id != Model.PessoaId))" data-dmo-reference-option>Todos</option>
             @foreach (var p in Model.Pessoas)
             {
-              <option value="@p.Id" selected="@(p.Id == Model.PessoaId)">@p.Nome</option>
+              <option value="@p.Id" selected="@(p.Id == Model.PessoaId)" data-dmo-reference-option>@p.Nome</option>
             }
           </select>
         </div>
         <div class="dmo-field ri-w-tipo">
           <label for="riConsultaTipo">CM ou MF</label>
-          <select id="riConsultaTipo" name="tipo" data-dmo-autosubmit>
-            <option value="" selected="@(Model.Tipo is null)">Todos</option>
-            <option value="cm" selected="@(Model.Tipo == ReparacaoTipo.Cm)">CM</option>
-            <option value="mf" selected="@(Model.Tipo == ReparacaoTipo.Mf)">MF</option>
+          <select id="riConsultaTipo" name="tipo" data-dmo-autosubmit data-dmo-reference-select>
+            <option value="" selected="@(Model.Tipo is null)" data-dmo-reference-option>Todos</option>
+            <option value="cm" selected="@(Model.Tipo == ReparacaoTipo.Cm)" data-dmo-reference-option>CM</option>
+            <option value="mf" selected="@(Model.Tipo == ReparacaoTipo.Mf)" data-dmo-reference-option>MF</option>
           </select>
         </div>
         <div class="dmo-field ri-w-data">

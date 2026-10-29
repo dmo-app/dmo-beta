@@ -48,6 +48,7 @@ public partial class BoquilhasRegistoPageTests : IClassFixture<CustomWebApplicat
         db.CmContexts.RemoveRange(db.CmContexts);
         db.MfContexts.RemoveRange(db.MfContexts);
         db.JobOns.RemoveRange(db.JobOns);
+        db.ToolMachineLinks.RemoveRange(db.ToolMachineLinks);
         db.Machines.RemoveRange(db.Machines);
         db.Tools.RemoveRange(db.Tools);
         db.SaveChanges();
@@ -1381,6 +1382,8 @@ public partial class BoquilhasRegistoPageTests : IClassFixture<CustomWebApplicat
             db.Machines.Add(machine);
             await db.SaveChangesAsync();
             machineId = machine.Id;
+            db.ToolMachineLinks.Add(new ToolMachineLink { ToolId = "BQ-CHOICE", MachineId = machineId });
+            await db.SaveChangesAsync();
         }
         using var client = await LoginClientAsync("4981", "ChoicePass1!");
         var token = await GetVerificationTokenAsync(client, $"/Boquilhas?trace_id={trace.Id}");

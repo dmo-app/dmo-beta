@@ -20,7 +20,7 @@
     var temProducoes = Model.JobOnReferencia is not null && Model.Producoes.Count > 0;
 }
 <div class="dmo-zona" data-dmo-fica data-dmo-parcial>
-<form method="get" asp-page="/Controlo/Pegamentos" class="dmo-filter-bar dmo-filter-bar-conteudo" id="pegJobOnProcura">
+<form method="get" asp-page="/Controlo/Pegamentos" class="dmo-filter-bar dmo-filter-bar-conteudo" id="pegJobOnProcura" data-dmo-reference-scope="controlo" data-dmo-reference-name="referencia">
   @if (associar)
   {
     <input type="hidden" name="pegamentos_id" value="@Model.Sheet!.Pegamentos?.PegamentosId" />
@@ -36,11 +36,11 @@
   </div>
   <div class="dmo-field dmo-field-maquina">
     <label for="pegJobOnMaquina">Máquina</label>
-    <select id="pegJobOnMaquina" name="maquina" data-dmo-autosubmit>
-      <option value="">Todas</option>
+    <select id="pegJobOnMaquina" name="maquina" data-dmo-autosubmit data-dmo-reference-select>
+      <option value="" data-dmo-reference-option>Todas</option>
       @foreach (var maquinaOpcao in Model.Maquinas)
       {
-        <option value="@maquinaOpcao" selected="@(string.Equals(Model.JobOnMaquina, maquinaOpcao, StringComparison.Ordinal) ? "selected" : null)">@maquinaOpcao</option>
+        <option value="@maquinaOpcao" selected="@(string.Equals(Model.JobOnMaquina, maquinaOpcao, StringComparison.Ordinal) ? "selected" : null)" data-dmo-reference-option>@maquinaOpcao</option>
       }
     </select>
   </div>
@@ -54,20 +54,20 @@
     <label for="pegJobOn">Produção</label>
     @if (associar)
     {
-      <select id="pegJobOn" name="jobon_id" form="pegJobOnEscolha" required data-dmo-depende="pegJobOnReferencia" data-dmo-depende-valor="@Model.JobOnReferencia">
+      <select id="pegJobOn" name="jobon_id" form="pegJobOnEscolha" required data-dmo-depende="pegJobOnReferencia" data-dmo-depende-valor="@Model.JobOnReferencia" data-dmo-reference-select>
         @foreach (var producao in Model.Producoes)
         {
-          <option value="@producao.JobOnId">@producao.ProductionNumber · @producao.Machine</option>
+          <option value="@producao.JobOnId" data-dmo-reference-option>@producao.ProductionNumber · @producao.Machine</option>
         }
       </select>
     }
     else
     {
-      <select id="pegJobOn" name="jobon_id" form="pegJobOnEscolha" required data-dmo-autosubmit="valor" data-dmo-depende="pegJobOnReferencia" data-dmo-depende-valor="@Model.JobOnReferencia">
-        <option value="">Escolher produção</option>
+      <select id="pegJobOn" name="jobon_id" form="pegJobOnEscolha" required data-dmo-autosubmit="valor" data-dmo-depende="pegJobOnReferencia" data-dmo-depende-valor="@Model.JobOnReferencia" data-dmo-reference-select>
+        <option value="" data-dmo-reference-option>Escolher produção</option>
         @foreach (var producao in Model.Producoes)
         {
-          <option value="@producao.JobOnId">@producao.ProductionNumber · @producao.Machine</option>
+          <option value="@producao.JobOnId" data-dmo-reference-option>@producao.ProductionNumber · @producao.Machine</option>
         }
       </select>
     }

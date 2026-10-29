@@ -33,5 +33,8 @@ public enum RegisterBqMovementResult
     MachineNotFound,
 
     /// <summary>A quantidade de AN escrita é ilegível ou negativa (vazia ou 0 = sem AN).</summary>
-    InvalidAnQuantity
+    InvalidAnQuantity,
+
+    /// <summary>A linha não pertence à ferramenta nem à produção histórica escolhida.</summary>
+    MachineNotCompatible
 }

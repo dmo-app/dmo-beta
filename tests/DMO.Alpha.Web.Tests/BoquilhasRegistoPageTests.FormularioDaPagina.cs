@@ -29,6 +29,8 @@ public partial class BoquilhasRegistoPageTests
             db.Machines.AddRange(new Machine { Code = "B3" }, b5);
             await db.SaveChangesAsync();
             b5Id = b5.Id;
+            db.ToolMachineLinks.Add(new DMO.Alpha.Core.Tools.ToolMachineLink { ToolId = "BQ-FORM-4741", MachineId = b5Id });
+            await db.SaveChangesAsync();
         }
         SeedUser("4741", "Registo Formulário", "provider-registo-formulario", "RegistoForm1!");
         using var client = await LoginClientAsync("4741", "RegistoForm1!");

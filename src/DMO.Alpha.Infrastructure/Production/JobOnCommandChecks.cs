@@ -23,7 +23,8 @@ internal static class JobOnCommandChecks
         MissingMfTool,
         CmToolNotFound,
         MfToolNotFound,
-        BqToolNotFound
+        BqToolNotFound,
+        ToolMachineMismatch
     }
 
     internal sealed record Outcome(Machine? Machine, Refusal? Refused);
@@ -34,7 +35,8 @@ internal static class JobOnCommandChecks
         string? cmToolId,
         string? mfToolId,
         string? bqToolId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        JobOn? previous = null)
     {
         // A máquina é âncora canónica persistida: um MachineId que não
         // resolve é recusa tipada; nunca se escolhe outra máquina.
@@ -78,6 +80,14 @@ internal static class JobOnCommandChecks
             return new Outcome(machine, Refusal.BqToolNotFound);
         }
 
+        var toValidate = selected.Where(id => previous is null || previous.MachineId != machineId
+            || (id != previous.CmContext?.ToolId && id != previous.MfContext?.ToolId && id != previous.BqContext?.ToolId)).ToList();
+        // Ferramentas antigas sem configuração não provam incompatibilidade. Uma associação explícita a outra linha sim.
+        var incompatible = await db.ToolMachineLinks.AsNoTracking()
+            .Where(l => toValidate.Contains(l.ToolId)).Select(l => l.ToolId).Distinct()
+            .Where(id => !db.ToolMachineLinks.Any(l => l.ToolId == id && l.MachineId == machineId))
+            .AnyAsync(cancellationToken);
+        if (incompatible) return new Outcome(machine, Refusal.ToolMachineMismatch);
         return new Outcome(machine, null);
     }
 }

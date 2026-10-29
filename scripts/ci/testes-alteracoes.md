@@ -5818,3 +5818,92 @@ Novos: 0 · mudaram: 3 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PuncoesHandlerTests.cs :: PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes`
 
 Selo depois: `73a57477ea5d6e48`
+
+## A-0437 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-683: a entrada no SAP preenche-se pelo próprio SAP, sem Windows nem teclado (Diogo 29/10, «preciso disto automático»)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraLZfB7rqPmjWrM9XaMWkQW1
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.AEntrada_PreencheSePeloProprioSap`
+
+Selo depois: `eadd20c480b6a87b`
+
+## A-0442 · 2026-10-29 · ok-do-diogo
+
+Porquê: Merge da integracao beta.246 preserva Peso/mcaliper e seus testes. Guarda regenerada a partir da integracao para todos os testes deste PR: 9 JS de dependências, 3 casos de gravação, 1 consulta PostgreSQL multisscope (incluindo referência composta e exclusão de BQ na lista programada CM/MF) e 2 HTTP/permissões. Cenários existentes têm associações válidas; resets limpam ligações órfãs; CM 5447 ganha associação MF 1075 no fixture da criação. Mantêm-se verificações de persistência, limites, datas e navegação; muda a expectativa antiga de todas as linhas quando BQ não tem associações.
+Referência: Pedido do Diogo em 29/10/2026 nesta conversa: aplicar e adaptar os testes à filtragem por referência.
+Novos: 20 · mudaram: 9 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/ReferenciaCompatibilidadeTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/ReferenciaCompatibilidadeTests.cs :: ReferenciaCompatibilidadeTests.CriarJobOnComFerramentaAssociadaAOutraLinhaNaoGrava`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/ReferenciaCompatibilidadeTests.cs :: ReferenciaCompatibilidadeTests.UmaLinhaForaDaFichaNaoGravaMovimento_SalvoAProducaoHistorica`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ReferenceOptions.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ReferenceOptions.cs :: PostgresMigrationIntegrationTests.OpcoesDaReferencia_SeparamCompatibilidadeAtualDaLinhaHistorica_ERecusamOutraLinha`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CoberturaA2SemJobOn.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_UmaBqSemLinhasNaFicha_NaoPermiteEscolherLinhas`
+- novo: `tests/DMO.Alpha.Web.Tests/ReferenceFilterPagesTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ReferenceFilterPagesTests.cs :: ReferenceFilterPagesTests.AsOpcoesNaoRevelamDadosDeModulosSemPermissao`
+- novo: `tests/DMO.Alpha.Web.Tests/ReferenceFilterPagesTests.cs :: ReferenceFilterPagesTests.NoHistoricoAReferenciaRestringeAsLinhasNaPaginaENasOpcoes`
+- novo: `tests/ShellProof/filtros-referencia.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/filtros-referencia.test.cjs :: A resposta atrasada da referência anterior não substitui as opções da referência atual`
+- novo: `tests/ShellProof/filtros-referencia.test.cjs :: Enter no lote envia os filtros mesmo sem botão no formulário`
+- novo: `tests/ShellProof/filtros-referencia.test.cjs :: Falha de leitura bloqueia escolhas antigas e avisa; uma nova pesquisa recupera`
+- novo: `tests/ShellProof/filtros-referencia.test.cjs :: Uma consulta sem resultados não oferece linhas de outras referências`
+- novo: `tests/ShellProof/filtros-referencia.test.cjs :: Uma escolha ainda válida conserva-se e apagar a referência repõe as opções gerais`
+- novo: `tests/ShellProof/filtros-referencia.test.cjs :: Uma referência restringe linhas e reparadores e elimina a linha anterior incompatível`
+- novo: `tests/ShellProof/referencia-dependencias.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/referencia-dependencias.test.cjs :: Escrever outra referência limpa a produção e as linhas da BQ anterior`
+- novo: `tests/ShellProof/referencia-dependencias.test.cjs :: Retirar o Job On anterior repõe apenas as linhas da ficha da BQ`
+- novo: `tests/ShellProof/referencia-dependencias.test.cjs :: Uma ferramenta sem linhas configuradas não propõe linhas compatíveis`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.FormularioDaPagina.cs :: BoquilhasRegistoPageTests.MovimentoPeloFormularioDaPagina_GravaAQuantidadeEAMaquinaNaBQ`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.RegisterMovement_ChosenMachineIsSavedAndShownInTheRegister`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_NaPaginaBoquilhas_GravaEMostraOMovimento`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/cobertura_a2_bq-sem-jobon.test.cjs :: Escolher a BQ deixa na Linha só as da ficha dela, com a primeira já escolhida`
+- mudou: `tests/ShellProof/package.json`
+- saiu: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CoberturaA2SemJobOn.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_UmaBqSemLinhasNaFicha_MostraTodasAsLinhasSemNenhumaEscolhida`
+
+Selo depois: `bc5ca4bbf7e2f22d`
+
+## A-0443 · 2026-10-29 · ok-do-diogo
+
+Porquê: Lote beta.249: junta #352 (filtros dependentes da referência, DMO-686) e #356 (SAP, DMO-683); impressão refeita sobre a integracao; os testes mudados são os explicados em A-0442
+Referência: Diogo 29/10 16:07 (relatório do #352)
+Novos: 21 · mudaram: 9 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/ReferenciaCompatibilidadeTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/ReferenciaCompatibilidadeTests.cs :: ReferenciaCompatibilidadeTests.CriarJobOnComFerramentaAssociadaAOutraLinhaNaoGrava`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/ReferenciaCompatibilidadeTests.cs :: ReferenciaCompatibilidadeTests.UmaLinhaForaDaFichaNaoGravaMovimento_SalvoAProducaoHistorica`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ReferenceOptions.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.ReferenceOptions.cs :: PostgresMigrationIntegrationTests.OpcoesDaReferencia_SeparamCompatibilidadeAtualDaLinhaHistorica_ERecusamOutraLinha`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CoberturaA2SemJobOn.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_UmaBqSemLinhasNaFicha_NaoPermiteEscolherLinhas`
+- novo: `tests/DMO.Alpha.Web.Tests/ReferenceFilterPagesTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/ReferenceFilterPagesTests.cs :: ReferenceFilterPagesTests.AsOpcoesNaoRevelamDadosDeModulosSemPermissao`
+- novo: `tests/DMO.Alpha.Web.Tests/ReferenceFilterPagesTests.cs :: ReferenceFilterPagesTests.NoHistoricoAReferenciaRestringeAsLinhasNaPaginaENasOpcoes`
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.AEntrada_PreencheSePeloProprioSap`
+- novo: `tests/ShellProof/filtros-referencia.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/filtros-referencia.test.cjs :: A resposta atrasada da referência anterior não substitui as opções da referência atual`
+- novo: `tests/ShellProof/filtros-referencia.test.cjs :: Enter no lote envia os filtros mesmo sem botão no formulário`
+- novo: `tests/ShellProof/filtros-referencia.test.cjs :: Falha de leitura bloqueia escolhas antigas e avisa; uma nova pesquisa recupera`
+- novo: `tests/ShellProof/filtros-referencia.test.cjs :: Uma consulta sem resultados não oferece linhas de outras referências`
+- novo: `tests/ShellProof/filtros-referencia.test.cjs :: Uma escolha ainda válida conserva-se e apagar a referência repõe as opções gerais`
+- novo: `tests/ShellProof/filtros-referencia.test.cjs :: Uma referência restringe linhas e reparadores e elimina a linha anterior incompatível`
+- novo: `tests/ShellProof/referencia-dependencias.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/referencia-dependencias.test.cjs :: Escrever outra referência limpa a produção e as linhas da BQ anterior`
+- novo: `tests/ShellProof/referencia-dependencias.test.cjs :: Retirar o Job On anterior repõe apenas as linhas da ficha da BQ`
+- novo: `tests/ShellProof/referencia-dependencias.test.cjs :: Uma ferramenta sem linhas configuradas não propõe linhas compatíveis`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.FormularioDaPagina.cs :: BoquilhasRegistoPageTests.MovimentoPeloFormularioDaPagina_GravaAQuantidadeEAMaquinaNaBQ`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.RegisterMovement_ChosenMachineIsSavedAndShownInTheRegister`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_NaPaginaBoquilhas_GravaEMostraOMovimento`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/cobertura_a2_bq-sem-jobon.test.cjs :: Escolher a BQ deixa na Linha só as da ficha dela, com a primeira já escolhida`
+- mudou: `tests/ShellProof/package.json`
+- saiu: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.CoberturaA2SemJobOn.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_UmaBqSemLinhasNaFicha_MostraTodasAsLinhasSemNenhumaEscolhida`
+
+Selo depois: `58fbd5d23417e520`

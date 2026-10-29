@@ -13,7 +13,7 @@
   @* A Linha só com as da ficha da BQ (Diogo, 28/10/2026: «escolhi uma para C1
      mete logo C1; se for C1 B2, aparecer C1 e depois apenas poder filtrar pela
      C1 ou B2»). Vem já a última onde a BQ teve movimentos, se for da ficha;
-     senão a primeira. Sem linhas na ficha, mostra todas. *@
+     senão a primeira. Sem linhas na ficha, não se propõem linhas. *@
   var linhasDaEscolhida = Model.SemJobOnTools.FirstOrDefault(t => t.ToolId == escolhida)?.MachineCodes ?? [];
   var linhaProposta = linhasDaEscolhida.Count == 0 ? null
       : Model.SemJobOnLines.FirstOrDefault(l => string.Equals(l.Code, linhasDaEscolhida[0], StringComparison.OrdinalIgnoreCase))?.MachineId;
@@ -53,7 +53,7 @@
               <option value="">—</option>
               @foreach (var linha in Model.SemJobOnLines)
               {
-                var daFicha = linhasDaEscolhida.Count == 0 || linhasDaEscolhida.Contains(linha.Code, StringComparer.OrdinalIgnoreCase);
+                var daFicha = linhasDaEscolhida.Contains(linha.Code, StringComparer.OrdinalIgnoreCase);
                 <option value="@linha.MachineId" selected="@(linha.MachineId == linhaProposta)" hidden="@(!daFicha)" disabled="@(!daFicha)">@linha.Code</option>
               }
             </select>

@@ -5920,6 +5920,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | SapScriptsVbsTests.SemCodigosAEspera_OUsoAcabaSemErro | DMO-664: sem ferramentas à espera o uso do SAP acaba sem erro (Diogo 29/10, «A leitura do SAP falhou») | OK | A-0409 |
 | SapScriptsVbsTests.SemCaixaDaSenha_NaoEscrevePeloTeclado | DMO-677: com o SAP já aberto, sem caixa da senha o script não escreve pelo teclado na janela do SAP em uso (Diogo 29/10, «Função impossível») | OK | A-0428 |
 | SapScriptsVbsTests.PorData_TambemLeAPercentagemDeUso | DMO-681: o «Atualizar do SAP › Por data» lê as produções e também a % uso de todas (Diogo 29/10, «não tenho de andar a carregar várias vezes») | OK | A-0434 |
+| SapScriptsVbsTests.AEntrada_PreencheSePeloProprioSap | DMO-683: a entrada no SAP preenche-se pelo próprio SAP (RSYST-BNAME/BCODE), sem Windows nem teclado (Diogo 29/10, «preciso disto automático») | OK | A-0437 |
 | DefinicoesPorModuloPageTests.AJanelaDoSap_EscondeAsPartesQueNaoEstaoEscolhidas | DMO-665: a janela Atualizar do SAP mostra só a parte escolhida (Diogo 29/10) | OK | A-0410 |
 | ArmazemMovimentosPaginaTests.Registo_VoltarFicaPorCimaDoTitulo_EAFabricaDoEmprestimoEUmaLista | DMO-667/A-0412 (Diogo 29/10): no Registo do Armazém, «Voltar» por cima do título e a Fábrica do Empréstimo sempre em lista (Definições). 1 teste novo; nenhum antigo mudou | OK | A-0412 |
 | JobOnPageTests.Folha_PainelDasLinhas_SoOQueEntraNosProximosCincoDias | Teste novo: o painel das linhas da Folha só mostra o que entra nos próximos 5 dias (DMO-671) | OK | A-0416 |
@@ -5947,3 +5948,26 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | `O número do botão «Linhas» fica num círculo com contorno, centrado com o texto` | Na folha do Job On, o número do botão «Linhas» aparece num círculo visível e alinhado ao centro com o texto. | OK | A-0433 |
 | PesoPdfGeneratorCoberturaBTests.ProducaoAnterior_ComMediaEModa_OsCartoesDizemMediaEModa_EAModaMostraOsDiasSemDiferenca | Teste novo: o PDF do Peso diz «Média» e «Moda» nos cartões e a moda mostra os dias, sem diferença (DMO-682, Diogo 29/10) | OK | A-0435 |
 | PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes | O Resumo volta a ter «Abrir PDF das punções» (DMO-684, Diogo 29/10) | OK | A-0439 |
+
+
+
+## Filtros dependentes da referência — 29/10/2026
+
+Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; novas gravações usam as linhas associadas na ficha da ferramenta e o histórico conserva a linha original.
+
+| Ficheiro / teste | Garante | Estado |
+|---|---|---|
+| ReferenciaCompatibilidadeTests.UmaLinhaForaDaFichaNaoGravaMovimento_SalvoAProducaoHistorica (2 casos) | Recusa uma linha incompatível sem gravar; aceita a linha da produção histórica. | OK |
+| ReferenciaCompatibilidadeTests.CriarJobOnComFerramentaAssociadaAOutraLinhaNaoGrava | Job On incompatível não fica gravado. | OK |
+| PostgresMigrationIntegrationTests.OpcoesDaReferencia_SeparamCompatibilidadeAtualDaLinhaHistorica_ERecusamOutraLinha | PostgreSQL distingue ficha atual e histórico, restringe reparador/lote, e recusa gravação incompatível. | OK |
+| ReferenceFilterPagesTests.NoHistoricoAReferenciaRestringeAsLinhasNaPaginaENasOpcoes | A página e a resposta de opções apresentam apenas as linhas e reparadores da referência. | OK |
+| ReferenceFilterPagesTests.AsOpcoesNaoRevelamDadosDeModulosSemPermissao | Um utilizador sem acesso ao módulo não consulta as suas opções. | OK |
+| referencia-dependencias.test.cjs: trocar referência | Limpa produção e linha da BQ anterior. | OK |
+| referencia-dependencias.test.cjs: retirar produção histórica | Repõe apenas linhas da ficha atual. | OK |
+| referencia-dependencias.test.cjs: sem associações | Não propõe linhas sem associação. | OK |
+| filtros-referencia.test.cjs: opções contextuais | Restringe linhas e reparadores e limpa escolhas incompatíveis. | OK |
+| filtros-referencia.test.cjs: escolhas válidas e referência vazia | Conserva escolhas válidas e repõe opções gerais quando se limpa a referência. | OK |
+| filtros-referencia.test.cjs: respostas atrasadas | Uma resposta antiga não substitui a referência atual. | OK |
+| filtros-referencia.test.cjs: referência inexistente | Não apresenta opções de outras referências. | OK |
+| filtros-referencia.test.cjs: falha e recuperação | Uma falha de rede bloqueia opções desatualizadas e permite repetir. | OK |
+| filtros-referencia.test.cjs: Enter no lote | Aplica a pesquisa mesmo sem botão de submissão. | OK |
