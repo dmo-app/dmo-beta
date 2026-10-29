@@ -573,7 +573,10 @@
     { "id": "DMO-607", "module": "Ferramentas", "description": "0.3.0-beta.236 (A-0343): o fabrico lido do SAP passa a apagar, dentro da janela do relatório, as ordens que já não vêm nele (anuladas ou corrigidas no SAP); antes só acrescentava e atualizava, sem nunca retirar nada (SAP-03)." },
     { "id": "DMO-610", "module": "Geral", "description": "0.3.0-beta.236 (A-0349): o «Voltar» aparece no canto superior esquerdo em todas as páginas a que se chega a partir de outra." },
     { "id": "DMO-641", "module": "Armazém", "description": "(A-0381): o Armazém ganha o separador «Pesquisar», ao lado de Registo e Movimentos: procura CM, MF e BQ pela referência, lote ou posição, ao escrever, e cada linha da tabela abre o registo dessa ferramenta (Saída se está numa posição, Entrada se está fora)." },
-    { "id": "DMO-643", "module": "Geral", "description": "(A-0383): o link da «% uso» tem em todas as páginas a cor da paleta e nenhum sublinhado (só a cor muda no rato por cima), em vez do azul e sublinhado do browser." }
+    { "id": "DMO-643", "module": "Geral", "description": "(A-0383): o link da «% uso» tem em todas as páginas a cor da paleta e nenhum sublinhado (só a cor muda no rato por cima), em vez do azul e sublinhado do browser." },
+    { "id": "DMO-611", "module": "Posto", "description": "0.3.0-beta.235 (A-0351): o travão do Posto (PINs errados) já não confia no IP que vinha do X-Forwarded-For, que qualquer um muda a cada pedido; usa o IP verdadeiro da ligação, guardado antes desse cabeçalho o substituir (auditoria do Codex de 29/10/2026, AUTH-B02)." },
+    { "id": "DMO-612", "module": "Job On", "description": "0.3.0-beta.235 (A-0352): na folha, trocar de ferramenta duas vezes seguidas já não deixa a resposta atrasada da primeira sobrepor o cartão da segunda (auditoria do Codex de 29/10/2026, bug alto)." },
+    { "id": "DMO-613", "module": "Job On", "description": "0.3.0-beta.235 (A-0353): na procura da CM/MF/BQ, o Enter sem navegar nas flechas confirma a ferramenta já escolhida; antes podia limpá-la em silêncio quando o campo reabria vazio (auditoria do Codex de 29/10/2026, bug alto)." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

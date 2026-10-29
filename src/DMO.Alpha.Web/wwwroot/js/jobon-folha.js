@@ -116,7 +116,7 @@
           botao.setAttribute('data-jof-ficha', '/Ferramentas/Ficha?tool_id=' + encodeURIComponent(select.value) + '&voltar=' + encodeURIComponent(location.pathname + location.search));
           // A cor do uso cheio era da ferramenta antiga.
           [ref, lt].forEach(b => b && b.classList.remove('dmo-uso-cheio'));
-          dadosDaFerramenta(folha, tipo, select.value);
+          dadosDaFerramenta(folha, tipo, select, select.value);
         }
         procura.hidden = true;
         slot.classList.remove('is-mudar');
@@ -132,15 +132,20 @@
   // «quando altero para ferramenta nova não atualiza em tempo real»): a % de uso
   // dela (0 se é nova), e as notas e a informação técnica do último Job On em
   // que foi usada. Sem esse Job On, o resto fica como está.
-  async function dadosDaFerramenta(folha, tipo, toolId) {
+  async function dadosDaFerramenta(folha, tipo, select, toolId) {
     const query = new URLSearchParams({ handler: 'DadosDaFerramenta', tipo: tipo, tool_id: toolId });
     const jobOnId = new URLSearchParams(location.search).get('jobon_id');
     if (jobOnId) query.set('jobon_id', jobOnId);
     let dados;
     try {
       const response = await fetch('/JobOn/Folha?' + query, { credentials: 'same-origin' });
+      // Entretanto escolheram outra ferramenta: a resposta é de quem já não
+      // está escolhido, não se aplica (auditoria do Codex de 29/10/2026,
+      // bug alto: a resposta atrasada de A sobrepunha o cartão de B).
+      if (select.value !== toolId) return;
       if (!response.ok) return;
       dados = await response.json();
+      if (select.value !== toolId) return;
     } catch (e) { return; }
     const por = (id, valor) => {
       const campo = document.getElementById(id);
