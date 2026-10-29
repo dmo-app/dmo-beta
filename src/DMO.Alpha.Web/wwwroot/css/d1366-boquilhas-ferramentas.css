@@ -248,17 +248,8 @@ html body .beta-bq-layout .bq-history-filter-grid>.dmo-field:has(#reparador){wid
 html body .beta-bq-layout .bq-history-filter-grid>.dmo-field:is(#bqHistDesdeZona,#bqHistAteZona){width:144px}
 html body .beta-bq-layout .bq-history-day{padding:12px 16px}
 html body .beta-bq-layout .bq-history-day-grid{grid-template-columns:minmax(0,1fr) 336px;gap:16px}
-html body .beta-bq-layout .bq-history-day .dmo-calendar{padding:8px 12px}
-html body .beta-bq-layout .bq-history-day .dmo-calendar-nav{margin-bottom:4px}
 html body .beta-bq-layout .bq-history-day .dmo-calendar-nav .icon-btn{width:28px;height:28px;min-height:28px}
-html body .beta-bq-layout .bq-history-day .dmo-calendar-week{margin:0;padding:0}
-html body .beta-bq-layout .bq-history-day .dmo-calendar-days{gap:0}
-html body .beta-bq-layout .bq-history-day .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day){min-height:30px;height:30px}
-html body .beta-bq-layout .bq-history-day .dmo-calendar-legend{margin-top:4px}
 html body .beta-bq-layout .bq-history-day .bq-calendar-actions{margin-bottom:8px}
-html body .beta-bq-layout #bqHistTotais{padding:8px 16px}
-html body .beta-bq-layout #bqHistTotais .lot-data>div{padding:2px 12px}
-html body .beta-bq-layout #bqHistTotais .lot-data strong{font-size:20px;line-height:24px}
 html body .beta-bq-layout .movement-card .dmo-table :is(th,td){padding-block:6px}
 
 /* ------------------------------------------------------------------ */
@@ -378,30 +369,19 @@ html body .beta-bq-layout{--bq-topo:95px}
   html body .beta-bq-layout section#historico>*,
   html body .beta-bq-layout section#historico>.dmo-zona>*{grid-column:1/-1;min-width:0}
   html body .beta-bq-layout section#historico>.page-head{grid-column:1;grid-row:1;align-self:center}
-  html body .beta-bq-layout section#historico>#bqHistTotais{grid-column:1/-1;grid-row:1;justify-self:end;align-self:center;width:max-content;max-width:100%;padding:6px 8px}
   html body .beta-bq-layout section#historico>.dmo-zona>.bq-history-day{display:contents}
   html body .beta-bq-layout section#historico .bq-history-day-grid{display:contents}
-  html body .beta-bq-layout section#historico #bqHistDia{grid-column:1;grid-row:4;max-height:152px;overflow:auto;padding:8px 16px;background:var(--dmo-card)}
+  html body .beta-bq-layout section#historico #bqHistDia{grid-column:1;grid-row:4;max-height:152px;overflow:auto;scrollbar-gutter:stable;padding:8px 16px;background:var(--dmo-card)}
   html body .beta-bq-layout section#historico #bqHistDia h3{font-size:16px;line-height:24px;margin:0}
   html body .beta-bq-layout section#historico #bqHistDia p{margin:4px 0 0}
   html body .beta-bq-layout section#historico #bqHistDia .beta-light-list{margin-top:8px}
-  html body .beta-bq-layout section#historico .bq-history-calendar{grid-column:2;grid-row:4/6;display:flex;flex-direction:column;gap:8px;min-height:0;overflow:hidden;padding:12px 16px}
+  html body .beta-bq-layout section#historico .bq-history-calendar{grid-column:2;grid-row:4/6;display:flex;flex-direction:column;gap:8px;min-height:0;overflow:auto;padding:12px 16px}
   html body .beta-bq-layout section#historico .bq-history-calendar>*{margin:0;min-width:0}
   html body .beta-bq-layout .bq-history-day .bq-history-calendar .dmo-calendar.card{width:100%;margin:0;padding:0;border:0;background:none;box-shadow:none}
   html body .beta-bq-layout section#historico #bqHistLista>.movement-card{grid-column:1/-1;grid-row:4/6}
   html body .beta-bq-layout section#historico:has(.bq-history-calendar) #bqHistLista>.movement-card{grid-column:1;grid-row:5}
 
-  /* O calendário estica até ao fundo do cartão (sem faixa vazia por baixo). */
-  html body .beta-bq-layout .bq-history-day .bq-history-calendar .dmo-calendar{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
-  html body .beta-bq-layout .bq-history-day .bq-history-calendar .dmo-calendar .dmo-calendar-days{flex:1 1 auto;grid-auto-rows:minmax(30px,1fr)}
-  html body .beta-bq-layout .bq-history-day .bq-history-calendar .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-day){height:auto;min-height:30px}
 
-  /* Totais do filtro: os três números do mesmo tamanho, juntos num cartão baixo. */
-  html body .beta-bq-layout #bqHistTotais .lot-data{margin:0}
-  html body .beta-bq-layout #bqHistTotais .lot-data>div{padding:0 20px !important}
-  html body .beta-bq-layout #bqHistTotais .lot-data>div:first-child{padding-left:12px !important}
-  html body .beta-bq-layout #bqHistTotais .lot-data>div:last-child{padding-right:12px !important}
-  html body .beta-bq-layout #bqHistTotais .lot-data>div>span{margin:0;white-space:nowrap}
 }
 
 /* Filtros, botões e datas: todos com a altura dos campos. */
@@ -465,6 +445,13 @@ html body .beta-bq-layout button.bq-sem-jobon-link:focus-visible{outline:0;box-s
   html body .beta-bq-layout section#historico #bqHistDia .beta-light-list{gap:4px;margin-top:4px}
   html body .beta-bq-layout section#historico #bqHistDia :is(.beta-light-machine-row,.beta-light-production){height:32px;min-height:32px}
   html body .beta-bq-layout section#historico #bqHistDia .beta-light-production{padding-block:0}
+  /* As barras mostram a ficha (DMO-596, Diogo 29/10/2026: «nao aparece nada nas linhas»): a regra do Planeamento que esconde os
+     spans sem classe (d1366-planeamento.css) apanhava também estas. Colunas fixas, iguais em todas as barras, e cada barra com a
+     mesma altura, com ou sem ficha; uma linha com duas fichas cresce. */
+  html body .beta-bq-layout section#historico #bqHistDia .beta-light-machine-row{height:auto;min-height:32px;display:grid;gap:4px}
+  html body .beta-bq-layout section#historico #bqHistDia .beta-light-production{grid-template-columns:44px minmax(0,120px) minmax(0,160px) minmax(0,1fr);grid-template-rows:32px;column-gap:16px;padding-inline:12px}
+  html body .beta-bq-layout section#historico #bqHistDia .beta-light-production>span:not([class]){position:static;width:auto;height:auto;margin:0;clip:auto;grid-row:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+  html body .beta-bq-layout section#historico #bqHistDia .beta-light-machine-empty{height:32px;min-height:32px;box-sizing:border-box;padding:0 12px}
 
   /* Movimentos (por linha / agrupados): a paginação sobe para a linha do título e a lista fica com a altura toda. */
   html body .beta-bq-layout section#historico .movement-card:has(>.dmo-list-pager){display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:auto minmax(0,1fr);column-gap:12px;row-gap:8px;align-content:start}
@@ -534,3 +521,8 @@ html body main.ferr-page #ferr-create-form>.ferr-create-tech>summary::after,
 html body main.ferr-page #ferr-create-form .ferr-opcional>.ferr-opcional-titulo::after{content:"";flex:1 1 auto;margin-left:8px;border-top:1px solid var(--dmo-border)}
 html body main.ferr-page #ferr-create-form>.ferr-create-tech>summary:is(:hover,:focus-visible){color:var(--dmo-brand-700);outline:0}
 :root[data-theme="dark"] body main.ferr-page #ferr-create-form>.ferr-create-tech>summary:is(:hover,:focus-visible){color:#fff}
+
+/* O Registo do dia com a mesma altura com e sem dia escolhido (DMO-596, Diogo 29/10/2026: «as linhas mexem quando mudo o dia»). */
+@media (min-width:1100px){
+  html:root body .beta-bq-layout section#historico #bqHistDia:not(#_){height:108px;max-height:108px;box-sizing:border-box;align-content:start}
+}

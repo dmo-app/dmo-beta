@@ -888,14 +888,7 @@
           </div>
         }
         </div>
-        <div id="bqHistTotais" class="card bq-metrics-card" data-dmo-regiao title="Totais de movimentos do filtro, não saldos de stock.">
-          <div class="lot-data">
-            <div><span>Saídas</span><strong>@Model.FilteredSaidas</strong></div>
-            <div><span>Entradas</span><strong>@Model.FilteredEntradas</strong></div>
-            <div><span>Entradas sem reparação</span><strong>@Model.FilteredSemReparacao</strong></div>
-          </div>
-        </div>
-
+        @* Sem o quadro Saídas / Entradas / Entradas sem reparação (DMO-596, Diogo 29/10/2026: «remover»). *@
         <div id="bqHistLista" class="dmo-zona" data-dmo-regiao>
         @if (Model.ShowMatrix)
         {

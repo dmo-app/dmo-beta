@@ -1,0 +1,52 @@
+@model DMO.Alpha.Web.Pages.Ferramentas.ReparacaoProgramadaModel
+@using DMO.Alpha.Core.Armazem
+@using DMO.Alpha.Web.Pages.Ferramentas
+@{
+    var lista = Model.Lista;
+}
+@* OS RESULTADOS DA PROCURA (DMO-591, Diogo 29/10/2026: «nao aparece nada» ao
+   escrever 1075): a procura corre ao escrever, como nas outras páginas, e só
+   esta zona troca (handler Resultados); os filtros ficam como o operador os
+   deixou. O rpAssociar vem com ela: leva os filtros desta procura. *@
+<div id="rpResultados" data-dmo-regiao>
+    <form id="rpAssociar" method="post" asp-page="/Ferramentas/ReparacaoProgramada" asp-page-handler="Associar">
+      <input type="hidden" name="tipo" value="@Model.TipoTexto" />
+      <input type="hidden" name="referencia" value="@Model.Referencia" />
+      <input type="hidden" name="lote" value="@Model.Lote" />
+      <input type="hidden" name="linha" value="@Model.Linha" />
+      <input type="hidden" name="estado" value="@Model.EstadoTexto" />
+      @* «Adicionar» junta à lista escolhida em cima; sem lista, avisa. *@
+      <input type="hidden" name="destino" value="@(lista is { Lista.Ativa: true } ? lista.Lista.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) : null)" />
+    </form>
+
+    @* Sem frases de ajuda no ecrã (Diogo, 23/10/2026: «remover comentários»): a procura vazia não mostra nada. *@
+    @if (Model.Procura.Vazia)
+    {
+    }
+    else if (Model.Candidatas.Count == 0)
+    {
+      <p id="rpProcuraNada"><em>Nenhuma CM ou MF com esses filtros.</em></p>
+    }
+    else
+    {
+      <div class="dmo-table-wrap">
+        <table class="dmo-table" id="rpCandidatas" data-dmo-list="Ferramentas encontradas">
+          <thead><tr><th class="rp-marca"><span class="sr-only">Marcar</span></th><th>Ferramenta</th><th>% uso</th><th>Linha</th><th>Posição atual</th><th>Estado</th><th>Lista</th></tr></thead>
+          <tbody>
+          @foreach (var c in Model.Candidatas)
+          {
+            <tr data-dmo-row data-dmo-candidata="@c.ToolId" data-dmo-open="@Url.Page("/Ferramentas/Ficha", new { tool_id = c.ToolId })">
+              <td class="rp-marca"><input type="checkbox" name="ferramenta" value="@c.ToolId" form="rpAssociar" data-rp-marca aria-label="Marcar @ReparacaoProgramadaModel.Ferramenta(c.Tipo, c.Referencia, c.Lote)" /></td>
+              <td>@DMO.Alpha.Web.Pages.Armazem.MovimentosModel.Nome(c.Tipo, c.Referencia, c.Lote)</td>
+              <td>@DMO.Alpha.Web.Presentation.UsoFerramenta.Link(c.ToolId, ReparacaoProgramadaModel.Uso(c.Utilizacao))</td>
+              <td>@(c.Linhas ?? "—")</td>
+              <td>@if (c.Posicao is not null) {<span class="rp-pos">@c.Posicao</span>} else {@c.OndeEsta}</td>
+              <td>@(c.Estado is { } est ? ArmazemTextos.Estado(est) : "—")</td>
+              <td>@(c.EmLista ?? "—")</td>
+            </tr>
+          }
+          </tbody>
+        </table>
+      </div>
+    }
+</div>

@@ -718,7 +718,10 @@ public sealed class IndexModel : PageModel
                     overlap = overlap == "1" ? "1" : null,
                     calote_ignorada = CaloteIgnorada,
                     fim_antes_inicio = FimAntesDoInicio ? "1" : null,
-                    vista = vista == "alteracoes" ? vista : null
+                    vista = vista == "alteracoes" ? vista : null,
+                    // No painel deslizante fica o resumo, não a folha inteira (Diogo, 29/10/2026: no painel a folha
+                    // aparecia apertada, com o cabeçalho por cima de si mesmo e a deslizar para o lado).
+                    painel = Request.Query["painel"] == "1" ? "1" : null
                 });
             }
         }
