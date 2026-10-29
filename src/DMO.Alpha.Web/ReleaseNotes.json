@@ -562,7 +562,9 @@
     { "id": "DMO-598", "module": "Ferramentas", "description": "0.3.0-beta.235: No Opções do SAP, «Pedir só as à espera» passa a chamar-se «Atualizar»." },
     { "id": "DMO-591", "module": "Ferramentas", "description": "0.3.0-beta.235 (A-0329): nas Listas de reparação, o campo «Lista» mostra só o reparador (o dia aparece na lista aberta), sem passar por cima do «Reparador». Em «Procurar ferramentas», a Referência e o Lote procuram ao escrever (antes só com Enter, e escrever 1075 não mostrava nada); só os resultados mudam, o campo fica como estava." },
     { "id": "DMO-596", "module": "Boquilhas", "description": "0.3.0-beta.235 (A-0334): em Movimentos, o «Registo da …» mostra a ficha em cada barra (BQ, lote, produção), com as barras alinhadas, todas escolhíveis (a B1 também) e sem mexer ao mudar de dia. O quadro Saídas / Entradas / Entradas sem reparação saiu. O calendário passa a ter um modelo único (dmo-calendario.css) no Job On, Sumário, Revisão e Boquilhas, com o dia escolhido sempre marcado." },
-    { "id": "DMO-600", "module": "Job On", "description": "0.3.0-beta.235 (A-0338): o resumo do Job On no painel deslizante abre mais largo." }
+    { "id": "DMO-600", "module": "Job On", "description": "0.3.0-beta.235 (A-0338): o resumo do Job On no painel deslizante abre mais largo." },
+    { "id": "DMO-641", "module": "Armazém", "description": "(A-0381): o Armazém ganha o separador «Pesquisar», ao lado de Registo e Movimentos: procura CM, MF e BQ pela referência, lote ou posição, ao escrever, e cada linha da tabela abre o registo dessa ferramenta (Saída se está numa posição, Entrada se está fora)." },
+    { "id": "DMO-643", "module": "Geral", "description": "(A-0383): o link da «% uso» tem em todas as páginas a cor da paleta e nenhum sublinhado (só a cor muda no rato por cima), em vez do azul e sublinhado do browser." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

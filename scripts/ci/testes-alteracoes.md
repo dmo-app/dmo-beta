@@ -4929,3 +4929,19 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelMedio_AbreMaisLargo`
 
 Selo depois: `c07be0113f2cf44c`
+
+## A-0381 · 2026-10-29 · teste-novo
+
+Porquê: DMO-641 Pesquisa no Armazém e DMO-643 (A-0383) link da % uso: testes novos
+Novos: 8 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.LinkDaPercentagemDeUso_TemOEstiloDaApp`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.OSeparador_EstaAoLadoDoRegistoEDosMovimentos_EAPaginaAbreVazia`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.Pesquisar_PelaPosicao_EComNada_AvisaQueNaoEncontrou`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.Pesquisar_ProcuraCmMfEBq_EACadaLinhaAbreORegistoDaFerramenta`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.ProcuraAoEscrever_DevolveSoAZonaDosResultados`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.SemAChave_NaoEntra`
+- novo: `tests/visual/armazem_pesquisar_browser.py`
+
+Selo depois: `70ba42c3e40f4230`

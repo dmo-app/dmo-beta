@@ -791,3 +791,11 @@ html body main.peso-page .peso-hist-ferramenta>.dmo-field-label{display:block;ma
    27/10/2026, …QZ5YJs7W): a altura do cartão muda com o ecrã e o modo, a imagem segue-a. Absoluta, porque numa grelha a altura 100% não pega. */
 html body .jof2 .jof-artigo{overflow:hidden}
 html body .jof2 .jof-artigo>img[data-jof-artigo-img]{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+
+/* O link da «% uso» (DMO-643, Diogo 29/10/2026: «alterar o link do uso no armazem para nao parecer que falta UI»): em todas as páginas
+   a cor da paleta e sem sublinhado, só a cor muda no rato por cima; sobre uma linha escolhida (fundo escuro) herda a letra branca. */
+html body a.dmo-uso-link,html body a.dmo-uso-link:visited{color:var(--dmo-brand-700);text-decoration:none;cursor:pointer}
+html body a.dmo-uso-link:is(:hover,:focus-visible){color:var(--dmo-brand-600);text-decoration:none}
+html[data-theme="dark"] body a.dmo-uso-link,html[data-theme="dark"] body a.dmo-uso-link:visited{color:var(--dmo-text)}
+html[data-theme="dark"] body a.dmo-uso-link:is(:hover,:focus-visible){color:var(--dmo-brand-300,#9fb7d3)}
+html body :is(tr.selected,tr[aria-selected="true"],tr:has(input:checked),.dmo-row-selected) a.dmo-uso-link{color:inherit}
