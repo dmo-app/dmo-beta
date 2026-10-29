@@ -70,7 +70,8 @@ html body .revisao-detail h3.revisao-section{margin:20px 0 10px;padding:9px 12px
 /* O link do mcaliper (Diogo, 17/10/2026): um clique no ícone copia. */
 .revisao-mcaliper { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 12px; }
 .revisao-mcaliper > span { color: var(--dmo-muted); font-size: 12px; font-weight: 600; }
-.revisao-mcaliper-copy svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; }
+.revisao-mcaliper-abrir { text-decoration: none; }
+.revisao-mcaliper-abrir svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; }
 /* As consultas do Peso e dos Pegamentos (19/10/2026): o mesmo cartão da Revisão, cada componente em caixas e as leituras em tabela. */
 .revisao-consulta{min-height:0;margin-top:14px}
 .revisao-consulta-componente{display:grid;gap:10px;margin:0 0 16px}
