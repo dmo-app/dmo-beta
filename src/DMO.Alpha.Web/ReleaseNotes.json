@@ -1,5 +1,6 @@
 {
   "fixes": [
+    { "id": "DMO-670", "module": "Job On", "description": "Na folha do Job On o painel das linhas mostra só as produções que entram nos próximos 5 dias." },
     { "id": "DMO-669", "module": "Job On", "description": "Um diâmetro antigo com dois números (ex.: «52.60 / 0.05») separa-se sozinho: o primeiro fica no valor e o segundo vai para a «Tol.». O Guardar deixa de ser recusado por isso." },
     { "id": "DMO-666", "module": "Job On", "description": "Na folha do Job On os avisos dos cartões (CM sem registo no Armazém, B2 sem dupla/tripla) aparecem como os outros alertas da app, no canto superior direito do ecrã, com ×." },
     { "id": "DMO-001", "module": "Aplicação", "description": "Página de erro com referência para diagnóstico, em vez de uma página inexistente." },

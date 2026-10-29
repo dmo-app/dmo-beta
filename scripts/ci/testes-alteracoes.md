@@ -5433,3 +5433,13 @@ Novos: 4 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnDiametrosSepararTests.cs :: JobOnDiametrosSepararTests.UmNumero_NaoMuda`
 
 Selo depois: `4308a5058f2f4495`
+
+## A-0415 · 2026-10-29 · teste-novo
+
+Porquê: Teste novo: o painel das linhas da Folha só mostra o que entra nos próximos 5 dias (DMO-670).
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.PainelCincoDias.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.PainelCincoDias.cs :: JobOnPageTests.Folha_PainelDasLinhas_SoOQueEntraNosProximosCincoDias`
+
+Selo depois: `cc3bd3e5d96c86c2`

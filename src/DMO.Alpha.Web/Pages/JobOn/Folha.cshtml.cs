@@ -520,8 +520,11 @@ public sealed class FolhaModel(
         Capacidades = await capabilities.GetAsync();
 
         var hoje = DateOnly.FromDateTime(DmoBusinessTime.Now);
-        ProximasEntradas = IndexModel.ProximasEntradasDaSemana(
-            await jobOnList.ListWindowAsync(hoje, IndexModel.AteUmaSemana(hoje), ct), hoje);
+        // O painel das linhas mostra só o que entra nos próximos 5 dias (Diogo, 29/10/2026).
+        ProximasEntradas = ProducaoEmCurso.EntradasPorDia(
+            (await jobOnList.ListWindowAsync(hoje, hoje.AddDays(5), ct))
+                .Where(j => j.InicioEm is { } inicio && inicio >= hoje && inicio <= hoje.AddDays(5)))
+            .OrderBy(j => j.InicioEm).ThenBy(j => j.Machine, StringComparer.Ordinal).ToList();
     }
 
     private async Task<IActionResult> AbrirAsync(int? jobOnId, string? editar, string? gravado, string? overlap, string? caloteIgnorada, string? fimAntesInicio)
