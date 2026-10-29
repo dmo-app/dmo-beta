@@ -1496,6 +1496,48 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
     }
 
     [Fact]
+    public async Task Peso_OAvisoDeQueOJobOnMudouTemUmXParaFechar()
+    {
+        // Diogo, 29/10/2026 (cmsg_01K75FTs9bQnbhhH7qttpgraL37Lbd4WXdmt65HTzFQZEw):
+        // o aviso do Peso fecha-se num «×» e não volta para estas mudanças.
+        var (jobOnId, _, machineId, _) = await SeedFichaAsync();
+        int pesoId;
+        int controloIdDoPeso;
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            var controlo = await db.Controlos.SingleAsync(c => c.JobOnId == jobOnId);
+            controloIdDoPeso = controlo.Id;
+            var peso = new DMO.Alpha.Core.Controlo.Peso
+            {
+                CmToolId = "T3", BqToolId = "BQ-TOOL-9", Process = "NNPB", WaterTemperatureC = 20,
+                VolumeMarisaCm3 = 10m, VolumePuncaoCm3 = 30m, GlassDensityGramsPerCm3 = 2.50m,
+                ControloId = controlo.Id, RegistadoEmUtc = DateTime.UtcNow.AddHours(-2)
+            };
+            db.Pesos.Add(peso);
+            await db.SaveChangesAsync();
+            pesoId = peso.Id;
+        }
+        SeedUser("4595", "Planejador", "provider-jobon-aviso-peso", "JobAviso2!");
+        using var client = await LoginClientAsync("4595", "JobAviso2!");
+        var inicio = DateOnly.FromDateTime(DmoBusinessTime.Now).AddDays(-3);
+        var token = await GetVerificationTokenAsync(client, $"{PagePath}?jobon_id={jobOnId}&editar=1");
+        using var saved = await client.PostAsync($"{PagePath}?handler=Update", HtmlFormHelpers.BuildFormPost(
+            ("jobon_edit_id", jobOnId.ToString()), ("machine_id", machineId.ToString()),
+            ("cm_tool_id", "T3"), ("mf_tool_id", "MF-TOOL-9"), ("bq_tool_id", "BQ-TOOL-9"),
+            ("inicio_em", inicio.ToString("yyyy-MM-dd")), ("fim_em", ""), ("calote_mm", "9.8"),
+            ("__RequestVerificationToken", token)));
+        Assert.Equal(HttpStatusCode.Redirect, saved.StatusCode);
+
+        var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"/Controlo/Peso?controlo_id={controloIdDoPeso}"));
+        Assert.Contains("O Job On mudou depois de este Peso ser gravado.", html);
+        Assert.Contains($"data-dmo-aviso-dispensar=\"peso-{pesoId}\"", html);
+        Assert.Contains("<button type=\"button\" class=\"jobon-change-notice-fechar\" data-dmo-aviso-fechar aria-label=\"Fechar o aviso\">×</button>", html);
+        // Nos outros módulos o aviso fica como era, sem «×».
+        Assert.DoesNotContain("data-dmo-aviso-dispensar", WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"/Controlo/Resumo?jobon_id={jobOnId}")));
+    }
+
+    [Fact]
     public void Resumo_SemOModulo_ALinhaFicaSoComoInformacao()
     {
         // O botão da ação só a quem tem o módulo (o Diogo, 17/10/2026).

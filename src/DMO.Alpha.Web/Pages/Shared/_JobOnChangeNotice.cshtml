@@ -2,7 +2,17 @@
 @* O AVISO NOS MÓDULOS (o proprietário, 17/10/2026): o Job On mudou depois
    deste registo. Só informa: nada fica bloqueado e um Controlo aprovado
    continua aprovado. *@
-<div class="jobon-change-notice" role="status">
+@{
+    // No Peso o aviso fecha-se no «×» (Diogo, 29/10/2026), e não volta
+    // para estas mudanças: a chave leva a mais recente (dmo-aviso-dispensar.js).
+    var dispensar = ViewData["DispensarChave"] as string;
+    var ultima = Model.Notice.Changes.Max(c => c.ChangedAtUtc).Ticks;
+}
+<div class="jobon-change-notice" role="status"@if (dispensar is not null) {<text> data-dmo-aviso-dispensar="@dispensar" data-dmo-aviso-ate="@ultima"</text>}>
+  @if (dispensar is not null)
+  {
+    <button type="button" class="jobon-change-notice-fechar" data-dmo-aviso-fechar aria-label="Fechar o aviso">×</button>
+  }
   <strong>@Model.Intro</strong>
   <ul>
     @foreach (var change in Model.Notice.Changes)

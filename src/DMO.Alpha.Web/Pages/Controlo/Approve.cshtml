@@ -97,7 +97,11 @@
       @if (Model.Selected is { } aberta)
       {
         var estadoAberto = Model.SelectedItem?.Estado ?? ControloRevisaoEstado.Pendente;
-        <span class="revisao-pill big @EstadoClasse(estadoAberto)">@EstadoTexto(estadoAberto)</span>
+        @* «Pendente» já aparece em baixo (Diogo, 29/10/2026: «remover pendente daqui»). *@
+        @if (estadoAberto != ControloRevisaoEstado.Pendente)
+        {
+          <span class="revisao-pill big @EstadoClasse(estadoAberto)">@EstadoTexto(estadoAberto)</span>
+        }
         @* Os mesmos PDFs do Exportar do Resumo (19/10/2026). *@
         <details class="dmo-options resumo-export" data-dmo-tab-menu>
           <summary class="dmo-button"><span class="dmo-caret" aria-hidden="true"></span>Exportar</summary>

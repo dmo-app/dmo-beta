@@ -152,6 +152,10 @@ html body .beta-bq-layout section.view>.page-head h2{margin:0;font-size:22px;lin
 html body .beta-bq-layout section.view>.page-head p{margin:0}
 /* As linhas de produção: uma faixa baixa por baixo do título. */
 html body .beta-bq-layout section.view .beta-production-rail{margin:0;padding:8px 16px}
+/* A 1366×768 e abaixo, o painel das linhas de produção não cresce à vontade: a lista de movimentos (auditoria do Codex de 28/10/2026, C03) ficava sem altura quando havia várias linhas ou filtros que ocupavam mais espaço. */
+@media (min-width:1100px){
+  html body .beta-bq-layout section#historico .beta-production-rail{max-height:132px;overflow:auto}
+}
 html body .beta-bq-layout section.view .beta-production-lines :is(button,.dmo-rail-link){padding:4px 12px}
 /* Passar o rato num cartão (as linhas, os factos com link) muda só a cor do texto. */
 html body .beta-bq-layout a.dmo-fact.dmo-fact-link:is(:hover,:focus-visible){background:none}
@@ -370,7 +374,7 @@ html body .beta-bq-layout{--bq-topo:95px}
 
   /* Movimentos: o título com os totais à direita; os filtros; por baixo, o
      registo do dia e a lista à esquerda e o calendário à direita até ao fundo. */
-  html body .beta-bq-layout section#historico{display:grid;grid-template-columns:minmax(0,1fr) 336px;grid-template-rows:auto auto auto auto minmax(0,1fr);gap:16px;align-content:start}
+  html body .beta-bq-layout section#historico{display:grid;grid-template-columns:minmax(0,1fr) 336px;grid-template-rows:auto auto auto auto minmax(160px,1fr);gap:16px;align-content:start}
   html body .beta-bq-layout section#historico>*,
   html body .beta-bq-layout section#historico>.dmo-zona>*{grid-column:1/-1;min-width:0}
   html body .beta-bq-layout section#historico>.page-head{grid-column:1;grid-row:1;align-self:center}

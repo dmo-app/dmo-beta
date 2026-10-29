@@ -4852,3 +4852,46 @@ Novos: 0 · mudaram: 3 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Editar_LoteDoAnVazioMostraODaBqComoSugestao_EGuardarOutraCoisaNaoOCopiaParaABase`
 
 Selo depois: `3f7b0c747f3b0cec`
+
+## A-0328 · 2026-10-29 · contagem-lista
+
+Porquê: C03 da auditoria do Codex de 28/10/2026 (DMO-590, #293): teste de browser novo tests/visual/bq_historico_lista_browser.py (lista de Movimentos das Boquilhas com cabeçalho e uma linha inteira a 1290×646, 1366×768 e 1100×646); no ci-local.sh só se acrescenta o passo que o corre.
+Referência: PR #293
+Novos: 1 · mudaram: 1 · saíram: 0
+
+- novo: `tests/visual/bq_historico_lista_browser.py`
+- mudou: `scripts/ci/ci-local.sh`
+
+Selo depois: `88d81159021341b1`
+
+## A-0332 · 2026-10-29 · teste-novo
+
+Porquê: Peso (#295): × para fechar o aviso «O Job On mudou» (DMO-594) e barra dos filtros do Aprovar sem a etiqueta «Pendente» (DMO-597); testes novos.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraL37Lbd4WXdmt65HTzFQZEw; cmsg_01K75FTs9bQnbhhH7qttpgraQhsrmB2N6KUBsjwFoahTBK
+Novos: 6 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: ControloCapabilitiesCutHPageTests.Approve_BarraDosFiltrosNaoRepeteAEtiquetaPendente`
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.RevisaoArrumada.cs :: ControloCapabilitiesCutHPageTests.Approve_PesoDaProducaoAnteriorMostraAhDiferenca`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Peso_OAvisoDeQueOJobOnMudouTemUmXParaFechar`
+- novo: `tests/ShellProof/aviso-dispensar.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/aviso-dispensar.test.cjs :: o × fecha o aviso e ele não volta ao reabrir a página`
+- novo: `tests/ShellProof/aviso-dispensar.test.cjs :: uma mudança mais nova do que a que se fechou traz o aviso de volta`
+
+Selo depois: `09cea02a345007d1`
+
+## A-0330 · 2026-10-29 · contagem-lista
+
+Porquê: Painéis fecham ao clicar fora, «Voltar» fixo e hover legível (DMO-592/593, #296): ficheiro novo painel-fecha-ao-clicar-fora.test.cjs e a sua entrada na lista do test:js; o «sim» do Diogo a mudar a regra de 28/10 está nas mensagens de 29/10 05:40.
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraRjoHenMh7tBoYHhFiZKV6A
+Novos: 6 · mudaram: 2 · saíram: 0
+
+- novo: `tests/ShellProof/painel-fecha-ao-clicar-fora.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/painel-fecha-ao-clicar-fora.test.cjs :: com alterações por guardar, um clique fora mostra o aviso em vez de fechar`
+- novo: `tests/ShellProof/painel-fecha-ao-clicar-fora.test.cjs :: painel de apoio: um clique fora fecha-o`
+- novo: `tests/ShellProof/painel-fecha-ao-clicar-fora.test.cjs :: painel de apoio: «Voltar» é um link no canto esquerdo, antes do título, e volta à página que lá estava`
+- novo: `tests/ShellProof/painel-fecha-ao-clicar-fora.test.cjs :: um clique fora fecha o painel; dentro da caixa não`
+- novo: `tests/visual/hover_linhas_browser.py`
+- mudou: `scripts/ci/ci-local.sh`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `6c7ce321b5f42e87`
