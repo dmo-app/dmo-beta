@@ -4929,3 +4929,16 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelMedio_AbreMaisLargo`
 
 Selo depois: `c07be0113f2cf44c`
+
+## A-0354 · 2026-10-29 · contagem-lista
+
+Porquê: 2.ª passagem da auditoria .230 (Codex/Qoder, 29/10): fabrico SAP — SAP-B01 (linha contada a dobrar numa produção sem fim), SAP-B02 (reimportação apaga valores já lidos) e SAP-B03 (referência truncada apanha o material errado).
+Novos: 4 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ProducaoQueAcabaAMeioDaLinha_LigaELevaALinhaInteira`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ProducaoSemFim_ComProximaNaMesmaMaquina_NaoEngoleALinhaDaSeguinte`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ReferenciaCorresponde_ExigeFronteiraAposOPrefixo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ReimportarComRelatorioParcial_NaoApagaOQueJaEstavaGravado`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ALinhaDoSap_LigaSeAoJobOnPelaReferenciaMaquinaEDatas`
+
+Selo depois: `eb7e46cd07d185de`

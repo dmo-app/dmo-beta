@@ -562,7 +562,10 @@
     { "id": "DMO-598", "module": "Ferramentas", "description": "0.3.0-beta.235: No Opções do SAP, «Pedir só as à espera» passa a chamar-se «Atualizar»." },
     { "id": "DMO-591", "module": "Ferramentas", "description": "0.3.0-beta.235 (A-0329): nas Listas de reparação, o campo «Lista» mostra só o reparador (o dia aparece na lista aberta), sem passar por cima do «Reparador». Em «Procurar ferramentas», a Referência e o Lote procuram ao escrever (antes só com Enter, e escrever 1075 não mostrava nada); só os resultados mudam, o campo fica como estava." },
     { "id": "DMO-596", "module": "Boquilhas", "description": "0.3.0-beta.235 (A-0334): em Movimentos, o «Registo da …» mostra a ficha em cada barra (BQ, lote, produção), com as barras alinhadas, todas escolhíveis (a B1 também) e sem mexer ao mudar de dia. O quadro Saídas / Entradas / Entradas sem reparação saiu. O calendário passa a ter um modelo único (dmo-calendario.css) no Job On, Sumário, Revisão e Boquilhas, com o dia escolhido sempre marcado." },
-    { "id": "DMO-600", "module": "Job On", "description": "0.3.0-beta.235 (A-0338): o resumo do Job On no painel deslizante abre mais largo." }
+    { "id": "DMO-600", "module": "Job On", "description": "0.3.0-beta.235 (A-0338): o resumo do Job On no painel deslizante abre mais largo." },
+    { "id": "DMO-614", "module": "SAP", "description": "0.3.0-beta.235 (A-0354): uma linha do fabrico do SAP passa a contar só para a produção cujo período contém o início dela; uma produção sem data de fim já não engolia também a seguinte na mesma máquina, contando a mesma linha duas vezes (auditoria do Codex de 29/10/2026, SAP-B01)." },
+    { "id": "DMO-615", "module": "SAP", "description": "0.3.0-beta.235 (A-0355): reimportar um relatório parcial do SAP (sem peso ou sem produção bruta) já não apaga os valores já lidos; só atualiza o que o novo ficheiro traz (SAP-B02)." },
+    { "id": "DMO-616", "module": "SAP", "description": "0.3.0-beta.235 (A-0356): a referência do Job On já não liga por um prefixo cru do material do SAP («5538T32» já não apanha «5538T324BRA», que é da «5538T324») (SAP-B03)." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

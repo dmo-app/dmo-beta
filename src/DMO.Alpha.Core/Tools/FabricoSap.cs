@@ -158,23 +158,58 @@ public static class FabricoSapExportacao
         DateOnly.TryParseExact(texto.Trim(), FormatosData, CultureInfo.InvariantCulture, DateTimeStyles.None, out data);
 
     /// <summary>
-    /// Se a linha do SAP é desta produção: o material começa pela referência
-    /// do Job On (5538T324BRA é da 5538T324), a linha é a máquina e as datas
-    /// cruzam-se com as do Job On. Sem fim, o Job On ainda está na máquina:
-    /// conta tudo desde o início.
+    /// Se a referência do Job On é mesmo a do material do SAP: o material
+    /// começa pela referência (5538T324BRA é da 5538T324) e o carácter a
+    /// seguir ao prefixo não pode ser um dígito (senão 5538T32 apanhava
+    /// 5538T324BRA, que é da 5538T324; SAP-B03, auditoria de 29/10/2026).
+    /// </summary>
+    public static bool ReferenciaCorresponde(string material, string referencia)
+    {
+        var prefixo = referencia.Trim().ToUpperInvariant();
+        if (!material.StartsWith(prefixo, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return material.Length == prefixo.Length || !char.IsAsciiDigit(material[prefixo.Length]);
+    }
+
+    /// <summary>
+    /// Se a linha do SAP é desta produção: a referência do material
+    /// (<see cref="ReferenciaCorresponde"/>), a linha é a máquina, e a
+    /// produção é a ÚNICA cujo período contém o INÍCIO da linha do SAP
+    /// (SAP-B01, auditoria de 29/10/2026: antes bastava cruzar-se com o
+    /// período, e uma produção sem fim engolia também as seguintes na mesma
+    /// máquina, contando a mesma linha duas vezes). Sem fim, a produção vai
+    /// até ao dia antes de a próxima produção começar na mesma máquina
+    /// (<paramref name="proximoInicioNaMaquina"/>), ou até sempre se não há
+    /// próxima.
     /// </summary>
     public static bool Corresponde(string material, string linha, DateOnly inicioSap, DateOnly fimSap,
-        string referencia, string maquina, DateOnly? inicio, DateOnly? fim)
+        string referencia, string maquina, DateOnly? inicio, DateOnly? fim, DateOnly? proximoInicioNaMaquina = null)
     {
         if (inicio is not { } de || string.IsNullOrWhiteSpace(referencia))
         {
             return false;
         }
 
-        var ate = fim is { } f ? (f >= de ? f : de) : DateOnly.MaxValue;
-        return material.StartsWith(referencia.Trim().ToUpperInvariant(), StringComparison.Ordinal)
+        DateOnly ate;
+        if (fim is { } f)
+        {
+            ate = f >= de ? f : de;
+        }
+        else if (proximoInicioNaMaquina is { } proximo && proximo > de)
+        {
+            ate = proximo.AddDays(-1);
+        }
+        else
+        {
+            ate = DateOnly.MaxValue;
+        }
+
+        return ReferenciaCorresponde(material, referencia)
             && string.Equals(linha, maquina.Trim(), StringComparison.OrdinalIgnoreCase)
-            && inicioSap <= ate && fimSap >= de;
+            && inicioSap >= de && inicioSap <= ate;
     }
 }
 

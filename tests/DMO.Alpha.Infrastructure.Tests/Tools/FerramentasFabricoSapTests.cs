@@ -108,10 +108,18 @@ public sealed class FerramentasFabricoSapTests
 
     [Theory]
     [InlineData("5538T324", "C3", "2025-01-21", "2025-02-04", true)]
-    [InlineData("5538T324", "c3", "2025-02-04", "2025-02-10", true)]
-    // Sem fim: ainda na máquina, apanha as ordens do SAP desde o início.
+    // SAP-B01 (auditoria de 29/10/2026): a linha é da produção cujo período
+    // CONTÉM o início dela (21/01), não de qualquer uma que toque no período —
+    // senão a mesma linha ligava a duas produções (esta e a de cima) e contava
+    // a dobrar.
+    [InlineData("5538T324", "c3", "2025-02-04", "2025-02-10", false)]
+    // Sem fim, mas sem indicar a próxima produção na máquina (como aqui):
+    // ainda na máquina, apanha as ordens do SAP desde o início.
     [InlineData("5538T324", "C3", "2025-01-01", null, true)]
-    [InlineData("5538T324", "C3", "2025-01-25", null, true)]
+    // SAP-B01: sem fim, mas a produção começa DEPOIS do início da linha
+    // (21/01): não é dela — quem a contém é outra produção, com início
+    // anterior ou igual ao da linha.
+    [InlineData("5538T324", "C3", "2025-01-25", null, false)]
     [InlineData("5538T324", "C3", "2025-02-05", null, false)]
     // O início do SAP (21/01): um Job On que acaba antes não liga; um que acaba nesse dia liga.
     [InlineData("5538T324", "C3", "2025-01-10", "2025-01-20", false)]
@@ -132,6 +140,49 @@ public sealed class FerramentasFabricoSapTests
         Assert.False(FabricoSapExportacao.Corresponde("5538T324BRA", "C3", new DateOnly(2025, 1, 21), new DateOnly(2025, 2, 4), "5538T324", "C3", null, null));
     }
 
+    // SAP-B01 (auditoria de 29/10/2026): a produção A (21/01, sem fim) já não
+    // engole a linha de fevereiro só porque a sua janela não tem fim — o
+    // início da próxima produção na mesma máquina (B, 05/02) limita-a ao dia
+    // anterior (04/02). A liga só à linha de janeiro; B só à de fevereiro.
+    [Fact]
+    public void ProducaoSemFim_ComProximaNaMesmaMaquina_NaoEngoleALinhaDaSeguinte()
+    {
+        var linhaJaneiro = (Material: "5538T324BRA", Linha: "C3", Inicio: new DateOnly(2025, 1, 21), Fim: new DateOnly(2025, 2, 4));
+        var linhaFevereiro = (Material: "5538T324BRA", Linha: "C3", Inicio: new DateOnly(2025, 2, 5), Fim: new DateOnly(2025, 2, 10));
+        var proximaProducao = new DateOnly(2025, 2, 5);
+
+        Assert.True(FabricoSapExportacao.Corresponde(linhaJaneiro.Material, linhaJaneiro.Linha, linhaJaneiro.Inicio, linhaJaneiro.Fim,
+            "5538T324", "C3", new DateOnly(2025, 1, 21), null, proximaProducao));
+        Assert.False(FabricoSapExportacao.Corresponde(linhaFevereiro.Material, linhaFevereiro.Linha, linhaFevereiro.Inicio, linhaFevereiro.Fim,
+            "5538T324", "C3", new DateOnly(2025, 1, 21), null, proximaProducao));
+        Assert.True(FabricoSapExportacao.Corresponde(linhaFevereiro.Material, linhaFevereiro.Linha, linhaFevereiro.Inicio, linhaFevereiro.Fim,
+            "5538T324", "C3", new DateOnly(2025, 2, 5), new DateOnly(2025, 2, 10)));
+    }
+
+    // SAP-B01: uma produção que acaba a meio de uma linha do SAP (21/01–25/01,
+    // a linha vai até 04/02) continua a ligar — a janela dela CONTÉM o início
+    // da linha — e leva a linha inteira; não há rateio por dia.
+    [Fact]
+    public void ProducaoQueAcabaAMeioDaLinha_LigaELevaALinhaInteira()
+    {
+        Assert.True(FabricoSapExportacao.Corresponde("5538T324BRA", "C3", new DateOnly(2025, 1, 21), new DateOnly(2025, 2, 4),
+            "5538T324", "C3", new DateOnly(2025, 1, 21), new DateOnly(2025, 1, 25)));
+    }
+
+    // SAP-B03 (auditoria de 29/10/2026): o material só é da referência quando
+    // o prefixo acaba o material ou o carácter a seguir não é um dígito (a
+    // mudança mínima do relatório) — «5538T32» é um prefixo truncado de
+    // «5538T324» (o carácter a seguir, «4», é um dígito: não seria fronteira).
+    // «5538» já tem um carácter não-dígito a seguir («T»): fica a corresponder,
+    // como o sufixo do país (BRA) depois da referência completa.
+    [Theory]
+    [InlineData("5538T324BRA", "5538T324", true)]
+    [InlineData("5538T324BRA", "5538T32", false)]
+    [InlineData("5538T324BRA", "5538", true)]
+    [InlineData("5538T324BRA", "5538T324BRA", true)]
+    public void ReferenciaCorresponde_ExigeFronteiraAposOPrefixo(string material, string referencia, bool corresponde) =>
+        Assert.Equal(corresponde, FabricoSapExportacao.ReferenciaCorresponde(material, referencia));
+
     [Fact]
     public async Task LerOMesmoRelatorioOutraVez_AtualizaAsMesmasLinhas()
     {
@@ -148,6 +199,27 @@ public sealed class FerramentasFabricoSapTests
         Assert.Equal(1_500_000, (await db.SapFabricos.SingleAsync(s => s.InicioEm == new DateOnly(2025, 1, 21))).ProducaoBruta);
         Assert.Equal(new DateTime(2026, 10, 21, 9, 0, 0, DateTimeKind.Utc), await Servico(db).UltimoFicheiroAsync());
         Assert.Equal("Rui", (await db.SapFabricos.FirstAsync()).LidoPor);
+    }
+
+    // SAP-B02 (auditoria de 29/10/2026): reimportar a mesma linha com um
+    // relatório parcial (aqui só com produção líquida, sem peso nem produção
+    // bruta) não pode apagar o que já estava gravado — um `null` do relatório
+    // novo é «esta coluna não vem aqui», não «apaga o que já lá estava».
+    [Fact]
+    public async Task ReimportarComRelatorioParcial_NaoApagaOQueJaEstavaGravado()
+    {
+        using var db = CreateContext();
+        var linhas = FabricoSapExportacao.Ler(RelatorioDoSap).Linhas;
+        await Servico(db).ImportarAsync(linhas, "zfmd.txt", new DateTime(2026, 10, 21, 8, 0, 0, DateTimeKind.Utc));
+
+        var parcial = linhas.Select(l => l with { ProducaoBruta = null, PesoMedioGramas = null, DiasProducao = null, ProducaoLiquida = l.ProducaoLiquida + 1 }).ToList();
+        await Servico(db).ImportarAsync(parcial, "producoes.txt", new DateTime(2026, 10, 22, 8, 0, 0, DateTimeKind.Utc));
+
+        var linha = await db.SapFabricos.SingleAsync(s => s.InicioEm == new DateOnly(2025, 1, 21));
+        Assert.Equal(1_404_234, linha.ProducaoBruta);
+        Assert.Equal(132m, linha.PesoMedioGramas);
+        Assert.Equal(14, linha.DiasProducao);
+        Assert.Equal(1_309_265, linha.ProducaoLiquida);
     }
 
     [Fact]
