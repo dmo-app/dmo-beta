@@ -86,6 +86,9 @@ public sealed class FerramentaLembreteUtilizacao
 /// <param name="Procura">O código que o script procurou (a coluna «search» do CSV): liga a linha à ferramenta quando a procura tem «*» ou não é o nome técnico.</param>
 public sealed record UsoSapLinha(string CodigoEquipamento, decimal PercentagemUso, long? Consumo, long? VidaPrevista, string? Procura = null);
 
+/// <summary>Informação opcional da mesma linha ZPPG; não altera o contrato do uso existente.</summary>
+public sealed record UsoSapInformacao(int? Pecas, string? Fornecedor, DateOnly? DataAquisicao);
+
 /// <summary>
 /// A leitura de uma exportação do relatório «Gestão de Moldes»: em HTML (o
 /// «percentagem.HTML» que o SAP grava) ou em texto (separado por tabulações
@@ -101,7 +104,11 @@ public static class UsoSapExportacao
     private static readonly Regex Etiqueta = new(@"<[^>]+>", RegexOptions.Compiled);
 
     /// <summary>A leitura: as linhas lidas, ou nenhuma quando o ficheiro não é a lista do SAP.</summary>
-    public sealed record Leitura(bool CabecalhoEncontrado, IReadOnlyList<UsoSapLinha> Linhas);
+    public sealed record Leitura(bool CabecalhoEncontrado, IReadOnlyList<UsoSapLinha> Linhas)
+    {
+        /// <summary>Uma entrada por linha válida, na mesma ordem de Linhas (nunca por referência/lote).</summary>
+        public IReadOnlyList<UsoSapInformacao> Informacao { get; init; } = [];
+    }
 
     public static Leitura Ler(string? conteudo)
     {
@@ -124,7 +131,12 @@ public static class UsoSapExportacao
             var consumo = Coluna(cabecalho, c => c.StartsWith("consumption", StringComparison.Ordinal));
             var vida = Coluna(cabecalho, c => c.StartsWith("expected life", StringComparison.Ordinal));
             var procura = Coluna(cabecalho, c => c is "search" or "procura");
+            // O HTML ZPPG tem dois «No. of pieces»: manter o primeiro, como o VBS.
+            var pecas = Coluna(cabecalho, c => c is "pieces" or "no. of pieces");
+            var fornecedor = Coluna(cabecalho, c => c is "supplier");
+            var compra = Coluna(cabecalho, c => c is "purchase");
             var linhas = new List<UsoSapLinha>();
+            var informacao = new List<UsoSapInformacao>();
             foreach (var celulas in tabela.Skip(i + 1))
             {
                 var codigo = Celula_(celulas, equipamento).Replace(" ", "", StringComparison.Ordinal).ToUpperInvariant();
@@ -139,9 +151,13 @@ public static class UsoSapExportacao
                     Numero(Celula_(celulas, consumo), out var c) ? (long)Math.Round(c) : null,
                     Numero(Celula_(celulas, vida), out var v) ? (long)Math.Round(v) : null,
                     Celula_(celulas, procura).Replace(" ", "", StringComparison.Ordinal).ToUpperInvariant() is { Length: > 0 } p ? p : null));
+                informacao.Add(new UsoSapInformacao(
+                    Numero(Celula_(celulas, pecas), out var n) && n == decimal.Truncate(n) && n <= int.MaxValue ? (int)n : null,
+                    Celula_(celulas, fornecedor) is { Length: > 0 and <= 254 } f && !f.Any(char.IsControl) ? f : null,
+                    DateOnly.TryParseExact(Celula_(celulas, compra), ["dd.MM.yyyy", "dd/MM/yyyy", "yyyy-MM-dd"], CultureInfo.InvariantCulture, DateTimeStyles.None, out var dia) ? dia : null));
             }
 
-            return new Leitura(true, linhas);
+            return new Leitura(true, linhas) { Informacao = informacao };
         }
 
         return new Leitura(false, []);

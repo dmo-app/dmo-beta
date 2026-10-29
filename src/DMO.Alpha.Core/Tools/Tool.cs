@@ -84,6 +84,15 @@ public sealed class Tool
     /// </summary>
     public string? SapCodigo { get; set; }
 
+    // DMO-663: último retrato ZPPG e valores recusados, sempre do tool_id.
+    public int? SapPecas { get; set; }
+    public decimal? SapPercentagem { get; set; }
+    public string? SapFornecedor { get; set; }
+    public DateOnly? SapDataAquisicao { get; set; }
+    public int? SapPecasIgnoradas { get; set; }
+    public decimal? SapPercentagemIgnorada { get; set; }
+    public DateTime? SapAvisosAlteradosEmUtc { get; set; }
+
     /// <summary>
     /// A B2 em que a ferramenta trabalha (Diogo, 28/10/2026): uma da C3+B2
     /// fica sempre com B2 Tripla, uma da C1+B2 com B2 Dupla. Null fora da B2

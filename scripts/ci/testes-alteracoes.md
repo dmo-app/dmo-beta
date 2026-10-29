@@ -5629,3 +5629,60 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_DadosTecnicos_FicamNumDobravelFechadoPorOmissao`
 
 Selo depois: `bffe122afda559ff`
+
+## A-0408 · 2026-10-29 · contagem-lista
+
+Porquê: DMO-663 / A-0408: testes novos ZPPG peças/Supplier/Purchase e fornecedor inválido; avisos Sim/Não por tool_id; uso manual, concorrência PostgreSQL e ×. Lista JS ganha o ficheiro novo; a lista exata de migrações ganha só 20261029104943_AvisosSapPecasFornecedorData, autorizado pelo proprietário. Nenhuma verificação antiga mudou. ID 0408 reservado pelo proprietário.
+Referência: Pedido DMO-663/A-0408 nesta conversa; proprietário autorizou acrescentar só a migração à lista de MigrationFoundationTests.
+Novos: 17 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_AMigracaoSoAcrescentaColunasOpcionais`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_DuasDecisoesDaMesmaFicha_SoUmaGrava`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_EditarOutrosFactosDaCmNaoApagaAQuantidadeAceite`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_NaoMantemQuantidadeEUsoManual_NaoRepeteMesmoValorEMostraNovoValor`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_SimGravaNaQuantidadeDoTipoCertoESoNoToolIdEscolhido`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_SimUsaOPercentDoServidorEDepoisVoltaAAplicarAutomaticamente`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_UmValorManualIgualAoSapContinuaProtegidoQuandoOSapMuda`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_UmaDecisaoAntigaNaoSubstituiUmaImportacaoMaisRecente`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Zppg_LeAPrimeiraQuantidadeOFornecedorEADataPurchase`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AvisosSap.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AvisosSap.cs :: DefinicoesPorModuloPageTests.Sap_AFichaMostraFornecedorECompraNaInformacaoOpcional_EOSimGravaAPeca`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AvisosSap.cs :: DefinicoesPorModuloPageTests.Sap_ONaoMantemAQuantidadeENaoVoltaAMostrarOMesmoAviso`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AvisosSap.cs :: DefinicoesPorModuloPageTests.Sap_UmaDecisaoSemAntiforgeryNaoGrava`
+- novo: `tests/ShellProof/ferramentas-avisos-sap.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/ferramentas-avisos-sap.test.cjs :: O × fecha só o aviso escolhido, sem decidir «Não» nem enviar o formulário`
+- novo: `tests/ShellProof/ferramentas-avisos-sap.test.cjs :: Os avisos carregados depois de uma troca parcial também se podem fechar`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `954605f2186cb165`
+
+## A-0426 · 2026-10-29 · ok-do-diogo
+
+Porquê: Lote .245: junta #339, #343 e #344; as entradas A-0408, A-0424 e A-0425 explicam os testes.
+Referência: lote .245
+Novos: 18 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_AMigracaoSoAcrescentaColunasOpcionais`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_DuasDecisoesDaMesmaFicha_SoUmaGrava`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_EditarOutrosFactosDaCmNaoApagaAQuantidadeAceite`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_NaoMantemQuantidadeEUsoManual_NaoRepeteMesmoValorEMostraNovoValor`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_SimGravaNaQuantidadeDoTipoCertoESoNoToolIdEscolhido`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_SimUsaOPercentDoServidorEDepoisVoltaAAplicarAutomaticamente`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_UmValorManualIgualAoSapContinuaProtegidoQuandoOSapMuda`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_UmaDecisaoAntigaNaoSubstituiUmaImportacaoMaisRecente`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Zppg_LeAPrimeiraQuantidadeOFornecedorEADataPurchase`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_DadosTecnicos_FicamNumDobravelFechadoPorOmissao`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AvisosSap.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AvisosSap.cs :: DefinicoesPorModuloPageTests.Sap_AFichaMostraFornecedorECompraNaInformacaoOpcional_EOSimGravaAPeca`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AvisosSap.cs :: DefinicoesPorModuloPageTests.Sap_ONaoMantemAQuantidadeENaoVoltaAMostrarOMesmoAviso`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AvisosSap.cs :: DefinicoesPorModuloPageTests.Sap_UmaDecisaoSemAntiforgeryNaoGrava`
+- novo: `tests/ShellProof/ferramentas-avisos-sap.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/ferramentas-avisos-sap.test.cjs :: O × fecha só o aviso escolhido, sem decidir «Não» nem enviar o formulário`
+- novo: `tests/ShellProof/ferramentas-avisos-sap.test.cjs :: Os avisos carregados depois de uma troca parcial também se podem fechar`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `58354ba1d7582bbb`
