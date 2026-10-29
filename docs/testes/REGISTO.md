@@ -4803,7 +4803,6 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | Teste | Garante | Estado | Nota |
 |---|---|---|---|
 | PostoSoRiTests.PeloPosto_ComOTempoDasDefinicoes_ASessaoDuraEsseTempo | O tempo do Posto vem das Definições | OK |  |
-| PostoSoRiTests.PeloPosto_EmUso_ASessaoContinua | Em uso a sessão do Posto continua | OK |  |
 | PostoSoRiTests.PeloPosto_SemUsoDurante3Minutos_ASessaoFecha | Sem uso 3 minutos a sessão do Posto fecha | OK |  |
 | PostoSoRiTests.PeloPosto_SoAReparacaoInterna_PeloLoginTodosOsModulos | Pelo Posto só vê a RI; pelo login vê tudo | OK | IPostoRi simulado; PIN real em PostgresMigrationIntegrationTests.PostoRi. |
 | PostoSoRiTests.SairDoPosto_VoltaAoPosto_PeloLoginNaoHaTempo | Sair do Posto volta ao Posto; pelo login não há limite | OK |  |
@@ -5576,7 +5575,6 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 
 | Teste | Garante | Estado | Correção |
 |---|---|---|---|
-| PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDaComparacao_AgrupaEsteControlo_ControloAnterior_EDiferenca_PorEstaOrdem | A tabela agrupa Este controlo, Controlo anterior e Diferença por esta ordem. | OK | DMO-491 |
 
 ### `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBCartao.cs`
 
@@ -5877,3 +5875,32 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_DiferencasFicamForaDaTroca_RegistarNaoVoltaAoTopo | As diferenças da produção anterior ficam fora da troca (registar não volta ao topo) | OK | A-0417 (DMO-672) |
 | tests/ShellProof/painel-gravou-sem-recarregar.test.cjs | Depois de gravar sem recarregar, o painel fecha sem aviso falso de alterações por guardar | OK | A-0417 (DMO-672) |
 | PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDaComparacao_AgrupaPorGrandeza_AtualAnteriorEDiferenca_ComAnteriorACinza | A tabela do Controlo anterior compara por grandeza, com o anterior a cinza | OK | A-0419 (DMO-672) |
+
+| JobOnPageTests.JobOnCriar_HandlersAjax_ContinuamAFuncionar | Lote .241: junta os testes novos do #327 (A-0395) e do #328 (A-0401) | OK | A-0402 |
+| JobOnPageTests.JobOnVer_HandlerProcurarProducao_EhRedirecionado | Lote .241: junta os testes novos do #327 (A-0395) e do #328 (A-0401) | OK | A-0402 |
+| JobOnPageTests.JobOnVer_HandlerToolCandidates_EhRedirecionado | Lote .241: junta os testes novos do #327 (A-0395) e do #328 (A-0401) | OK | A-0402 |
+| JobOnPageTests.JobOnVer_HandlerToolFacts_EhRedirecionado | Lote .241: junta os testes novos do #327 (A-0395) e do #328 (A-0401) | OK | A-0402 |
+| PostoFerramentasUtilizacaoTests.PeloPosto_FerramentasUtilizacao_EhRecusada_PeloLoginContinuaAAbrir | Lote .241: junta os testes novos do #327 (A-0395) e do #328 (A-0401) | OK | A-0402 |
+| DefinicoesNumSoSitioTests.SemSenhaDoSap_OsScriptsNaoSeDao | DMO-661: sem senha do SAP os scripts param logo e o Instalar recusa; com o SAP aberto a senha ainda se escreve (Diogo 29/10: «prendeu na pass», PC bloqueado) | OK | A-0403 |
+| SapScriptsVbsTests.SemSenha_OScriptParaLogo | DMO-661: sem senha do SAP os scripts param logo e o Instalar recusa; com o SAP aberto a senha ainda se escreve (Diogo 29/10: «prendeu na pass», PC bloqueado) | OK | A-0403 |
+| tests/ShellProof/jobon-folha-avisos-alerta.test.cjs | Teste novo: os avisos dos cartões da folha do Job On vão para a pilha dos alertas da app (DMO-666) | OK | A-0411 |
+| JobOnDiametrosSepararTests.DoisNumeros_VaiOSegundoParaATolVazia_EOGuardarPassa | Teste novo: diâmetros antigos com dois números separam-se em valor e Tol. e o Guardar passa (DMO-669) | OK | A-0414 |
+| JobOnDiametrosSepararTests.TolJaEscrita_FicaComoEsta | Teste novo: diâmetros antigos com dois números separam-se em valor e Tol. e o Guardar passa (DMO-669) | OK | A-0414 |
+| JobOnDiametrosSepararTests.UmNumero_NaoMuda | Teste novo: diâmetros antigos com dois números separam-se em valor e Tol. e o Guardar passa (DMO-669) | OK | A-0414 |
+| AuthB03B04UserAdminServiceTests.ResetUserAccessAsync_ApagaOPinDoPosto | AUTH-B03 (DMO-655): o reset de acesso apaga o PIN do Posto; o rollback do provider repõe o PIN apagado | OK | A-0404 |
+| AuthB03B04UserAdminServiceTests.ResetUserAccessAsync_OProviderRecusa_OPinDoPostoVoltaAFicar | AUTH-B03 (DMO-655): o reset de acesso apaga o PIN do Posto; o rollback do provider repõe o PIN apagado | OK | A-0404 |
+| AuthB03B04B05Tests.ComRequiresPasswordChange_AEntradaPeloPostoRecusaMesmoComOPinCerto | AUTH-B03 (DMO-655): o reset de acesso apaga o PIN do Posto; o rollback do provider repõe o PIN apagado | OK | A-0404 |
+| AuthB03B04B05Tests.MudarOPin_FechaAsSessoesDoPostoAbertasComOPinAnterior | AUTH-B03 (DMO-655): o reset de acesso apaga o PIN do Posto; o rollback do provider repõe o PIN apagado | OK | A-0404 |
+| AuthB03B04B05Tests.ResetDeAcesso_ApagaOPinDoPosto_OPinAntigoJaNaoEntra | AUTH-B03 (DMO-655): o reset de acesso apaga o PIN do Posto; o rollback do provider repõe o PIN apagado | OK | A-0404 |
+| AuthB03B04UserAdminServiceTests.SetUserStandByAsync_ArquivarEReativar_SobeAVersaoNasDuasVezes | AUTH-B04 (DMO-656): arquivar e reativar um utilizador sobem o SessionVersion nas duas mudanças, para uma cookie antiga não voltar a valer depois de reativar | OK | A-0405 |
+| AuthB03B04UserAdminServiceTests.SetUserStandByAsync_Arquivar_SobeAVersaoDaSessao | AUTH-B04 (DMO-656): arquivar e reativar um utilizador sobem o SessionVersion nas duas mudanças, para uma cookie antiga não voltar a valer depois de reativar | OK | A-0405 |
+| AuthB03B04UserAdminServiceTests.SetUserStandByAsync_SemMudarOEstado_NaoSobeAVersao | AUTH-B04 (DMO-656): arquivar e reativar um utilizador sobem o SessionVersion nas duas mudanças, para uma cookie antiga não voltar a valer depois de reativar | OK | A-0405 |
+| AuthB03B04B05Tests.ArquivarEReativar_ACookieAntigaContinuaRecusadaDepoisDeReativar | AUTH-B04 (DMO-656): arquivar e reativar um utilizador sobem o SessionVersion nas duas mudanças, para uma cookie antiga não voltar a valer depois de reativar | OK | A-0405 |
+| PostoSoRiTests.PeloPosto_ChamarAtivo_RenovaOLimitePorMaisNMinutos | AUTH-B05 (DMO-657): cookie próprio do Posto sem deslizar; o endpoint /posto/ativo (só a partir de uma ação real da pessoa) renova o limite, outros pedidos não renovam | OK | A-0406 |
+| PostoSoRiTests.PeloPosto_DentroDoLimite_OsPedidosContinuam | AUTH-B05 (DMO-657): cookie próprio do Posto sem deslizar; o endpoint /posto/ativo (só a partir de uma ação real da pessoa) renova o limite, outros pedidos não renovam | OK | A-0406 |
+| PostoSoRiTests.PeloPosto_PedidoQueNaoPassaPorAtivo_NaoRenova | AUTH-B05 (DMO-657): cookie próprio do Posto sem deslizar; o endpoint /posto/ativo (só a partir de uma ação real da pessoa) renova o limite, outros pedidos não renovam | OK | A-0406 |
+| SapScriptsVbsTests.SemCodigosAEspera_OUsoAcabaSemErro | DMO-664: sem ferramentas à espera o uso do SAP acaba sem erro (Diogo 29/10, «A leitura do SAP falhou») | OK | A-0409 |
+| DefinicoesPorModuloPageTests.AJanelaDoSap_EscondeAsPartesQueNaoEstaoEscolhidas | DMO-665: a janela Atualizar do SAP mostra só a parte escolhida (Diogo 29/10) | OK | A-0410 |
+| ArmazemMovimentosPaginaTests.Registo_VoltarFicaPorCimaDoTitulo_EAFabricaDoEmprestimoEUmaLista | DMO-667/A-0412 (Diogo 29/10): no Registo do Armazém, «Voltar» por cima do título e a Fábrica do Empréstimo sempre em lista (Definições). 1 teste novo; nenhum antigo mudou | OK | A-0412 |
+| JobOnPageTests.Folha_PainelDasLinhas_SoOQueEntraNosProximosCincoDias | Teste novo: o painel das linhas da Folha só mostra o que entra nos próximos 5 dias (DMO-671) | OK | A-0416 |
+| tests/ShellProof/painel-gravou-sem-recarregar.test.cjs | Painel do Peso sem aviso falso de alterações por guardar (DMO-672) | OK | A-0418 |
