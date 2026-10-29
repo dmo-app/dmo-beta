@@ -23,6 +23,7 @@ Option Explicit
 Const SAP_WAIT_SECONDS = 300
 Const SCREEN_WAIT_SECONDS = 30
 Const TITULO = "DMO - uso no SAP"
+Const CENTRO = "MG"
 
 ' Diogo, 28/10/2026: % uso em todas as ferramentas que existem no DMO.
 ' Faz uma só procura na ZPPG com «*» (todos os moldes do SAP); o DMO, no
@@ -183,6 +184,7 @@ For i = 0 To total - 1
     Err.Clear
     Set searchField = session.findById("wnd[0]/usr/ctxtCOD_EQ-LOW")
     searchField.Text = codigo
+    SoCentroMg session
     session.findById("wnd[0]").sendVKey 8
 
     If Err.Number <> 0 Then
@@ -371,6 +373,19 @@ Function MensagemSap(ByVal sapSession)
     If Len(texto) > 0 Then MensagemSap = " (SAP: " & texto & ")"
     Registo "procura sem lista; SAP: " & texto & "; ecrã: " & EcraSap(sapSession)
 End Function
+
+' Só a plant MG (Diogo, 29/10/2026: «consultar apenas MG»): põe MG no campo
+' da plant/centro do ecrã da ZPPG, seja qual for o nome dele.
+Sub SoCentroMg(ByVal sapSession)
+    Dim c, id
+    On Error Resume Next
+    For Each c In sapSession.findById("wnd[0]/usr").Children
+        id = UCase(c.Id)
+        If InStr(id, "-LOW") > 0 And (InStr(id, "WERK") > 0 Or InStr(id, "PLANT") > 0 Or InStr(id, "CENTRO") > 0) Then c.Text = CENTRO
+    Next
+    Err.Clear
+    On Error GoTo 0
+End Sub
 
 ' O título e o que há no ecrã do SAP, para o registo (dmo-sap.log).
 Function EcraSap(ByVal sapSession)
