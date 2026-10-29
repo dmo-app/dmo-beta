@@ -1,5 +1,5 @@
 {
-  "selo": "526996f9f225191c",
+  "selo": "1bf72afdf36220cb",
   "unidades": {
     "scripts/ci/ci-local.sh": "b85e4195bb3ac186",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2730,6 +2730,11 @@
     "tests/DMO.Alpha.Web.Tests/JobOn/RascunhoEEnterNaProcuraTests.cs :: RascunhoEEnterNaProcuraTests.ReparacaoProgramada_OEnterNaReferenciaENoLoteSubmeteAProcura_ENaoOAdicionar": "4011093fede3a4ce",
     "tests/DMO.Alpha.Web.Tests/JobOnCabecalhoCssTests.cs :: (resto do ficheiro)": "26a7aa573a43dee7",
     "tests/DMO.Alpha.Web.Tests/JobOnCabecalhoCssTests.cs :: JobOnCabecalhoCssTests.CabecalhoDoJobOn_ReferenciaEProducaoNaoSeTocam": "2d62bfb54843bc88",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: (resto do ficheiro)": "a6ff9b4f270fd908",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: JobOnPageTests.JobOnCriar_HandlersAjax_ContinuamAFuncionar": "a949a7c0e4154415",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: JobOnPageTests.JobOnVer_HandlerProcurarProducao_EhRedirecionado": "73b58bd5555bf420",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: JobOnPageTests.JobOnVer_HandlerToolCandidates_EhRedirecionado": "82c864efad2d9ac9",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: JobOnPageTests.JobOnVer_HandlerToolFacts_EhRedirecionado": "a50a808b50342595",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CadenciaSap.cs :: (resto do ficheiro)": "46ed00d38c642192",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CadenciaSap.cs :: JobOnPageTests.Folha_MostraACadenciaDoSap_DaOrdemComMaisDias": "3d5043c58953093c",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CalMm.cs :: (resto do ficheiro)": "6ba5b0c2dcbdac75",
@@ -3031,6 +3036,8 @@
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPostgresTests.cs :: (resto do ficheiro)": "eb7797ac6343a080",
     "tests/DMO.Alpha.Web.Tests/PlaneamentoSumarioPostgresTests.cs :: PlaneamentoSumarioPostgresTests.TodosOsTipos_NoPostgres": "c010c12fabe9ce06",
     "tests/DMO.Alpha.Web.Tests/PosicaoNoHtml.cs :: (resto do ficheiro)": "4dc7b7e9532ec166",
+    "tests/DMO.Alpha.Web.Tests/PostoFerramentasUtilizacaoTests.cs :: (resto do ficheiro)": "5372830ea494902c",
+    "tests/DMO.Alpha.Web.Tests/PostoFerramentasUtilizacaoTests.cs :: PostoFerramentasUtilizacaoTests.PeloPosto_FerramentasUtilizacao_EhRecusada_PeloLoginContinuaAAbrir": "f931519314ac9cb9",
     "tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: (resto do ficheiro)": "15811805346b9e47",
     "tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_ComOTempoDasDefinicoes_ASessaoDuraEsseTempo": "94d8eee4d9614947",
     "tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_EmUso_ASessaoContinua": "34a989920192d33d",
