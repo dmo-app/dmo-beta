@@ -25,9 +25,12 @@ public sealed class BqExcelBoquilhas(DmoDbContext db, IBqToolHistoryQuery histor
         // Tool e a soma muda, sem depender de um movimento novo.
         var bqTools = db.Tools.AsNoTracking().Where(t => t.Type == ToolType.Bq);
         var totalBq = await bqTools.CountAsync(cancellationToken);
-        var versaoBq = totalBq == 0
-            ? 0L
-            : await bqTools.SumAsync(t => (long)EF.Property<uint>(t, DmoDbContext.RowVersion), cancellationToken);
+        // Somar no SQL exigiria um CAST de xid para bigint, que o PostgreSQL
+        // não tem; lê-se o xmin tal como está e soma-se em memória.
+        var versoesBq = totalBq == 0
+            ? []
+            : await bqTools.Select(t => EF.Property<uint>(t, DmoDbContext.RowVersion)).ToListAsync(cancellationToken);
+        var versaoBq = versoesBq.Sum(v => (long)v);
         return string.Create(CultureInfo.InvariantCulture, $"{total}.{maiorId}.{corrigido?.Ticks ?? 0}.{totalBq}.{versaoBq}");
     }
 
