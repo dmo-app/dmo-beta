@@ -5717,3 +5717,25 @@ Novos: 0 · mudaram: 2 · saíram: 0
 - mudou: `tests/visual/revisao_aprovar_browser.py`
 
 Selo depois: `3cd049915e99b219`
+
+## A-0427 · 2026-10-29 · teste-novo
+
+Porquê: 2 testes novos: «Controlo atual · n.º da produção» na tabela do Controlo anterior e a lista de máquinas só com as da referência
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraPX2M5rmVJUZ2kYnWF2rSmJ
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDoControloAnterior_ChamaControloAtualComONumeroDaProducao`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.NovoPesoComJobOn_ASelecaoDeMaquina_SoMostraAsDaReferencia`
+
+Selo depois: `7bf1e745f18835d9`
+
+## A-0431 · 2026-10-29 · teste-novo
+
+Porquê: Lote .246: junta #347 e #348; os 2 testes novos do Peso estão explicados em A-0427.
+Referência: lote .246
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDoControloAnterior_ChamaControloAtualComONumeroDaProducao`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.NovoPesoComJobOn_ASelecaoDeMaquina_SoMostraAsDaReferencia`
+
+Selo depois: `e25ab73ba7eeb751`
