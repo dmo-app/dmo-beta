@@ -5433,3 +5433,95 @@ Novos: 4 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnDiametrosSepararTests.cs :: JobOnDiametrosSepararTests.UmNumero_NaoMuda`
 
 Selo depois: `4308a5058f2f4495`
+
+## A-0404 · 2026-10-29 · contagem-lista
+
+Porquê: AUTH-B03 (DMO-655): o reset de acesso apaga o PIN do Posto; o rollback do provider repõe o PIN apagado.
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.ResetUserAccessAsync_ApagaOPinDoPosto`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.ResetUserAccessAsync_OProviderRecusa_OPinDoPostoVoltaAFicar`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: AuthB03B04B05Tests.ComRequiresPasswordChange_AEntradaPeloPostoRecusaMesmoComOPinCerto`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: AuthB03B04B05Tests.MudarOPin_FechaAsSessoesDoPostoAbertasComOPinAnterior`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: AuthB03B04B05Tests.ResetDeAcesso_ApagaOPinDoPosto_OPinAntigoJaNaoEntra`
+
+## A-0405 · 2026-10-29 · contagem-lista
+
+Porquê: AUTH-B04 (DMO-656): arquivar e reativar um utilizador sobem o SessionVersion nas duas mudanças, para uma cookie antiga não voltar a valer depois de reativar.
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.SetUserStandByAsync_ArquivarEReativar_SobeAVersaoNasDuasVezes`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.SetUserStandByAsync_Arquivar_SobeAVersaoDaSessao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.SetUserStandByAsync_SemMudarOEstado_NaoSobeAVersao`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: AuthB03B04B05Tests.ArquivarEReativar_ACookieAntigaContinuaRecusadaDepoisDeReativar`
+
+## A-0406 · 2026-10-29 · contagem-lista
+
+Porquê: AUTH-B05 (DMO-657): cookie próprio do Posto sem deslizar; o endpoint /posto/ativo (só a partir de uma ação real da pessoa) renova o limite, outros pedidos não renovam.
+Novos: 3 · mudaram: 1 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_ChamarAtivo_RenovaOLimitePorMaisNMinutos`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_DentroDoLimite_OsPedidosContinuam`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_PedidoQueNaoPassaPorAtivo_NaoRenova`
+- mudou: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: (resto do ficheiro)`
+- saiu: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_EmUso_ASessaoContinua`
+
+Selo depois: `1868af282879fe3a`
+
+## A-0409 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-664: sem ferramentas à espera o uso do SAP acaba sem erro (Diogo 29/10, «A leitura do SAP falhou»)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraHYrksKjJRFizcpFcHB7tKz
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.SemCodigosAEspera_OUsoAcabaSemErro`
+
+Selo depois: `4a55af040cab0651`
+
+## A-0410 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-665: a janela Atualizar do SAP mostra só a parte escolhida (Diogo 29/10)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraCdENbGEZaUsyR5Q2wb938B
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.AJanelaDoSap_EscondeAsPartesQueNaoEstaoEscolhidas`
+
+Selo depois: `b07ddb963368e9dd`
+
+## A-0412 · 2026-10-29 · teste-novo
+
+Porquê: DMO-667/A-0412 (Diogo 29/10): no Registo do Armazém, «Voltar» por cima do título e a Fábrica do Empréstimo sempre em lista (Definições). 1 teste novo; nenhum antigo mudou.
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Registo_VoltarFicaPorCimaDoTitulo_EAFabricaDoEmprestimoEUmaLista`
+
+Selo depois: `55fad2475f50042a`
+
+
+## A-0415 · 2026-10-29 · ok-do-diogo
+
+Porquê: Lote .243: junta #330, #331, #334, #335; as entradas A-0404..A-0412 já explicam os testes (o PeloPosto_EmUso_ASessaoContinua saiu em A-0406).
+Referência: lote .243
+Novos: 17 · mudaram: 1 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.ResetUserAccessAsync_ApagaOPinDoPosto`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.ResetUserAccessAsync_OProviderRecusa_OPinDoPostoVoltaAFicar`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.SetUserStandByAsync_ArquivarEReativar_SobeAVersaoNasDuasVezes`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.SetUserStandByAsync_Arquivar_SobeAVersaoDaSessao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.SetUserStandByAsync_SemMudarOEstado_NaoSobeAVersao`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Registo_VoltarFicaPorCimaDoTitulo_EAFabricaDoEmprestimoEUmaLista`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: AuthB03B04B05Tests.ArquivarEReativar_ACookieAntigaContinuaRecusadaDepoisDeReativar`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: AuthB03B04B05Tests.ComRequiresPasswordChange_AEntradaPeloPostoRecusaMesmoComOPinCerto`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: AuthB03B04B05Tests.MudarOPin_FechaAsSessoesDoPostoAbertasComOPinAnterior`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: AuthB03B04B05Tests.ResetDeAcesso_ApagaOPinDoPosto_OPinAntigoJaNaoEntra`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.AJanelaDoSap_EscondeAsPartesQueNaoEstaoEscolhidas`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_ChamarAtivo_RenovaOLimitePorMaisNMinutos`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_DentroDoLimite_OsPedidosContinuam`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_PedidoQueNaoPassaPorAtivo_NaoRenova`
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.SemCodigosAEspera_OUsoAcabaSemErro`
+- mudou: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: (resto do ficheiro)`
+- saiu: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_EmUso_ASessaoContinua`
+
+Selo depois: `c45155b3dff03ab1`
