@@ -5497,31 +5497,23 @@ Novos: 1 · mudaram: 0 · saíram: 0
 
 Selo depois: `55fad2475f50042a`
 
+## A-0416 · 2026-10-29 · teste-novo
 
-## A-0415 · 2026-10-29 · ok-do-diogo
+Porquê: Teste novo: o painel das linhas da Folha só mostra o que entra nos próximos 5 dias (DMO-671).
+Novos: 2 · mudaram: 0 · saíram: 0
 
-Porquê: Lote .243: junta #330, #331, #334, #335; as entradas A-0404..A-0412 já explicam os testes (o PeloPosto_EmUso_ASessaoContinua saiu em A-0406).
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.PainelCincoDias.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.PainelCincoDias.cs :: JobOnPageTests.Folha_PainelDasLinhas_SoOQueEntraNosProximosCincoDias`
+
+Selo depois: `cc3bd3e5d96c86c2`
+
+## A-0417 · 2026-10-29 · ok-do-diogo
+
+Porquê: Lote .243: junta #330, #331, #334, #335; as entradas A-0404..A-0416 explicam os testes (PeloPosto_EmUso_ASessaoContinua saiu em A-0406).
 Referência: lote .243
-Novos: 17 · mudaram: 1 · saíram: 1
+Novos: 2 · mudaram: 0 · saíram: 0
 
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.ResetUserAccessAsync_ApagaOPinDoPosto`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.ResetUserAccessAsync_OProviderRecusa_OPinDoPostoVoltaAFicar`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.SetUserStandByAsync_ArquivarEReativar_SobeAVersaoNasDuasVezes`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.SetUserStandByAsync_Arquivar_SobeAVersaoDaSessao`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.SetUserStandByAsync_SemMudarOEstado_NaoSobeAVersao`
-- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Registo_VoltarFicaPorCimaDoTitulo_EAFabricaDoEmprestimoEUmaLista`
-- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: AuthB03B04B05Tests.ArquivarEReativar_ACookieAntigaContinuaRecusadaDepoisDeReativar`
-- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: AuthB03B04B05Tests.ComRequiresPasswordChange_AEntradaPeloPostoRecusaMesmoComOPinCerto`
-- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: AuthB03B04B05Tests.MudarOPin_FechaAsSessoesDoPostoAbertasComOPinAnterior`
-- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: AuthB03B04B05Tests.ResetDeAcesso_ApagaOPinDoPosto_OPinAntigoJaNaoEntra`
-- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.AJanelaDoSap_EscondeAsPartesQueNaoEstaoEscolhidas`
-- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_ChamarAtivo_RenovaOLimitePorMaisNMinutos`
-- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_DentroDoLimite_OsPedidosContinuam`
-- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_PedidoQueNaoPassaPorAtivo_NaoRenova`
-- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.SemCodigosAEspera_OUsoAcabaSemErro`
-- mudou: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: (resto do ficheiro)`
-- saiu: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_EmUso_ASessaoContinua`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.PainelCincoDias.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.PainelCincoDias.cs :: JobOnPageTests.Folha_PainelDasLinhas_SoOQueEntraNosProximosCincoDias`
 
-Selo depois: `c45155b3dff03ab1`
+Selo depois: `4453e92ada10709c`

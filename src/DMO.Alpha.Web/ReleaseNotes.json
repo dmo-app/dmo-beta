@@ -622,7 +622,8 @@
     { "id": "DMO-667", "module": "Armazém", "description": "(A-0412): no Registo, «Voltar» fica por cima do título da página; o Destino já não corta «Reparação»/«Empréstimo»; a Fábrica do Empréstimo é sempre uma lista das fábricas registadas nas Definições (sem fábricas, avisa e leva às Definições); os últimos movimentos da ferramenta deslizam em duas linhas e deixam mais linhas às últimas entradas e saídas." },
     { "id": "DMO-655", "module": "Utilizadores", "description": "0.3.0-beta.241 (A-0404): Repor o acesso de um utilizador agora revoga também o PIN do Posto e as sessões antigas." },
     { "id": "DMO-656", "module": "Utilizadores", "description": "0.3.0-beta.241 (A-0405): Arquivar e depois reativar um utilizador exige sempre um novo login — já não deixa entrar com uma sessão antiga." },
-    { "id": "DMO-657", "module": "Reparação Interna", "description": "0.3.0-beta.241 (A-0406): A sessão do Posto fecha mesmo aos 3 minutos sem uso, em vez de ser renovada pela sessão geral de 1 hora; cada ação real da pessoa (não pedidos automáticos) continua a renovar o limite." }
+    { "id": "DMO-657", "module": "Reparação Interna", "description": "0.3.0-beta.241 (A-0406): A sessão do Posto fecha mesmo aos 3 minutos sem uso, em vez de ser renovada pela sessão geral de 1 hora; cada ação real da pessoa (não pedidos automáticos) continua a renovar o limite." },
+    { "id": "DMO-671", "module": "Job On", "description": "0.3.0-beta.243 (A-0416): na folha do Job On o painel das linhas mostra só as produções que entram nos próximos 5 dias." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
