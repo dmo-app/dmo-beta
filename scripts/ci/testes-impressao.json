@@ -1,5 +1,5 @@
 {
-  "selo": "e25ab73ba7eeb751",
+  "selo": "cb397e242565943f",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -3212,6 +3212,7 @@
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: (resto do ficheiro)": "d38fd88e828f8294",
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OScriptDaZppg_ProcuraSoNaPlantMg": "ef9aa9ed84f29785",
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OsScriptsDoSap_NaoUsamOLikeDoVba": "b6343316fdb3f4ef",
+    "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.PorData_TambemLeAPercentagemDeUso": "ca524094dc572b9e",
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.SemCaixaDaSenha_NaoEscrevePeloTeclado": "e03cad78df74030c",
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.SemCodigosAEspera_OUsoAcabaSemErro": "dc7a3895f0cf9389",
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.SemSenha_OScriptParaLogo": "950eea171c21e580",

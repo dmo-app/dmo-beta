@@ -5739,3 +5739,13 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.NovoPesoComJobOn_ASelecaoDeMaquina_SoMostraAsDaReferencia`
 
 Selo depois: `e25ab73ba7eeb751`
+
+## A-0434 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-681: o Atualizar do SAP Por data também lê a % uso de todas (Diogo 29/10, «não tenho de andar a carregar várias vezes»)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraWn7GmLYrUFJPvpDpKaR7ee
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.PorData_TambemLeAPercentagemDeUso`
+
+Selo depois: `cb397e242565943f`
