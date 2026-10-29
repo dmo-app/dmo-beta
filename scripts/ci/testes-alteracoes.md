@@ -5616,7 +5616,7 @@ Novos: 1 · mudaram: 0 · saíram: 0
 
 Selo depois: `bffe122afda559ff`
 
-## A-0426 · 2026-10-29 · teste-novo
+## A-0427 · 2026-10-29 · teste-novo
 
 Porquê: 2 testes novos: «Controlo atual · n.º da produção» na tabela do Controlo anterior e a lista de máquinas só com as da referência
 Referência: cmsg_01K75FTs9bQnbhhH7qttpgraPX2M5rmVJUZ2kYnWF2rSmJ
