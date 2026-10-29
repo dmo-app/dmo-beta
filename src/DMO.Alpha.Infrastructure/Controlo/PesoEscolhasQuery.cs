@@ -28,6 +28,17 @@ public sealed class PesoEscolhasQuery(DmoDbContext db) : IPesoEscolhasQuery
             .Select(m => m.Code)
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<string>> CodigosDeMaquinasDaReferenciaAsync(string referencia, CancellationToken cancellationToken = default)
+    {
+        var daReferencia = await db.ToolMachineLinks.AsNoTracking()
+            .Where(l => db.Tools.Any(t => t.ToolId == l.ToolId && (t.Reference == referencia || t.AssociatedMfReference == referencia)))
+            .Join(db.Machines, l => l.MachineId, m => m.Id, (l, m) => m.Code)
+            .Distinct()
+            .OrderBy(code => code)
+            .ToListAsync(cancellationToken);
+        return daReferencia.Count > 0 ? daReferencia : await CodigosDeMaquinasAsync(cancellationToken);
+    }
+
     public Task<bool> ComparacaoGuardadaExisteAsync(
         int comparacaoId,
         int pesoInicialId,

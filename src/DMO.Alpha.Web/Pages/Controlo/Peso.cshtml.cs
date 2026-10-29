@@ -1434,7 +1434,9 @@ public sealed class PesoModel : PageModel
         {
             JobOnReferencia = Sanitize(referencia);
             JobOnMaquina = Sanitize(maquina);
-            Maquinas = await _escolhas.CodigosDeMaquinasAsync(HttpContext.RequestAborted);
+            Maquinas = JobOnReferencia is { } referenciaDasMaquinas
+                ? await _escolhas.CodigosDeMaquinasDaReferenciaAsync(referenciaDasMaquinas, HttpContext.RequestAborted)
+                : await _escolhas.CodigosDeMaquinasAsync(HttpContext.RequestAborted);
             if (JobOnReferencia is { } referenciaProcurada)
             {
                 ProducoesJobOn = await _jobOnList.ListByReferenceAsync(

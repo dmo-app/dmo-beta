@@ -357,3 +357,4 @@ html body main.peso-page section.peso-card[data-peso-live]>.peso-live-region{mar
 .peso-page details.peso-tecnico{margin-top:10px}
 .peso-page details.peso-tecnico>summary.peso-tecnico-titulo{list-style:none;cursor:pointer;font-weight:700;font-size:14px;display:flex;align-items:center;min-height:var(--dmo-control-height,34px)}
 .peso-page details.peso-tecnico>summary.peso-tecnico-titulo::-webkit-details-marker{display:none}
+.peso-page [data-peso-comparacao-tabela]{table-layout:fixed;width:100%}

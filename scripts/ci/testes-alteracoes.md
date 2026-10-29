@@ -5615,3 +5615,14 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: PesoCapSupportPageTests.ProductionMode_DadosTecnicos_FicamNumDobravelFechadoPorOmissao`
 
 Selo depois: `bffe122afda559ff`
+
+## A-0426 · 2026-10-29 · teste-novo
+
+Porquê: 2 testes novos: «Controlo atual · n.º da produção» na tabela do Controlo anterior e a lista de máquinas só com as da referência
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraPX2M5rmVJUZ2kYnWF2rSmJ
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDoControloAnterior_ChamaControloAtualComONumeroDaProducao`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.cs :: PesoFolhaProducaoAnteriorPageTests.NovoPesoComJobOn_ASelecaoDeMaquina_SoMostraAsDaReferencia`
+
+Selo depois: `62908d3a735f741a`
