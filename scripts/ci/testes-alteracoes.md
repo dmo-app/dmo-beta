@@ -4929,3 +4929,97 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelMedio_AbreMaisLargo`
 
 Selo depois: `c07be0113f2cf44c`
+
+## A-0340 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-601: o Histórico de produções da ficha deixa de ter o quadro «Referência: … (n)»; o teste garante que não aparece
+Referência: Diogo cmsg_01K75FTs9bQnbhhH7qttpgraKAikKZHUHqxozwSr6bXXZT, sim cmsg_01K75FTs9bQnbhhH7qttpgraBdSHRV6GZHaqDPaN7n3ZfT
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoComArtigo.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraOArtigoDeCadaProducao`
+
+Selo depois: `2ea04e4a0c3694fb`
+
+## A-0348 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-608: o Geral da ficha numa só linha (Linhas na vertical); DMO-609: o Histórico de produções sem Δ garrafas e com os dias à frente das datas
+Referência: Diogo cmsg_01K75FTs9bQnbhhH7qttpgraP8k4Sq3SFm2yW2yJiMKhi4, cmsg_01K75FTs9bQnbhhH7qttpgraTm2zMmYCwLg6k4ZBrdQp33, sim cmsg_01K75FTs9bQnbhhH7qttpgraMY9B9gYQvikPov9ExmSecF
+Novos: 4 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoSoBruto.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoSoBruto.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_SoGarrafasEmBruto_EOsDiasAFrenteDasDatas`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.GeralNumaLinha.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.GeralNumaLinha.cs :: FerramentasPagesTests.Ficha_Geral_LinhasNaVertical_EUtilizacaoNaMesmaLinha`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_DaODeltaDeGarrafasEAJanelaDoPeso`
+- mudou: `tests/visual/cobertura_a2_browser.py`
+
+Selo depois: `0c2e5405174ec261`
+
+## A-0341 · 2026-10-29 · teste-novo
+
+Porquê: Δ anterior do peso por produção salta as anteriores sem peso (DMO-602)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraUgL2ipM5RzYX6UEZx6Kunt
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PesoPorProducao.cs :: DefinicoesPorModuloPageTests.OPesoDoHistorico_DeltaSaltaAsProducoesAnterioresSemPeso`
+
+Selo depois: `199918b21337a0b9`
+
+## A-0343 · 2026-10-29 · contagem-lista
+
+Porquê: Lote 0 da auditoria .230 (Codex, SAP-01..03): logger no FerramentasFabricoSap (apaga ordens que saíram da janela do relatório, avisa colisões), testes novos para isso, teste novo do «Atualizar do SAP» quando o diário diz «erro», e a ajuda do SAP já não diz que nenhuma senha fica nos ficheiros.
+Novos: 5 · mudaram: 12 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.DuasLinhasComAMesmaChave_FicamColapsadasNumaSoSemApagarNada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.UmaOrdemForaDaJanelaDoRelatorioNovo_NaoEApagada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.UmaOrdemQueDeixaDeVirNoRelatorio_EApagadaDaJanelaDoRelatorio`
+- novo: `tests/ShellProof/ferramentas-sap_feito-com-falha.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/ferramentas-sap_feito-com-falha.test.cjs :: Atualizar do SAP: quando o diário escreve «erro», o cartão mostra falha e não «feito»`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.FabricoSap.cs :: PostgresMigrationIntegrationTests.FabricoSap_LerDuasVezesUmaSoLinha_NoPostgreSql`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: HistoriaCenario.HistoriaDeUmaProducao_TodosOsModulosVeemOMesmo`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoricoLote.cs :: PostgresMigrationIntegrationTests.HistoricoFerramentas_ProducoesEmLote_IguaisAUmaAUma_ComConsultasFixas`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.SapFabricoCadencia.cs :: PostgresMigrationIntegrationTests.SapFabricoCadencia_GravaSoACadencia_NoPostgreSql`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaPorProducaoTests.cs :: FabricoSapCadenciaPorProducaoTests.CadaProducaoDaFerramenta_TemASuaCadencia`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaPorProducaoTests.cs :: FabricoSapCadenciaPorProducaoTests.OJobOnSemCadencia_FicaComADaProducaoAnteriorDaMesmaReferencia`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaTests.cs :: FabricoSapCadenciaTests.Importar_GravaACadencia_ESemElaNaoApagaAJaGravada`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AjudaSap.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_AAjudaDoSapAbreAPaginaDeAjuda`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `4cba7644ecb57f38`
+
+## A-0349 · 2026-10-29 · ok-do-diogo
+
+Porquê: Lote .236: junta as impressões já aprovadas em A-0340/A-0348 (#302 DMO-601/608/609), A-0341 (#304 DMO-602), A-0343 (#305 DMO-605/606/607) e o #301 (DMO-603, sem testes)
+Referência: A-0340; A-0341; A-0343; A-0348
+Novos: 10 · mudaram: 15 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.DuasLinhasComAMesmaChave_FicamColapsadasNumaSoSemApagarNada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.UmaOrdemForaDaJanelaDoRelatorioNovo_NaoEApagada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.UmaOrdemQueDeixaDeVirNoRelatorio_EApagadaDaJanelaDoRelatorio`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoSoBruto.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoSoBruto.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_SoGarrafasEmBruto_EOsDiasAFrenteDasDatas`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PesoPorProducao.cs :: DefinicoesPorModuloPageTests.OPesoDoHistorico_DeltaSaltaAsProducoesAnterioresSemPeso`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.GeralNumaLinha.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.GeralNumaLinha.cs :: FerramentasPagesTests.Ficha_Geral_LinhasNaVertical_EUtilizacaoNaMesmaLinha`
+- novo: `tests/ShellProof/ferramentas-sap_feito-com-falha.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/ferramentas-sap_feito-com-falha.test.cjs :: Atualizar do SAP: quando o diário escreve «erro», o cartão mostra falha e não «feito»`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.FabricoSap.cs :: PostgresMigrationIntegrationTests.FabricoSap_LerDuasVezesUmaSoLinha_NoPostgreSql`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: HistoriaCenario.HistoriaDeUmaProducao_TodosOsModulosVeemOMesmo`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoricoLote.cs :: PostgresMigrationIntegrationTests.HistoricoFerramentas_ProducoesEmLote_IguaisAUmaAUma_ComConsultasFixas`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.SapFabricoCadencia.cs :: PostgresMigrationIntegrationTests.SapFabricoCadencia_GravaSoACadencia_NoPostgreSql`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaPorProducaoTests.cs :: FabricoSapCadenciaPorProducaoTests.CadaProducaoDaFerramenta_TemASuaCadencia`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaPorProducaoTests.cs :: FabricoSapCadenciaPorProducaoTests.OJobOnSemCadencia_FicaComADaProducaoAnteriorDaMesmaReferencia`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaTests.cs :: FabricoSapCadenciaTests.Importar_GravaACadencia_ESemElaNaoApagaAJaGravada`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AjudaSap.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_AAjudaDoSapAbreAPaginaDeAjuda`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_DaODeltaDeGarrafasEAJanelaDoPeso`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoComArtigo.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraOArtigoDeCadaProducao`
+- mudou: `tests/ShellProof/package.json`
+- mudou: `tests/visual/cobertura_a2_browser.py`
+
+Selo depois: `f9b66e35025b9b62`
