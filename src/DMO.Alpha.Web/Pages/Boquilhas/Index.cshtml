@@ -784,6 +784,10 @@
               }
               @if (Model.ShowMatrix || Model.HistorySearchApplied)
               {
+                @if (Model.FilterSemBq is { } semBq)
+                {
+                  <span class="bq-history-count" role="alert" data-dmo-sem-bq>@semBq</span>
+                }
                 @if (Model.ListLimitWarning is { } limitWarning)
                 {
                   @* Só filtros, sem período: os mais recentes, com a explicação na dica. *@
