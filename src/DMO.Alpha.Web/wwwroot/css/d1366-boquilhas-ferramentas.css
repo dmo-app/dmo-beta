@@ -524,5 +524,5 @@ html body main.ferr-page #ferr-create-form>.ferr-create-tech>summary:is(:hover,:
 
 /* O Registo do dia com a mesma altura com e sem dia escolhido (DMO-596, Diogo 29/10/2026: «as linhas mexem quando mudo o dia»). */
 @media (min-width:1100px){
-  html:root body .beta-bq-layout section#historico #bqHistDia:not(#_){height:152px;max-height:152px;box-sizing:border-box;align-content:start}
+  html:root body .beta-bq-layout section#historico #bqHistDia:not(#_){height:108px;max-height:108px;box-sizing:border-box;align-content:start}
 }
