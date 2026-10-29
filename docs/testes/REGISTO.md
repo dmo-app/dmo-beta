@@ -5945,3 +5945,4 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDoControloAnterior_ChamaControloAtualComONumeroDaProducao | Teste novo: a coluna «Controlo atual · n.º da produção» (DMO-676, Diogo 29/10) | OK | A-0427 |
 | PesoFolhaProducaoAnteriorPageTests.NovoPesoComJobOn_ASelecaoDeMaquina_SoMostraAsDaReferencia | Teste novo: o Novo Peso com Job On só lista as máquinas da referência (DMO-676, Diogo 29/10) | OK | A-0427 |
 | `O número do botão «Linhas» fica num círculo com contorno, centrado com o texto` | Na folha do Job On, o número do botão «Linhas» aparece num círculo visível e alinhado ao centro com o texto. | OK | A-0433 |
+| PesoPdfGeneratorCoberturaBTests.ProducaoAnterior_ComMediaEModa_OsCartoesDizemMediaEModa_EAModaMostraOsDiasSemDiferenca | Teste novo: o PDF do Peso diz «Média» e «Moda» nos cartões e a moda mostra os dias, sem diferença (DMO-682, Diogo 29/10) | OK | A-0435 |

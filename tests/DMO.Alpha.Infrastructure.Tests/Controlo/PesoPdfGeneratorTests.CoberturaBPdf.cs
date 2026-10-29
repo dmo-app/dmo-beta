@@ -41,6 +41,21 @@ public sealed class PesoPdfGeneratorCoberturaBTests
     }
 
     [Fact]
+    public void ProducaoAnterior_ComMediaEModa_OsCartoesDizemMediaEModa_EAModaMostraOsDiasSemDiferenca()
+    {
+        var anterior = new PesoProducaoAnteriorReadModel(7, "1075", "202601", "B2", new DateOnly(2026, 8, 1), new DateOnly(2026, 8, 19), null);
+        var text = PdfText.Of(new PesoPdfGenerator().GenerateBytes(
+            Entrada(anterior, new PesoSapResumo(MediaGramas: 140.00m, ModaGramas: 138.50m, Dias: 18, Ordens: 3, ModaDias: 12))));
+
+        Assert.Contains("Produção anterior · 202601 · Média", text);
+        Assert.Contains("Produção anterior · 202601 · Moda", text);
+        Assert.Contains("12 de 18 dias", text);
+        // Só a média tem diferença: 142.41 - 140.00 = +2.41 g; a da moda (+3.91 g) não aparece.
+        Assert.Contains("+2.41 g", text);
+        Assert.DoesNotContain("+3.91 g", text);
+    }
+
+    [Fact]
     public void ProducaoAnterior_SemMediaNemModa_UsaOPesoGuardado_ESemDizerMedia()
     {
         var anterior = new PesoProducaoAnteriorReadModel(7, "1075", "202601", "B2", null, null, 140.5m);

@@ -5770,3 +5770,13 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/ShellProof/jobon-folha-linhas-contagem.test.cjs :: O número do botão «Linhas» fica num círculo com contorno, centrado com o texto`
 
 Selo depois: `549fc74ecc34e53f`
+
+## A-0435 · 2026-10-29 · teste-novo
+
+Porquê: Teste novo: no PDF do Peso os cartões da produção anterior dizem Média e Moda e a moda mostra os dias, sem diferença
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraVWrMyXjaN86X1eqUqaxfhd
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoPdfGeneratorTests.CoberturaBPdf.cs :: PesoPdfGeneratorCoberturaBTests.ProducaoAnterior_ComMediaEModa_OsCartoesDizemMediaEModa_EAModaMostraOsDiasSemDiferenca`
+
+Selo depois: `7cffc9e0a88f482f`
