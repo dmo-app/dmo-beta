@@ -576,7 +576,8 @@
     { "id": "DMO-643", "module": "Geral", "description": "(A-0383): o link da «% uso» tem em todas as páginas a cor da paleta e nenhum sublinhado (só a cor muda no rato por cima), em vez do azul e sublinhado do browser." },
     { "id": "DMO-611", "module": "Posto", "description": "0.3.0-beta.235 (A-0351): o travão do Posto (PINs errados) já não confia no IP que vinha do X-Forwarded-For, que qualquer um muda a cada pedido; usa o IP verdadeiro da ligação, guardado antes desse cabeçalho o substituir (auditoria do Codex de 29/10/2026, AUTH-B02)." },
     { "id": "DMO-612", "module": "Job On", "description": "0.3.0-beta.235 (A-0352): na folha, trocar de ferramenta duas vezes seguidas já não deixa a resposta atrasada da primeira sobrepor o cartão da segunda (auditoria do Codex de 29/10/2026, bug alto)." },
-    { "id": "DMO-613", "module": "Job On", "description": "0.3.0-beta.235 (A-0353): na procura da CM/MF/BQ, o Enter sem navegar nas flechas confirma a ferramenta já escolhida; antes podia limpá-la em silêncio quando o campo reabria vazio (auditoria do Codex de 29/10/2026, bug alto)." }
+    { "id": "DMO-613", "module": "Job On", "description": "0.3.0-beta.235 (A-0353): na procura da CM/MF/BQ, o Enter sem navegar nas flechas confirma a ferramenta já escolhida; antes podia limpá-la em silêncio quando o campo reabria vazio (auditoria do Codex de 29/10/2026, bug alto)." },
+    { "id": "DMO-620", "module": "Aplicação", "description": "0.3.0-beta.235 (A-0360): o login passa a esperar a sério depois de várias palavras-passe erradas seguidas, como o Posto já fazia (2, 4, 8, 16, 30 s); a espera esgota-se sozinha, nunca exige o ADMIN, e a palavra-passe certa continua a entrar depois de esperar (auditoria do Codex de 29/10/2026, AUTH-B01)." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
