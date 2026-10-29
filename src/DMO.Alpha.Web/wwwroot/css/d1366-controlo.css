@@ -571,8 +571,8 @@ html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-row-button{flex:0
   html body main.peso-page:has(>section[data-peso-live])>.page-head h1{margin:0}
   html body main.peso-page:has(>section[data-peso-live])>section.peso-card{box-sizing:border-box;min-width:0;min-height:0;max-height:100%;margin:0;overflow:hidden;align-self:start}
   html body main.peso-page:has(>section[data-peso-live])>section.peso-card:not([data-peso-live]):not(.peso-compare){grid-column:1;grid-row:2;padding:6px 14px}
-  html body main.peso-page:has(>section[data-peso-live])>section[data-peso-live]{grid-column:1;grid-row:3/span 2;padding:6px 14px}
-  html body main.peso-page:has(>section[data-peso-live])>section.peso-compare:not(.peso-producao-anterior){grid-column:2;grid-row:2/span 2;display:flex;flex-direction:column;padding:6px 14px}
+  html body main.peso-page:has(>section[data-peso-live])>section[data-peso-live]{grid-column:1;grid-row:3/span 2;padding:6px 14px;align-self:stretch}
+  html body main.peso-page:has(>section[data-peso-live])>section.peso-compare:not(.peso-producao-anterior){grid-column:2;grid-row:2/span 2;display:flex;flex-direction:column;padding:6px 14px;align-self:stretch}
   html body main.peso-page:has(>section[data-peso-live])>section.peso-producao-anterior{grid-column:2;grid-row:4;margin:0;padding:6px 14px}
 
   /* Cabeçalhos dos cartões baixos. */
@@ -623,7 +623,7 @@ html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-row-button{flex:0
 /* O + e o − da Comparação ao lado dos campos, a qualquer largura útil (antes só
    a partir de 1100 px, e no painel caíam para baixo e ficavam minúsculos). */
 @media (min-width:761px){
-  html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-leitura-row{grid-template-columns:72px 112px 26px;align-items:end}
+  html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-leitura-row{grid-template-columns:72px 112px 26px;align-items:end;box-sizing:border-box;flex:0 0 auto;width:max-content;max-width:100%}
   html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-row-buttons{display:flex;flex-direction:column;gap:2px;height:var(--dmo-control-height);width:26px;align-self:end;margin:0}
   html body main.peso-page form#cmpForm .peso-cmp-leituras .peso-row-button{flex:0 0 auto;height:calc((var(--dmo-control-height) - 2px) / 2)!important;min-height:0!important;width:26px;min-width:0!important;padding:0!important;font-size:13px;line-height:1}
 }
