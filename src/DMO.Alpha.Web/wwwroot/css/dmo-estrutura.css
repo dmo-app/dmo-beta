@@ -64,6 +64,8 @@ html body dialog.dmo-painel{
 html body dialog.dmo-painel[data-largura="estreita"]{--dmo-painel-largura:420px}
 html body dialog.dmo-painel[data-largura="larga"]{--dmo-painel-largura:min(1040px,calc(100vw - 120px))}
 html body dialog.dmo-painel[data-largura="total"]{--dmo-painel-largura:calc(100vw - 64px)}
+/* O resumo do Job On (a folha no painel) sai mais (Diogo, 29/10/2026: «o painel tem de sair mais, o conteúdo fica demasiado grande»). */
+html body dialog.dmo-painel[data-largura="media"]{--dmo-painel-largura:min(1100px,calc(100vw - 96px))}
 html body dialog.dmo-painel[data-lado="esquerda"]{inset:0 auto 0 0;border-left:0;border-right:1px solid var(--dmo-border)}
 html body dialog.dmo-painel:not([open]){display:none}
 @starting-style{
