@@ -5952,3 +5952,4 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | `ProducaoQueAindaNaoCorreu_ComecaNaPercentagemAtual` | Uma produção que ainda não correu mostra a % de uso atual da ferramenta. | OK | A-0441 |
 | `No ver, a Informação técnica aberta fica por cima (absoluta, por baixo do cartão) e não faz a folha crescer` | A Informação técnica abre por cima dos elementos de baixo sem empurrar os cartões. | OK | A-0445 |
 | `Editar: mudar o Início ou o Fim atualiza os Dias na hora` | No Editar do Job On os Dias acompanham o Início e o Fim sem gravar. | OK | A-0444 |
+| `cobertura_a1_browser.py` DMO-562 (alterado) | A Informação técnica abre por cima dos cartões de baixo e já não os empurra (pedido do Diogo, DMO-688). | OK | A-0448 |
