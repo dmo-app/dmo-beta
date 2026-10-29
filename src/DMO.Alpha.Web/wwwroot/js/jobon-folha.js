@@ -783,11 +783,14 @@
       const partes = td.textContent.trim().split(' / ');
       if (partes.length < 2) return;
       const envolucro = document.createElement('span');
-      partes.forEach((parte, i) => {
+      envolucro.className = 'calv-pilha';
+      td.title = td.textContent.trim();
+      partes.forEach(parte => {
         const seg = document.createElement('span');
         seg.className = 'calv-seg';
-        seg.textContent = i < partes.length - 1 ? parte + ' /' : parte;
-        if (i) envolucro.append(' ');
+        // Sem a «/»: um valor por cima do outro (Diogo, 29/10/2026: «remover / do extrator, ficam separados
+        // alinhar eles um em cima do outro»).
+        seg.textContent = parte;
         envolucro.append(seg);
       });
       td.textContent = '';
@@ -826,7 +829,30 @@
     });
   }
 
+  // Os avisos dos cartões CM, MF e BQ (B2 sem Dupla/Tripla, «não registada no Armazém») ficavam cortados
+  // dentro do cartão (Diogo, 29/10/2026: «meter estes alertas aparecer no canto superior direito, com x para
+  // remover»): no ver, saem do cartão para uma pilha no canto superior direito, cada um com o seu botão e um ×.
+  function avisosNoCanto() {
+    const avisos = document.querySelectorAll('.jof2:not(.editing) .sec :is([data-dmo-aviso-b2],[data-dmo-aviso-armazem])');
+    if (!avisos.length) return;
+    const pilha = document.createElement('div');
+    pilha.className = 'jof-avisos-canto';
+    pilha.setAttribute('data-jof-avisos-canto', '');
+    avisos.forEach(aviso => {
+      const fechar = document.createElement('button');
+      fechar.type = 'button';
+      fechar.className = 'jof-aviso-fechar';
+      fechar.setAttribute('aria-label', 'Fechar este aviso');
+      fechar.textContent = '×';
+      fechar.addEventListener('click', () => { aviso.remove(); if (!pilha.children.length) pilha.remove(); });
+      aviso.append(fechar);
+      pilha.append(aviso);
+    });
+    document.body.append(pilha);
+  }
+
   function init() {
+    avisosNoCanto();
     cancelarNoPainel();
     calibresValores();
     dimensoesLongas();

@@ -590,3 +590,16 @@ html:root body .jof2 .jof-onde .jof-onde-espaco{display:inline-block;width:1.5em
 /* Com a Informação técnica aberta, a linha da grelha cresce: as notas dos outros cartões ficam do tamanho do texto e não esticam. */
 html:root body main.jof2.jof2.jof2:not(.editing) .zones:has(.sec>details.more[open]) .sec:not(:has(>details.more[open]))>.note-box.note-view:not(.is-ampliada):not(#_){flex:none !important}
 html:root body main.jof2.jof2.jof2:not(.editing) .zones:has(.sec>details.more[open]) .sec:not(:has(>details.more[open]))>.note-box.note-view:not(.is-ampliada)>p:not(#_){flex:none !important}
+
+/* Avisos dos cartões no canto superior direito, empilhados, cada um com o seu botão e um × (Diogo, 29/10/2026). */
+html:root body .jof-avisos-canto{position:fixed;top:212px;right:16px;z-index:70;display:flex;flex-direction:column;gap:8px;width:min(340px,calc(100vw - 32px));max-height:calc(100vh - 120px);overflow-y:auto;scrollbar-width:thin}
+html:root body .jof-avisos-canto>.jobon-aviso{position:relative;display:block;margin:0 !important;padding:10px 34px 10px 12px;border-radius:8px;background:var(--dmo-card);box-shadow:0 10px 28px rgba(0,0,0,.22);font-size:13px;line-height:1.35;color:var(--dmo-text);order:0}
+html:root body .jof-avisos-canto>.jobon-aviso .dmo-aviso-link{display:inline-flex;margin-top:8px}
+html:root body .jof-avisos-canto .jof-aviso-fechar{position:absolute;top:4px;right:4px;width:26px;height:26px;padding:0;border:0;border-radius:6px;background:none;color:var(--dmo-muted);font-size:18px;line-height:1;cursor:pointer}
+html:root body .jof-avisos-canto .jof-aviso-fechar:is(:hover,:focus-visible){background:var(--dmo-text);color:var(--dmo-card)}
+html:root body .jof2 .calv .calv-pilha{display:inline-flex;flex-direction:column;align-items:center;line-height:1.15}
+/* Faixa do cabeçalho (Diogo, 29/10/2026: «Início e 438 da cadência não ficarem tão juntos, reduzir gota secções dias»):
+   Dias, Secções e Gota mais estreitos; o espaço vai para Início, Fim, Processo, Peso e Cadência, com margem nas pontas. */
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .facts-dados{padding-inline:6px}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .facts-dados>.fact-col:is(:nth-child(3),:nth-child(4),:nth-child(5)){flex-grow:.55}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .facts-dados>.fact-col:is(:first-child,:last-child){flex-grow:1.25}

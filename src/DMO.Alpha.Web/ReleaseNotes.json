@@ -1,5 +1,8 @@
 {
   "fixes": [
+    { "id": "DMO-644", "module": "Job On", "description": "0.3.0-beta.236: na folha do Job On, os avisos dos cartões CM, MF e BQ (B2 sem Dupla/Tripla, «não registada no Armazém») deixam de ficar cortados dentro do cartão: aparecem no canto superior direito, empilhados, com o botão que já tinham e um × para fechar." },
+    { "id": "DMO-645", "module": "Job On", "description": "0.3.0-beta.236: nos Calibres do Job On, um valor «P 59.20 / M 58.60» aparece sem a barra, com o P por cima do M." },
+    { "id": "DMO-646", "module": "Job On", "description": "0.3.0-beta.236: na faixa do cabeçalho do Job On, Dias, Secções e Gota ficam mais estreitos e o Início e a Cadência usada deixam de ficar colados às pontas." },
     { "id": "DMO-603", "module": "Job On", "description": "0.3.0-beta.236: na gaveta Planeamento da folha do Job On, os cartões das produções ficam com as cores do Planeamento: em repouso o fundo claro da cor da linha com letra normal, no hover e no escolhido a cor da linha cheia com letra branca, no claro e no escuro." },
     { "id": "DMO-001", "module": "Aplicação", "description": "Página de erro com referência para diagnóstico, em vez de uma página inexistente." },
     { "id": "DMO-002", "module": "Aplicação", "description": "Configuração de persistência e autenticação coerente no arranque; sem registos voláteis fora de Development." },
