@@ -600,12 +600,6 @@ public sealed partial class IndexModel : PageModel
             $"mostramos de {start.ToString("dd/MM/yyyy", pt)} a {cutEnd.ToString("dd/MM/yyyy", pt)}. Para ver o resto, escolha um intervalo a partir de {cutEnd.AddDays(1).ToString("dd/MM/yyyy", pt)}.");
     }
 
-    /// <summary>OS CONTADORES do filtro (as somas de quantidade por tipo —
-    /// «totais de movimentos do filtro, não saldos de stock»).</summary>
-    public int FilteredSaidas { get; private set; }
-    public int FilteredEntradas { get; private set; }
-    public int FilteredSemReparacao { get; private set; }
-
     /// <summary>O contador de movimentos do filtro (o historyCount do html).</summary>
     public int HistoryMovementCount { get; private set; }
 
@@ -989,9 +983,6 @@ public sealed partial class IndexModel : PageModel
             ListLimitWarning = $"Mostra os {MaxListMovements} movimentos mais recentes. Escolha um período para ver os anteriores.";
         }
         HistoryMovementCount = Movements.Count;
-        FilteredSaidas = Movements.Where(m => m.MovementType == BqMovementType.Saida.ToString()).Sum(m => m.Quantity);
-        FilteredEntradas = Movements.Where(m => m.MovementType == BqMovementType.Entrada.ToString()).Sum(m => m.Quantity);
-        FilteredSemReparacao = Movements.Where(m => m.MovementType == BqMovementType.EntradaSemReparacao.ToString()).Sum(m => m.Quantity);
 
         var query = new Dictionary<string, string?>
         {

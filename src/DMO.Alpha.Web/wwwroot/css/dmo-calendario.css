@@ -1,0 +1,13 @@
+/* O MODELO ÚNICO DO CALENDÁRIO (DMO-596, Diogo 29/10/2026: «o calendario esta diferente, deveria existir um template para os
+   calendarios»). Como o dmo-estrutura.css para os painéis: o _DmoCalendar desenha-se aqui, igual no Job On, no Sumário, na
+   Revisão e nos Movimentos das Boquilhas. As folhas das páginas só o põem no sítio (coluna, linha da grelha); não lhe mudam
+   a altura dos dias, os espaços nem as letras. Carregada depois das folhas das páginas. As setas do mês são do dmo-botoes.css. */
+html:root body .dmo-calendar:not(#_) .dmo-calendar-nav{margin:0 0 8px}
+html:root body .dmo-calendar:not(#_) .dmo-calendar-week{margin:0;padding:0 0 6px;gap:0;font:500 12px/1.4 var(--dmo-font,Inter,sans-serif);color:var(--dmo-muted);border-bottom:1px solid var(--dmo-border)}
+/* Seis semanas de dias com a mesma altura em todo o lado: o calendário nunca estica nem encolhe com o cartão. */
+html:root body .dmo-calendar:not(#_) .dmo-calendar-days{flex:none;gap:0;grid-auto-rows:32px}
+html:root body .dmo-calendar:not(#_) .dmo-calendar-days>:is(button,.day,.dmo-calendar-day){box-sizing:border-box;aspect-ratio:auto;height:32px;min-height:32px;font-size:14px}
+/* O dia escolhido vê-se sempre: fundo da cor dos botões e letra branca, também com o rato por cima. */
+html:root body .dmo-calendar:not(#_) .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):is(.selected,.is-selected):not(.empty),
+html:root body .dmo-calendar:not(#_) .dmo-calendar-days>:is(button,.day,.dmo-calendar-day):is(.selected,.is-selected):not(.empty):is(:hover,:focus-visible){border:0;border-radius:6px;background:var(--dmo-brand-600);color:var(--dmo-text-on-color);font-weight:650;box-shadow:none}
+html:root body .dmo-calendar:not(#_) .dmo-calendar-legend{margin-top:6px;font-size:12px}
