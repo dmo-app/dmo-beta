@@ -591,7 +591,8 @@
     { "id": "DMO-618", "module": "Peso", "description": "0.3.0-beta.237 (A-0358): um Peso associado a uma produção DEPOIS de ela ser aprovada já não fica «Aprovado» só por ter sido criado antes — fica «Por aprovar», como um Peso novo (2.ª passagem do sweep .230, PESO-B03)." },
     { "id": "DMO-619", "module": "Boquilhas", "description": "0.3.0-beta.237 (A-0358): eliminar uma BQ já não deixa o Histórico nem o Excel sem referência/lote; usam agora a referência e o lote congelados no registo (2.ª passagem do sweep .230, BQ-B01)." },
     { "id": "DMO-648", "module": "Boquilhas", "description": "0.3.0-beta.237 (A-0387): nos Movimentos, uma referência que existe com um lote que não existe já não dá erro (nem no PDF): a lista fica vazia e diz «Não existe o lote … da BQ …»." },
-    { "id": "DMO-649", "module": "Armazém", "description": "0.3.0-beta.237 (A-0388): nas Últimas entradas e saídas, carregar Enter no campo Lote (ou na Referência) aplica o filtro; antes só se aplicava ao mudar outro filtro." }
+    { "id": "DMO-649", "module": "Armazém", "description": "0.3.0-beta.237 (A-0388): nas Últimas entradas e saídas, carregar Enter no campo Lote (ou na Referência) aplica o filtro; antes só se aplicava ao mudar outro filtro." },
+    { "id": "DMO-640", "module": "Job On", "description": "0.3.0-beta.235 (A-0380): eliminar um Job On deixa de falhar quando uma das suas CM tinha uma escolha «Colocar de parte» numa comparação do Peso; essa escolha sai junto com a produção." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
