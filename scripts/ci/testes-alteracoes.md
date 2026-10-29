@@ -4853,7 +4853,7 @@ Novos: 0 · mudaram: 3 · saíram: 0
 
 Selo depois: `3f7b0c747f3b0cec`
 
-## A-0328 · 2026-10-29 · contagem-lista
+## A-0339 · 2026-10-29 · contagem-lista
 
 Porquê: As verificações de aspeto da revisão dos testes (DMO-406/495/509/522) entram no CI: a app foi corrigida em DMO-589 (.233, #288) e os 3 scripts pendentes_*_browser.py passam. Novo passo «Browser no aspeto» no ci-local.sh; nenhum teste mudou.
 Referência: DMO-589
