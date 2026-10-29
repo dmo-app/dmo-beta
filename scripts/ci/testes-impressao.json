@@ -1,5 +1,5 @@
 {
-  "selo": "c07be0113f2cf44c",
+  "selo": "5d4ac9207aa000f8",
   "unidades": {
     "scripts/ci/ci-local.sh": "b85e4195bb3ac186",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1809,6 +1809,10 @@
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.ServicoIndisponivel.cs :: AuthenticationTests.Login_ServicoDeAutenticacaoSemResposta_DizQueOServicoNaoRespondeu": "66c35e4775ee31f9",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.Tentativas.cs :: (resto do ficheiro)": "1a7e8bda3c19a94c",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.Tentativas.cs :: AuthenticationTests.Login_CincoPalavrasPasseErradas_MandaConsultarOAdmin": "ea1a01d7b0043dec",
+    "tests/DMO.Alpha.Web.Tests/AuthenticationTests.TravaoDeLogin.cs :: (resto do ficheiro)": "8d302ddc1e187c3d",
+    "tests/DMO.Alpha.Web.Tests/AuthenticationTests.TravaoDeLogin.cs :: AuthenticationTests.Login_DuasFalhasEDepoisACerta_NaoEspera": "7caadccca8b2a90e",
+    "tests/DMO.Alpha.Web.Tests/AuthenticationTests.TravaoDeLogin.cs :: AuthenticationTests.Login_MesmaContaDuasOrigens_UmaPalavraPasseDeCadaVez": "d186483f61ed62ab",
+    "tests/DMO.Alpha.Web.Tests/AuthenticationTests.TravaoDeLogin.cs :: AuthenticationTests.Login_PalavrasPasseErradas_EsperamCadaVezMais_EACertaEntraNaMesmaAposEsperar": "239d0db1fd910009",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: (resto do ficheiro)": "f464e4969e7087e0",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.AdminBootstrap_EmptySetting_FirstEmailLoginBecomesAdmin": "94872ba0942a4315",
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.AdminBootstrap_EmptySetting_UserEmailLoginDoesNotClaimAdmin": "55bda15552e5f5c0",

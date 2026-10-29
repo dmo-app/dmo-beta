@@ -4929,3 +4929,15 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelMedio_AbreMaisLargo`
 
 Selo depois: `c07be0113f2cf44c`
+
+## A-0360 · 2026-10-29 · contagem-lista
+
+Porquê: AUTH-B01 (auditoria de 29/10/2026, decisão do Diogo): o login passa a esperar a sério depois de várias palavras-passe erradas seguidas, reutilizando o travão do Posto (TravaoDoPosto) chaveado pela conta; a espera esgota-se sozinha, nunca bloqueia para sempre.
+Novos: 4 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.TravaoDeLogin.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.TravaoDeLogin.cs :: AuthenticationTests.Login_DuasFalhasEDepoisACerta_NaoEspera`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.TravaoDeLogin.cs :: AuthenticationTests.Login_MesmaContaDuasOrigens_UmaPalavraPasseDeCadaVez`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.TravaoDeLogin.cs :: AuthenticationTests.Login_PalavrasPasseErradas_EsperamCadaVezMais_EACertaEntraNaMesmaAposEsperar`
+
+Selo depois: `5d4ac9207aa000f8`

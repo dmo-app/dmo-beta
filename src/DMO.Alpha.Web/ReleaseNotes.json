@@ -562,7 +562,8 @@
     { "id": "DMO-598", "module": "Ferramentas", "description": "0.3.0-beta.235: No Opções do SAP, «Pedir só as à espera» passa a chamar-se «Atualizar»." },
     { "id": "DMO-591", "module": "Ferramentas", "description": "0.3.0-beta.235 (A-0329): nas Listas de reparação, o campo «Lista» mostra só o reparador (o dia aparece na lista aberta), sem passar por cima do «Reparador». Em «Procurar ferramentas», a Referência e o Lote procuram ao escrever (antes só com Enter, e escrever 1075 não mostrava nada); só os resultados mudam, o campo fica como estava." },
     { "id": "DMO-596", "module": "Boquilhas", "description": "0.3.0-beta.235 (A-0334): em Movimentos, o «Registo da …» mostra a ficha em cada barra (BQ, lote, produção), com as barras alinhadas, todas escolhíveis (a B1 também) e sem mexer ao mudar de dia. O quadro Saídas / Entradas / Entradas sem reparação saiu. O calendário passa a ter um modelo único (dmo-calendario.css) no Job On, Sumário, Revisão e Boquilhas, com o dia escolhido sempre marcado." },
-    { "id": "DMO-600", "module": "Job On", "description": "0.3.0-beta.235 (A-0338): o resumo do Job On no painel deslizante abre mais largo." }
+    { "id": "DMO-600", "module": "Job On", "description": "0.3.0-beta.235 (A-0338): o resumo do Job On no painel deslizante abre mais largo." },
+    { "id": "DMO-620", "module": "Aplicação", "description": "0.3.0-beta.235 (A-0360): o login passa a esperar a sério depois de várias palavras-passe erradas seguidas, como o Posto já fazia (2, 4, 8, 16, 30 s); a espera esgota-se sozinha, nunca exige o ADMIN, e a palavra-passe certa continua a entrar depois de esperar (auditoria do Codex de 29/10/2026, AUTH-B01)." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
