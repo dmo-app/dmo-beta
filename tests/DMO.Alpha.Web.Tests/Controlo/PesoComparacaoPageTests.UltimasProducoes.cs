@@ -118,7 +118,7 @@ public partial class PesoComparacaoPageTests
                     Posicao(dropdown, $"<option value=\"{pesosPorProducao["202603"]}\"")
                         < Posicao(dropdown, $"<option value=\"{pedida}\""),
                     $"a pedida {numero} vem depois das 5 anteriores");
-                Assert.Contains($"<th colspan=\"3\" scope=\"colgroup\">Controlo anterior · {numero}</th>", html);
+                Assert.Contains($"<th class=\"peso-cmp-ant\">Controlo anterior · {numero}</th>", html);
             }
         }
     }

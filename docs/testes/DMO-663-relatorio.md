@@ -2,6 +2,8 @@
 
 **Base:** `integracao`, 0.3.0-beta.242, `8f1470fd89a24a914986ec26e7b813577fcf6363`. **Registo:** A-0408. **Prioridade de entrada:** 1.
 
+**Reconciliação:** `integracao` 0.3.0-beta.243, `9cf01fb62feeef605d415b1ac99c84464e97532c`. Conflitos apenas nos três registos de testes; preservadas as entradas novas e regenerada a guarda A-0408. A versão e as ReleaseNotes da integracao foram mantidas.
+
 ## O que foi feito
 
 - ZPPG: guardar a primeira coluna `No. of pieces`, `Supplier` e `Purchase`. Os títulos foram confirmados no `tabela.HTML` fornecido pelo proprietário; a data de aquisição foi confirmada por ele. O VBS exporta os campos novos em UTF-8 e continua a sair pelo «Instalar» do Admin.
@@ -22,7 +24,7 @@
 
 ## Testes e resultados
 
-**CI local: OK** (`docker compose run --rm ci`, Linux, PostgreSQL 16 descartável). Passaram **2 022 Infrastructure + 1 425 Web = 3 447 .NET**, **346 JavaScript** e todos os grupos Chromium. Os **21 casos novos** passaram (16 Infrastructure, 3 Web, 2 JS); **8/8 mutações** foram detetadas. Os 6 testes externos Supabase continuam ignorados como já estavam, sem alterações aos testes ou respetivas condições.
+**CI local: OK** sobre a `integracao` .243 reconciliada (`docker compose run --rm ci`, Linux, PostgreSQL 16 descartável). Passaram **3 467 .NET**, **346 JavaScript** e todos os grupos Chromium. Os **21 casos novos** passaram (16 Infrastructure, 3 Web, 2 JS); **8/8 mutações** foram detetadas. Os 6 testes externos Supabase continuam ignorados como já estavam, sem alterações às respetivas condições.
 
 A execução usou a imagem do dmo-ci com CA do ambiente e Node 22 oficial; a imagem foi compactada para resolver a falta de disco, sem mudar scripts de CI ou desligar verificações.
 

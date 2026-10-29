@@ -68,10 +68,36 @@ public static class JobOnFolhaRegras
     /// não entra.
     /// </summary>
     public static IReadOnlyDictionary<string, string?> NormalizarFolha(IReadOnlyDictionary<string, string?> folha) =>
-        JobOnFolhaCampos.Todos.ToDictionary(
+        SepararDiametros(JobOnFolhaCampos.Todos.ToDictionary(
             c => c.Chave,
             c => folha.TryGetValue(c.Chave, out var valor) ? Normalizar(valor) : null,
-            StringComparer.Ordinal);
+            StringComparer.Ordinal));
+
+    /// <summary>
+    /// Um diâmetro antigo com dois números («25.20 / 0.05») separa-se sozinho: o primeiro fica no valor e o
+    /// segundo vai para a «Tol.» quando esta está vazia (Diogo, 29/10/2026: o Guardar nunca fica bloqueado por isto).
+    /// </summary>
+    public static IReadOnlyDictionary<string, string?> SepararDiametros(IReadOnlyDictionary<string, string?> folha)
+    {
+        Dictionary<string, string?>? novo = null;
+        foreach (var chave in new[] { "cm_pata", "cm_gargalo", "cm_exterior", "mf_corpo", "mf_gargalo", "mf_exterior" })
+        {
+            if (!folha.TryGetValue(chave, out var texto) || JobOnFolgas.Lista(texto) is not { Count: > 1 } numeros)
+            {
+                continue;
+            }
+
+            novo ??= new Dictionary<string, string?>(folha, StringComparer.Ordinal);
+            novo[chave] = numeros[0];
+            var tol = chave + "_tol";
+            if (string.IsNullOrWhiteSpace(novo.GetValueOrDefault(tol)))
+            {
+                novo[tol] = numeros[1];
+            }
+        }
+
+        return novo ?? folha;
+    }
 
     /// <summary>A linha CAL com os campos e a marca de por omissão normalizados.</summary>
     public static LinhaCalEnvio NormalizarLinha(LinhaCalEnvio linha) =>

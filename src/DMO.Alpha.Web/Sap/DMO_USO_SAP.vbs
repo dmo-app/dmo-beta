@@ -112,8 +112,10 @@ If PEDIR_TODAS Then
 End If
 
 If total = 0 Then
+    ' Nenhuma ferramenta à espera não é erro (Diogo, 29/10/2026: «A leitura do SAP falhou»
+    ' no modo Normal, com o dmo-codigos.txt vazio): acaba sem nada a fazer.
     If Not automatico Then MsgBox "O dmo-codigos.txt está vazio: nenhuma ferramenta do DMO está à espera da utilização.", 48, TITULO
-    WScript.Quit 1
+    WScript.Quit 0
 End If
 
 ' O SAP já tinha sessão aberta antes do atalho?
