@@ -1,5 +1,5 @@
 {
-  "selo": "7bf7f2456fd5e9bc",
+  "selo": "daf9bbebd5494b9b",
   "unidades": {
     "scripts/ci/ci-local.sh": "b85e4195bb3ac186",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -3414,6 +3414,8 @@
     "tests/ShellProof/painel-fecha-ao-clicar-fora.test.cjs :: painel de apoio: um clique fora fecha-o": "e01fa99f820d3aaf",
     "tests/ShellProof/painel-fecha-ao-clicar-fora.test.cjs :: painel de apoio: «Voltar» é um link no canto esquerdo, antes do título, e volta à página que lá estava": "1b3ec11c7d4b8877",
     "tests/ShellProof/painel-fecha-ao-clicar-fora.test.cjs :: um clique fora fecha o painel; dentro da caixa não": "e2fa0016282e9a6d",
+    "tests/ShellProof/painel-gravou-sem-recarregar.test.cjs :: (resto do ficheiro)": "898090f49c22262b",
+    "tests/ShellProof/painel-gravou-sem-recarregar.test.cjs :: Painel de apoio: depois de gravar sem recarregar, sem campos alterados, fecha sem aviso": "7b127b1834a5fd83",
     "tests/ShellProof/painel-propria-pagina.test.cjs :: (resto do ficheiro)": "db836356989cefa9",
     "tests/ShellProof/painel-propria-pagina.test.cjs :: Painel de apoio: um link para a própria página (corrigir uma leitura nos Pegamentos) fica na página, sem painel": "774654adcd339ee3",
     "tests/ShellProof/painel-um-de-cada-vez.test.cjs :: (resto do ficheiro)": "391eec0ff7b94a78",

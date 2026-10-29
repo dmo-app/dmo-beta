@@ -5422,3 +5422,14 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Peso_ComparacaoTemOMaisEOMenosDentroDaCaixa`
 
 Selo depois: `7bf7f2456fd5e9bc`
+
+## A-0418 · 2026-10-29 · teste-novo
+
+Porquê: Painel do Peso sem aviso falso de alterações por guardar (DMO-672)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra9W3LRiSMF46vR7EVbf8Uq7
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/ShellProof/painel-gravou-sem-recarregar.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/painel-gravou-sem-recarregar.test.cjs :: Painel de apoio: depois de gravar sem recarregar, sem campos alterados, fecha sem aviso`
+
+Selo depois: `daf9bbebd5494b9b`
