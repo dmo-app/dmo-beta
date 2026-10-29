@@ -1992,10 +1992,10 @@
            diferença do peso médio deste controlo para ela, sem «Hoje». *@
         var sapDaEscolhida = escolhida is not null && Model.ProducaoAnteriorSap.TryGetValue(escolhida.JobOnId, out var sapEsc) ? sapEsc : null;
         var pesoAtualSap = currentPesoForComparison.Averages?.AverageGlassWeightGrams;
-        string deltaSapTexto(decimal pesoSapRef)
+        string deltaSapTexto(decimal pesoSapRef, string referencia)
         {
             var (dg, dp) = DMO.Alpha.Core.Controlo.PesoCalculation.NominalDeviation(pesoAtualSap, pesoSapRef);
-            return dg is { } g ? $"{signed(g)} g" + (dp is { } pc ? $" ({signed(pc)} %)" : null) : "";
+            return dg is { } g ? $"Peso médio atual − {referencia}: {signed(g)} g" + (dp is { } pc ? $" ({signed(pc)} %)" : null) : "";
         }
         <div class="peso-anterior-sap" id="pesoAnteriorSap" data-producao-anterior-sap>
           @* Sem a palavra «SAP» à vista (Diogo, 21/10/2026: «sempre que for referência a produção usar produção e não SAP»).
@@ -2009,22 +2009,25 @@
           @* O início e o fim da produção escolhida por cima da tabela (Diogo, 27/10/2026);
              na coluna da direita (.221) a média e a moda são as colunas, e o peso e a
              diferença as linhas, para caber sem deslizar. *@
-          <p class="peso-hint peso-sap-periodo"><span data-producao-anterior-periodo>Início <span data-inicio>@(escolhida?.InicioEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span> · Fim <span data-fim>@(escolhida?.FimEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span></span><span data-sap-com hidden="@semSap"> · <span data-sap-valor="dias">@sapDaEscolhida?.Dias</span> dias</span></p>
           <div class="dmo-table-wrap peso-sap-tabela">
             <table class="dmo-table">
               <thead>
                 <tr><th>Peso da produção</th><th>Média</th><th>Moda</th></tr>
               </thead>
               <tbody>
+                <tr>
+                  <th scope="row">Datas</th>
+                  <td colspan="2"><span data-producao-anterior-periodo>Início <span data-inicio>@(escolhida?.InicioEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span> · Fim <span data-fim>@(escolhida?.FimEm?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? "—")</span></span><span data-sap-com hidden="@semSap"> · <span data-sap-valor="dias">@sapDaEscolhida?.Dias</span> dias</span></td>
+                </tr>
                 <tr data-sap-com hidden="@semSap">
                   <th scope="row">Peso</th>
                   <td><strong><span data-sap-valor="media">@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.MediaGramas))</span> g</strong></td>
                   <td><strong><span data-sap-valor="moda">@(sapDaEscolhida is null ? null : fmt(sapDaEscolhida.ModaGramas))</span> g</strong> · <span data-sap-valor="moda-dias">@sapDaEscolhida?.ModaDias</span> de <span data-sap-valor="dias">@sapDaEscolhida?.Dias</span> dias</td>
                 </tr>
                 <tr data-sap-com hidden="@semSap">
-                  <th scope="row">Diferença</th>
-                  <td data-dmo-fica data-sap-delta="media">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.MediaGramas))</td>
-                  <td data-dmo-fica data-sap-delta="moda">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.ModaGramas))</td>
+                  <th scope="row">Diferença para o peso atual</th>
+                  <td data-dmo-fica data-sap-delta="media">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.MediaGramas, "Média"))</td>
+                  <td data-dmo-fica data-sap-delta="moda">@(sapDaEscolhida is null ? null : deltaSapTexto(sapDaEscolhida.ModaGramas, "Moda"))</td>
                 </tr>
                 <tr data-sap-sem hidden="@(sapDaEscolhida is null ? null : "hidden")">
                   <td colspan="3">Ainda não há o peso desta produção. <a class="dmo-button" href="/Definicoes?secao=computador">Ler a pasta da produção</a></td>
@@ -2311,7 +2314,7 @@
       if (isNaN(atual) || isNaN(ref)) { delta.textContent = ''; return; }
       var g = atual - ref;
       var sinal = function (v) { var r = Math.round(v * 100) / 100; return (r >= 0 ? '+' : '\u2212') + Math.abs(r).toFixed(2); };
-      delta.textContent = sinal(g) + ' g' + (ref ? ' (' + sinal(g / ref * 100) + ' %)' : '');
+      delta.textContent = 'Peso médio atual − ' + (par[0] === 'media' ? 'Média' : 'Moda') + ': ' + sinal(g) + ' g' + (ref ? ' (' + sinal(g / ref * 100) + ' %)' : '');
     });
   }
   function refazerDeltasSap() {

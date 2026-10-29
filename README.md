@@ -1,12 +1,12 @@
-# DMO Design
+# DMO — aplicação
 
-Entrada para continuar o redesenho: [DESIGN.md](DESIGN.md), [handoff Astra](docs/design/HANDOFF-ASTRA.md) e [guia](docs/design/CONTINUAR.md).
+**Começar aqui, qualquer IA:** [mapa e instruções](AGENTS.md).
 
-Base Razor Pages importada do dmo-beta. O redesenho ainda não está concluído nem aprovado; a tentativa experimental fica num patch separado. Este repositório não foi ligado a um deploy.
+Código da aplicação DMO. Para a organização do trabalho, seguir AGENTS.md e o guia comum. A versão do checkout está em version.props; publicação e validação têm de ser confirmadas separadamente.
 
----
+O trabalho de design tem contexto próprio em [DESIGN.md](DESIGN.md) e [guia de continuação](docs/design/CONTINUAR.md). Não assumir que esse trabalho é o objetivo de uma nova tarefa.
 
-## Documentação da base importada
+## Aplicação
 
 # DMO
 

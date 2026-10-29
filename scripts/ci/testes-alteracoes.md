@@ -5978,3 +5978,40 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/visual/cobertura_a1_browser.py`
 
 Selo depois: `e4785a2628a5145d`
+
+## A-0450 · 2026-10-29 · contagem-lista
+
+Porquê: Ligar ao test:js seis ficheiros .test.cjs que já existiam no repositório e nunca corriam no CI: aviso-dispensar, jobon-folha-avisos-alerta, jobon-folha-dias-ao-vivo, jobon-folha-linhas-contagem, jobon-folha-tecnica-por-cima e painel-gravou-sem-recarregar. A lista passa de 51 para 57 ficheiros e os testes JavaScript de 355 para 362, todos verdes. Nenhum teste foi escrito, mudado ou apagado: só a lista do package.json, por isso contagem-lista. Dos sete órfãos que há no disco fica de fora de propósito só o jobon-folha-avisos-canto.test.cjs, porque afirma que os avisos dos cartões vão para uma pilha própria data-jof-avisos-canto, que é o ramo else de wwwroot/js/jobon-folha.js linhas 859 a 872 e só corre quando o DMOLive não existe; como o dmo-live.js vem no _DmoShellLayout.cshtml linha 77, esse ramo não corre na app, e o teste contradiz o pedido do Diogo de 29/10 que diz que o aviso deve aparecer como aparecem os alertas, pedido que o jobon-folha-avisos-alerta.test.cjs prova e que agora corre no CI. Apagar esse teste e o ramo morto precisa do sim do Diogo, por isso fica registado aqui e na lista de testes do dmo-ci em vez de se resolver à força. Número A-0450 e não o A-0449 que o max+1 automático daria: o A-0449 está reservado ao DMO-689 do Peso.
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `1d2aef5182eeef56`
+
+## A-0449 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-689: approved descriptive differences, dates inside table, selection and live updates; preserve signs, grams and percentages
+Referência: Diogo approval in this conversation 2026-10-29
+Novos: 3 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_DatasDentroDaTabela_ComESemPeso`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_DiferencaIdentificaAtualMenosReferencia_ComSinalEPercentagem`
+- novo: `tests/ShellProof/peso-live.test.cjs :: DMO-689: previous production dates and named differences survive selection and live updates`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_MostraAMediaPelosDiasEAModaDoSap_EOCampoVemComAMedia`
+- mudou: `tests/ShellProof/peso-live.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `8852030be24aa949`
+
+## A-0451 · 2026-10-29 · ok-do-diogo
+
+Porquê: Lote beta.251: junta #362, #364 e #363; impressão refeita sobre a integracao; os testes mudados são os explicados em A-0449
+Referência: Diogo 29/10 22:07 (ordem de juntar #362, #364, #363)
+Novos: 3 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_DatasDentroDaTabela_ComESemPeso`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_DiferencaIdentificaAtualMenosReferencia_ComSinalEPercentagem`
+- novo: `tests/ShellProof/peso-live.test.cjs :: DMO-689: previous production dates and named differences survive selection and live updates`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.Sap.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_MostraAMediaPelosDiasEAModaDoSap_EOCampoVemComAMedia`
+- mudou: `tests/ShellProof/peso-live.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `f7ab53c834bb7e35`
