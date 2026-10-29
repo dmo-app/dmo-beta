@@ -246,7 +246,10 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
             .OrderByDescending(u => u.Id)
             .Select(u => (decimal?)u.Percentagem)
             .FirstOrDefaultAsync(cancellationToken);
-        if (anterior is { } a && Math.Round(a, 0, MidpointRounding.AwayFromZero) == percentagem)
+        // SAP-B06 (sweep .230): comparar o valor exato, não arredondado — uma
+        // correção manual igual à parte inteira da última leitura SAP
+        // (90,2 → 90) é uma correção real e deve gravar.
+        if (anterior is { } a && a == percentagem)
         {
             return false;
         }

@@ -138,6 +138,29 @@ test('CS furos no Editar: um dígito de abertos e outro de fechados vão para o 
   dom.window.close();
 });
 
+// DMO-637: apagar os dois dígitos (em duas edições separadas) devia limpar o
+// campo escondido; sem a correção, ficava com «Fechados 2» por trás.
+test('CS furos no Editar: apagar abertos e depois fechados limpa o campo escondido cs_furos', async () => {
+  const html = `<!doctype html><body><form data-jof-folha="editar"><span data-jof-furos>
+    <input type="hidden" name="Folha.cs_furos" value="Abertos 4 / Fechados 2" data-jof-furos-valor />
+    <input type="text" maxlength="1" value="4" data-jof-furos-abertos /><input type="text" maxlength="1" value="2" data-jof-furos-fechados /></span></form></body>`;
+  const dom = new JSDOM(html, { url: 'http://dmo.test/JobOn/Folha?jobon_id=1&editar=1', runScripts: 'outside-only' });
+  dom.window.eval(fs.readFileSync(path.join(assets, 'js/jobon-folha.js'), 'utf8'));
+  if (dom.window.document.readyState === 'loading') await new Promise(r => dom.window.addEventListener('DOMContentLoaded', r));
+  const d = dom.window.document;
+  const valor = d.querySelector('[data-jof-furos-valor]');
+  const a = d.querySelector('[data-jof-furos-abertos]');
+  const f = d.querySelector('[data-jof-furos-fechados]');
+  assert.equal(valor.value, 'Abertos 4 / Fechados 2');
+
+  a.value = ''; a.dispatchEvent(new dom.window.Event('input'));
+  assert.equal(valor.value, 'Fechados 2', 'só o abertos foi apagado');
+
+  f.value = ''; f.dispatchEvent(new dom.window.Event('input'));
+  assert.equal(valor.value, '', 'os dois vazios: o campo escondido também fica vazio, não com o valor antigo');
+  dom.window.close();
+});
+
 test('Produções: lista fechada; abrir cai por cima; escolher outra muda a <select> e dispara change', async () => {
   const html = `<!doctype html><body><form data-jof-folha="bloqueada"><div class="pick-row">
     <select id="jofProducoes" data-dmo-ir aria-label="Produção"><option value="/JobOn/Folha?jobon_id=2" selected>202602 · B2</option><option value="/JobOn/Folha?jobon_id=1">202540 · C1</option></select>

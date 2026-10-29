@@ -17,7 +17,7 @@ namespace DMO.Alpha.Infrastructure.Tests.Production;
 /// </summary>
 internal static class EliminarJobOnCenario
 {
-    public sealed record Ids(int JobOnId, int ControloId, int OutraJobOnId, int OutroPesoId, IReadOnlyList<string> ToolIds);
+    public sealed record Ids(int JobOnId, int ControloId, int OutraJobOnId, int OutroPesoId, int ComparacaoCmDecisaoId, IReadOnlyList<string> ToolIds);
 
     public static async Task<Ids> SeedAsync(DmoDbContext db, string marker, DateOnly? inicio)
     {
@@ -74,7 +74,25 @@ internal static class EliminarJobOnCenario
         db.ControloDecisoes.Add(new ControloDecisao { ControloId = controlo.Id, Parte = ControloParte.Peso, Aprovado = true, OperatorId = "1", EmUtc = DateTime.UtcNow });
         await db.SaveChangesAsync();
 
-        return new Ids(jobOn.Id, controlo.Id, outra.Id, outroPeso.Id, tools.Select(t => T(t.Item1)).ToList());
+        // DEL-01: uma comparação de Peso com uma escolha «Colocar de parte»
+        // (a FK da decisão para a leitura é RESTRICT — tem de sair primeiro).
+        var comparacao = new PesoComparacao
+        {
+            ControloId = controlo.Id, PesoInicialId = peso.Id, CmToolId = T("CM2"),
+            WaterTemperatureC = 20, WaterDensityGramsPerCm3 = 1m, GlassDensityGramsPerCm3 = 2.5m,
+            VolumeMarisaCm3 = 10m, VolumePuncaoCm3 = 30m, CreatedAtUtc = DateTime.UtcNow
+        };
+        comparacao.Measurements.Add(new PesoComparacaoMeasurement { RowPosition = 1, CmSubject = "1", WaterWeightGrams = 11m });
+        db.PesoComparacoes.Add(comparacao);
+        await db.SaveChangesAsync();
+        var decisao = new PesoComparacaoCmDecisao
+        {
+            MeasurementId = comparacao.Measurements.Single().Id, DeParte = true, EscolhidoPor = "Diogo", EscolhidoEmUtc = DateTime.UtcNow
+        };
+        db.PesoComparacaoCmDecisoes.Add(decisao);
+        await db.SaveChangesAsync();
+
+        return new Ids(jobOn.Id, controlo.Id, outra.Id, outroPeso.Id, decisao.Id, tools.Select(t => T(t.Item1)).ToList());
     }
 
     private static Peso NewPeso(int controloId, string cm, string bq) => new()
@@ -100,6 +118,8 @@ internal static class EliminarJobOnCenario
         Assert.False(await db.Pegamentos.AnyAsync(p => p.ControloId == ids.ControloId));
         Assert.False(await db.Puncoes.AnyAsync(p => p.ControloId == ids.ControloId));
         Assert.False(await db.ControloDecisoes.AnyAsync(d => d.ControloId == ids.ControloId));
+        Assert.False(await db.PesoComparacoes.AnyAsync(c => c.ControloId == ids.ControloId));
+        Assert.False(await db.PesoComparacaoCmDecisoes.AnyAsync(d => d.Id == ids.ComparacaoCmDecisaoId));
         Assert.False(await db.JobOnChanges.AnyAsync(c => c.JobOnId == ids.JobOnId));
         var machine = "E-" + ids.ToolIds[0].Split('-')[0];
         Assert.False(await db.BqMovements.AnyAsync(m => m.MachineCodeFrozen == machine));

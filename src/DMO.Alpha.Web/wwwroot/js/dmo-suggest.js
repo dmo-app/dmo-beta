@@ -216,7 +216,11 @@
         onPick(escolha);
         close();
       } else if (event.key === "Escape") {
+        // Dentro de um painel ou janela, Escape só deve fechar esta lista
+        // (DMO-635): sem stopPropagation(), o evento sobe e o handler de
+        // Escape do painel/janela fecha-o também.
         event.preventDefault();
+        event.stopPropagation();
         close();
       }
     });

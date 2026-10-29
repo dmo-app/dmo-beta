@@ -69,12 +69,11 @@ public sealed class ArmazemHistorico(DmoDbContext db) : IArmazemHistorico
 
         if (!string.IsNullOrWhiteSpace(filtro.Reparador))
         {
-            // A Saída para ele, e a Entrada que volta da Reparação logo a seguir a essa Saída.
+            // BQ-B06: o mesmo valor que a linha mostra (ReparadorNome, senão
+            // o reparador escrito na própria Entrada) — nunca o da Saída
+            // anterior, que pode ser outro.
             var reparador = filtro.Reparador.Trim();
-            query = query.Where(m => m.ReparadorNome == reparador
-                || (m.Tipo == ArmazemMovimentoTipo.Entrada && m.Origem == ArmazemOrigem.Reparacao
-                    && db.ArmazemMovimentos.Where(p => p.ToolId == m.ToolId && p.Id < m.Id)
-                        .OrderByDescending(p => p.Id).Select(p => p.ReparadorNome).FirstOrDefault() == reparador));
+            query = query.Where(m => m.ReparadorNome == reparador || m.EntradaReparadorNome == reparador);
         }
 
         if (filtro.Tipo is { } tipo)
@@ -156,13 +155,15 @@ public sealed class ArmazemHistorico(DmoDbContext db) : IArmazemHistorico
         return new PagedList<ArmazemHistoricoLinha>(linhas, resultado.TotalCount, resultado.PageNumber, resultado.PageSize);
     }
 
-    public async Task<IReadOnlyList<string>> ReparadoresAsync(CancellationToken cancellationToken = default) =>
-        await db.ArmazemMovimentos.AsNoTracking()
-            .Where(m => m.ReparadorNome != null)
-            .Select(m => m.ReparadorNome!)
-            .Distinct()
-            .OrderBy(n => n)
-            .ToListAsync(cancellationToken);
+    public async Task<IReadOnlyList<string>> ReparadoresAsync(CancellationToken cancellationToken = default)
+    {
+        // BQ-B06: as opções do filtro têm as duas fontes do nome que a linha
+        // mostra (ReparadorNome e o reparador escrito na Entrada), senão o
+        // valor que a lista mostra não tinha opção para escolher no filtro.
+        var daSaida = db.ArmazemMovimentos.AsNoTracking().Where(m => m.ReparadorNome != null).Select(m => m.ReparadorNome!);
+        var daEntrada = db.ArmazemMovimentos.AsNoTracking().Where(m => m.EntradaReparadorNome != null).Select(m => m.EntradaReparadorNome!);
+        return await daSaida.Concat(daEntrada).Distinct().OrderBy(n => n).ToListAsync(cancellationToken);
+    }
 
     public async Task<IReadOnlyList<string>> LinhasAsync(CancellationToken cancellationToken = default) =>
         await db.Machines.AsNoTracking().Select(m => m.Code).OrderBy(c => c).ToListAsync(cancellationToken);

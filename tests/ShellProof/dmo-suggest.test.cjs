@@ -122,3 +122,30 @@ test('Enter sem navegar nas flechas confirma a ferramenta já escolhida, não a 
     dom.window.close();
   }
 });
+
+test('DMO-635: Escape com a lista de sugestões aberta não sobe até ao painel/janela', async () => {
+  const { dom, window, campo, pedidos, esperar, escrever } = abrirFolha();
+  try {
+    campo.focus();
+    await esperar(5);
+    escrever('C337');
+    await esperar(300);
+    pedidos[pedidos.length - 1].responder({ items: [{ value: 'T-C337-1', label: 'C337 · Lote 1' }] });
+    await esperar(20);
+    const lista = campo.closest('.dmo-suggest').querySelector('ul');
+    assert.equal(lista.hidden, false, 'a lista abriu');
+
+    // Um ouvinte no document, como o do painel/janela (dmo-support.js), que
+    // fecharia se o Escape lá chegasse.
+    let chegouAoDocument = false;
+    window.document.addEventListener('keydown', (event) => { if (event.key === 'Escape') chegouAoDocument = true; });
+    const evento = new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true });
+    campo.dispatchEvent(evento);
+
+    assert.equal(lista.hidden, true, 'a lista fecha');
+    assert.equal(evento.defaultPrevented, true);
+    assert.equal(chegouAoDocument, false, 'stopPropagation() impede o Escape de chegar ao painel');
+  } finally {
+    dom.window.close();
+  }
+});

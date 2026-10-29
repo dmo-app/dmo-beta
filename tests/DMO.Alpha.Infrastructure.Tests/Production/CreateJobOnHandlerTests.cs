@@ -498,4 +498,31 @@ public sealed class CreateJobOnHandlerTests : IDisposable
         Assert.Equal(CreateJobOnResult.DuplicateProductionNumber, second.Result);
         Assert.Equal(1, await _db.JobOns.AsNoTracking().CountAsync());
     }
+
+    // DATA-B01 (sweep .230, DMO-624/A-0364): a EXPERIÊNCIA sem data dada usa
+    // o dia de Lisboa, não o de UTC — às 00:30 de Lisboa no verão (DST,
+    // UTC+1) ainda é a véspera em UTC.
+    [Fact]
+    public async Task Experiencia_SemData_UsaODiaDeLisboaNaoOUtc_NaMadrugadaDeVerao()
+    {
+        var machine = await SeedMachineAsync("B1");
+        await SeedToolAsync("T-MF", ToolType.Mf, "5810", "1");
+        // 2026-07-15 00:30 em Lisboa (verão, UTC+1) = 2026-07-14 23:30 em UTC.
+        var relogio = new Relogio(new DateTimeOffset(2026, 7, 14, 23, 30, 0, TimeSpan.Zero));
+        var handler = new CreateJobOnHandler(_db, relogio);
+
+        var outcome = await handler.HandleAsync(new CreateJobOn(
+            "qualquer", "9389T194", machine.Id, MfToolId: "T-MF", Experiencia: true));
+
+        Assert.Equal(CreateJobOnResult.Success, outcome.Result);
+        var gravada = await _db.JobOns.AsNoTracking().SingleAsync(j => j.Id == outcome.JobOn!.JobOnId);
+        Assert.Equal(new DateOnly(2026, 7, 15), gravada.InicioEm);
+        Assert.Equal(new DateOnly(2026, 7, 15), gravada.FimEm);
+        Assert.Equal("202600", gravada.ProductionNumber);
+    }
+
+    private sealed class Relogio(DateTimeOffset agora) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => agora;
+    }
 }

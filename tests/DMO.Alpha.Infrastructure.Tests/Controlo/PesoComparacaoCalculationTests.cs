@@ -133,4 +133,62 @@ public sealed class PesoComparacaoCalculationTests
         Assert.Equal(1.00m, pares.Rows[0].DeltaVolumeCm3);
         Assert.Equal(1.00m, pares.DeltaVolumeMedioCm3); // a linha sem volume não entra na média
     }
+
+    [Fact]
+    public void Pares_CmComZerosAEsquerda_EmparelhaComOMesmoNumero()
+    {
+        // PESO-B01 (sweep 2): «01» e «1» são o mesmo CM, só com zeros à
+        // esquerda — a comparação não deve dizer «Sem contraparte».
+        var atuais = new[] { Lado(1, "01", 450.50m) };
+        var anteriores = new[] { Lado(1, "1", 448.00m) };
+
+        var pares = PesoComparacaoCalculation.CalcularParesPorCm(atuais, anteriores);
+
+        Assert.Equal(1, pares.ParesValidos);
+        Assert.Equal(0, pares.SemContraparte);
+        Assert.Equal("1", pares.Rows[0].CmSubjectAnterior);
+        Assert.Equal(2.50m, pares.Rows[0].DeltaPesoGrams);
+    }
+
+    [Fact]
+    public void Pares_CmIguais_Emparelham()
+    {
+        // Sanidade: «1» contra «1» continua a emparelhar como sempre.
+        var atuais = new[] { Lado(1, "1", 450.50m) };
+        var anteriores = new[] { Lado(1, "1", 448.00m) };
+
+        var pares = PesoComparacaoCalculation.CalcularParesPorCm(atuais, anteriores);
+
+        Assert.Equal(1, pares.ParesValidos);
+        Assert.Equal(0, pares.SemContraparte);
+    }
+
+    [Fact]
+    public void Pares_CmComLetraEZeros_NuncaNumerico_FicaSemContraparte()
+    {
+        // «01A» vs «1A»: com uma letra, a interpretação é ambígua —
+        // fica a igualdade de texto (nunca promovida a numérica), para não
+        // emparelhar CMs diferentes por engano.
+        var atuais = new[] { Lado(1, "01A", 450.50m) };
+        var anteriores = new[] { Lado(1, "1A", 448.00m) };
+
+        var pares = PesoComparacaoCalculation.CalcularParesPorCm(atuais, anteriores);
+
+        Assert.Equal(0, pares.ParesValidos);
+        Assert.Equal(1, pares.SemContraparte);
+    }
+
+    [Fact]
+    public void Pares_CmDigitosDiferentes_NuncaEmparelham()
+    {
+        // «1» e «2» são números diferentes — nunca emparelham, com ou sem
+        // zeros à esquerda.
+        var atuais = new[] { Lado(1, "1", 450.50m) };
+        var anteriores = new[] { Lado(1, "2", 448.00m) };
+
+        var pares = PesoComparacaoCalculation.CalcularParesPorCm(atuais, anteriores);
+
+        Assert.Equal(0, pares.ParesValidos);
+        Assert.Equal(1, pares.SemContraparte);
+    }
 }

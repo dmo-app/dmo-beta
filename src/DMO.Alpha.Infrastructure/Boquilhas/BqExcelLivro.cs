@@ -651,7 +651,9 @@ public static class BqExcelLivro
                 if (ano is { Success: true }) return int.Parse(ano.Groups[1].Value, CultureInfo.InvariantCulture);
             }
 
-            return DateTime.Today.Year;
+            // DATA-B01 (sweep .230): o ano corrente é o de Lisboa, não o do
+            // servidor (madrugada de verão: UTC ainda está na véspera).
+            return DMO.Alpha.Core.Runtime.DmoBusinessTime.Now.Year;
         }
 
         public Folha? Folha(int mes)

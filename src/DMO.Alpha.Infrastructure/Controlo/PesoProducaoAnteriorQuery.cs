@@ -102,6 +102,37 @@ public sealed class PesoProducaoAnteriorQuery
     }
 
     /// <summary>
+    /// Se a produção anterior gravada no Job On <paramref name="savedJobOnId"/>
+    /// ainda é anterior ao Job On <paramref name="currentJobOnId"/> PELAS
+    /// DATAS DE HOJE (PESO-B04, sweep 2): a escolha é gravada uma vez, mas as
+    /// datas de qualquer uma das duas produções podem mudar depois — sem
+    /// revalidar, a escolha ficava a ser usada às escondidas mesmo já não
+    /// sendo anterior. Não confundir com ficar fora das últimas 5 (F-11): aí
+    /// continua válida, só fora do corte de recência — isto só é falso
+    /// quando deixa de satisfazer a regra única de «anterior»
+    /// (<see cref="ProducaoAnterior.SoAnteriores{T}"/>).
+    /// </summary>
+    public async Task<bool> AindaValidaAsync(
+        int savedJobOnId,
+        int currentJobOnId,
+        CancellationToken cancellationToken = default)
+    {
+        var current = await _db.JobOns.AsNoTracking()
+            .Where(j => j.Id == currentJobOnId)
+            .Select(j => new { j.Reference, j.InicioEm })
+            .FirstOrDefaultAsync(cancellationToken);
+        if (current is null)
+        {
+            return false;
+        }
+
+        return await _db.JobOns.AsNoTracking()
+            .Where(j => j.Id == savedJobOnId && j.Reference == current.Reference)
+            .SoAnteriores(j => j, currentJobOnId, current.InicioEm)
+            .AnyAsync(cancellationToken);
+    }
+
+    /// <summary>
     /// Grava o controlo da produção anterior escolhida e o peso do SAP. Um
     /// peso vazio apaga o valor; um peso não positivo é recusado. O controlo
     /// vem do EnsureControloForJobOn (o get-or-create do Job On escolhido).

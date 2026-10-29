@@ -342,7 +342,7 @@ public sealed class DefinicoesModel(
     /// do excel que vamos criar»). O ficheiro nunca fica no servidor.
     /// </summary>
     public IActionResult OnGetExcelNovo([FromQuery] DateOnly? dia) =>
-        File(excel.Novo(dia ?? DateOnly.FromDateTime(DateTime.Today)), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        File(excel.Novo(dia ?? HojeDoExcel), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
     private static readonly System.Text.Json.JsonSerializerOptions ExcelJson = new(System.Text.Json.JsonSerializerDefaults.Web);
 

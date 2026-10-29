@@ -160,6 +160,13 @@ public sealed class DeleteJobOnHandler : IDeleteJobOnHandler
                 peso.ProducaoAnteriorControloId = null;
             }
 
+            var comparacaoMeasurementIds = _db.PesoComparacaoMeasurements
+                .Where(m => comparacaoIds.Contains(m.ComparacaoId))
+                .Select(m => m.Id);
+            // A decisão «Manter/Colocar de parte» (CM de parte) aponta para a
+            // medição com FK Restrict; sai primeiro, senão a eliminação falha.
+            _db.PesoComparacaoCmDecisoes.RemoveRange(
+                await _db.PesoComparacaoCmDecisoes.Where(d => comparacaoMeasurementIds.Contains(d.MeasurementId)).ToListAsync(cancellationToken));
             _db.PesoComparacaoMeasurements.RemoveRange(
                 await _db.PesoComparacaoMeasurements.Where(m => comparacaoIds.Contains(m.ComparacaoId)).ToListAsync(cancellationToken));
             _db.PesoComparacoes.RemoveRange(

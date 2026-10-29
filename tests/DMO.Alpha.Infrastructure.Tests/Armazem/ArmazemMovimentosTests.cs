@@ -493,6 +493,31 @@ public sealed class ArmazemMovimentosTests
         Assert.Equal(1, await db.ArmazemPosicoes.CountAsync(p => p.Codigo == "5001"));
     }
 
+    [Fact]
+    public async Task Saida_DepoisDeUmCorrigir_HerdaALinhaDaEntradaAnterior_BQ_B04()
+    {
+        using var db = CreateContext();
+        var linha = new DMO.Alpha.Core.Production.Machine { Code = "B2" };
+        db.Machines.Add(linha);
+        await db.SaveChangesAsync();
+
+        // Entrada com a Linha do formulário, na posição "0042".
+        await Servico(db).EntradaAsync(Entrada() with { LinhaEReparadorDoFormulario = true, LinhaId = linha.Id });
+        // Um Corrigir no meio, para OUTRA posição (não é uma saída real).
+        await Servico(db).CorrigirAsync(new PedidoDeCorrecao(Guid.NewGuid(), Cm, "0043", "engano"));
+
+        // A Saída para Reparação (não Produção) herda a Linha/Job On do
+        // último movimento REAL (a Entrada), saltando o Corrigir (BQ-B04):
+        // antes da correção, o Corrigir era o «último movimento» e a Linha
+        // perdia-se.
+        var saida = await Servico(db).SaidaAsync(Saida(ArmazemDestino.Reparacao, reparador: 1));
+
+        Assert.Equal(ArmazemMovimentoResultado.Gravado, saida.Resultado);
+        var movimentoDeSaida = await db.ArmazemMovimentos.AsNoTracking()
+            .SingleAsync(m => m.Tipo == ArmazemMovimentoTipo.Saida);
+        Assert.Equal(linha.Id, movimentoDeSaida.MachineId);
+    }
+
     [Theory]
     [InlineData("5447", new[] { Cm, Mf })]
     [InlineData("t17", new[] { Bq, Cm, Mf })]
