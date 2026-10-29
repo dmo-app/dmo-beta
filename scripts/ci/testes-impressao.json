@@ -1,5 +1,5 @@
 {
-  "selo": "5c318483048cbfe4",
+  "selo": "4d55f2da58332275",
   "unidades": {
     "scripts/ci/ci-local.sh": "3d8429df92b67bad",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2354,7 +2354,8 @@
     "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaHistoricoTests.cs :: ReparacaoProgramadaHistoricoTests.NovaLista_CriaComOReparador_ESemListaOAdicionarAvisa": "a28f9bf4d3fc79ed",
     "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: (resto do ficheiro)": "31a6a9fc5c3b4450",
     "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.ArmazemEntrada_DeFerramentaNaLista_SugereReparado_AvisaAoMudar_EALinhaFicaCinza": "5cdc3167dcc7bcf8",
-    "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.Ferramentas_VeOSeparador_AProcuraAbreVazia_EAssociaAUmaListaNova": "f82c84c672515b2c",
+    "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.Ferramentas_VeOSeparador_AProcuraAbreVazia_EAssociaAUmaListaNova": "58e8868da28a4d09",
+    "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.Lista_MostraSoOReparador_EAProcuraCorreAoEscrever": "1beecaa4f76c42b3",
     "tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.SemFerramentas_NaoEntra_NemAssocia_NemImprime": "0f2b0b090ec67465",
     "tests/DMO.Alpha.Web.Tests/FerramentasFichaTrocaTests.cs :: (resto do ficheiro)": "1d37c8b26915f74f",
     "tests/DMO.Alpha.Web.Tests/FerramentasFichaTrocaTests.cs :: FerramentasPagesTests.Ficha_AbertaDeUmFluxo_GuardarOEditarMantemORegresso": "66fd0a959ed3c3e4",
@@ -3306,6 +3307,7 @@
     "tests/visual/painel_lateral_browser.py": "85c135a8f92bce44",
     "tests/visual/pasta_pdf_browser.py": "a56132dd12285d6c",
     "tests/visual/puncoes_tabela_browser.py": "85f38f0093870709",
+    "tests/visual/reparacao_listas_browser.py": "1f05e6c0354a0b43",
     "tests/visual/resumo_parcial_browser.py": "c422fd31d6088551",
     "tests/visual/revisao_aprovar_browser.py": "3235b5e5b374469e",
     "tests/visual/revisao_parcial_servidor_browser.py": "ee856f2f81d2d82c",

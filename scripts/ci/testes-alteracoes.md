@@ -4559,3 +4559,15 @@ Novos: 1 · mudaram: 2 · saíram: 27
 - saiu: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisoArmazemEmEsperaTests.cs :: JobOnAvisoArmazemEmEsperaTests.PorOmissao_AAplicacaoNaoOLigaNasDefinicoes`
 
 Selo depois: `5c318483048cbfe4`
+
+## A-0329 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-591: a opção da lista leva spans (reparador + dia); Diogo disse «sim» na thread
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra9QKtyXnRyQfgfVzCYpBW2R
+Novos: 2 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.Lista_MostraSoOReparador_EAProcuraCorreAoEscrever`
+- novo: `tests/visual/reparacao_listas_browser.py`
+- mudou: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.Ferramentas_VeOSeparador_AProcuraAbreVazia_EAssociaAUmaListaNova`
+
+Selo depois: `4d55f2da58332275`
