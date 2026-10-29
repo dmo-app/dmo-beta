@@ -193,7 +193,11 @@ public sealed partial class DefinicoesPorModuloPageTests : IClassFixture<CustomW
             using var client = await LoginOperatorAsync("5103", DmoCapabilities.Ferramentas);
             var html = WebUtility.HtmlDecode(await client.GetStringAsync("/Definicoes"));
             Assert.Contains($"name=\"quantities[{Codificacao.ChavePadrao("BQ", Codificacao.B1)}]\" value=\"ABxxxxNX34\"", html);
-            Assert.Matches("<input type=\"radio\" name=\"modo\" value=\"Dupla\" form=\"ferrDefModoB2Form\" data-dmo-autosubmit checked=\"checked\" />B2 Dupla", html);
+            // Uma só fila da B2 com o modo num dropdown; aparece só o modo ativo (Diogo, 29/10/2026).
+            Assert.Matches("<select name=\"modo\" id=\"ferrDefModoB2\" form=\"ferrDefModoB2Form\" data-dmo-autosubmit[^>]*>\\s*<option value=\"Dupla\" selected=\"selected\">Dupla</option>\\s*<option value=\"Tripla\">Tripla</option>", html);
+            Assert.Contains("id=\"ferr-nome-CM-B2-Dupla\"", html);
+            Assert.DoesNotContain("id=\"ferr-nome-CM-B2-Tripla\"", html);
+            Assert.DoesNotContain("type=\"radio\" name=\"modo\"", html);
             Assert.Contains("id=\"ferrDefAtualizar\"", html);
 
             var token = HtmlFormHelpers.ExtractRequestVerificationToken(html)!;
@@ -203,7 +207,9 @@ public sealed partial class DefinicoesPorModuloPageTests : IClassFixture<CustomW
             Assert.Equal("Tripla", Stored(Codificacao.ModoB2Chave));
             Assert.Equal("72", Stored(ToolLotQuantityKeys.For(ToolType.Cm, "B2")));
             var depois = WebUtility.HtmlDecode(await client.GetStringAsync("/Definicoes"));
-            Assert.Matches("value=\"Tripla\" form=\"ferrDefModoB2Form\" data-dmo-autosubmit checked=\"checked\" />B2 Tripla", depois);
+            Assert.Contains("<option value=\"Tripla\" selected=\"selected\">Tripla</option>", depois);
+            Assert.Contains("id=\"ferr-nome-CM-B2-Tripla\"", depois);
+            Assert.DoesNotContain("id=\"ferr-nome-CM-B2-Dupla\"", depois);
         }
         finally
         {
