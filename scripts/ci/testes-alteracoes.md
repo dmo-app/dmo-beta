@@ -5516,3 +5516,13 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Peso_OsCartoesDaFolhaEsticamSemVazios`
 
 Selo depois: `a5844820eeb1b7d1`
+
+## A-0418 · 2026-10-29 · ok-do-diogo
+
+Porquê: Lote .243: junta #330, #331, #334, #335, #338; as entradas A-0404..A-0417 explicam os testes (PeloPosto_EmUso_ASessaoContinua saiu em A-0406).
+Referência: lote .243
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Peso_OsCartoesDaFolhaEsticamSemVazios`
+
+Selo depois: `61d4bf97b6defe5b`
