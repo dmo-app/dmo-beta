@@ -604,7 +604,11 @@
     { "id": "DMO-630", "module": "Boquilhas", "description": "0.3.0-beta.236 (A-0370): o «meter a zero» de um registo passa a esconder o Saldo das linhas de antes do zero também no Histórico e no PDF, tal como já acontecia no Registo." },
     { "id": "DMO-631", "module": "Armazém", "description": "0.3.0-beta.236 (A-0371): um «Corrigir» no meio já não faz a Saída seguinte perder a Linha e o Job On da última Entrada real." },
     { "id": "DMO-632", "module": "Boquilhas", "description": "0.3.0-beta.236 (A-0372): editar a referência ou o lote de uma Boquilhas muda a versão do Excel ligado, mesmo sem nenhum movimento novo." },
-    { "id": "DMO-633", "module": "Armazém", "description": "0.3.0-beta.236 (A-0373): o filtro do reparador, no Histórico do Armazém, encontra pelo mesmo nome que a linha mostra (o escrito na Entrada, não só o da Saída anterior); as opções do filtro têm as duas fontes." }
+    { "id": "DMO-633", "module": "Armazém", "description": "0.3.0-beta.236 (A-0373): o filtro do reparador, no Histórico do Armazém, encontra pelo mesmo nome que a linha mostra (o escrito na Entrada, não só o da Saída anterior); as opções do filtro têm as duas fontes." },
+    { "id": "DMO-621", "module": "Ferramentas", "description": "0.3.0-beta.236 (A-0361): a primeira leitura da pasta do SAP importava só os 10 ficheiros mais recentes; os mais antigos ficavam por ler. Importa-se agora a pasta inteira, do mais antigo para o mais novo." },
+    { "id": "DMO-622", "module": "Ferramentas", "description": "0.3.0-beta.236 (A-0362): «Apagar lidos» podia apagar um ficheiro do SAP que nunca tinha sido mesmo importado (recusado pelo servidor, ou anterior a este browser ter confirmado nada). Passa a apagar só os que este browser confirmou gravados." },
+    { "id": "DMO-623", "module": "Ferramentas", "description": "0.3.0-beta.236 (A-0363): um % de uso escrito à mão igual à última leitura do SAP arredondada (90,2 → 90) não gravava, mesmo sendo uma correção real." },
+    { "id": "DMO-624", "module": "Aplicação", "description": "0.3.0-beta.236 (A-0364): quatro dias por defeito (sem data escrita) usavam o relógio do servidor em vez do de Lisboa — à noite de verão podiam cair no dia errado." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

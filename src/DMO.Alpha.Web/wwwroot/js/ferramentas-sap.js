@@ -82,6 +82,37 @@
     });
   }
 
+  // Os ficheiros que o servidor confirmou gravados (SAP-B05): só esses podem
+  // ser apagados pelo «Apagar lidos», nunca pela data sozinha (um ficheiro
+  // recusado ou fora do limite de leitura podia ficar antes do corte sem
+  // nunca ter sido importado).
+  function chaveConfirmado(nome, modificado) {
+    return nome + "\u0000" + modificado;
+  }
+
+  async function confirmados() {
+    const base = await abrirBase();
+    return new Promise((resolve, reject) => {
+      const pedido = base.transaction(LOJA, "readonly").objectStore(LOJA).get("confirmados");
+      pedido.onsuccess = () => resolve(pedido.result || []);
+      pedido.onerror = () => reject(pedido.error);
+    });
+  }
+
+  async function marcarConfirmado(nome, modificado) {
+    const base = await abrirBase();
+    const lista = await confirmados();
+    const chave = chaveConfirmado(nome, modificado);
+    if (lista.includes(chave)) return;
+    lista.push(chave);
+    return new Promise((resolve, reject) => {
+      const transacao = base.transaction(LOJA, "readwrite");
+      transacao.objectStore(LOJA).put(lista, "confirmados");
+      transacao.oncomplete = () => resolve();
+      transacao.onerror = () => reject(transacao.error);
+    });
+  }
+
   async function guardarPasta(pasta) {
     const base = await abrirBase();
     return new Promise((resolve, reject) => {
@@ -145,8 +176,6 @@
     if (!resposta.ok) throw new Error("O servidor não respondeu (" + resposta.status + ").");
     return resposta.json();
   }
-
-  const MAXIMO = 10;
 
   // Os ficheiros da pasta que podem vir do SAP, do mais antigo para o mais novo.
   async function ficheirosDoSap(pasta) {
@@ -231,12 +260,13 @@
         mostrarEstado("«" + pasta.name + "» · a lista mais recente («" + ficheiro.name + "») já foi lida");
         return;
       }
-      const novos = (forcar || !info.ficheiroModificadoEm
+      const novos = forcar || !info.ficheiroModificadoEm
         ? ficheiros
-        : ficheiros.filter((f) => f.lastModified > info.ficheiroModificadoEm)).slice(-MAXIMO);
+        : ficheiros.filter((f) => f.lastModified > info.ficheiroModificadoEm);
       for (const novo of novos) {
         const resultado = await enviar(novo);
         mensagem(resultado.gravado ? "ok" : "aviso", resultado.mensagem);
+        if (resultado.gravado) await marcarConfirmado(novo.name, novo.lastModified);
       }
       mostrarEstado("«" + pasta.name + "» · última lista lida «" + ficheiro.name + "»");
     } finally {
@@ -359,9 +389,11 @@
   }
 
   // Apagar da pasta os ficheiros do SAP que o DMO já leu (Diogo, 22/10/2026:
-  // «depois uma opção para apagar»). Só os que vieram do SAP e são tão ou
-  // mais antigos do que o último lido; o dmo-codigos.txt, o LEIA-ME, o
-  // script e o atalho ficam.
+  // «depois uma opção para apagar»). Só os que vieram do SAP, são tão ou
+  // mais antigos do que o último lido E o servidor confirmou gravados
+  // (SAP-B05: um ficheiro recusado, ou antigo de antes deste browser ter
+  // confirmado nada, não se apaga só pela data); o dmo-codigos.txt, o
+  // LEIA-ME, o script e o atalho ficam.
   async function apagarLidos() {
     const pasta = await pastaGuardada();
     if (!pasta) {
@@ -370,8 +402,11 @@
     }
     if (!(await permissao(pasta, true))) return;
     const info = await infoServidor();
+    const confirmadosLista = await confirmados();
     const lidos = info.ficheiroModificadoEm
-      ? (await ficheirosDoSap(pasta)).filter((f) => f.lastModified <= info.ficheiroModificadoEm)
+      ? (await ficheirosDoSap(pasta)).filter(
+          (f) => f.lastModified <= info.ficheiroModificadoEm && confirmadosLista.includes(chaveConfirmado(f.name, f.lastModified))
+        )
       : [];
     if (lidos.length === 0) {
       mensagem("aviso", "Não há ficheiros lidos para apagar na pasta «" + pasta.name + "».");

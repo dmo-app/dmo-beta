@@ -27,10 +27,12 @@ namespace DMO.Alpha.Infrastructure.Production;
 public sealed class CreateJobOnHandler : ICreateJobOnHandler
 {
     private readonly DmoDbContext _db;
+    private readonly TimeProvider _relogio;
 
-    public CreateJobOnHandler(DmoDbContext db)
+    public CreateJobOnHandler(DmoDbContext db, TimeProvider? relogio = null)
     {
         _db = db;
+        _relogio = relogio ?? TimeProvider.System;
     }
 
     // Dois envios ao mesmo tempo (duplo clique) passam os dois a
@@ -56,7 +58,9 @@ public sealed class CreateJobOnHandler : ICreateJobOnHandler
         var fimEm = command.FimEm;
         if (command.Experiencia)
         {
-            inicioEm ??= DateOnly.FromDateTime(DateTime.UtcNow);
+            // DATA-B01 (sweep .230): sem data dada, o dia é o de Lisboa, não
+            // o UTC (00:30 de Lisboa no verão é ainda a véspera em UTC).
+            inicioEm ??= DateOnly.FromDateTime(DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(_relogio.GetUtcNow()));
             fimEm = inicioEm;
             productionNumber = $"{inicioEm.Value.Year}00";
         }
