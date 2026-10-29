@@ -635,7 +635,8 @@
     { "id": "DMO-678", "module": "Controlo", "description": "0.3.0-beta.246 (A-0430): na Revisão do Controlo, os botões «Medições no mcaliper» (CM, MF, BQ) abrem o link no mcaliper num separador novo, em vez de o copiarem." },
     { "id": "DMO-676", "module": "Controlo", "description": "0.3.0-beta.246 (A-0427): no Peso, a lista de máquinas do Novo Peso com Job On só mostra as máquinas onde a referência pode trabalhar; e a tabela do Controlo anterior passa a «Controlo atual · n.º da produção» com as colunas iguais." },
     { "id": "DMO-681", "module": "Ferramentas", "description": "(A-0434): SAP: o «Atualizar do SAP › Por data» lê as produções dessas datas e também a % uso de todas as ferramentas, num só clique." },
-    { "id": "DMO-679", "module": "Ferramentas", "description": "0.3.0-beta.247 (A-0432): no Histórico de produções da ficha da ferramenta, cada produção leva à frente o seu número de ordem nessa ferramenta (por exemplo «202603 7018C002 · B1 · 1»): a 1 é a mais antiga, mesmo que seja de outra referência." }
+    { "id": "DMO-679", "module": "Ferramentas", "description": "0.3.0-beta.247 (A-0432): no Histórico de produções da ficha da ferramenta, cada produção leva à frente o seu número de ordem nessa ferramenta (por exemplo «202603 7018C002 · B1 · 1»): a 1 é a mais antiga, mesmo que seja de outra referência." },
+    { "id": "DMO-680", "module": "Job On", "description": "Na folha do Job On o número do botão «Linhas» fica num círculo visível, alinhado ao centro com o texto." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

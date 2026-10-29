@@ -5760,3 +5760,13 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.HistoricoOrdem.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_NumeraAsProducoesDaFerramenta_A1EAMaisAntiga`
 
 Selo depois: `7f03434c7663c234`
+
+## A-0433 · 2026-10-29 · teste-novo
+
+Porquê: Teste novo: círculo do número do botão Linhas centrado (DMO-680).
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/ShellProof/jobon-folha-linhas-contagem.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/jobon-folha-linhas-contagem.test.cjs :: O número do botão «Linhas» fica num círculo com contorno, centrado com o texto`
+
+Selo depois: `549fc74ecc34e53f`
