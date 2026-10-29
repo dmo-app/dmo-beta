@@ -218,6 +218,21 @@ else
 fi
 
 echo
+echo "== Browser no hover das linhas"
+echo "   Ao passar o rato numa linha de uma tabela, a letra fica legível (contraste mínimo 4,5:1), claro e escuro."
+if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then
+  echo "   não corrido (CI_SEM_BROWSER=1)"
+  summary+=("--      Browser no hover das linhas (CI_SEM_BROWSER=1)")
+elif python3 tests/visual/hover_linhas_browser.py >"$logs/ui-hover-linhas.log" 2>&1; then
+  echo "   passaram"
+  summary+=("OK      Browser no hover das linhas")
+else
+  tail -30 "$logs/ui-hover-linhas.log"
+  summary+=("FALHOU  Browser no hover das linhas")
+  failed=1
+fi
+
+echo
 echo "== Browser na tabela das punções"
 echo "   As colunas da lista das punções ficam com a mesma largura ao trocar «Visto» por «Por verificar»."
 if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then

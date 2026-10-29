@@ -716,6 +716,9 @@ html body :is(.jof2 .del):is(:hover,:focus-visible){color:var(--dmo-danger)}
 html body .dmo-table tbody :is(tr[data-dmo-row],tr:has(>td>input[type=radio])):hover>td{background:var(--dmo-brand-600);color:#fff}
 html body .dmo-table tbody :is(tr[data-dmo-row],tr:has(>td>input[type=radio])):hover :is(td,strong,b,a,h4,span:not(.dmo-pill)){color:#fff}
 html body [data-dmo-list] [data-dmo-row]:hover{background:var(--dmo-brand-600);color:#fff}
+/* Letra sempre legível (Diogo, 29/10/2026: «hover deixa font invisível»): no escuro o azul da marca é claro de mais para letra branca (4,0:1), o hover usa um tom mais fundo (mais de 4,5:1). */
+:root[data-theme="dark"] body .dmo-table tbody :is(tr[data-dmo-row],tr:has(>td>input[type=radio])):hover>td{background:color-mix(in srgb,var(--dmo-brand-600) 70%,#000)}
+:root[data-theme="dark"] body [data-dmo-list] [data-dmo-row]:hover{background:color-mix(in srgb,var(--dmo-brand-600) 70%,#000)}
 /* Modo Editar (Diogo, 27/10/2026): todos os campos e seletores com a mesma altura,
    o texto centrado na vertical e afastado da borda; nada sai do cartão. */
 html body .jof2.editing .page-head .fv :is(select,input){box-sizing:border-box !important;height:var(--dmo-control-height) !important;min-height:0 !important;margin:0 !important;padding:0 10px !important;line-height:normal !important}
@@ -777,7 +780,7 @@ html body main.peso-page #pesoHistoricoFiltros>.dmo-field.peso-hist-lote>input{w
    branco», «usa um pouco de shade da palete»): no claro, o cabeçalho da
    tabela no tom pálido da marca e as linhas alternadas no tom subtil. */
 :root:not([data-theme="dark"]) body main.peso-page table[data-dmo-list="Histórico do Controlo"] thead th{background:color-mix(in srgb,var(--dmo-brand-500) 16%,var(--dmo-card))}
-:root:not([data-theme="dark"]) body main.peso-page table[data-dmo-list="Histórico do Controlo"] tbody tr:nth-child(even)>td{background:color-mix(in srgb,var(--dmo-brand-500) 7%,var(--dmo-card))}
+:root:not([data-theme="dark"]) body main.peso-page table[data-dmo-list="Histórico do Controlo"] tbody tr:nth-child(even):not(:hover):not(.selected):not([aria-selected="true"])>td{background:color-mix(in srgb,var(--dmo-brand-500) 7%,var(--dmo-card))}
 :root:not([data-theme="dark"]) body main.peso-page #pesoHistoricoFiltros{background:color-mix(in srgb,var(--dmo-brand-500) 9%,var(--dmo-card));border-radius:var(--dmo-radius-control,8px);padding:10px 12px}
 /* O filtro «Ferramenta» de um link, à vista e com «×» para o tirar. */
 html body main.peso-page #pesoHistoricoFiltros>.dmo-field.peso-hist-ferramenta{flex:0 0 auto}

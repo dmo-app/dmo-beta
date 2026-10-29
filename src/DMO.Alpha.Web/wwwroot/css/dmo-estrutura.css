@@ -120,3 +120,6 @@ html body .jof2-gaveta .rail-vazio{color:var(--dmo-muted)}
 html:root[data-dmo-embedded="true"] body .jof2.jof2.jof2.jof2.jof2 .page-head h1.design-jobon-title{display:none}
 html:root[data-dmo-embedded="true"] body .jof2.jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-campo:first-of-type{padding-left:0;border-left:0}
 html:root[data-dmo-embedded="true"] body .jof2.jof2.jof2.jof2.jof2 #jofVoltar{display:none}
+/* «Voltar» do painel de apoio: link no canto superior esquerdo, antes do título (Diogo, 29/10/2026). */
+html body .dmo-painel-topo > a.dmo-painel-voltar{flex:0 0 auto;margin:0;white-space:nowrap}
+html body .dmo-painel-topo > a.dmo-painel-voltar[hidden]{display:none}
