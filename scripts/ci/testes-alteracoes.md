@@ -5013,3 +5013,108 @@ Novos: 2 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `48fb94b315990dac`
+
+## A-0381 · 2026-10-29 · teste-novo
+
+Porquê: DMO-641 Pesquisa no Armazém e DMO-643 (A-0383) link da % uso: testes novos
+Novos: 8 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.LinkDaPercentagemDeUso_TemOEstiloDaApp`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.OSeparador_EstaAoLadoDoRegistoEDosMovimentos_EAPaginaAbreVazia`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.Pesquisar_PelaPosicao_EComNada_AvisaQueNaoEncontrou`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.Pesquisar_ProcuraCmMfEBq_EACadaLinhaAbreORegistoDaFerramenta`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.ProcuraAoEscrever_DevolveSoAZonaDosResultados`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.SemAChave_NaoEntra`
+- novo: `tests/visual/armazem_pesquisar_browser.py`
+
+Selo depois: `70ba42c3e40f4230`
+
+## A-0351 · 2026-10-29 · contagem-lista
+
+Porquê: 2.ª passagem da auditoria .230, lote 1: travão do Posto por X-Forwarded-For falsificável (AUTH-B02), resposta atrasada de ferramenta sobrepõe o cartão (Job On), Enter sem navegar limpa a CM em silêncio (Job On).
+Novos: 3 · mudaram: 3 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: PostoTravaoTests.Posto_PinsErrados_ComXForwardedForDiferenteDeCadaVez_EsperaNaMesma`
+- novo: `tests/ShellProof/dmo-suggest.test.cjs :: Enter sem navegar nas flechas confirma a ferramenta já escolhida, não a limpa (auditoria do Codex, 29/10/2026)`
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: Editar: a resposta atrasada de uma ferramenta trocada não sobrepõe o cartão da escolhida a seguir`
+- mudou: `tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/dmo-suggest.test.cjs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/jobon-folha.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `9a278c4dad62b6a0`
+
+## A-0360 · 2026-10-29 · contagem-lista
+
+Porquê: AUTH-B01 (auditoria de 29/10/2026, decisão do Diogo): o login passa a esperar a sério depois de várias palavras-passe erradas seguidas, reutilizando o travão do Posto (TravaoDoPosto) chaveado pela conta; a espera esgota-se sozinha, nunca bloqueia para sempre.
+Novos: 4 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.TravaoDeLogin.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.TravaoDeLogin.cs :: AuthenticationTests.Login_DuasFalhasEDepoisACerta_NaoEspera`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.TravaoDeLogin.cs :: AuthenticationTests.Login_MesmaContaDuasOrigens_UmaPalavraPasseDeCadaVez`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.TravaoDeLogin.cs :: AuthenticationTests.Login_PalavrasPasseErradas_EsperamCadaVezMais_EACertaEntraNaMesmaAposEsperar`
+
+Selo depois: `5d4ac9207aa000f8`
+
+## A-0354 · 2026-10-29 · contagem-lista
+
+Porquê: 2.ª passagem da auditoria .230 (Codex/Qoder, 29/10): fabrico SAP — SAP-B01 (linha contada a dobrar numa produção sem fim), SAP-B02 (reimportação apaga valores já lidos) e SAP-B03 (referência truncada apanha o material errado).
+Novos: 4 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ProducaoQueAcabaAMeioDaLinha_LigaELevaALinhaInteira`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ProducaoSemFim_ComProximaNaMesmaMaquina_NaoEngoleALinhaDaSeguinte`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ReferenciaCorresponde_ExigeFronteiraAposOPrefixo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ReimportarComRelatorioParcial_NaoApagaOQueJaEstavaGravado`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ALinhaDoSap_LigaSeAoJobOnPelaReferenciaMaquinaEDatas`
+
+Selo depois: `eb7e46cd07d185de`
+
+## A-0344 · 2026-10-29 · contagem-lista
+
+Porquê: SEC-01 (auditoria Codex 29/10/2026): «Atualizar do SAP» e «Instalar», que escreviam a senha do SAP nos scripts, saem da página Ferramentas (qualquer conta com o módulo chegava-lhes); ficam só em Admin › Definições › SAP. Teste novo confirma que o operador perde o handler (ScriptsSap) e o Admin mantém a senha; teste novo do browser confirma que o cartão sem esses botões não rebenta e «Apagar lidos» continua.
+Novos: 1 · mudaram: 4 · saíram: 0
+
+- novo: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: Sem «Atualizar do SAP» no cartão (Admin ficou com ele), o script não rebenta e «Apagar lidos» continua a funcionar`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.AsPastas_SaoGerais_SoAsAcoesFicamParaTodos`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OAdmin_MudaOSap_EOsScriptsDaPastaLevamAsDefinicoes`
+- mudou: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `07d1b1e410dc2fdb`
+
+## A-0382 · 2026-10-29 · ok-do-diogo
+
+Porquê: Lote .236: junta as impressões já explicadas em A-0344 (#311), A-0351 (#308), A-0354 (#310), A-0360 (#309) e A-0381 (#307), além das do lote anterior (A-0350)
+Referência: A-0344; A-0351; A-0354; A-0360; A-0381
+Novos: 20 · mudaram: 8 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ProducaoQueAcabaAMeioDaLinha_LigaELevaALinhaInteira`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ProducaoSemFim_ComProximaNaMesmaMaquina_NaoEngoleALinhaDaSeguinte`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ReferenciaCorresponde_ExigeFronteiraAposOPrefixo`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ReimportarComRelatorioParcial_NaoApagaOQueJaEstavaGravado`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.LinkDaPercentagemDeUso_TemOEstiloDaApp`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.OSeparador_EstaAoLadoDoRegistoEDosMovimentos_EAPaginaAbreVazia`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.Pesquisar_PelaPosicao_EComNada_AvisaQueNaoEncontrou`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.Pesquisar_ProcuraCmMfEBq_EACadaLinhaAbreORegistoDaFerramenta`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.ProcuraAoEscrever_DevolveSoAZonaDosResultados`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemPesquisarPaginaTests.cs :: ArmazemPesquisarPaginaTests.SemAChave_NaoEntra`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.TravaoDeLogin.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.TravaoDeLogin.cs :: AuthenticationTests.Login_DuasFalhasEDepoisACerta_NaoEspera`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.TravaoDeLogin.cs :: AuthenticationTests.Login_MesmaContaDuasOrigens_UmaPalavraPasseDeCadaVez`
+- novo: `tests/DMO.Alpha.Web.Tests/AuthenticationTests.TravaoDeLogin.cs :: AuthenticationTests.Login_PalavrasPasseErradas_EsperamCadaVezMais_EACertaEntraNaMesmaAposEsperar`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: PostoTravaoTests.Posto_PinsErrados_ComXForwardedForDiferenteDeCadaVez_EsperaNaMesma`
+- novo: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: Sem «Atualizar do SAP» no cartão (Admin ficou com ele), o script não rebenta e «Apagar lidos» continua a funcionar`
+- novo: `tests/ShellProof/dmo-suggest.test.cjs :: Enter sem navegar nas flechas confirma a ferramenta já escolhida, não a limpa (auditoria do Codex, 29/10/2026)`
+- novo: `tests/ShellProof/jobon-folha.test.cjs :: Editar: a resposta atrasada de uma ferramenta trocada não sobrepõe o cartão da escolhida a seguir`
+- novo: `tests/visual/armazem_pesquisar_browser.py`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.ALinhaDoSap_LigaSeAoJobOnPelaReferenciaMaquinaEDatas`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.AsPastas_SaoGerais_SoAsAcoesFicamParaTodos`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OAdmin_MudaOSap_EOsScriptsDaPastaLevamAsDefinicoes`
+- mudou: `tests/DMO.Alpha.Web.Tests/PostoTravaoTests.cs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/dmo-suggest.test.cjs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/jobon-folha.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `201be6b94f26e7e5`
