@@ -371,7 +371,11 @@ Sub EscreverSenha()
     ' Sem o Windows: pelo teclado. A janela abre com o cursor na caixa do nome
     ' (Diogo, 28/10/2026: a senha ia parar lá): o nome por cima do que lá
     ' estiver, Tab, a senha e Enter.
-    If codigo <> 0 Then
+    ' Código 3: a janela «Moldes Existentes» não tem a caixa da senha (o SAP
+    ' já está aberto). Pelo teclado escrevia-se na janela do SAP em uso
+    ' (Diogo, 29/10/2026: «Função impossível», DMO-666): não se escreve nada.
+    If codigo = 3 Then Registo "janela sem caixa da senha: nada escrito"
+    If codigo <> 0 And codigo <> 3 Then
         shell.AppActivate JANELA_LOGON
         WScript.Sleep 300
         shell.SendKeys "^a" & ParaSendKeys(UTILIZADOR) & "{TAB}" & ParaSendKeys(SENHA) & "{ENTER}"

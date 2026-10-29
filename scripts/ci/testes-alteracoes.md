@@ -5605,3 +5605,13 @@ Novos: 1 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBResumo.cs :: PesoFolhaProducaoAnteriorPageTests.Resumo_TabelaDoPeso_TemAsColunasValorGEPercentagem_EACadaLinhaAsDuasDiferencas`
 
 Selo depois: `ffd1b58d9d7cece0`
+
+## A-0424 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-666: sem caixa da senha o script não escreve pelo teclado na janela do SAP em uso (Diogo 29/10, «Função impossível»)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraYbZnyAJ6oEvMe6guNRA41v
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.SemCaixaDaSenha_NaoEscrevePeloTeclado`
+
+Selo depois: `3923e2ad82832cb3`
