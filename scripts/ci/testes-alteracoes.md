@@ -5359,25 +5359,44 @@ Novos: 2 · mudaram: 4 · saíram: 0
 
 Selo depois: `d750d0d392be5ec3`
 
-## A-0401 · 2026-10-29 · contagem-lista
+## A-0401 · 2026-10-29 · ok-do-diogo
 
-Porquê: AUTH-B03/B04/B05: revogação de PIN/sessões no reset, SessionVersion ao arquivar/reativar, cookie próprio do Posto sem deslizar
-Novos: 13 · mudaram: 1 · saíram: 1
+Porquê: DMO-659: ZPPG só na plant MG; BQ procura até ao processo de 2 letras, mais casos (Diogo 29/10, ARTIGOS-MG)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgra17ZmcRmgwGkHQK9FSJwe6E
+Novos: 1 · mudaram: 1 · saíram: 0
 
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.ResetUserAccessAsync_ApagaOPinDoPosto`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.ResetUserAccessAsync_OProviderRecusa_OPinDoPostoVoltaAFicar`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.SetUserStandByAsync_ArquivarEReativar_SobeAVersaoNasDuasVezes`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.SetUserStandByAsync_Arquivar_SobeAVersaoDaSessao`
-- novo: `tests/DMO.Alpha.Infrastructure.Tests/Admin/AuthB03B04UserAdminServiceTests.cs :: AuthB03B04UserAdminServiceTests.SetUserStandByAsync_SemMudarOEstado_NaoSobeAVersao`
-- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: (resto do ficheiro)`
-- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: AuthB03B04B05Tests.ArquivarEReativar_ACookieAntigaContinuaRecusadaDepoisDeReativar`
-- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: AuthB03B04B05Tests.ComRequiresPasswordChange_AEntradaPeloPostoRecusaMesmoComOPinCerto`
-- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: AuthB03B04B05Tests.MudarOPin_FechaAsSessoesDoPostoAbertasComOPinAnterior`
-- novo: `tests/DMO.Alpha.Web.Tests/AuthB03B04B05Tests.cs :: AuthB03B04B05Tests.ResetDeAcesso_ApagaOPinDoPosto_OPinAntigoJaNaoEntra`
-- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_DentroDoLimite_OsPedidosContinuam`
-- novo: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_UmPedidoDentroDoLimite_JaNaoEstendeParaUmaHora`
-- mudou: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: (resto do ficheiro)`
-- saiu: `tests/DMO.Alpha.Web.Tests/PostoSoRiTests.cs :: PostoSoRiTests.PeloPosto_EmUso_ASessaoContinua`
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OScriptDaZppg_ProcuraSoNaPlantMg`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.ABq_ProcuraSePeloNomeTecnicoAteAoProcesso_EstrelaELote`
 
-Selo depois: `1db62a33a3fb0991`
+Selo depois: `d6778ba23b53272e`
+
+## A-0395 · 2026-10-29 · contagem-lista
+
+Porquê: AUTH-B06 (DMO-653): adicionado o guard SoVerAsync aos handlers AJAX ProcurarProducao, ToolCandidates e ToolFacts do Job On, que faltava e deixava quem só tem jobon.view aceder ao catálogo de ferramentas e aos fatos técnicos pelo endereço direto; 4 testes novos (JobOnPageTests.AjaxSoVer.cs). PERM-B01 (DMO-654): adicionado [ModuleEntry(DmoCapabilities.Ferramentas)] à página Ferramentas/Utilizacao, confinando a sessão do Posto (Reparação Interna) à RI também nesta página, não só no menu; 1 teste novo (PostoFerramentasUtilizacaoTests.cs).
+Novos: 7 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: JobOnPageTests.JobOnCriar_HandlersAjax_ContinuamAFuncionar`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: JobOnPageTests.JobOnVer_HandlerProcurarProducao_EhRedirecionado`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: JobOnPageTests.JobOnVer_HandlerToolCandidates_EhRedirecionado`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: JobOnPageTests.JobOnVer_HandlerToolFacts_EhRedirecionado`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoFerramentasUtilizacaoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoFerramentasUtilizacaoTests.cs :: PostoFerramentasUtilizacaoTests.PeloPosto_FerramentasUtilizacao_EhRecusada_PeloLoginContinuaAAbrir`
+
+Selo depois: `1bf72afdf36220cb`
+
+## A-0402 · 2026-10-29 · teste-novo
+
+Porquê: Lote .241: junta os testes novos do #327 (A-0395) e do #328 (A-0401)
+Referência: A-0395; A-0401
+Novos: 7 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: JobOnPageTests.JobOnCriar_HandlersAjax_ContinuamAFuncionar`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: JobOnPageTests.JobOnVer_HandlerProcurarProducao_EhRedirecionado`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: JobOnPageTests.JobOnVer_HandlerToolCandidates_EhRedirecionado`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: JobOnPageTests.JobOnVer_HandlerToolFacts_EhRedirecionado`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoFerramentasUtilizacaoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoFerramentasUtilizacaoTests.cs :: PostoFerramentasUtilizacaoTests.PeloPosto_FerramentasUtilizacao_EhRecusada_PeloLoginContinuaAAbrir`
+
+Selo depois: `e2521895af016d8f`
