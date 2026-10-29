@@ -1,5 +1,5 @@
 {
-  "selo": "4a55af040cab0651",
+  "selo": "b07ddb963368e9dd",
   "unidades": {
     "scripts/ci/ci-local.sh": "b85e4195bb3ac186",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2471,6 +2471,7 @@
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapMaisAntigo.cs :: DefinicoesPorModuloPageTests.UmFicheiroDoSapMaisAntigoDoQueOUltimoLido_NaoGrava": "8ad1c34d3f2274ac",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: (resto do ficheiro)": "20b422bec4da6f5d",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.AHoraEOsDiasDoSap_FicamNaMesmaLinha": "c41538712833c9d5",
+    "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.AJanelaDoSap_EscondeAsPartesQueNaoEstaoEscolhidas": "7497fdadc0dbd47d",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.ATabelaDosCodigosDeProcura_GravaNoAdminEMudaOsCodigosPedidos": "afaa21b29e3eb106",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.OBotaoDoSap_DizAtualizar_ENaoPedirSoAsAEspera": "10cd71dc1af6345e",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.OCodigoSapDaFicha_GanhaATabela_EVazioVoltaAEla": "9d09f6288aa4cf51",

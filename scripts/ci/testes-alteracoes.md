@@ -5421,3 +5421,13 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.SemCodigosAEspera_OUsoAcabaSemErro`
 
 Selo depois: `4a55af040cab0651`
+
+## A-0410 · 2026-10-29 · ok-do-diogo
+
+Porquê: DMO-665: a janela Atualizar do SAP mostra só a parte escolhida (Diogo 29/10)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraCdENbGEZaUsyR5Q2wb938B
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.AJanelaDoSap_EscondeAsPartesQueNaoEstaoEscolhidas`
+
+Selo depois: `b07ddb963368e9dd`

@@ -615,7 +615,8 @@
     { "id": "DMO-659", "module": "Ferramentas", "description": "0.3.0-beta.241 (A-0401): SAP: a ZPPG procura só na plant MG; as BQ procuram-se até às 2 letras do processo, seja qual for (NX, PX, SX, SC, SR, NR, PR…), com «*» e o lote." },
     { "id": "DMO-660", "module": "Job On", "description": "0.3.0-beta.242 No Planeamento a procura da referência e o «Criar Job On» passam para a linha do título «Produções de …», e os cartões das linhas voltam à altura normal, inteiros e com espaço por baixo." },
     { "id": "DMO-661", "module": "Ferramentas", "description": "0.3.0-beta.242 (A-0403): o «Atualizar do SAP» sem senha guardada já não prende o computador: os scripts do SAP param logo e o «Instalar» recusa; com o SAP já aberto, a senha escreve-se na janela do SAP." },
-    { "id": "DMO-664", "module": "Ferramentas", "description": "(A-0409): SAP: no «Atualizar do SAP › Normal» sem ferramentas à espera da % de uso, a leitura já não aparece como «falhou»." }
+    { "id": "DMO-664", "module": "Ferramentas", "description": "(A-0409): SAP: no «Atualizar do SAP › Normal» sem ferramentas à espera da % de uso, a leitura já não aparece como «falhou»." },
+    { "id": "DMO-665", "module": "Ferramentas", "description": "(A-0410): na janela «Atualizar do SAP» só aparece a parte escolhida (Como nas definições, Por data ou Por referência); antes apareciam as três juntas e os botões pareciam não fazer nada." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
