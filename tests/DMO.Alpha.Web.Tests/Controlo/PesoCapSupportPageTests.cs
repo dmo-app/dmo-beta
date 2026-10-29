@@ -226,6 +226,20 @@ public class PesoCapSupportPageTests : IClassFixture<CustomWebApplicationFactory
     }
 
     [Fact]
+    public async Task ProductionMode_DadosTecnicos_FicamNumDobravelFechadoPorOmissao()
+    {
+        var controloId = await SeedProducaoComPesoAsync(caloteMm: 9m);
+        SeedUser("4232", "Peso Operador", "provider-cap-2", "PesoCap2!");
+        using var client = await LoginClientAsync("4232", "PesoCap2!");
+
+        var html = await GetPageHtmlAsync(client, $"{PagePath}?controlo_id={controloId}");
+
+        Assert.Matches("<details class=\"peso-tecnico\"[^>]*>\\s*<summary[^>]*>.*?Dados técnicos</summary>", html);
+        Assert.DoesNotMatch("<details class=\"peso-tecnico\"[^>]* open", html);
+        Assert.Contains("Volume Marisa / BQ (cm³)", html);
+    }
+
+    [Fact]
     public async Task ProductionMode_PainelDeFactos_MostraVolumesDensidadeEApoioComACaloteDoJobOn()
     {
         // O painel de factos (o renderFacts do dmo-html) com a calote

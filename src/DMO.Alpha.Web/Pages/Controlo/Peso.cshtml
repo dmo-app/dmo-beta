@@ -795,6 +795,7 @@
          CM visível e o botão do apoio TP/calote — APOIO SEPARADO: o
          cálculo é do backend (a query canónica + PesoCapCalculation) e
          NUNCA bloqueia o Peso. *@
+      <details class="peso-tecnico" data-dmo-fica><summary class="peso-tecnico-titulo"><span class="dmo-caret" aria-hidden="true"></span>Dados técnicos</summary>
       <div class="peso-facts" style="margin-top:10px">
         <div class="peso-fact"><span>Volume Marisa / BQ (cm³)</span><strong>@((pesoDeAntes?.VolumeMarisaCm3 ?? Model.BqTechnical?.VolumeMarisaCm3) is { } painelMarisa ? fmt(painelMarisa) : "—")</strong></div>
         <div class="peso-fact"><span>Volume Punção / CM (cm³)</span><strong>@((pesoDeAntes?.VolumePuncaoCm3 ?? Model.CmTechnical?.VolumePuncaoCm3) is { } painelPuncao ? fmt(painelPuncao) : "—")</strong></div>
@@ -886,6 +887,7 @@
         </details>
         </div>
       </div>
+      </details>
 
       @* Os avisos que vêm no endereço (?associado, recusas): uma zona, para a
          primeira leitura gravada depois deles não abrir a página inteira. *@
@@ -1231,6 +1233,7 @@
        é a h_ref da Tool (o html: «Tool CM»). O apoio nunca bloqueia. *@
     @if (ambasFerramentas)
     {
+      <details class="peso-tecnico" data-dmo-fica><summary class="peso-tecnico-titulo"><span class="dmo-caret" aria-hidden="true"></span>Dados técnicos</summary>
       <div class="peso-facts">
         <div class="peso-fact"><span>Volume Marisa / BQ (cm³)</span><strong>@(Model.BqTechnical?.VolumeMarisaCm3 is { } painelMarisaTool ? fmt(painelMarisaTool) : "—")</strong></div>
         <div class="peso-fact"><span>Volume Punção / CM (cm³)</span><strong>@(Model.CmTechnical?.VolumePuncaoCm3 is { } painelPuncaoTool ? fmt(painelPuncaoTool) : "—")</strong></div>
@@ -1299,6 +1302,7 @@
           </div>
         </details>
       </div>
+      </details>
     }
   </section>
 
@@ -1844,7 +1848,7 @@
                 <th colspan="3" scope="colgroup">Peso (g)</th>
               </tr>
               <tr>
-                <th>Este controlo</th>
+                <th>Controlo atual@(Model.ProductionContext is { } prodAtual ? " · " + prodAtual.ProductionNumber : null)</th>
                 <th class="peso-cmp-ant">@historicoRotulo</th>
                 <th>Atual</th>
                 <th class="peso-cmp-ant">Anterior</th>

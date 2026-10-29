@@ -354,3 +354,7 @@ html body main.peso-page section.peso-card[data-peso-live]>.peso-live-region{mar
 /* A tabela do Controlo anterior lado a lado por grandeza (Diogo, 29/10/2026): as colunas do
    controlo anterior com um fundo cinza claro; as do atual ficam brancas. */
 .peso-page [data-peso-comparacao-tabela] .peso-cmp-ant{background:var(--dmo-subtle)}
+.peso-page details.peso-tecnico{margin-top:10px}
+.peso-page details.peso-tecnico>summary.peso-tecnico-titulo{list-style:none;cursor:pointer;font-weight:700;font-size:14px;display:flex;align-items:center;min-height:var(--dmo-control-height,34px)}
+.peso-page details.peso-tecnico>summary.peso-tecnico-titulo::-webkit-details-marker{display:none}
+.peso-page [data-peso-comparacao-tabela]{table-layout:fixed;width:100%}
