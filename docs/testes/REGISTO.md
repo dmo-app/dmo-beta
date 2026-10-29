@@ -5945,13 +5945,13 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | `Os avisos carregados depois de uma troca parcial também se podem fechar` | O × continua a funcionar nos avisos recebidos numa troca parcial. | OK | A-0408 |
 | PesoFolhaProducaoAnteriorPageTests.Folha_TabelaDoControloAnterior_ChamaControloAtualComONumeroDaProducao | Teste novo: a coluna «Controlo atual · n.º da produção» (DMO-676, Diogo 29/10) | OK | A-0427 |
 | PesoFolhaProducaoAnteriorPageTests.NovoPesoComJobOn_ASelecaoDeMaquina_SoMostraAsDaReferencia | Teste novo: o Novo Peso com Job On só lista as máquinas da referência (DMO-676, Diogo 29/10) | OK | A-0427 |
-| `O número do botão «Linhas» fica num círculo com contorno, centrado com o texto` | Na folha do Job On, o número do botão «Linhas» aparece num círculo visível e alinhado ao centro com o texto. | OK | A-0433 |
+| `jobon-folha-linhas-contagem.test.cjs::O número do botão «Linhas» fica num círculo com contorno, centrado com o texto` | Na folha do Job On, o número do botão «Linhas» aparece num círculo visível e alinhado ao centro com o texto. | OK | A-0433 |
 | PesoPdfGeneratorCoberturaBTests.ProducaoAnterior_ComMediaEModa_OsCartoesDizemMediaEModa_EAModaMostraOsDiasSemDiferenca | Teste novo: o PDF do Peso diz «Média» e «Moda» nos cartões e a moda mostra os dias, sem diferença (DMO-682, Diogo 29/10) | OK | A-0435 |
 | PuncoesHandlerTests.Pdf_PosicoesDaLinha_EOResumoLigaOFicheiroDasPuncoes | O Resumo volta a ter «Abrir PDF das punções» (DMO-684, Diogo 29/10) | OK | A-0439 |
 | `Duplicar_UtilizacaoEAPercentagemAtualDaFerramenta_NaoADaOrigem` | No Duplicar e no ver, a Utilização do CM é a % atual da ferramenta, não o valor escrito na folha de origem. | OK | A-0441 |
 | `PrimeiraProducao_ComecaAZero` | A primeira produção de uma ferramenta nova mostra a Utilização a 0. | OK | A-0441 |
 | `ProducaoQueAindaNaoCorreu_ComecaNaPercentagemAtual` | Uma produção que ainda não correu mostra a % de uso atual da ferramenta. | OK | A-0441 |
-| `No ver, a Informação técnica aberta fica por cima (absoluta, por baixo do cartão) e não faz a folha crescer` | A Informação técnica abre por cima dos elementos de baixo sem empurrar os cartões. | OK | A-0445 |
+| `jobon-folha-tecnica-por-cima.test.cjs::No ver, a Informação técnica aberta fica por cima (absoluta, por baixo do cartão) e não faz a folha crescer` | A Informação técnica abre por cima dos elementos de baixo sem empurrar os cartões. | OK | A-0445 |
 
 
 
@@ -5977,20 +5977,10 @@ Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; no
 | filtros-referencia.test.cjs: falha e recuperação | Uma falha de rede bloqueia opções desatualizadas e permite repetir. | OK |
 | filtros-referencia.test.cjs: Enter no lote | Aplica a pesquisa mesmo sem botão de submissão. | OK |
 
-| `Editar: mudar o Início ou o Fim atualiza os Dias na hora` | No Editar do Job On os Dias acompanham o Início e o Fim sem gravar. | OK | A-0444 |
+| `jobon-folha-dias-ao-vivo.test.cjs::Editar: mudar o Início ou o Fim atualiza os Dias na hora` | No Editar do Job On os Dias acompanham o Início e o Fim sem gravar. | OK | A-0444 |
 | `cobertura_a1_browser.py` DMO-562 (alterado) | A Informação técnica abre por cima dos cartões de baixo e já não os empurra (pedido do Diogo, DMO-688). | OK | A-0448 |
 
-## Testes JavaScript ligados ao CI — 29/10/2026 (A-0450)
-
-Seis ficheiros `.test.cjs` que já existiam no repositório e nunca corriam entraram na lista
-`test:js` de `tests/ShellProof/package.json`: 51 → 57 ficheiros, 355 → 362 testes. Nenhum teste
-foi escrito, mudado ou apagado, por isso nenhum ganha linha nova aqui — as linhas dos seis já
-existiam, três pelo nome do ficheiro (`aviso-dispensar` A-0332, `jobon-folha-avisos-alerta`
-A-0411, `painel-gravou-sem-recarregar` A-0417) e três pelo nome do teste
-(`jobon-folha-linhas-contagem` A-0433, `jobon-folha-dias-ao-vivo` A-0444,
-`jobon-folha-tecnica-por-cima` A-0445).
-
-O sétimo órfão não entrou, e é o único que precisa de linha própria:
+## O único `.test.cjs` fora do `test:js` (A-0450)
 
 | Teste | Garante | Estado | Nota |
 |---|---|---|---|
