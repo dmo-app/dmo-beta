@@ -5144,3 +5144,26 @@ Novos: 3 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/cobertura_a1_folha-js.test.cjs :: Calibres: «P 59.20 / M 58.60» quebra só na barra, em dois segmentos inteiros`
 
 Selo depois: `4390bbb2cbbcc0af`
+
+## A-0386 · 2026-10-29 · contagem-lista
+
+Porquê: 2.ª passagem da auditoria .230 (Codex/Qoder, 29/10): importação SAP — SAP-B04 (a primeira leitura importa a pasta inteira, sem limite de 10), SAP-B05 (Apagar lidos só apaga ficheiros confirmados gravados) e SAP-B06 (comparação exata do % manual contra a última leitura); DATA-B01 (4 datas por defeito passam a DmoBusinessTime/Lisboa).
+Referência: DMO-621..624, A-0361..0364
+Novos: 5 · mudaram: 7 · saíram: 2
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/CreateJobOnHandlerTests.cs :: CreateJobOnHandlerTests.Experiencia_SemData_UsaODiaDeLisboaNaoOUtc_NaMadrugadaDeVerao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: Sessao.OPercentManual_IgualAoValorExatoDaUltimaLeituraSap_NaoGrava_MasDiferenteDoArredondadoGrava`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaBExperiencia.cs :: JobOnPageTests.FolhaNova_Experiencia_SemData_UsaODiaDeLisboaNaoOUtc_NaMadrugadaDeVerao`
+- novo: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: SAP-B04: numa pasta com mais de dez listas por ler na primeira leitura, vão todas, da mais antiga para a mais nova`
+- novo: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: SAP-B05: Apagar lidos apaga só os ficheiros confirmados gravados, nunca um recusado só por estar antes do corte`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/CreateJobOnHandlerTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: Sessao.OPercentManual_GravaUmaLeituraEFechaOLembrete_IgualNaoGrava`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Ficha_PercentagemDeUso_NoEditar_GravaComOGuardar_SoAvisos`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaBExperiencia.cs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: Apagar lidos: sem nada lido ainda, avisa e não apaga nem pergunta`
+- mudou: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: Sem «Atualizar do SAP» no cartão (Admin ficou com ele), o script não rebenta e «Apagar lidos» continua a funcionar`
+- saiu: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: Apagar lidos: pergunta antes e apaga só os ficheiros do SAP já lidos`
+- saiu: `tests/ShellProof/cobertura_a2_ferramentas-sap.test.cjs :: Numa pasta com mais de dez listas por ler, vão as dez mais recentes`
+
+Selo depois: `0683a0cd896480b7`

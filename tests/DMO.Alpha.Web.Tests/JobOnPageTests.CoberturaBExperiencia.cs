@@ -75,11 +75,6 @@ public partial class JobOnPageTests
         Assert.Contains("value=\"2026-07-15\"", aberta, StringComparison.Ordinal);
     }
 
-    private sealed class RelogioFixo(DateTimeOffset agora) : TimeProvider
-    {
-        public override DateTimeOffset GetUtcNow() => agora;
-    }
-
     [Fact]
     public async Task FolhaNova_Duplicar_NaoTemOBotaoExperiencia()
     {
@@ -93,5 +88,10 @@ public partial class JobOnPageTests
         Assert.DoesNotContain("name=\"tipo\"", html, StringComparison.Ordinal);
         Assert.DoesNotContain("value=\"experiencia\"", html, StringComparison.Ordinal);
         Assert.DoesNotContain("jof-experiencia", html, StringComparison.Ordinal);
+    }
+
+    private sealed class RelogioFixo(DateTimeOffset agora) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => agora;
     }
 }
