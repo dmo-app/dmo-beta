@@ -1,5 +1,5 @@
 {
-  "selo": "27d1d20acaad3e53",
+  "selo": "096fce27da9b299c",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2709,7 +2709,7 @@
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnEliminarTests.cs :: JobOnEliminarTests.Eliminar_AntesDoInicio_SemRegistos_SoPergunta": "1565217999aa97d7",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnEliminarTests.cs :: JobOnEliminarTests.Eliminar_DepoisDoInicio_AvisaQuePodeTerProduzido_EDizOQueSePerde_EElimina": "3e8e46950e0152be",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnEliminarTests.cs :: JobOnEliminarTests.SemModuloDoControlo_AFichaNaoMostraOControlo_NemContaOsRegistosDele": "6ef3c5a35cf92c8e",
-    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: (resto do ficheiro)": "f43682350c356c72",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: (resto do ficheiro)": "c6d37f312cdd261c",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.AvisoDoArmazem_EmEspera_NaoApareceNaFicha_NemNoEndpoint_MasOsOutrosSim": "16af5678edf6d124",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.CaloteEditavel_GravaPelaEdicao": "d534746f87434934",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.CaloteIgnorada_NaCriacao_GravaOJobOnSemCaloteEAvisa": "db38940359035b77",

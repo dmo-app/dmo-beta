@@ -5753,3 +5753,13 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaTests.cs :: (resto do ficheiro)`
 
 Selo depois: `27d1d20acaad3e53`
+
+## A-0432 · 2026-10-29 · ok-do-diogo
+
+Porquê: No fixture JobOnFichaTests, a CM 5447 mantém a sua referência canónica e ganha associação MF explícita a 1075, usada nos cenários de criação com referência 1075C142. Assim a linha B1/C3 vem de uma ferramenta que corresponde à referência pesquisada; preservam-se todas as verificações de datas e persistência.
+Referência: Pedido do Diogo de 29/10/2026 nesta conversa: adaptar testes à filtragem por referência.
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: (resto do ficheiro)`
+
+Selo depois: `096fce27da9b299c`
