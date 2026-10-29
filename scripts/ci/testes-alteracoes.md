@@ -4929,3 +4929,13 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelMedio_AbreMaisLargo`
 
 Selo depois: `c07be0113f2cf44c`
+
+## A-0379 · 2026-10-29 · ok-do-diogo
+
+Porquê: DEL-01 (2.ª passagem do sweep .230, commit ef98da5): eliminar um Job On com uma CM «Colocar de parte» na comparação do Peso falhava no PostgreSQL pela FK Restrict de PesoComparacaoCmDecisoes; o cenário de EliminarJobOn passa a semear essa decisão e a prova fica no teste real (DMO-640).
+Referência: dmo-Improvements versoes/0.3.0-beta.230/sweep-bugs-2026-10-29/DADOS-E-ELIMINACAO.md
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Production/EliminarJobOnCenario.cs :: (resto do ficheiro)`
+
+Selo depois: `6a17a94d909e4104`

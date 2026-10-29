@@ -1,5 +1,5 @@
 {
-  "selo": "c07be0113f2cf44c",
+  "selo": "6a17a94d909e4104",
   "unidades": {
     "scripts/ci/ci-local.sh": "b85e4195bb3ac186",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1192,7 +1192,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Production/EdicoesAoMesmoTempoTests.cs :: EdicoesAoMesmoTempoTests.JobOn_MesmaVersao_Grava": "0c773c0fd6fdc949",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/EdicoesAoMesmoTempoTests.cs :: EdicoesAoMesmoTempoTests.JobOn_OMesmoEnvioOutraVez_AbreOGravado_SemOutraLinha": "facc207680e8e789",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/EdicoesAoMesmoTempoTests.cs :: EdicoesAoMesmoTempoTests.JobOn_OutraVersao_Recusa_SemGravarNada": "99e7833c0fcf1c3e",
-    "tests/DMO.Alpha.Infrastructure.Tests/Production/EliminarJobOnCenario.cs :: (resto do ficheiro)": "fe4b8ea7f787db12",
+    "tests/DMO.Alpha.Infrastructure.Tests/Production/EliminarJobOnCenario.cs :: (resto do ficheiro)": "573d395e2510e35c",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/FolhaDaFerramentaTests.cs :: (resto do ficheiro)": "ae3d7d3cb931d804",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/FolhaDaFerramentaTests.cs :: FolhaDaFerramentaTests.FerramentaNova_Utilizacao0_ESemJobOnNenhum": "e027712225c8b1d2",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/FolhaDaFerramentaTests.cs :: FolhaDaFerramentaTests.FerramentaUsada_AUltimaPercentagemDela_EAsNotasDoUltimoJobOn": "410d944c1cfc2ba3",
