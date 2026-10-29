@@ -4919,3 +4919,13 @@ Novos: 7 · mudaram: 7 · saíram: 1
 - saiu: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.FilterCounters_AreQuantitySums_NotStockBalances`
 
 Selo depois: `50d42fefc3f8d7e2`
+
+## A-0338 · 2026-10-29 · teste-novo
+
+Porquê: Teste novo: o resumo do Job On no painel abre mais largo (DMO-600, #296).
+Referência: PR #296
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelMedio_AbreMaisLargo`
+
+Selo depois: `c07be0113f2cf44c`
