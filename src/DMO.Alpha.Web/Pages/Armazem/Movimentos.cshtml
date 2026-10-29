@@ -88,6 +88,23 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
 
   <div class="page-head">
     <div>
+      @* «← Voltar» à página de onde se veio, por cima do título como nas outras páginas (Diogo, 27/10/2026: da
+         Localização da ficha da ferramenta abre-se aqui, e volta-se à ficha; 29/10/2026: «Voltar» sempre em cima do
+         título). Com ?voltar= (um caminho desta aplicação) vai para lá; sem ele, o dmo-live.js põe a página anterior
+         (data-dmo-voltar) e, sem origem, fica o Registar. *@
+      @if (s is not null)
+      {
+        var voltarPedidoMov = Model.Request.Query["voltar"].ToString();
+        var voltarSeguroMov = DMO.Alpha.Web.Services.LocalUrl.IsSafe(voltarPedidoMov) ? voltarPedidoMov : null;
+        if (voltarSeguroMov is not null)
+        {
+          <a class="dmo-voltar-texto" id="armRegVoltar" href="@voltarSeguroMov">Voltar</a>
+        }
+        else
+        {
+          <a class="dmo-voltar-texto" id="armRegVoltar" href="@Url.Page("/Armazem/Movimentos")" data-dmo-voltar="@s.ToolId" data-dmo-voltar-ignorar="/Armazem/Movimentos">Voltar</a>
+        }
+      }
       <h1 id="arm-mov-title">Registo do Armazém</h1>
     </div>
   </div>
@@ -221,24 +238,6 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
     <section id="armMovFerramenta" class="dmo-card arm-card" aria-labelledby="arm-mov-ferr-title" data-dmo-regiao data-dmo-parcial data-dmo-ferramenta="@s.ToolId">
       <div class="dmo-card-topo">
         <h3 id="arm-mov-ferr-title">@MovimentosModel.Nome(s.Tipo, s.Referencia, s.Lote)</h3>
-        @* «← Voltar» à página de onde se veio (Diogo, 27/10/2026: da Localização
-           da ficha da ferramenta abre-se aqui, e volta-se à ficha). Com ?voltar=
-           (um caminho desta aplicação) vai para lá; sem ele, o dmo-live.js põe a
-           página anterior (data-dmo-voltar) e, sem origem, fica o Registar. *@
-        @{
-          var voltarPedidoMov = Model.Request.Query["voltar"].ToString();
-          var voltarSeguroMov = DMO.Alpha.Web.Services.LocalUrl.IsSafe(voltarPedidoMov) ? voltarPedidoMov : null;
-        }
-        <div class="dmo-card-topo-acoes">
-          @if (voltarSeguroMov is not null)
-          {
-            <a class="arm-voltar" id="armRegVoltar" href="@voltarSeguroMov">Voltar</a>
-          }
-          else
-          {
-            <a class="arm-voltar" id="armRegVoltar" href="@Url.Page("/Armazem/Movimentos")" data-dmo-voltar="@s.ToolId" data-dmo-voltar-ignorar="/Armazem/Movimentos">Voltar</a>
-          }
-        </div>
       </div>
 
       @foreach (var aviso in Model.Avisos)
@@ -417,23 +416,20 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
             @if (Model.Destino == ArmazemDestino.Emprestado)
             {
               <div class="dmo-field">
-                @* A fábrica da BA, pequena, só a sigla, por omissão MG (Diogo, 28/10/2026).
-                   Sem fábricas nas Definições, fica o texto livre de antes. *@
+                @* A fábrica da BA, pequena, só a sigla, por omissão MG (Diogo, 28/10/2026). Sempre uma lista das
+                   fábricas registadas nas Definições (29/10/2026), nunca texto livre. *@
                 <label for="armSaiFabrica">Fábrica</label>
-                @if (Model.Fabricas.Count > 0)
-                {
-                  var fabricaSaida = recusaSaida ? Model.Fabrica : Model.FabricaPorOmissao;
-                  <select id="armSaiFabrica" name="fabrica" class="arm-fab">
-                    @foreach (var f in Model.Fabricas)
-                    {
-                      <option value="@f.Sigla" title="@f.Nome" selected="@(fabricaSaida == f.Sigla)">@f.Sigla</option>
-                    }
-                  </select>
-                }
-                else
-                {
-                  <input id="armSaiFabrica" name="fabrica" class="arm-curto" maxlength="@ArmazemMovimento.FabricaMaxLength" autocomplete="off" value="@(recusaSaida ? Model.Fabrica : null)" placeholder="Ex.: LE" />
-                }
+                <select id="armSaiFabrica" name="fabrica" class="arm-fab" required="@(Model.Fabricas.Count > 0)">
+                  @if (Model.Fabricas.Count == 0)
+                  {
+                    <option value="">Sem fábricas</option>
+                  }
+                  @{ var fabricaSaida = recusaSaida ? Model.Fabrica : Model.FabricaPorOmissao; }
+                  @foreach (var f in Model.Fabricas)
+                  {
+                    <option value="@f.Sigla" title="@f.Nome" selected="@(fabricaSaida == f.Sigla)">@f.Sigla</option>
+                  }
+                </select>
               </div>
             }
             @if (Model.Destino == ArmazemDestino.Sucata)
@@ -454,6 +450,10 @@ html body .arm-linha .dmo-field input.arm-obs{width:min(360px,100%)}
              mudar, e o aviso aparece antes de gravar. Nunca bloqueia. *@
           <p class="arm-nota" id="armEntProgramada">Reparação Programada de @reparadorDaLista: entra «Reparado».</p>
           <p class="dmo-aviso warn" id="armEntEstadoAviso" role="status" hidden="@(estadoEntrada == MovimentosModel.Valor(FerramentaEstadoTipo.Reparado) ? "hidden" : null)">Vem da Reparação Programada: o sugerido é «Reparado».</p>
+        }
+        @if (!mostrarEntrada && Model.Destino == ArmazemDestino.Emprestado && Model.Fabricas.Count == 0)
+        {
+          <p class="dmo-aviso warn" id="armSaiSemFabricas">Ainda não há fábricas registadas.<a class="dmo-aviso-link" href="/Definicoes?secao=armazem">Registar nas Definições do Armazém</a></p>
         }
         @if (!mostrarEntrada && Model.Destino == ArmazemDestino.Reparacao && s.Reparadores.Count == 0)
         {
