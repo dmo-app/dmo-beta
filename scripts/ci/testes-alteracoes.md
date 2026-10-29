@@ -4990,7 +4990,7 @@ Novos: 5 · mudaram: 12 · saíram: 0
 
 Selo depois: `4cba7644ecb57f38`
 
-## A-0349 · 2026-10-29 · ok-do-diogo
+## A-0350 · 2026-10-29 · ok-do-diogo
 
 Porquê: Lote .236: junta as impressões já aprovadas em A-0340/A-0348 (#302 DMO-601/608/609), A-0341 (#304 DMO-602), A-0343 (#305 DMO-605/606/607) e o #301 (DMO-603, sem testes)
 Referência: A-0340; A-0341; A-0343; A-0348
