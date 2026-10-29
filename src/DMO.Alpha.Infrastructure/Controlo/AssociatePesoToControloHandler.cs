@@ -138,6 +138,7 @@ public sealed class AssociatePesoToControloHandler : IAssociatePesoToControloHan
         }
 
         peso.ControloId = command.ControloId;
+        peso.AssociadoAoControloEmUtc = DateTime.UtcNow;
         try
         {
             await _db.SaveChangesAsync(cancellationToken);

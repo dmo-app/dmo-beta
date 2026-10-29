@@ -441,6 +441,26 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
     }
 
     [Fact]
+    public async Task ReferenciaExistente_ComLoteInexistente_MostraMensagemClara_NaListaENoPdf()
+    {
+        // DMO-648 (auditoria): referência que existe com um lote que não existe dava erro 500
+        // (o filtro levava um \0 que a base recusa), também no PDF. Agora: lista vazia e a explicação.
+        var trace = await SeedProductionAsync("BQ-SEM-LOTE", "B1", "9389T194", "202620");
+        await SeedMovementAsync(trace.Id, "saida", 2);
+        SeedUser("4210", "Histórico A4", "provider-hist-sem-lote", "HistSemLote1!");
+        using var client = await LoginClientAsync("4210", "HistSemLote1!");
+        var consulta = "historico=1&vista=movimentos&pesquisa=9389T194&lote=999";
+
+        var html = await GetPageHtmlAsync(client, $"{PagePath}?{consulta}");
+        Assert.Contains("data-dmo-sem-bq", html);
+        Assert.Contains("Não existe o lote 999 da BQ 9389T194", html);
+
+        var pdf = await client.GetAsync($"{PagePath}?{consulta}&handler=PdfHistorico");
+        Assert.Equal(HttpStatusCode.OK, pdf.StatusCode);
+        Assert.Equal("application/pdf", pdf.Content.Headers.ContentType?.MediaType);
+    }
+
+    [Fact]
     public async Task MachineFilterWithoutPeriod_ShowsOnlyTheMostRecent_AndTheListAndPdfAgree()
     {
         // Só «Máquina B1», sem período (18/10/2026): a lista não lê todos os

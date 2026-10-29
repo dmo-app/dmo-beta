@@ -115,6 +115,37 @@ public sealed class ControloAprovacaoTests : IDisposable
     }
 
     [Fact]
+    public async Task UmPesoCriadoAntesEAssociadoDepoisDeAprovar_FicaPorAprovar()
+    {
+        // PESO-B03 (auditoria de 29/10/2026): um Peso pré-produção criado
+        // ANTES da aprovação mas só associado a esta produção DEPOIS dela
+        // não foi visto pelo aprovador — tem de ficar «Por aprovar», não
+        // herdar a aprovação antiga só porque nasceu antes.
+        var (controloId, jobOnId) = await NovaProducaoAsync("2026111", comPeso: true);
+        await _handler.DecidePartAsync(controloId, ControloParte.Peso, aprovado: true, "4802", null);
+
+        var pesoTardio = new Peso
+        {
+            CmToolId = "T3", BqToolId = "BQ-TOOL-9", Process = "NNPB", WaterTemperatureC = 20,
+            VolumeMarisaCm3 = 10m, VolumePuncaoCm3 = 30m, GlassDensityGramsPerCm3 = 2.50m,
+            RegistadoEmUtc = RegistadoEm.AddDays(-1)
+        };
+        _db.Pesos.Add(pesoTardio);
+        await _db.SaveChangesAsync();
+
+        // Associação explícita depois da aprovação (simulada diretamente,
+        // como o AssociatePesoToControloHandler faz).
+        pesoTardio.ControloId = controloId;
+        pesoTardio.AssociadoAoControloEmUtc = DateTime.UtcNow.AddMinutes(1);
+        await _db.SaveChangesAsync();
+
+        var estado = await _handler.GetAsync(controloId);
+        Assert.Null(estado!.ApprovedByOperatorId);
+        Assert.Null(estado.NotApprovedByOperatorId);
+        Assert.Equal(ControloRevisaoEstado.Pendente, (await new ControloRevisaoQuery(_db).FindByJobOnAsync(jobOnId))!.Estado);
+    }
+
+    [Fact]
     public async Task UmaFolhaNovaDepoisDeAprovarOsPegamentos_ContinuaAprovado()
     {
         var (controloId, _) = await NovaProducaoAsync("2026104", comPeso: true, comPegamentos: true);

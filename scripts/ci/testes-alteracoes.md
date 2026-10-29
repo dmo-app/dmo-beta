@@ -5144,3 +5144,61 @@ Novos: 3 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/cobertura_a1_folha-js.test.cjs :: Calibres: «P 59.20 / M 58.60» quebra só na barra, em dois segmentos inteiros`
 
 Selo depois: `4390bbb2cbbcc0af`
+
+## A-0358 · 2026-10-29 · contagem-lista
+
+Porquê: 2.ª passagem da auditoria .230 (PESO-B03, BQ-B01): a associação do Peso ao controlo grava a sua hora (um Peso criado antes mas associado depois de aprovar fica «Por aprovar»); o Histórico das Boquilhas usa a referência/lote congelados quando a BQ foi eliminada.
+Novos: 2 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/RegisterBqMovementHandlerTests.cs :: StubSettings.Historico_ComABqEliminada_MostraAReferenciaEOLoteCongelados`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloAprovacaoTests.cs :: ControloAprovacaoTests.UmPesoCriadoAntesEAssociadoDepoisDeAprovar_FicaPorAprovar`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/AssociatePesoToControloHandlerTests.cs :: AssociatePesoToControloHandlerTests.Associate_SameCmTool_KeepsSamePesoAndLinksProduction`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoToolScopedSchemaTests.cs :: PesoToolScopedSchemaTests.PesoEntity_HasNoProductionIdentityColumns`
+
+Selo depois: `bf0976279e3f3a84`
+
+## A-0387 · 2026-10-29 · teste-novo
+
+Porquê: DMO-648/A-0387 e DMO-649/A-0388 (auditoria 29/10): referência com lote inexistente nas Boquilhas mostra mensagem (lista e PDF) em vez de erro 500; Enter no Lote das Últimas entradas e saídas do Armazém aplica o filtro (botão de envio escondido). 2 testes .NET e 1 script de browser novos; nenhum teste antigo mudou.
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.Ultimas_OFormularioTemUmEnvioEscondido_ParaOEnterNoLote`
+- novo: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.ReferenciaExistente_ComLoteInexistente_MostraMensagemClara_NaListaENoPdf`
+- novo: `tests/visual/armazem_ultimos_enter_lote_browser.py`
+
+Selo depois: `78b84285abd75ac5`
+
+## A-0389 · 2026-10-29 · ok-do-diogo
+
+Porquê: Lote .237: junta as impressões já explicadas em A-0358 (#313) e A-0387 (#314)
+Referência: A-0358; A-0387
+Novos: 5 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/RegisterBqMovementHandlerTests.cs :: StubSettings.Historico_ComABqEliminada_MostraAReferenciaEOLoteCongelados`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/ControloAprovacaoTests.cs :: ControloAprovacaoTests.UmPesoCriadoAntesEAssociadoDepoisDeAprovar_FicaPorAprovar`
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemUltimosPaginaTests.cs :: ArmazemUltimosPaginaTests.Ultimas_OFormularioTemUmEnvioEscondido_ParaOEnterNoLote`
+- novo: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.ReferenciaExistente_ComLoteInexistente_MostraMensagemClara_NaListaENoPdf`
+- novo: `tests/visual/armazem_ultimos_enter_lote_browser.py`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/AssociatePesoToControloHandlerTests.cs :: AssociatePesoToControloHandlerTests.Associate_SameCmTool_KeepsSamePesoAndLinksProduction`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoToolScopedSchemaTests.cs :: PesoToolScopedSchemaTests.PesoEntity_HasNoProductionIdentityColumns`
+
+Selo depois: `7d6e9e4dd09e857f`
+
+## A-0359 · 2026-10-29 · contagem-lista
+
+Porquê: CI do #313: migração nova (PesoAssociadoAoControloEmUtc) tinha de entrar na lista fixa do MigrationFoundationTests
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+
+Selo depois: `852a8fa9a1e466cb`
+
+## A-0390 · 2026-10-29 · contagem-lista
+
+Porquê: Lote .237: a lista das migrações no MigrationFoundationTests ganha a do #313 (PesoAssociadoAoControloEmUtc), como em A-0315/A-0322; só a lista, nenhuma asserção nova ou afrouxada
+Referência: #313; #316
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/MigrationFoundationTests.cs :: MigrationFoundationTests.Migrations_StartAtTheBaseline_WithTheNewOnesAfterIt`
+
+Selo depois: `1cfa56ff3a5f7761`

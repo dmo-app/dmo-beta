@@ -96,6 +96,31 @@ public sealed class RegisterBqMovementHandlerTests : IDisposable
         _handler.HandleAsync(new RegisterBqMovement(trace.Id, type, quantity));
 
     [Fact]
+    public async Task Historico_ComABqEliminada_MostraAReferenciaEOLoteCongelados()
+    {
+        // BQ-B01 (auditoria de 29/10/2026): eliminar a BQ não pode deixar o
+        // Histórico (e o Excel, que lê os mesmos dados) sem referência/lote.
+        var tool = await SeedToolAsync("BQ-ELIMINADA", ToolType.Bq);
+        var trace = await SeedTraceAsync("BQ-ELIMINADA");
+        // O CreateBqRepairTraceHandler real congela a referência/lote ao
+        // criar o trace; o seed deste teste cria-o nu, por isso congela-se
+        // aqui como a app faria.
+        trace.ToolReferenceFrozen = tool.Reference;
+        trace.ToolLotFrozen = tool.Lot;
+        await _db.SaveChangesAsync();
+        await RegisterAsync(trace, "saida", 5);
+
+        // Simula a eliminação da BQ: a Tool deixa de existir no registo.
+        _db.Tools.Remove(tool);
+        await _db.SaveChangesAsync();
+
+        var history = await new BqToolHistoryQuery(_db).ListMovementsAsync(null, null, null, null, null, null);
+        var item = Assert.Single(history);
+        Assert.Equal("9389T194", item.ToolReference);
+        Assert.Equal("12", item.ToolLot);
+    }
+
+    [Fact]
     public async Task Saida_RegistersMovementWithoutDiscrepancy()
     {
         await SeedToolAsync("BQ-TOOL-9", ToolType.Bq);
