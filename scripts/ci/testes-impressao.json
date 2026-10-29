@@ -1,5 +1,5 @@
 {
-  "selo": "e4785a2628a5145d",
+  "selo": "1d2aef5182eeef56",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -3483,7 +3483,7 @@
     "tests/ShellProof/jobon-tool-picker.test.cjs :: «Criar BQ» abre o registo das Ferramentas com a máquina da folha no momento do clique": "2747f0dc6012fecf",
     "tests/ShellProof/jobon-tool-picker.test.cjs :: «Mostrar todas as ferramentas» só pede o catálogo inteiro quando está marcado": "61d6174d62480996",
     "tests/ShellProof/package-lock.json": "8cabd09c7635d204",
-    "tests/ShellProof/package.json": "872675bc117ab361",
+    "tests/ShellProof/package.json": "b7920c3c8f453a15",
     "tests/ShellProof/painel-apoio-alteracoes.test.cjs :: (resto do ficheiro)": "746debc2c59fb275",
     "tests/ShellProof/painel-apoio-alteracoes.test.cjs :: Painel de apoio: um <dmo-painel> com alterações por guardar fica com o aviso e o apoio não abre por cima": "0b2b99e6fc3e1cbc",
     "tests/ShellProof/painel-estrutura.test.cjs :: (resto do ficheiro)": "c525db31e3b4284e",
