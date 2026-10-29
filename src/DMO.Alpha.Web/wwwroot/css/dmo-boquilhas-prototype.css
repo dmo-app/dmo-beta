@@ -395,9 +395,3 @@ html body .beta-bq-layout .bq-history-filter-grid { display:flex; flex-wrap:wrap
 .beta-bq-layout .bq-history-filter-grid > .field :is(input,select) { width:100%; }
 @media (max-width:600px) { .beta-bq-layout .bq-history-filter-grid > .field { flex:1 1 100%; width:auto !important; } }
 
-/* Os totais do filtro (Saídas, Entradas, Entradas sem reparação) juntos à
-   esquerda, cada um do tamanho do número, em vez de espalhados pela largura. */
-html body .beta-bq-layout #bqHistTotais { padding-top:10px; padding-bottom:10px; }
-html body .beta-bq-layout #bqHistTotais .lot-data { display:flex; flex-wrap:wrap; gap:0; margin-top:0; }
-html body .beta-bq-layout #bqHistTotais .lot-data > div { flex:0 0 auto; min-width:96px; padding:2px 28px !important; }
-html body .beta-bq-layout #bqHistTotais .lot-data > div:first-child { padding-left:0 !important; }

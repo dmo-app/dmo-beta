@@ -43,6 +43,8 @@
     <link rel="stylesheet" href="~/css/dmo-botoes.css" asp-append-version="true" media="screen">
     @* A largura de cada campo pelo que leva (Diogo, 28/10/2026). *@
     <link rel="stylesheet" href="~/css/dmo-campos.css" asp-append-version="true" media="screen">
+    @* O modelo único do calendário (DMO-596): igual em todas as páginas, depois das folhas delas. *@
+    <link rel="stylesheet" href="~/css/dmo-calendario.css" asp-append-version="true" media="screen">
 </head>
 <body data-beta-page="@ViewData["BetaPage"]" data-razor-shell="true" data-dmo-sidepanel="@(openSidepanel?.Kind.ToString().ToLowerInvariant())" data-dmo-posto-minutos="@postoMinutos">
 <div class="app">

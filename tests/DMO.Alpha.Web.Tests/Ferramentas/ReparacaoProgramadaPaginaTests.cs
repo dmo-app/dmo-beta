@@ -102,6 +102,54 @@ public sealed class ReparacaoProgramadaPaginaTests : IClassFixture<CustomWebAppl
             HtmlFormHelpers.BuildFormPost([.. campos, ("__RequestVerificationToken", token)]));
     }
 
+    /// <summary>
+    /// DMO-591 (Diogo, 29/10/2026): «Talamolde · 29/10/2026» não cabia no
+    /// campo «Lista» e o dia saía por cima do «Reparador»; e ao escrever 1075
+    /// na Referência «nao aparece nada» (só procurava com Enter). O campo
+    /// mostra só o reparador e a lista aberta o dia; a procura corre ao
+    /// escrever e o servidor devolve só a zona dos resultados, com o
+    /// «Adicionar» a apontar para a lista escolhida. O Chromium a 1290×646
+    /// prova-se em tests/visual/reparacao_listas_browser.py.
+    /// </summary>
+    [Fact]
+    public async Task Lista_MostraSoOReparador_EAProcuraCorreAoEscrever()
+    {
+        var listaId = NaBase(db =>
+        {
+            var l = new ReparacaoProgramadaLista { ReparadorNome = "Talamolde", CriadaEmUtc = new DateTime(2026, 10, 29, 9, 0, 0, DateTimeKind.Utc) };
+            db.ReparacaoProgramadaListas.Add(l);
+            db.SaveChanges();
+            return l.Id;
+        });
+        using var chefia = await LoginAsync("7409", DmoCapabilities.Ferramentas);
+
+        var html = await chefia.GetStringAsync(Pagina);
+        var escolha = Regex.Match(html, "<select id=\"rpListaEscolha\"[\\s\\S]*?</select>").Value;
+        Assert.Contains("<button type=\"button\"><selectedcontent></selectedcontent></button>", escolha);
+        Assert.Contains($"<option value=\"{listaId}\" selected=\"selected\"><span>Talamolde</span><span class=\"rp-dia\"> · 29/10/2026</span></option>", escolha);
+        Assert.Contains("#rpListaEscolha selectedcontent .rp-dia{display:none}", html);
+        var filtros = Regex.Match(html, "<form id=\"rpFiltros\"[^>]*>").Value;
+        Assert.Contains("data-dmo-ao-escrever=\"rpResultados\"", filtros);
+        Assert.Contains("data-dmo-handler=\"Resultados\"", filtros);
+        Assert.Contains("data-dmo-fica", filtros);
+        Assert.Contains("<div id=\"rpResultados\" data-dmo-regiao>", html);
+        Assert.Contains("data-dmo-filtros=\"rpFiltros tipo referencia lote linha estado\"", html);
+        Assert.Contains("id=\"rpLimpar\" data-dmo-completa", html);
+
+        var resposta = await chefia.GetAsync($"{Pagina}?handler=Resultados&referencia=5447");
+        Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
+        Assert.Equal("rpResultados", resposta.Headers.GetValues("X-Dmo-Region").Single());
+        var zona = (await resposta.Content.ReadAsStringAsync()).Trim();
+        Assert.StartsWith("<div id=\"rpResultados\" data-dmo-regiao>", zona);
+        Assert.DoesNotContain("<html", zona);
+        Assert.Contains($"data-dmo-candidata=\"{Cm}\"", zona);
+        Assert.Contains($"name=\"destino\" value=\"{listaId}\"", zona);
+        Assert.Contains("name=\"referencia\" value=\"5447\"", zona);
+
+        var nada = await chefia.GetStringAsync($"{Pagina}?handler=Resultados&referencia=1075");
+        Assert.Contains("id=\"rpProcuraNada\"", nada);
+    }
+
     [Fact]
     public async Task SemFerramentas_NaoEntra_NemAssocia_NemImprime()
     {
@@ -154,7 +202,7 @@ public sealed class ReparacaoProgramadaPaginaTests : IClassFixture<CustomWebAppl
         var criada = NaBase(db => db.ReparacaoProgramadaListas.Single());
         var dia = DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(criada.CriadaEmUtc).ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
         Assert.Equal(DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(DateTime.UtcNow).ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture), dia);
-        Assert.Matches($"<option value=\"{criada.Id}\" selected=\"selected\">Moldin · {Regex.Escape(dia)}</option>", lista);
+        Assert.Matches($"<option value=\"{criada.Id}\" selected=\"selected\"><span>Moldin</span><span class=\"rp-dia\"> · {Regex.Escape(dia)}</span></option>", lista);
         Assert.Matches("data-dmo-progresso[^>]*>Por retirar<", lista);
         Assert.Contains("id=\"rpImprimir\"", lista);
         var item = NaBase(db => db.ReparacaoProgramadaItens.Single());

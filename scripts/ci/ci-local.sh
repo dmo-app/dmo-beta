@@ -218,6 +218,21 @@ else
 fi
 
 echo
+echo "== Browser no hover das linhas"
+echo "   Ao passar o rato numa linha de uma tabela, a letra fica legível (contraste mínimo 4,5:1), claro e escuro."
+if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then
+  echo "   não corrido (CI_SEM_BROWSER=1)"
+  summary+=("--      Browser no hover das linhas (CI_SEM_BROWSER=1)")
+elif python3 tests/visual/hover_linhas_browser.py >"$logs/ui-hover-linhas.log" 2>&1; then
+  echo "   passaram"
+  summary+=("OK      Browser no hover das linhas")
+else
+  tail -30 "$logs/ui-hover-linhas.log"
+  summary+=("FALHOU  Browser no hover das linhas")
+  failed=1
+fi
+
+echo
 echo "== Browser na tabela das punções"
 echo "   As colunas da lista das punções ficam com a mesma largura ao trocar «Visto» por «Por verificar»."
 if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then
@@ -304,6 +319,20 @@ elif python3 tests/visual/cabecalho_nome_comprido_browser.py "$ui" >"$logs/ui-ca
 else
   tail -30 "$logs/ui-cabecalho.log"
   summary+=("FALHOU  Browser no cabeçalho com nome comprido")
+fi
+
+echo
+echo "== Browser na lista de Movimentos das Boquilhas"
+echo "   A 1290×646, 1366×768 e 1100×646, em claro e em escuro, com poucas e com muitas linhas de produção: a lista fica sempre com o cabeçalho e uma linha inteira, e a página não desliza."
+if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then
+  echo "   não corrido (CI_SEM_BROWSER=1)"
+  summary+=("--      Browser na lista de Movimentos das Boquilhas (CI_SEM_BROWSER=1)")
+elif python3 tests/visual/bq_historico_lista_browser.py "$ui" >"$logs/ui-bq-historico.log" 2>&1; then
+  echo "   passaram"
+  summary+=("OK      Browser na lista de Movimentos das Boquilhas")
+else
+  tail -30 "$logs/ui-bq-historico.log"
+  summary+=("FALHOU  Browser na lista de Movimentos das Boquilhas")
   failed=1
 fi
 
@@ -401,6 +430,26 @@ elif python3 tests/visual/cobertura_c_browser.py "$ui" >"$logs/ui-cobertura-c.lo
 else
   tail -30 "$logs/ui-cobertura-c.log"
   summary+=("FALHOU  Browser na cobertura C")
+  failed=1
+fi
+
+# Os erros de aspeto que a revisão dos testes encontrou (DMO-406/495/509/522), corrigidos em DMO-589 (.233).
+# Os scripts chamam-se ainda pendentes_*_browser.py e o texto deles diz «não entra no CI»: já entram.
+echo
+echo "== Browser no aspeto"
+echo "   Resumo Início/Fim numa linha; folha do Job On com 8 calibres e nota comprida; Registo BQ «Início» sem corte (1290×646)."
+if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then
+  echo "   não corrido (CI_SEM_BROWSER=1)"
+  summary+=("--      Browser no aspeto (CI_SEM_BROWSER=1)")
+  incompleto+=("browser")
+elif python3 tests/visual/pendentes_a1_browser.py "$ui" >"$logs/ui-aspeto.log" 2>&1 \
+  && python3 tests/visual/pendentes_a2_browser.py "$ui" >>"$logs/ui-aspeto.log" 2>&1 \
+  && python3 tests/visual/pendentes_b_browser.py "$ui" >>"$logs/ui-aspeto.log" 2>&1; then
+  echo "   passaram"
+  summary+=("OK      Browser no aspeto")
+else
+  tail -30 "$logs/ui-aspeto.log"
+  summary+=("FALHOU  Browser no aspeto")
   failed=1
 fi
 

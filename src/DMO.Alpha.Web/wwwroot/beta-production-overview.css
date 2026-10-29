@@ -78,3 +78,7 @@ a.beta-light-next{text-decoration:none}a.beta-light-next:hover,a.beta-light-next
 .beta-production-rail .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):hover{box-shadow:none}
 .beta-production-lines :is(button,.dmo-rail-link):is(.dmo-linha-cor,[data-dmo-linha-cor]):is(.selected,.active){border-left:4px solid var(--dmo-machine-color);background:color-mix(in srgb,var(--dmo-machine-color) 40%,var(--dmo-deep-800));color:var(--dmo-text-on-color);outline-color:var(--dmo-machine-color)}
 [data-dmo-linha-cor="B1"]{--dmo-machine-color:var(--dmo-machine-b1)}[data-dmo-linha-cor="B2"]{--dmo-machine-color:var(--dmo-machine-b2)}[data-dmo-linha-cor="B3"]{--dmo-machine-color:var(--dmo-machine-b3)}[data-dmo-linha-cor="C1"]{--dmo-machine-color:var(--dmo-machine-c1)}[data-dmo-linha-cor="C2"]{--dmo-machine-color:var(--dmo-machine-c2)}[data-dmo-linha-cor="C3"]{--dmo-machine-color:var(--dmo-machine-c3)}
+.jobon-change-notice{position:relative}
+.jobon-change-notice[hidden]{display:none}
+.jobon-change-notice .jobon-change-notice-fechar{position:absolute;top:6px;right:10px;border:0;background:none;color:var(--dmo-muted,#6b6b6b);font-size:20px;line-height:1;padding:0 4px;cursor:pointer}
+.jobon-change-notice .jobon-change-notice-fechar:hover{color:var(--dmo-text,#1c2b3a)}

@@ -15,9 +15,9 @@
 <main data-dmo-troca class="resumo-page dmo-workspace@(Model.Tipo == "pegamentos" && Model.Production is not null ? " revisao-peg-consulta-page" : null)" aria-labelledby="approve-detail-title">
   <div class="page-head">
     <div>
-      @if (Model.Tipo == "pegamentos" && Model.Production is { } producaoVoltar)
+      @if (Model.Production is { } producaoVoltar)
       {
-        @* «← Voltar» por cima do título, como nas outras páginas (Diogo, 27/10/2026): volta à página de onde se veio, com os filtros. *@
+        @* «Voltar» sempre no canto superior esquerdo, como link (Diogo, 29/10/2026): volta à página de onde se veio, com os filtros. *@
         <a class="dmo-voltar-texto" id="approveVoltar" href="/Controlo/Approve?jobon_id=@producaoVoltar.JobOnId" data-dmo-voltar="@producaoVoltar.JobOnId" data-dmo-voltar-texto="Voltar">Voltar</a>
       }
       <h1 id="approve-detail-title">@(Model.Tipo switch { "peso" => "Consulta do Peso", "pegamentos" => "Consulta dos Pegamentos", "puncoes" => "Consulta do PU NNPB", "controlo" => "Resumo do controlo", _ => "Consulta do Resumo das ferramentas" })</h1>
@@ -69,7 +69,7 @@
     {
       <section class="dmo-card resumo-card">
         <p class="resumo-hint">Nenhuma produção válida selecionada para revisão.</p>
-        <a class="dmo-button" href="/Controlo/Approve">Voltar</a>
+        <a class="dmo-voltar-texto" href="/Controlo/Approve">Voltar</a>
       </section>
     }
   }
@@ -97,13 +97,6 @@
             }
             <a href="/Controlo/Approve?jobon_id=@production.JobOnId">Revisão</a>
           </nav>
-        }
-        else if (Model.Tipo != "pegamentos")
-        {
-          <div class="dmo-card-topo-acoes">
-            @* Volta à página de onde se veio, com os filtros (Diogo, 26/10/2026); sem origem, à revisão. *@
-            <a class="dmo-button" id="approveVoltar" href="/Controlo/Approve?jobon_id=@production.JobOnId" data-dmo-voltar="@production.JobOnId" data-dmo-voltar-texto="Voltar">Voltar</a>
-          </div>
         }
       </div>
       <div class="revisao-facts">
@@ -146,6 +139,7 @@
               var comparacao = Model.Anteriores.GetValueOrDefault(peso.PesoId);
               var anterior = comparacao?.Media;
               var desvioNominal = DMO.Alpha.Core.Controlo.PesoCalculation.NominalDeviation(atual?.AverageGlassWeightGrams, peso.NominalWeightGrams);
+              var desvioProducao = DMO.Alpha.Core.Controlo.PesoCalculation.NominalDeviation(atual?.AverageGlassWeightGrams, comparacao?.SapGramas);
               @* «Escolher no Peso» no canto superior direito da secção (Diogo, 27/10/2026, linha 71 do
                  design-erros.md: ações no canto superior direito), como o «Voltar» do topo; na caixa
                  da média fica só o texto. *@
@@ -164,7 +158,7 @@
               <div class="revisao-facts four">
                 <div class="destaque"><span>Peso médio atual</span><strong>@ControloNumeros.Gramas(atual?.AverageGlassWeightGrams)</strong></div>
                 <div><span>Média do controlo anterior</span><strong>@ControloNumeros.Gramas(anterior?.AverageGlassWeightGrams)</strong><partial name="_RevisaoControloAnterior" model="@((comparacao, (int?)null))" /></div>
-                <div><span>Peso da produção anterior</span><strong>@ControloNumeros.Gramas(comparacao?.SapGramas)</strong></div>
+                <div><span>Peso da produção anterior</span><strong>@ControloNumeros.Gramas(comparacao?.SapGramas)</strong><small>@(desvioProducao.Grams is { } dpg ? $"{ControloNumeros.ComSinal(dpg, " g")} ({ControloNumeros.ComSinal(desvioProducao.Percent, " %")})" : "")</small></div>
                 <div><span>Peso nominal do desenho</span><strong>@ControloNumeros.Gramas(peso.NominalWeightGrams)</strong><small>@(desvioNominal.Grams is { } dg ? $"{ControloNumeros.ComSinal(dg, " g")} ({ControloNumeros.ComSinal(desvioNominal.Percent, " %")})" : "")</small></div>
                 <div><span>Diferença ao controlo anterior</span><strong>@ControloNumeros.ComSinal(atual is not null && anterior is not null ? atual.AverageGlassWeightGrams - anterior.AverageGlassWeightGrams : null, " g")</strong></div>
                 <div><span>Capacidade atual</span><strong>@ControloNumeros.Cm3(atual?.AverageCapacityCm3)</strong></div>

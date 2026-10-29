@@ -34,12 +34,13 @@ else
   var comparacao = Model.Anteriores.GetValueOrDefault(peso.PesoId);
   var anterior = comparacao?.Media;
   var desvioNominal = PesoCalculation.NominalDeviation(atual?.AverageGlassWeightGrams, peso.NominalWeightGrams);
+  var desvioProducao = PesoCalculation.NominalDeviation(atual?.AverageGlassWeightGrams, comparacao?.SapGramas);
   <div class="revisao-facts three">
     <div class="destaque"><span>Peso médio atual</span><strong>@ControloNumeros.Gramas(atual?.AverageGlassWeightGrams)</strong><small>@DMO.Alpha.Core.Runtime.DmoNumberFormat.Contagem(peso.Measurements.Count, "leitura", "leituras")@(Model.Pesos.Count > 1 ? $" · {Model.Pesos.Count} Pesos" : null)</small></div>
     <div><span>Média do controlo anterior</span><strong>@ControloNumeros.Gramas(anterior?.AverageGlassWeightGrams)</strong><partial name="_RevisaoControloAnterior" model="@((comparacao, (int?)null))" /></div>
     <div><span>Diferença ao controlo anterior</span><strong>@ControloNumeros.ComSinal(atual is not null && anterior is not null ? atual.AverageGlassWeightGrams - anterior.AverageGlassWeightGrams : null, " g")</strong></div>
     <div><span>Diferença de capacidade</span><strong>@ControloNumeros.ComSinal(atual is not null && anterior is not null ? atual.AverageCapacityCm3 - anterior.AverageCapacityCm3 : null, " cm³")</strong><small>@ControloNumeros.Cm3(atual?.AverageCapacityCm3) agora</small></div>
-    <div><span>Peso da produção anterior</span><strong>@ControloNumeros.Gramas(comparacao?.SapGramas)</strong></div>
+    <div><span>Peso da produção anterior</span><strong>@ControloNumeros.Gramas(comparacao?.SapGramas)</strong><small>@(desvioProducao.Grams is { } dpg ? $"{ControloNumeros.ComSinal(dpg, " g")} ({ControloNumeros.ComSinal(desvioProducao.Percent, " %")})" : "")</small></div>
     <div><span>Peso nominal do desenho</span><strong>@ControloNumeros.Gramas(peso.NominalWeightGrams)</strong><small>@(desvioNominal.Grams is { } dg ? $"{ControloNumeros.ComSinal(dg, " g")} ({ControloNumeros.ComSinal(desvioNominal.Percent, " %")})" : "")</small></div>
   </div>
 }
