@@ -58,7 +58,7 @@ public sealed class FerramentaHistoricoQueryTests
         RegistadaEmUtc = DateTime.SpecifyKind(dia.ToDateTime(new TimeOnly(11, 0)), DateTimeKind.Utc)
     };
 
-    private static FerramentaHistoricoQuery Query(DmoDbContext db) => new(db, new FerramentasFabricoSap(db, new Sessao()));
+    private static FerramentaHistoricoQuery Query(DmoDbContext db) => new(db, new FerramentasFabricoSap(db, new Sessao(), Microsoft.Extensions.Logging.Abstractions.NullLogger<DMO.Alpha.Infrastructure.Tools.FerramentasFabricoSap>.Instance));
 
     [Fact]
     public async Task NoCm_UmaLinhaPorJobOn_ComOUsoEAsOutrasFerramentas()

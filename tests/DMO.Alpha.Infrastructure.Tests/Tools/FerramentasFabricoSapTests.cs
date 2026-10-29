@@ -60,7 +60,7 @@ public sealed class FerramentasFabricoSapTests
         Id = id, Reference = "5538T324", ProductionNumber = producao, MachineId = maquina, InicioEm = inicio, FimEm = fim
     };
 
-    private static FerramentasFabricoSap Servico(DmoDbContext db) => new(db, new Sessao());
+    private static FerramentasFabricoSap Servico(DmoDbContext db) => new(db, new Sessao(), Microsoft.Extensions.Logging.Abstractions.NullLogger<FerramentasFabricoSap>.Instance);
 
     [Fact]
     public void ORelatorioDoSap_DaOMaterialALinhaAsDatasEAProducao()
@@ -304,6 +304,57 @@ public sealed class FerramentasFabricoSapTests
         var producoes = await Servico(db).ProducoesAsync("st100", null, 10);
 
         Assert.Equal(new long?[] { 907_617, 784_875 }, producoes.Pagina.Items.Select(p => p.ProducaoBruta));
+    }
+
+    // SAP-03 (sweep Codex 29/10/2026): uma ordem anulada ou corrigida no SAP
+    // desaparece da ZFMD; o DMO não pode continuar a contá-la para sempre.
+    [Fact]
+    public async Task UmaOrdemQueDeixaDeVirNoRelatorio_EApagadaDaJanelaDoRelatorio()
+    {
+        var db = CreateContext();
+        var a = new FabricoSapLinha("5538T324BRA", "C3", new DateOnly(2025, 1, 21), new DateOnly(2025, 2, 4), 1_404_234, 1_309_264, 132m, 14);
+        var b = new FabricoSapLinha("5538T324BRA", "C3", new DateOnly(2025, 3, 1), new DateOnly(2025, 3, 10), 615_060, 571_360, 132m, 6);
+        var c = new FabricoSapLinha("5538T324BRA", "C3", new DateOnly(2025, 7, 31), new DateOnly(2025, 8, 6), 811_515, 748_183, 131m, 8);
+        await Servico(db).ImportarAsync([a, b, c], "dmo-fabrico-sap-20260101-0900.txt", DateTime.UtcNow);
+        Assert.Equal(3, await db.SapFabricos.CountAsync());
+
+        // O relatório seguinte ainda cobre a mesma janela (tem «a» e «c», antes e depois de «b»),
+        // mas já não traz «b»: foi anulada ou corrigida no SAP.
+        var outcome = await Servico(db).ImportarAsync([a, c], "dmo-fabrico-sap-20260102-0900.txt", DateTime.UtcNow);
+
+        Assert.Equal(new ImportarFabricoSapOutcome(2, 0, 1), outcome);
+        var restantes = await db.SapFabricos.AsNoTracking().Select(s => s.InicioEm).OrderBy(d => d).ToListAsync();
+        Assert.Equal([a.InicioEm, c.InicioEm], restantes);
+    }
+
+    // Uma ordem fora da janela do relatório novo (antes do início lido agora) não é tocada.
+    [Fact]
+    public async Task UmaOrdemForaDaJanelaDoRelatorioNovo_NaoEApagada()
+    {
+        var db = CreateContext();
+        var antiga = new FabricoSapLinha("5538T324BRA", "C3", new DateOnly(2024, 1, 1), new DateOnly(2024, 1, 10), 100_000, 90_000, 132m, 9);
+        await Servico(db).ImportarAsync([antiga], "dmo-fabrico-sap-antigo.txt", DateTime.UtcNow);
+
+        var nova = new FabricoSapLinha("5538T324BRA", "C3", new DateOnly(2025, 1, 21), new DateOnly(2025, 2, 4), 1_404_234, 1_309_264, 132m, 14);
+        var outcome = await Servico(db).ImportarAsync([nova], "dmo-fabrico-sap-novo.txt", DateTime.UtcNow);
+
+        Assert.Equal(0, outcome.Retiradas);
+        Assert.Equal(2, await db.SapFabricos.CountAsync());
+    }
+
+    // Duas linhas distintas do relatório colapsadas na mesma chave: fica a última, sem apagar nada.
+    [Fact]
+    public async Task DuasLinhasComAMesmaChave_FicamColapsadasNumaSoSemApagarNada()
+    {
+        var db = CreateContext();
+        var primeira = new FabricoSapLinha("5538T324BRA", "C3", new DateOnly(2025, 1, 21), new DateOnly(2025, 2, 4), 1_000, 900, 132m, 14);
+        var segunda = primeira with { ProducaoBruta = 2_000, ProducaoLiquida = 1_900 };
+
+        var outcome = await Servico(db).ImportarAsync([primeira, segunda], "dmo-fabrico-sap-colisao.txt", DateTime.UtcNow);
+
+        Assert.Equal(new ImportarFabricoSapOutcome(1, 1, 0), outcome);
+        var gravada = await db.SapFabricos.AsNoTracking().SingleAsync();
+        Assert.Equal(2_000, gravada.ProducaoBruta);
     }
 
     private static FerramentaUtilizacao Leitura(long id, DateOnly dia, decimal percentagem) => new()

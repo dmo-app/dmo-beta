@@ -62,7 +62,9 @@ pasta = fso.GetParentFolderName(WScript.ScriptFullName)
 atalho = fso.BuildPath(pasta, "Moldes Existentes.SAP")
 ficheiroCodigos = fso.BuildPath(pasta, "dmo-codigos.txt")
 If outroFicheiro <> "" Then ficheiroCodigos = fso.BuildPath(pasta, fso.GetFileName(outroFicheiro))
-saida = fso.BuildPath(pasta, "dmo-uso-sap.csv")
+' Nome com a hora desta corrida (SAP-02): um ficheiro novo a cada corrida, nunca
+' a substituir o anterior; se a app estiver fechada, fica tudo para importar.
+saida = fso.BuildPath(pasta, "dmo-uso-sap-" & Carimbo() & ".csv")
 temporario = fso.BuildPath(pasta, "dmo-uso-sap.a-gravar")
 
 If Not fso.FileExists(atalho) Then
@@ -272,7 +274,9 @@ For i = 0 To total - 1
 Next
 
 outFile.Close
-If fso.FileExists(saida) Then fso.DeleteFile saida, True
+' «saida» tem a hora desta corrida: nunca existe já, por isso não se apaga
+' nada antes do MoveFile (SAP-02: apagar antes de mover perdia o ficheiro
+' anterior se o MoveFile falhasse a seguir).
 fso.MoveFile temporario, saida
 
 If Not automatico Then
@@ -586,4 +590,10 @@ Function ElapsedSeconds(ByVal startTime)
     Else
         ElapsedSeconds = (86400 - startTime) + currentTime
     End If
+End Function
+
+' AAAAMMDD-HHMM desta corrida, para o nome do ficheiro de saída (SAP-02).
+Function Carimbo()
+    Carimbo = Year(Now) & Right("0" & Month(Now), 2) & Right("0" & Day(Now), 2) & "-" & _
+              Right("0" & Hour(Now), 2) & Right("0" & Minute(Now), 2)
 End Function

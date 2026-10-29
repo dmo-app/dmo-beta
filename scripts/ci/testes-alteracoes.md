@@ -4895,3 +4895,28 @@ Novos: 6 · mudaram: 2 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `6c7ce321b5f42e87`
+
+## A-0343 · 2026-10-29 · contagem-lista
+
+Porquê: Lote 0 da auditoria .230 (Codex, SAP-01..03): logger no FerramentasFabricoSap (apaga ordens que saíram da janela do relatório, avisa colisões), testes novos para isso, teste novo do «Atualizar do SAP» quando o diário diz «erro», e a ajuda do SAP já não diz que nenhuma senha fica nos ficheiros.
+Novos: 5 · mudaram: 12 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.DuasLinhasComAMesmaChave_FicamColapsadasNumaSoSemApagarNada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.UmaOrdemForaDaJanelaDoRelatorioNovo_NaoEApagada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.UmaOrdemQueDeixaDeVirNoRelatorio_EApagadaDaJanelaDoRelatorio`
+- novo: `tests/ShellProof/ferramentas-sap_feito-com-falha.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/ferramentas-sap_feito-com-falha.test.cjs :: Atualizar do SAP: quando o diário escreve «erro», o cartão mostra falha e não «feito»`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.FabricoSap.cs :: PostgresMigrationIntegrationTests.FabricoSap_LerDuasVezesUmaSoLinha_NoPostgreSql`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoriaDaProducao.cs :: HistoriaCenario.HistoriaDeUmaProducao_TodosOsModulosVeemOMesmo`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.HistoricoLote.cs :: PostgresMigrationIntegrationTests.HistoricoFerramentas_ProducoesEmLote_IguaisAUmaAUma_ComConsultasFixas`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.SapFabricoCadencia.cs :: PostgresMigrationIntegrationTests.SapFabricoCadencia_GravaSoACadencia_NoPostgreSql`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaPorProducaoTests.cs :: FabricoSapCadenciaPorProducaoTests.CadaProducaoDaFerramenta_TemASuaCadencia`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaPorProducaoTests.cs :: FabricoSapCadenciaPorProducaoTests.OJobOnSemCadencia_FicaComADaProducaoAnteriorDaMesmaReferencia`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FabricoSapCadenciaTests.cs :: FabricoSapCadenciaTests.Importar_GravaACadencia_ESemElaNaoApagaAJaGravada`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentaHistoricoQueryTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AjudaSap.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_AAjudaDoSapAbreAPaginaDeAjuda`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `4cba7644ecb57f38`
