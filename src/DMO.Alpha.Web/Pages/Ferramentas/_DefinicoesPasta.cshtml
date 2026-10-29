@@ -9,17 +9,15 @@
      % de uso de cada ferramenta; deixa na pasta os códigos a pedir ao SAP
      (dmo-codigos.txt). O ficheiro ferramentas-sap.js faz o resto. O botão «Como funciona»
      abre a página /Ferramentas/AjudaSap (Diogo, 22/10/2026 06:57: nada de
-     textos gigantes nas opções). *@
+     textos gigantes nas opções).
+     «Atualizar do SAP» e «Instalar» saíram daqui (SEC-01, 29/10/2026, Diogo:
+     «isso vai passar para admin»): escreviam na pasta os scripts com a senha
+     do SAP, e qualquer utilizador com as Ferramentas chegava a ela. Ficam só
+     em Admin › Definições › SAP, que já tinha a mesma funcionalidade. *@
   <section id="ferrDefSap" class="dmo-card ferr-def-card" aria-labelledby="ferr-sap-title" data-ferr-sap>
     <div class="dmo-card-topo">
       <h3 id="ferr-sap-title">Utilização pela produção</h3>
       <div class="dmo-card-topo-acoes">
-        @* UM SÓ BOTÃO (Diogo, 28/10/2026: «um actualizar deve ir tudo ao sap e meter nas ferramentas, não devo ter de andar a correr vários scripts»):
-           «Atualizar do SAP» escreve os scripts na pasta, abre o SAP e grava tudo quando acaba. «Ligar pasta» e «Ler pasta» saíram das Opções:
-           a pasta liga-se no Admin › Definições › SAP ou no primeiro «Atualizar do SAP». *@
-        <button type="button" class="dmo-button" id="ferrSapAtualizar" data-ferr-sap-atualizar>Atualizar do SAP</button>
-        @* «Instalar» à vista, ao lado do Atualizar (Diogo, 28/10/2026 18:31): o INSTALAR.cmd só instala ou volta a instalar. *@
-        <button type="button" class="dmo-button" id="ferrSapInstalar" data-ferr-sap-instalar>Instalar</button>
         <details class="dmo-options" data-dmo-tab-menu data-ferr-sap-opcoes>
           <summary class="dmo-button" aria-label="Opções da utilização pela produção"><span class="dmo-caret" aria-hidden="true"></span>Opções</summary>
           <div class="dmo-options-list">
@@ -34,7 +32,6 @@
       </div>
     </div>
     @Html.AntiForgeryToken()
-    <partial name="/Pages/Ferramentas/_SapAtualizarJanela.cshtml" />
     <p class="ctl-def-computador"><strong>Neste computador:</strong> <span id="ferrSapPastaEstado" data-ferr-sap-estado role="status">Nenhuma pasta ligada</span>@if (Model.UltimaLeituraSap is { } ultima)
       {<span id="ferrSapUltima"> · última leitura @DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(ultima.LidoEmUtc).ToString("dd/MM/yyyy HH:mm", System.Globalization.CultureInfo.InvariantCulture)@(ultima.Ficheiro is { } nomeFicheiro ? $" (ficheiro {nomeFicheiro})" : "")</span>}</p>
   </section>

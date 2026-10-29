@@ -42,7 +42,7 @@ html body main.ajuda-page .ajuda-card{padding:12px 16px;display:flex;flex-direct
         <dt>Sistema</dt><dd>BAS (SAP Logon 750), mandante 100</dd>
         <dt>Transação</dt><dd>ZPPG «Moldes Existentes» (% de uso de cada ferramenta)</dd>
         <dt>Script</dt><dd><code>DMO_USO_SAP.vbs</code>, com o atalho <code>Moldes Existentes.SAP</code></dd>
-        <dt>Pasta</dt><dd>A pasta ligada em Definições › Este computador › Utilização pela produção</dd>
+        <dt>Pasta</dt><dd>A pasta liga-se em Admin › Definições › SAP; depois de ligada, as Ferramentas também a leem</dd>
         <dt>Ficheiros</dt><dd><code>dmo-codigos.txt</code> (o DMO escreve), <code>dmo-uso-sap-AAAAMMDD-HHMM.csv</code> (o script escreve, um por corrida), relatório de fabrico da produção</dd>
         </dl>
 
@@ -60,9 +60,9 @@ html body main.ajuda-page .ajuda-card{padding:12px 16px;display:flex;flex-direct
         <h4>2. Preparar uma vez</h4>
         <ol>
             <li>Criar uma pasta no computador, por exemplo <code>C:\temp\DMO-SAP</code>.</li>
-            <li>No DMO: Admin › Definições › SAP › «Ligar pasta» (ou o primeiro «Atualizar do SAP») e escolher essa pasta. Quando o browser perguntar, carregar em «Permitir» (se aparecer, «Permitir em todas as visitas»).</li>
-            <li>Utilização pela produção › «Instalar»: o DMO escreve na pasta os scripts e o <code>INSTALAR.cmd</code>. Duplo clique no <code>INSTALAR.cmd</code>, só uma vez.</li>
-            <li>O utilizador, a senha, a hora da leitura diária e os dias de produções ficam em Admin › Definições › SAP. Os scripts também se abrem e mudam lá.</li>
+            <li>No DMO: Admin › Definições › SAP › «Ligar pasta» e escolher essa pasta. Quando o browser perguntar, carregar em «Permitir» (se aparecer, «Permitir em todas as visitas»).</li>
+            <li>Admin › Definições › SAP › «Instalar»: o DMO escreve na pasta os scripts e o <code>INSTALAR.cmd</code>. Duplo clique no <code>INSTALAR.cmd</code>, só uma vez.</li>
+            <li>O utilizador, a senha, a hora da leitura diária e os dias de produções ficam em Admin › Definições › SAP. Os scripts também se abrem e mudam lá. Só o ADMIN vê e prepara isto (SEC-01, 29/10/2026): a senha fica fora do alcance de quem só tem as Ferramentas.</li>
         </ol>
         </section>
         <section class="ajuda-secao">
@@ -72,7 +72,7 @@ html body main.ajuda-page .ajuda-card{padding:12px 16px;display:flex;flex-direct
         <section class="ajuda-secao">
         <h4>4. Atualizar a % de uso</h4>
         <ol>
-            <li>«Atualizar do SAP» e escolher: como nas definições (as produções e a % uso de todas), por data (só as produções, mês e ano) ou por referência (só a % uso dessas ferramentas, CM, MF, BQ ou todas).</li>
+            <li>Em Admin › Definições › SAP, «Atualizar do SAP» e escolher: como nas definições (as produções e a % uso de todas), por data (só as produções, mês e ano) ou por referência (só a % uso dessas ferramentas, CM, MF, BQ ou todas).</li>
             <li>O script lê os códigos, abre o SAP na ZPPG (espera até 90 segundos), procura cada código e lê o PERC da lista.</li>
             <li>Grava tudo num <code>dmo-uso-sap-AAAAMMDD-HHMM.csv</code> novo, na mesma pasta, com a hora desta corrida no nome: nunca apaga o de uma corrida anterior ainda por ler. Primeiro grava num ficheiro à parte e só no fim lhe dá o nome final, para o DMO nunca ler uma lista a meio.</li>
             <li>Ao abrir as Ferramentas no DMO, o DMO lê o ficheiro mais recente da pasta e, se for mais novo do que o último lido, grava a % de uso na ferramenta certa (pelo nome técnico e o lote). Depois do «Atualizar do SAP» grava sozinho quando o SAP acaba.</li>
@@ -99,7 +99,7 @@ html body main.ajuda-page .ajuda-card{padding:12px 16px;display:flex;flex-direct
         </section>
         <section class="ajuda-secao">
         <h4>7. Segurança</h4>
-        <p>A senha do SAP fica cifrada na base de dados do DMO e é escrita nos scripts que o DMO gera para o SAP se ligar sem a pedir a cada vez; esses scripts ficam na pasta ligada deste computador. A pasta fica ligada só no computador e no browser onde foi escolhida.</p>
+        <p>A senha do SAP fica embebida nos scripts que o «Instalar»/«Atualizar do SAP» escrevem na pasta (é assim que correm sem abrir o SAP à mão); por isso esses dois botões, e a senha em si, só estão em Admin › Definições › SAP (SEC-01, 29/10/2026). Quem só tem as Ferramentas lê os ficheiros que já estão na pasta (uso, fabrico, «Copiar códigos», «Pedir todas», «Apagar lidos»), mas não chega à senha.</p>
         </section>
         </div></div>
     </article>
