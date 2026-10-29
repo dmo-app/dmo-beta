@@ -1,5 +1,5 @@
 {
-  "selo": "f1d0e4a34de15020",
+  "selo": "3f7b0c747f3b0cec",
   "unidades": {
     "scripts/ci/ci-local.sh": "8da017260b18789f",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2684,9 +2684,9 @@
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Browser.cs :: (resto do ficheiro)": "9e6ccc81320a2377",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Browser.cs :: JobOnPageTests.Folha_Cheia_ComOitoCalibresENotasCompridas_ExportadaParaOBrowser": "adba5cb8b39d8648",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: (resto do ficheiro)": "2080afd6956d15f5",
-    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Duplicar_TrazOCabecalhoDaOrigem_OPuEACalote_EGravaAProducaoNovaComEles": "b54065cba5be85a4",
-    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Editar_LoteDoAnEscritoNoEditar_GravaSeEFicaComoLoteDoAn": "a78aab976109fcd2",
-    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Editar_LoteDoAnVazioMostraODaBqComoSugestao_EGuardarOutraCoisaNaoOCopiaParaABase": "1997d0e26379cf2c",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Duplicar_TrazOCabecalhoDaOrigem_OPuEACalote_EGravaAProducaoNovaComEles": "c96a91938ef02e3b",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Editar_LoteDoAnEscritoNoEditar_GravaSeEFicaComoLoteDoAn": "79ebf5391a955888",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Editar_LoteDoAnVazioMostraODaBqComoSugestao_EGuardarOutraCoisaNaoOCopiaParaABase": "f36a154243f95ad3",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Folha_CaloteDoTp_SemCaloteDaProducaoMostraABaciaPs_ComElaMandaACalote": "6227858889aedbd3",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Folha_LoteDoAnEscritoAMao_FicaEMantemSeQuandoATrocaDeBq": "ce65e441296b564d",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Folha_LoteDoAnSemEscrever_ESempreODaBq_NoEcraENaImpressao_MesmoDepoisDeTrocarAsBq": "02417f69b5eaa1dd",

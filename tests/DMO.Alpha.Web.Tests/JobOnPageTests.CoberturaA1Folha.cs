@@ -182,7 +182,7 @@ public partial class JobOnPageTests
         Assert.DoesNotMatch("value=\"[^\"]+\"", campo);
 
         // Guardar outra coisa não grava o 198 no AN: ele continua a seguir a BQ.
-        var (acao, campos) = EnvioDoFormulario.Preencher(editar, ("jobon-cm-folga2", "0.02"), ("jobon-mf-folga2", "0.02"), ("jobon-cm-notas", "Nota escrita no Editar."));
+        var (acao, campos) = EnvioDoFormulario.Preencher(editar, ("jobon-cm-folga2", "0.02"), ("jobon-mf-folga2", "0.02"), ("jobon-mf-corpo", "71.7"), ("jobon-cm-notas", "Nota escrita no Editar."));
         Assert.Equal(HttpStatusCode.Redirect, (await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos))).StatusCode);
         using (var scope = _factory.Services.CreateScope())
         {
@@ -204,7 +204,7 @@ public partial class JobOnPageTests
         using var client = await LoginClientAsync("9106", "Folha1234!");
 
         var editar = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={jobOnId}&editar=1"));
-        var (acao, campos) = EnvioDoFormulario.Preencher(editar, ("jobon-cm-folga2", "0.02"), ("jobon-mf-folga2", "0.02"), ("jobon-an-lote", "88"));
+        var (acao, campos) = EnvioDoFormulario.Preencher(editar, ("jobon-cm-folga2", "0.02"), ("jobon-mf-folga2", "0.02"), ("jobon-mf-corpo", "71.7"), ("jobon-an-lote", "88"));
         Assert.Equal(HttpStatusCode.Redirect, (await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos))).StatusCode);
 
         using var scope = _factory.Services.CreateScope();
@@ -299,7 +299,7 @@ public partial class JobOnPageTests
         var calote = Regex.Match(html, "<input[^>]*id=\"lightCalote\"[^>]*>").Value;
         Assert.Matches("value=\"6[.,]5", calote);
 
-        var (acao, campos) = EnvioDoFormulario.Preencher(html, ("jobon-cm-folga2", "0.02"), ("jobon-mf-folga2", "0.02"), ("lightProduction", "202699"));
+        var (acao, campos) = EnvioDoFormulario.Preencher(html, ("jobon-cm-folga2", "0.02"), ("jobon-mf-folga2", "0.02"), ("jobon-mf-corpo", "71.7"), ("lightProduction", "202699"));
         var guardar = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
         Assert.Equal(HttpStatusCode.Redirect, guardar.StatusCode);
 

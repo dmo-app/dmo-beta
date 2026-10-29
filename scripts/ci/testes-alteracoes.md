@@ -4840,3 +4840,15 @@ Novos: 203 · mudaram: 2 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `f1d0e4a34de15020`
+
+## A-0327 · 2026-10-29 · ok-do-diogo
+
+Porquê: Os 3 testes novos do #291 (DMO-588) que gravam a folha passam a escrever o diâmetro do corpo do MF com um só número (71.7), porque o #288 (DMO-587) recusa dois números num diâmetro; o que eles verificam não muda.
+Referência: Regra do Diogo 28/10 «no corpo não deve ter dois valores» (cmsg_01K75FTs9bQnbhhH7qttpgraNidJsALf8gXwDKhAgYzVEb)
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Duplicar_TrazOCabecalhoDaOrigem_OPuEACalote_EGravaAProducaoNovaComEles`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Editar_LoteDoAnEscritoNoEditar_GravaSeEFicaComoLoteDoAn`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Editar_LoteDoAnVazioMostraODaBqComoSugestao_EGuardarOutraCoisaNaoOCopiaParaABase`
+
+Selo depois: `3f7b0c747f3b0cec`

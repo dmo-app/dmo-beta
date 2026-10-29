@@ -227,7 +227,7 @@ html body .bq-sem-jobon-link:is(:hover,:focus-visible,:active):not(#_),html body
    fila dos módulos, com o espaço que sobra, até à sua largura natural; o título corta com reticências. */
 @media screen and (min-width:801px){
   html body .dmo-shell-header .dmo-shell-conta:not(#_){flex:1 1 0;min-width:0;max-width:max-content}
-  html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user:not(#_){max-width:100%}
+  html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user:not(#_){max-width:min(100%,340px)}
 }
 
 /* Hover único dos cartões das linhas (B1, B2, C1…; Diogo, 28/10/2026: «a questão das cores no hover tem de ser igual para todos»):
