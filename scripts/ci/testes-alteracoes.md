@@ -5797,7 +5797,7 @@ Selo depois: `d1db188e2d7bbb02`
 
 ## A-0437 · 2026-10-29 · ok-do-diogo
 
-Porquê: DMO-682: a entrada no SAP preenche-se pelo próprio SAP, sem Windows nem teclado (Diogo 29/10, «preciso disto automático»)
+Porquê: DMO-683: a entrada no SAP preenche-se pelo próprio SAP, sem Windows nem teclado (Diogo 29/10, «preciso disto automático»)
 Referência: cmsg_01K75FTs9bQnbhhH7qttpgraLZfB7rqPmjWrM9XaMWkQW1
 Novos: 1 · mudaram: 0 · saíram: 0
 

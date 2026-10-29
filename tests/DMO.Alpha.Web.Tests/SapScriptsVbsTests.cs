@@ -88,7 +88,7 @@ public sealed class SapScriptsVbsTests
         Assert.Contains("Correr \"DMO_USO_SAP.vbs\", \"\"", data);
     }
 
-    // Diogo, 29/10/2026: «preciso disto automático», sem ninguém no PC (DMO-682): a entrada
+    // Diogo, 29/10/2026: «preciso disto automático», sem ninguém no PC (DMO-683): a entrada
     // preenche-se primeiro pelo próprio SAP (RSYST-BNAME/RSYST-BCODE), antes do Windows.
     [Theory]
     [InlineData("Sap.DMO_USO_SAP.vbs")]

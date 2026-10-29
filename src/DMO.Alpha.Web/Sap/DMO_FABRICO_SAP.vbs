@@ -82,7 +82,7 @@ If session Is Nothing Then
         ' A janela da senha: escrever a senha e carregar em Logon.
         ' Primeiro pelo próprio SAP (o ecrã de entrada tem as caixas
         ' RSYST-BNAME e RSYST-BCODE): sem Windows nem teclado (Diogo,
-        ' 29/10/2026: «preciso disto automático», DMO-682).
+        ' 29/10/2026: «preciso disto automático», DMO-683).
         If Not senhaEscrita Then senhaEscrita = EntrarPeloSap()
         If Not senhaEscrita Then
             If shell.AppActivate(JANELA_LOGON) Then
