@@ -1,5 +1,5 @@
 {
-  "selo": "3133427fe0c23198",
+  "selo": "4308a5058f2f4495",
   "unidades": {
     "scripts/ci/ci-local.sh": "b85e4195bb3ac186",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1241,6 +1241,10 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnCommandChecksTests.cs :: JobOnCommandChecksTests.SemMaquina_AMaquinaVemAntesDoMfEmFalta_NoCriarENoEditar": "6d5d9ecad98730cf",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnDiametrosRecusaTests.cs :: (resto do ficheiro)": "dca61815bf50d839",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnDiametrosRecusaTests.cs :: JobOnDiametrosRecusaTests.DoisNumerosNumDiametro_ERecusado": "ad5d297344347cca",
+    "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnDiametrosSepararTests.cs :: (resto do ficheiro)": "46f6065438236649",
+    "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnDiametrosSepararTests.cs :: JobOnDiametrosSepararTests.DoisNumeros_VaiOSegundoParaATolVazia_EOGuardarPassa": "0674a009ca98ff9e",
+    "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnDiametrosSepararTests.cs :: JobOnDiametrosSepararTests.TolJaEscrita_FicaComoEsta": "91cd664d34d2c350",
+    "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnDiametrosSepararTests.cs :: JobOnDiametrosSepararTests.UmNumero_NaoMuda": "6efc0d344ea5bc42",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: (resto do ficheiro)": "5eaf6d8fb7760539",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.AsLeiturasSaoPelaOrdemDaPagina_FactosEFolha": "d37a69c2b4f0b5e9",
     "tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnFichaQueryTests.cs :: JobOnFichaQueryTests.Duplicar_NaoLeFactos_MasLeAFolhaQueCopia": "f37d7511c0991082",

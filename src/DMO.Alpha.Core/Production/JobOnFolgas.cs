@@ -18,6 +18,10 @@ public static partial class JobOnFolgas
     /// <summary>Quantos números tem o texto («0.12 / 0.16» → 2).</summary>
     public static int Numeros(string? texto) => texto is null ? 0 : Numero().Count(texto);
 
+    /// <summary>Os números do texto, pela ordem («25.20 / 0.05» → 25.20, 0.05).</summary>
+    public static IReadOnlyList<string> Lista(string? texto) =>
+        texto is null ? [] : Numero().Matches(texto).Select(m => m.Value).ToList();
+
     public static string?[] UmaPorEspaco(string? folga1, string? folga2, string? folga3)
     {
         if (Dois(folga1) is var (a, b) && string.IsNullOrWhiteSpace(folga3)) return [a, folga2, b];

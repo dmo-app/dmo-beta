@@ -5421,3 +5421,15 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/ShellProof/jobon-folha-avisos-alerta.test.cjs :: Ver: avisos do CM e da BQ vão para a pilha dos alertas da app, com o botão e o ×`
 
 Selo depois: `3133427fe0c23198`
+
+## A-0414 · 2026-10-29 · teste-novo
+
+Porquê: Teste novo: diâmetros antigos com dois números separam-se em valor e Tol. e o Guardar passa (DMO-669).
+Novos: 4 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnDiametrosSepararTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnDiametrosSepararTests.cs :: JobOnDiametrosSepararTests.DoisNumeros_VaiOSegundoParaATolVazia_EOGuardarPassa`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnDiametrosSepararTests.cs :: JobOnDiametrosSepararTests.TolJaEscrita_FicaComoEsta`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Production/JobOnDiametrosSepararTests.cs :: JobOnDiametrosSepararTests.UmNumero_NaoMuda`
+
+Selo depois: `4308a5058f2f4495`
