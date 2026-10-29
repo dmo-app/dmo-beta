@@ -5576,6 +5576,36 @@ Novos: 2 · mudaram: 6 · saíram: 0
 
 Selo depois: `ec9ba3ad5cec76c3`
 
+## A-0421 · 2026-10-29 · teste-novo
+
+Porquê: DMO-667/A-0412 (parte 2, Diogo 29/10): na Saída de uma BQ há a opção dos reparadores das BQ e, a seguir, os do Armazém. 1 teste novo; nenhum antigo mudou.
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Saida_DeBq_ParaReparacao_OferecePorGruposOsReparadoresDasBqEDoArmazem`
+
+Selo depois: `b7ee30734ac3ae0f`
+
+## A-0422 · 2026-10-29 · ok-do-diogo
+
+Porquê: Moda no Resumo mostra dias e não diferença (DMO-673)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraJPtT8ohDC782LcHjvY4Xhg
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBResumo.cs :: PesoFolhaProducaoAnteriorPageTests.Resumo_TabelaDoPeso_TemAsColunasValorGEPercentagem_EACadaLinhaAsDuasDiferencas`
+
+Selo depois: `d29f1065cfbc8c48`
+
+## A-0423 · 2026-10-29 · ok-do-diogo
+
+Porquê: Lote .244: junta #336, #340, #341 e a lista de testes em dia; as entradas A-0415, A-0421 e A-0422 explicam os testes.
+Referência: lote .244
+Novos: 1 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Armazem/ArmazemMovimentosPaginaTests.cs :: ArmazemMovimentosPaginaTests.Saida_DeBq_ParaReparacao_OferecePorGruposOsReparadoresDasBqEDoArmazem`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.CoberturaBResumo.cs :: PesoFolhaProducaoAnteriorPageTests.Resumo_TabelaDoPeso_TemAsColunasValorGEPercentagem_EACadaLinhaAsDuasDiferencas`
+
+Selo depois: `ffd1b58d9d7cece0`
+
 ## A-0424 · 2026-10-29 · contagem-lista
 
 Porquê: DMO-674: teste novo da referência completa e do espaço entre botões no Registar Reparação. Mudanças a ficheiros antigos só de lista: a classe ReparacaoProgramadaPaginaTests passa a partial (o teste novo vive em ReparacaoProgramadaPaginaTests.Artigo.cs) e o ci-local.sh ganha o passo do rp_botoes_browser.py. Nenhum teste existente muda o que verifica.
@@ -5588,4 +5618,4 @@ Novos: 3 · mudaram: 2 · saíram: 0
 - mudou: `scripts/ci/ci-local.sh`
 - mudou: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: (resto do ficheiro)`
 
-Selo depois: `d622c4c1cd418d0b`
+Selo depois: `3e7437e38d1637ff`

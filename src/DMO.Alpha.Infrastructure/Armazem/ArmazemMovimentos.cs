@@ -441,7 +441,11 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
             }
 
             reparadorNome = reparador.Nome;
-            if (tool.Type == ToolType.Bq)
+            if (reparador.Id < 0)
+            {
+                reparadorId = -reparador.Id;
+            }
+            else if (tool.Type == ToolType.Bq)
             {
                 bqReparadorId = reparador.Id;
             }
@@ -795,21 +799,27 @@ public sealed class ArmazemMovimentos(DmoDbContext db, IOperacoesRegistadas oper
         }
     }
 
-    private async Task<IReadOnlyList<ArmazemReparadorOpcao>> ReparadoresAsync(ToolType tipo, CancellationToken cancellationToken) =>
-        tipo switch
+    // CM e MF: os reparadores das Definições do Armazém. BQ: os das Boquilhas e, a seguir, também os do
+    // Armazém (Diogo, 29/10/2026: «quando for dar saída a BQ ter opção para os reparadores das BQ»;
+    // os do Armazém levam o id em negativo para não se confundirem com os das Boquilhas).
+    private async Task<IReadOnlyList<ArmazemReparadorOpcao>> ReparadoresAsync(ToolType tipo, CancellationToken cancellationToken)
+    {
+        var doArmazem = await db.Reparadores.AsNoTracking()
+            .Where(r => r.Ativo)
+            .OrderBy(r => r.Nome)
+            .Select(r => new ArmazemReparadorOpcao(tipo == ToolType.Bq ? -r.Id : r.Id, r.Nome))
+            .ToListAsync(cancellationToken);
+        if (tipo != ToolType.Bq)
         {
-            ToolType.Bq => await db.BqRepairers.AsNoTracking()
-                .OrderBy(r => r.Name)
-                .Select(r => new ArmazemReparadorOpcao(r.Id, r.Name))
-                .ToListAsync(cancellationToken),
-            // Os reparadores de CM e MF recebem tudo; só os das BQ são outros
-            // (Diogo, 27/10/2026: «os reparadores recebem tudo, menos os das bqs»).
-            _ => await db.Reparadores.AsNoTracking()
-                .Where(r => r.Ativo)
-                .OrderBy(r => r.Nome)
-                .Select(r => new ArmazemReparadorOpcao(r.Id, r.Nome))
-                .ToListAsync(cancellationToken)
-        };
+            return doArmazem;
+        }
+
+        var dasBq = await db.BqRepairers.AsNoTracking()
+            .OrderBy(r => r.Name)
+            .Select(r => new ArmazemReparadorOpcao(r.Id, r.Name))
+            .ToListAsync(cancellationToken);
+        return [.. dasBq, .. doArmazem];
+    }
 
     private async Task<Dictionary<string, (string Codigo, DateTime DesdeUtc)>> PosicoesAtuaisAsync(
         IReadOnlyCollection<string> toolIds, CancellationToken cancellationToken)
