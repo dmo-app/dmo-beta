@@ -6026,3 +6026,13 @@ Novos: 0 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.HistoryDay_ReplacesRangePreservesFiltersAndExportsTheSameSelection`
 
 Selo depois: `f45ccb5200f39877`
+
+## A-0457 · 2026-10-30 · ok-do-diogo
+
+Porquê: Diogo 30/10 15:45: cards das linhas esmagados em Boquilhas › Movimentos. A 1290×646 não cabe tudo: o teste deixa de exigir a página sem scroll (Diogo 30/10 13:35: nunca pediu páginas presas sem scroll, só o menos scroll possível) e passa a exigir que os cartões das linhas não fiquem esmagados (≥70 px). Lista com cabeçalho e uma linha inteira continua exigida.
+Referência: DMO-691, cmsg_01K75FTs9bQnbhhH7qttpgraDC6TARPVt9H8nBNhxEsFYf
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/visual/bq_historico_lista_browser.py`
+
+Selo depois: `2620f54d6967d5af`
