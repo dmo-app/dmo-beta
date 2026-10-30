@@ -170,10 +170,21 @@ public sealed class FerramentaHistoricoQuery(DmoDbContext db, IFerramentasFabric
             .GroupBy(u => u.ToolId)
             .ToDictionary(g => g.Key, g => (IReadOnlyList<(DateOnly Dia, decimal Percentagem)>)g
                 .Select(u => (DateOnly.FromDateTime(DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(u.RegistadaEmUtc)), u.Percentagem)).ToList(), StringComparer.Ordinal);
+        // Sem leitura antes e depois (a produção ainda a correr, R5, Diogo, 30/10/2026): a parte da % atual
+        // que cabe ao que se produziu nela, pelas produções do SAP (a conta «≈» da ficha).
+        var todasProducoes = await fabrico.ProducoesDeFerramentasAsync(toolIds, null, cancellationToken);
+        decimal? Estimado(string id, FerramentaProducao p)
+        {
+            if (!leituras.TryGetValue(id, out var l) || l.Count == 0 || !todasProducoes.TryGetValue(id, out var dela)) return null;
+            var esta = dela.FirstOrDefault(o => o.JobOnId == p.JobOnId);
+            var total = dela.Sum(o => o.ProducaoBruta ?? 0);
+            if (esta is not { ProducaoBruta: > 0 } || total <= 0) return null;
+            return Math.Round(l[^1].Percentagem * esta.ProducaoBruta.Value / total, 2);
+        }
         IReadOnlyDictionary<string, decimal?> Usos(FerramentaProducao p) => contextos
             .Where(c => c.JobOnId == p.JobOnId)
             .Select(c => c.ToolId).Distinct()
-            .ToDictionary(id => id, id => leituras.TryGetValue(id, out var l) ? FerramentasFabricoSap.UsoNaProducao(l, p.InicioEm, p.FimEm) : null, StringComparer.Ordinal);
+            .ToDictionary(id => id, id => (leituras.TryGetValue(id, out var l) ? FerramentasFabricoSap.UsoNaProducao(l, p.InicioEm, p.FimEm) : null) ?? Estimado(id, p), StringComparer.Ordinal);
 
         // A atual primeiro; as trocadas a meio a seguir, pela ordem em que entraram.
         IReadOnlyList<HistoricoFerramenta> Do(int jobOnId, ToolType tipo) => contextos

@@ -103,6 +103,9 @@ with sync_playwright() as playwright:
     browser = launch_chromium(playwright)
     context = browser.new_context()
     page = context.new_page()
+    # R8 (Diogo, 30/10/2026): a escrita automática só às 14:00 e às 16:20 de
+    # Portugal. O relógio da página começa às 15:00 (já passou a das 14:00).
+    page.clock.install(time="2026-10-30T15:00:00Z")
     errors = []
     page.on("pageerror", lambda e: errors.append(str(e)))
     page.route(f"{ORIGIN}/**", handle)
@@ -150,7 +153,11 @@ with sync_playwright() as playwright:
     page.wait_for_timeout(400)
     assert len(posts) == 1, "uma gravação recusada não escreve o Excel"
     page.evaluate("document.dispatchEvent(new CustomEvent('dmo:troca', { detail: { recusa: false } }))")
-    page.wait_for_function("window.__n = (window.__n || 0) + 1, true")
+    page.wait_for_timeout(600)
+    assert len(posts) == 1, "antes das 16:20 a troca gravada não escreve o Excel"
+    # Às 16:20 escreve sozinho (o relógio de minuto a minuto), com a página aberta.
+    page.clock.set_system_time("2026-10-30T16:21:00Z")
+    page.clock.run_for(61000)
     page.wait_for_timeout(800)
     assert len(posts) == 2, posts
     assert b'name="escritas"' in posts[1], "as linhas que a app escreveu vão no pedido"
@@ -200,4 +207,4 @@ with sync_playwright() as playwright:
     assert errors == [], errors
     browser.close()
 
-print("Excel das Boquilhas: sem Excel, escrita ao abrir, versão igual, troca recusada e gravada, recusa do servidor, deixar de usar e criar na pasta: passaram")
+print("Excel das Boquilhas: sem Excel, escrita ao abrir, versão igual, troca recusada e gravada só às horas marcadas, recusa do servidor, deixar de usar e criar na pasta: passaram")
