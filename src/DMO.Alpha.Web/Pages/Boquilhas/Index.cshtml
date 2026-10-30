@@ -873,6 +873,13 @@
                             <span>@(group.Reference ?? group.ToolReference)</span>
                             <span>@group.ToolReference · Lote @group.ToolLot</span>
                             <span>@(group.ProductionNumber is { } number ? $"Produção {number}" : "Sem Job On")</span>
+                            @* O que entrou e saiu nesse dia (Diogo, 30/10/2026): as quantidades de BQs, com os selos da grelha; o zero não aparece. *@
+                            @{
+                              var diaE = group.Movements.Where(m => m.MovementType == nameof(DMO.Alpha.Core.Boquilhas.BqMovementType.Entrada)).Sum(m => m.Quantity);
+                              var diaS = group.Movements.Where(m => m.MovementType == nameof(DMO.Alpha.Core.Boquilhas.BqMovementType.Saida)).Sum(m => m.Quantity);
+                              var diaSr = group.Movements.Where(m => m.MovementType == nameof(DMO.Alpha.Core.Boquilhas.BqMovementType.EntradaSemReparacao)).Sum(m => m.Quantity);
+                            }
+                            <span class="bq-dia-quantidades">@if (diaS > 0) {<span class="entry-s">S @diaS</span>}@if (diaE > 0) {<span class="entry-e">E @diaE</span>}@if (diaSr > 0) {<span class="entry-r">SR @diaSr</span>}</span>
                           </div>
                         }
                       </div>
@@ -972,32 +979,7 @@
                       </tr>
                     }
                   </tbody>
-                  <tfoot>
-                    <tr>
-                      <td><strong>Total</strong></td>
-                      @foreach (var machine in houseMachines)
-                      {
-                        var machineEntries = Model.MatrixEntries.Where(e => e.MachineCode == machine).ToList();
-                        <td>
-                          @if (machineEntries.Count == 0)
-                          {
-                            <span class="muted">—</span>
-                          }
-                          else
-                          {
-                            @* O tfoot do html: E e S sempre, o SR só
-                               quando existe (o zero nunca é facto). *@
-                            <span class="entry-e">E @machineEntries.Sum(e => e.EntradasQuantidade)</span>
-                            <span class="entry-s">S @machineEntries.Sum(e => e.SaidasQuantidade)</span>
-                            @if (machineEntries.Sum(e => e.EntradasSemReparacaoQuantidade) > 0)
-                            {
-                              <span class="entry-r">SR @machineEntries.Sum(e => e.EntradasSemReparacaoQuantidade)</span>
-                            }
-                          }
-                        </td>
-                      }
-                    </tr>
-                  </tfoot>
+                  @* Sem linha «Total»: a soma de boquilhas diferentes por máquina não diz nada; o que conta é o total por produção (tool_id) (Diogo, 30/10/2026). *@
                 </table>
               </div>
               <p class="muted bq-matrix-legend"><span class="entry-e">E</span> Entradas de reparação&nbsp; <span class="entry-s">S</span> Saídas&nbsp; <span class="entry-r">SR</span> Entradas sem reparação</p>

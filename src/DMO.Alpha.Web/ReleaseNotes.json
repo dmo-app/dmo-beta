@@ -644,7 +644,8 @@
     { "id": "DMO-685", "module": "Job On", "description": "0.3.0-beta.250 (A-0441): na folha do Job On a Utilização de cada ferramenta vem da própria ferramenta (tool_id) e não do que ficou escrito no Job On: no Duplicar é a % atual, e cada produção mostra a % com que começou (a primeira de uma ferramenta nova começa a 0)." },
     { "id": "DMO-688", "module": "Job On", "description": "0.3.0-beta.250 (A-0445): na folha do Job On a «Informação técnica» abre por baixo do cartão, por cima do que está atrás, sem empurrar nem mexer nos outros cartões." },
     { "id": "DMO-687", "module": "Job On", "description": "0.3.0-beta.250 (A-0444): no Editar do Job On os Dias mudam logo ao mudar o Início ou o Fim, sem ser preciso gravar." },
-    { "id": "DMO-689", "module": "Peso", "description": "0.3.0-beta.251 (A-0449): no Peso, as datas e os dias da produção anterior ficam dentro da tabela, e as diferenças dizem «peso médio atual menos a média» ou «menos a moda», com gramas e percentagem com sinal. O PDF não muda." }
+    { "id": "DMO-689", "module": "Peso", "description": "0.3.0-beta.251 (A-0449): no Peso, as datas e os dias da produção anterior ficam dentro da tabela, e as diferenças dizem «peso médio atual menos a média» ou «menos a moda», com gramas e percentagem com sinal. O PDF não muda." },
+    { "id": "DMO-691", "module": "Boquilhas", "description": "Nos Movimentos das Boquilhas: os cards das máquinas já não ficam esmagados ao abrir a partir do Registo (Opções › Movimentos); o Registo do dia mostra o que saiu e entrou em cada máquina (S/E/SR); o Resumo diário deixa de ter a linha «Total»." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

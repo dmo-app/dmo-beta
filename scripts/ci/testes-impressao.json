@@ -1,5 +1,5 @@
 {
-  "selo": "f7ab53c834bb7e35",
+  "selo": "f45ccb5200f39877",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1925,13 +1925,13 @@
     "tests/DMO.Alpha.Web.Tests/AuthenticationTests.cs :: AuthenticationTests.UserLogin_Success_RedirectsToHome": "66ec5d9de6035900",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: (resto do ficheiro)": "b6ec3bd7fb4fb439",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.ClampMatrixPeriod_CutsAtTheFirst366DaysAndExplains": "dd01762e922a4f8d",
-    "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.DailySummaryGrid_RendersDayByMachine_FromTheBackend": "8a628aa7be089d9d",
+    "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.DailySummaryGrid_RendersDayByMachine_FromTheBackend": "5be575d0d664b610",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.DetailedMovementsView_ListsOneMovementPerLine_WithoutGroupHeaders_AndItsPdf": "67698bcd35ad887d",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.DetailedMovements_AEntradaSemReparacao_NuncaVaiCruParaOEcran": "584307ba15d81a55",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.DetailedMovements_AreATableWithTheHumanFacts_AndTheDoubleClickOpens": "5bb92694443001a7",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.Filters_TypeMachineTextAndRange_WorkOverTheRealDate": "84f49b571ac13343",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.GroupedHistory_KeepsLotsSeparateAndUsesFrozenMovementMachine": "7c85ba3c67b5f791",
-    "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.HistoryDay_ReplacesRangePreservesFiltersAndExportsTheSameSelection": "f3a29e275758e45c",
+    "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.HistoryDay_ReplacesRangePreservesFiltersAndExportsTheSameSelection": "e65301724e69f312",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.History_CalendarDay_ChangesOnlyTheZones": "050baa98cd72fb66",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.History_Filters_ChangeOnlyTheZones": "a2bbf86aaa24ce07",
     "tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.History_MonthOnly_ListsThatMonthsMovements": "bee65b7bd7f57a24",
