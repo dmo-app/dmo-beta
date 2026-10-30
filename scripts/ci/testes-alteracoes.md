@@ -6015,3 +6015,20 @@ Novos: 3 · mudaram: 2 · saíram: 0
 - mudou: `tests/ShellProof/peso-live.test.cjs :: (resto do ficheiro)`
 
 Selo depois: `f7ab53c834bb7e35`
+
+## A-0452 · 2026-10-30 · ok-do-diogo
+
+Porquê: Passo 1 do PLANO-CSS: exporta o Sumário real (populado, lista longa e vazio) e acrescenta a guarda tests/visual/css_preservacao_browser.py, que compara estilos computados e geometria com a linha de base aprovada e cobre os sentinelas Peso/PU a 1366×768, 1290×646, 1100, 1099 e 800, claro e escuro. Liga a guarda ao CI local. Nenhum teste antigo foi mudado. A guarda foi provada contra uma regressão deliberada (fundo das linhas 12% para 20%) e voltou a passar depois de repor.
+Referência: Diogo, 29/10/2026: «sim» ao passo 1 do PLANO-CSS (guarda de preservação do CSS, A-0452)
+Novos: 6 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/CssPreservacaoExportaParaOBrowserTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/CssPreservacaoExportaParaOBrowserTests.cs :: CssPreservacaoExportaParaOBrowserTests.ExportaOSumarioComDiaPopulado`
+- novo: `tests/DMO.Alpha.Web.Tests/CssPreservacaoExportaParaOBrowserTests.cs :: CssPreservacaoExportaParaOBrowserTests.ExportaOSumarioComListaLonga`
+- novo: `tests/DMO.Alpha.Web.Tests/CssPreservacaoExportaParaOBrowserTests.cs :: CssPreservacaoExportaParaOBrowserTests.ExportaOSumarioVazio`
+- novo: `tests/visual/css_preservacao_base.json`
+- novo: `tests/visual/css_preservacao_browser.py`
+- mudou: `scripts/ci/ci-local.sh`
+- mudou: `scripts/ci/testes.md`
+
+Selo depois: `73c1a782240d92d2`
