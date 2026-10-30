@@ -448,6 +448,25 @@ else
   failed=1
 fi
 
+# A guarda de preservação do CSS (PLANO-CSS, A-0452): a limpeza do CSS não pode
+# mudar o aspeto. Compara o HTML real exportado com a linha de base de estilos
+# computados e geometria; os sentinelas Peso/PU ficam congelados.
+echo
+echo "== Browser na preservação do CSS"
+echo "   Sumário (populado, longo, vazio; repouso, hover, foco e fim) e sentinelas Peso/PU a 1366×768, 1290×646, 1100, 1099 e 800, claro e escuro."
+if [[ "${CI_SEM_BROWSER:-}" == "1" ]]; then
+  echo "   não corrido (CI_SEM_BROWSER=1)"
+  summary+=("--      Browser na preservação do CSS (CI_SEM_BROWSER=1)")
+  incompleto+=("browser")
+elif python3 tests/visual/css_preservacao_browser.py "$ui" --evidencia "$ui/css-preservacao" >"$logs/ui-css-preservacao.log" 2>&1; then
+  echo "   passaram"
+  summary+=("OK      Browser na preservação do CSS")
+else
+  tail -30 "$logs/ui-css-preservacao.log"
+  summary+=("FALHOU  Browser na preservação do CSS")
+  failed=1
+fi
+
 # Os erros de aspeto que a revisão dos testes encontrou (DMO-406/495/509/522), corrigidos em DMO-589 (.233).
 # Os scripts chamam-se ainda pendentes_*_browser.py e o texto deles diz «não entra no CI»: já entram.
 echo
