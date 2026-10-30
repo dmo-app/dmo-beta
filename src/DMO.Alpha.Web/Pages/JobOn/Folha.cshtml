@@ -151,12 +151,14 @@
         var valor = Vazio(Model.Folha.Valor(chave));
         // No ver, a % de uso vem sempre da ferramenta pelo tool_id, não do que ficou escrito no Job On
         // (Diogo, 28/10/2026, modelo de dados; 29/10/2026: «está a acontecer a todos»).
-        if (!editar && f?.ToolId is { } toolDoUso && Model.UsosNoInicio.TryGetValue(toolDoUso, out var usoDaFerramenta))
+        // O número grande é o uso no fim desta produção e o «antes» o do início dela, pelas datas do SAP
+        // (R13, Diogo, 30/10/2026: «o antes está trocado»).
+        if (!editar && f?.ToolId is { } toolDoUso && Model.UsosNoFim.TryGetValue(toolDoUso, out var usoDaFerramenta))
         {
             valor = usoDaFerramenta.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
         }
         var agora = Numero(valor);
-        var antes = f?.Utilizacao;
+        decimal? antes = f?.ToolId is { } toolAntes && Model.UsosNoInicio.TryGetValue(toolAntes, out var noInicio) ? noInicio : (editar ? f?.Utilizacao : null);
         <div class="use">
           <div class="use-top"><span>Utilização</span>
             @if (editar)
@@ -179,7 +181,7 @@
               }
               @if (antes is { } a)
               {
-                <em class="was" title="A última leitura do uso">antes @a.ToString("0.##", culture)%</em>
+                <em class="was" title="O uso no início desta produção">antes @a.ToString("0.##", culture)%</em>
               }
             }
           </div>
