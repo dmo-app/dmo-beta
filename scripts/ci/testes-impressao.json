@@ -1,5 +1,5 @@
 {
-  "selo": "f7ab53c834bb7e35",
+  "selo": "9df94df276c56f82",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2358,7 +2358,7 @@
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ErrosDoResumo.cs :: (resto do ficheiro)": "6ebea7ac72464a48",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ErrosDoResumo.cs :: ControloCapabilitiesCutHPageTests.Resumo_ErrosDe27Out_CabecalhoMcaliperRegistarEVoltar": "09210a55a9e12b9a",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: (resto do ficheiro)": "67df1872b1d0b8fc",
-    "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_Folha_SoOCorpoDesliza": "f69d1890b3c8a652",
+    "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_Folha_SoOCorpoDesliza": "6189efa66047ee95",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_JobOnNoPainel_TituloLarguraEFolha": "b5a11fb575ed74f6",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_Pagina_TopoComTituloEAcoesECorpo": "5948a52c95a5a0cf",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelDeApoio_TemOEsqueletoFixo": "9a60a8e13ff8a5c3",
@@ -2957,6 +2957,8 @@
     "tests/DMO.Alpha.Web.Tests/ModuleEntryTests.cs :: ModuleEntryTests.OnlyTheTemplateModules_OpenAndAppearInTheMenu": "ddc1eb74c7d4e7e7",
     "tests/DMO.Alpha.Web.Tests/ModuleEntryTests.cs :: ModuleEntryTests.Suggestions_AnswerOnlyForTheModulesThatUseThem": "aa7e0a24fddee36e",
     "tests/DMO.Alpha.Web.Tests/ModuleEntryTests.cs :: ModuleEntryTests.TemplateChange_AppliesOnTheNextRequest": "ded95ba23ec5f8c7",
+    "tests/DMO.Alpha.Web.Tests/PaginasDeslizamCssTests.cs :: (resto do ficheiro)": "16531c05208661d0",
+    "tests/DMO.Alpha.Web.Tests/PaginasDeslizamCssTests.cs :: PaginasDeslizamCssTests.NenhumaPaginaFicaPresaAAlturaDaJanela": "6ec5da95e3b84640",
     "tests/DMO.Alpha.Web.Tests/PaginasSemSessaoTests.cs :: (resto do ficheiro)": "b7b4e8d1f1448617",
     "tests/DMO.Alpha.Web.Tests/PaginasSemSessaoTests.cs :: PaginasSemSessaoTests.PorOmissao_TodasAsPaginasPedemSessao": "e6d193dc60b1d018",
     "tests/DMO.Alpha.Web.Tests/PaginasSemSessaoTests.cs :: PaginasSemSessaoTests.SemSessao_SoAbremAsPaginasPublicas": "53da8107f8bc6ede",

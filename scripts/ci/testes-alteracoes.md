@@ -6015,3 +6015,15 @@ Novos: 3 · mudaram: 2 · saíram: 0
 - mudou: `tests/ShellProof/peso-live.test.cjs :: (resto do ficheiro)`
 
 Selo depois: `f7ab53c834bb7e35`
+
+## A-0456 · 2026-10-30 · ok-do-diogo
+
+Porquê: Diogo 30/10 15:13: «isso acontece em muitas tabelas desde que fizeram lock a pagina» / «nao deixa ver a tabela». As páginas deixam de estar presas à altura da janela (DMO-690); a estrutura passa a min-height:100dvh sem overflow:hidden; teste novo guarda que nenhuma página volta a ficar presa.
+Referência: DMO-690, cmsg_01K75FTs9bQnbhhH7qttpgraYMTY9VDLC6nhPCDumWYQN3
+Novos: 2 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/PaginasDeslizamCssTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PaginasDeslizamCssTests.cs :: PaginasDeslizamCssTests.NenhumaPaginaFicaPresaAAlturaDaJanela`
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_Folha_SoOCorpoDesliza`
+
+Selo depois: `9df94df276c56f82`
