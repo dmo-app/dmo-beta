@@ -1,5 +1,5 @@
 {
-  "selo": "d0190f75982135e2",
+  "selo": "303fcbccadb4096c",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -3404,7 +3404,7 @@
     "tests/ShellProof/escrito-perdido.test.cjs :: enquanto a referência nova não responde, o dropdown da anterior não abre produções dela (B-jobon-6)": "05ca20bff4e871c8",
     "tests/ShellProof/escrito-perdido.test.cjs :: numa procura com linhas, as linhas do texto anterior não escolhem enquanto o novo não responde": "1d2cbb771882be40",
     "tests/ShellProof/escrito-perdido.test.cjs :: o PIN de um utilizador criado fica no canto com a criação seguinte e com uma recusa a seguir (B-admin-1)": "163ac18f97275872",
-    "tests/ShellProof/excel-bq-escritas.test.cjs :: (resto do ficheiro)": "1d247a7dbb3441b3",
+    "tests/ShellProof/excel-bq-escritas.test.cjs :: (resto do ficheiro)": "529bf8c562015670",
     "tests/ShellProof/excel-bq-escritas.test.cjs :: S03: sem registo novo durante a escrita, escreve uma só vez": "58c246a3d718061e",
     "tests/ShellProof/excel-bq-escritas.test.cjs :: S03: um registo durante uma escrita lenta volta a escrever e o Excel fica com ele": "7690c95ba2319b24",
     "tests/ShellProof/excel-bq-escritas.test.cjs :: S04: dois separadores escrevem um de cada vez, e o Excel fica com o mais novo": "2401b7378e6226a6",

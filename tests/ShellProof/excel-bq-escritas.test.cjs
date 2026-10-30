@@ -26,6 +26,17 @@ function locksDoBrowser() {
   };
 }
 
+// R8 (Diogo, 30/10/2026): a escrita automática só às 14:00 e às 16:20. Aqui
+// cada «agora» é um dia depois do anterior, às 16:30, para cada escrita pedida
+// cair numa hora nova e os achados S03/S04 continuarem a ser provados.
+let dias = 0;
+class Relogio extends Date {
+  constructor(...args) {
+    if (args.length) super(...args);
+    else super(Date.UTC(2026, 9, 30 + dias++, 16, 30));
+  }
+}
+
 function excel({ comTrinco = true } = {}) {
   let record;
   let serverVersion = 'v1';
@@ -68,7 +79,7 @@ function excel({ comTrinco = true } = {}) {
     };
     class FormData { constructor() { this.values = new Map(); } append(k, v) { this.values.set(k, v); } }
     const navigator = comTrinco ? { locks } : {};
-    vm.runInNewContext(source, { window, document, navigator, indexedDB, fetch, FormData, Date, Promise, JSON, String, decodeURIComponent });
+    vm.runInNewContext(source, { window, document, navigator, indexedDB, fetch, FormData, Date: Relogio, Intl, setInterval: () => 0, Promise, JSON, String, Number, decodeURIComponent });
     return { eventos };
   }
   return { separador, posts, setVersion: (v) => { serverVersion = v; }, get file() { return fileContent; }, get record() { return record; } };

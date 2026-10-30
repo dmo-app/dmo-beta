@@ -6020,7 +6020,7 @@ Selo depois: `f7ab53c834bb7e35`
 
 Porquê: Refinamentos 30/10 pedidos pelo Diogo: R13 «antes» trocado, R14 Peso do SAP, R11 pinça na impressão, R8 Excel 14:00/16:20 («continua»), SAP só no ADMIN («sim»)
 Referência: PR #366
-Novos: 2 · mudaram: 13 · saíram: 0
+Novos: 2 · mudaram: 14 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.PrimeiraProducao_AntesZeroEFimPeloProduzido`
 - novo: `tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.SemLeituraAntes_AntesEOFimDaProducaoAnterior`
@@ -6036,6 +6036,7 @@ Novos: 2 · mudaram: 13 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Imprimir_UsaAsPincasDoCartaoPiInteiras_ComODiametro_SemALinhaTipo`
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Painel_FolhaNoPainel_EUmResumoComAbrirFolha_SemOsCartoesDaFolha`
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/excel-bq-escritas.test.cjs :: (resto do ficheiro)`
 - mudou: `tests/visual/excel_bq_browser.py`
 
-Selo depois: `d0190f75982135e2`
+Selo depois: `303fcbccadb4096c`
