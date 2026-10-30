@@ -6015,3 +6015,24 @@ Novos: 3 · mudaram: 2 · saíram: 0
 - mudou: `tests/ShellProof/peso-live.test.cjs :: (resto do ficheiro)`
 
 Selo depois: `f7ab53c834bb7e35`
+
+## A-0457 · 2026-10-30 · ok-do-diogo
+
+Porquê: Diogo 30/10 15:47: «remover o total daqui, nao nos interessa o total de boquilhas aleatoreas, so total de produçoes, tool_id» — sai a linha Total do Resumo diário. Diogo 15:49: «a importancia aqui do calendario é mostrar o que entrou e saiu nese dia» — o Registo do dia mostra S/E/SR (asserção nova).
+Referência: DMO-691, cmsg_01K75FTs9bQnbhhH7qttpgraS69GxEz22mhdY4RVpNX8KX, cmsg_01K75FTs9bQnbhhH7qttpgra121hM4DcRXqDgjxZAz3NDz
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.DailySummaryGrid_RendersDayByMachine_FromTheBackend`
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.HistoryDay_ReplacesRangePreservesFiltersAndExportsTheSameSelection`
+
+Selo depois: `f45ccb5200f39877`
+
+## A-0457 · 2026-10-30 · ok-do-diogo
+
+Porquê: Diogo 30/10 15:45: cards das linhas esmagados em Boquilhas › Movimentos. A 1290×646 não cabe tudo: o teste deixa de exigir a página sem scroll (Diogo 30/10 13:35: nunca pediu páginas presas sem scroll, só o menos scroll possível) e passa a exigir que os cartões das linhas não fiquem esmagados (≥70 px). Lista com cabeçalho e uma linha inteira continua exigida.
+Referência: DMO-691, cmsg_01K75FTs9bQnbhhH7qttpgraDC6TARPVt9H8nBNhxEsFYf
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/visual/bq_historico_lista_browser.py`
+
+Selo depois: `2620f54d6967d5af`
