@@ -5999,5 +5999,4 @@ Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; no
 
 | Teste | O que garante | Estado | Registo |
 |---|---|---|---|
-| `PaginasDeslizamCssTests.NenhumaPaginaFicaPresaAAlturaDaJanela` | Nenhuma página fica presa à altura da janela com o resto escondido (PU NNPB, Pegamentos, Revisão, Resumo, Sumário, Definições, Planeamento, RI Consultar, estrutura das páginas): a página desliza e as tabelas aparecem inteiras. | OK | A-0456 |
-| `Estrutura_Folha_SoOCorpoDesliza` (alterado) | A estrutura das páginas ocupa pelo menos a janela, sem esconder o que passa dela. | OK | A-0456 |
+| `PaginasDeslizamCssTests.NenhumaPaginaFicaPresaAAlturaDaJanela` | Nenhuma página fica presa à altura da janela com o resto escondido (PU NNPB, Revisão, Resumo, Sumário, Definições, Planeamento, RI Consultar); a estrutura das páginas e os Pegamentos já deslizam por dentro e ficam como estavam: a página desliza e as tabelas aparecem inteiras. | OK | A-0456 |

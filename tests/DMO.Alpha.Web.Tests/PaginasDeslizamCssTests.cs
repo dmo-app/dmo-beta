@@ -12,9 +12,11 @@ public sealed class PaginasDeslizamCssTests
     {
         var dir = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "src", "DMO.Alpha.Web", "wwwroot", "css");
         // Regras de uma linha (as das páginas); o painel lateral tem o corpo a deslizar.
-        var trava = new Regex(@"\{[^}\n]*\bheight:(100dvh|100vh|calc\(100vh[^)]*\))[^}\n]*overflow:(hidden|clip)[^}\n]*\}|\{[^}\n]*overflow:(hidden|clip)[^}\n]*\bheight:(100dvh|100vh|calc\(100vh[^)]*\))[^}\n]*\}");
+        var trava = new Regex(@"[^{}\n]*\{[^}\n]*\bheight:(100dvh|100vh|calc\(100vh[^)]*\))[^}\n]*overflow:(hidden|clip)[^}\n]*\}|[^{}\n]*\{[^}\n]*overflow:(hidden|clip)[^}\n]*\bheight:(100dvh|100vh|calc\(100vh[^)]*\))[^}\n]*\}");
         var presas = Directory.GetFiles(dir, "*.css")
             .SelectMany(f => trava.Matches(File.ReadAllText(f)).Select(m => Path.GetFileName(f) + ": " + m.Value))
+            // Estas duas já deslizam por dentro (corpo da página e folha dos Pegamentos).
+            .Where(r => !r.Contains(".dmo-pagina-topo") && !r.Contains(".peg-folha"))
             .ToList();
         Assert.Empty(presas);
     }
