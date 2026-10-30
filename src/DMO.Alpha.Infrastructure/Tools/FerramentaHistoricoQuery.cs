@@ -171,11 +171,11 @@ public sealed class FerramentaHistoricoQuery(DmoDbContext db, IFerramentasFabric
             .ToDictionary(g => g.Key, g => (IReadOnlyList<(DateOnly Dia, decimal Percentagem)>)g
                 .Select(u => (DateOnly.FromDateTime(DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(u.RegistadaEmUtc)), u.Percentagem)).ToList(), StringComparer.Ordinal);
         // Sem leitura antes e depois (a produção ainda a correr, R5, Diogo, 30/10/2026): a parte da % atual
-        // que cabe ao que se produziu nela, pelas produções do SAP (a conta «≈» da ficha).
-        var todasProducoes = await fabrico.ProducoesDeFerramentasAsync(toolIds, null, cancellationToken);
+        // que cabe ao que se produziu nela, pelas produções do SAP (a conta «≈» da ficha). Só para as ferramentas
+        // procuradas, cujas produções já se leram: sem consultas a mais.
         decimal? Estimado(string id, FerramentaProducao p)
         {
-            if (!leituras.TryGetValue(id, out var l) || l.Count == 0 || !todasProducoes.TryGetValue(id, out var dela)) return null;
+            if (!leituras.TryGetValue(id, out var l) || l.Count == 0 || !porFerramenta.TryGetValue(id, out var dela)) return null;
             var esta = dela.FirstOrDefault(o => o.JobOnId == p.JobOnId);
             var total = dela.Sum(o => o.ProducaoBruta ?? 0);
             if (esta is not { ProducaoBruta: > 0 } || total <= 0) return null;
