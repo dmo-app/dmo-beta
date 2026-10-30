@@ -490,12 +490,12 @@ html[data-theme="dark"] body a.dmo-tab-novo:not(:hover):not(.active){color:#fff;
    letra iguais. 95 px = as duas barras do topo.                         */
 /* ------------------------------------------------------------------ */
 @media (min-width:1100px){
-  html body main.beta-light-main:has(#jobonProducoes){box-sizing:border-box;height:calc(100vh - 95px);padding-bottom:16px;overflow:hidden}
+  html body main.beta-light-main:has(#jobonProducoes){box-sizing:border-box;min-height:calc(100vh - 95px);padding-bottom:16px}
   html body main.beta-light-main:has(#jobonProducoes)>.beta-light-view{height:100%;display:flex;flex-direction:column;min-height:0}
   html body main.beta-light-main:has(#jobonProducoes)>.beta-light-view>:is(.beta-light-heading,.beta-production-rail,#jobonAvisos){flex:none}
   html body main.beta-light-main:has(#jobonProducoes)>.beta-light-view>.beta-light-grid{flex:1 1 auto;min-height:0;grid-template-rows:minmax(0,1fr)}
   html body main.beta-light-main:has(#jobonProducoes) .beta-light-grid>:is(.dmo-calendar,.beta-light-productions){min-height:0;overflow:auto}
-  html body main.beta-light-main:has(#jobonProducoes) .beta-light-productions{overflow:hidden}
+  html body main.beta-light-main:has(#jobonProducoes) .beta-light-productions{overflow:auto}
   html body main.beta-light-main:has(#jobonProducoes) .beta-light-productions>:not(#jobonProducoes){flex:none}
   /* A lista só tem a altura das linhas e a procura vem logo a seguir; num ecrã mais alto o espaço
      que sobra fica por baixo, não entre a lista e a procura (Diogo, 28/10/2026: «foi acrescentado

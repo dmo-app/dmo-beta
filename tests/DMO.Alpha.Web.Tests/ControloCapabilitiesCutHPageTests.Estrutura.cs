@@ -74,7 +74,7 @@ public sealed partial class ControloCapabilitiesCutHPageTests
     public void Estrutura_Folha_SoOCorpoDesliza()
     {
         var css = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "src", "DMO.Alpha.Web", "wwwroot", "css", "dmo-estrutura.css"));
-        Assert.Contains("html body .app:has(> main > .dmo-pagina-topo){display:flex;flex-direction:column;height:100dvh;min-height:0;overflow:hidden}", css);
+        Assert.Contains("html body .app:has(> main > .dmo-pagina-topo){display:flex;flex-direction:column;min-height:100dvh}", css);
         Assert.Matches(new Regex("html body \\.dmo-pagina-corpo\\{flex:1 1 auto;min-height:0;overflow:auto;"), css);
         Assert.Matches(new Regex("html body \\.dmo-painel-corpo\\{flex:1 1 auto;min-height:0;overflow:auto;"), css);
         Assert.Contains("html[data-dmo-embedded=\"true\"] body :is(.dmo-pagina-titulo,.dmo-pagina-voltar){display:none}", css);
