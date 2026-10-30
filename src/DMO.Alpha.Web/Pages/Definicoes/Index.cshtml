@@ -258,7 +258,8 @@ html body #sec-ferramentas > .def-parte > fieldset.def-geral-campos:only-child{g
               if (Model.Controlo is { } controloPasta) pastas.Add(await Html.PartialAsync("/Pages/Controlo/_DefinicoesPasta.cshtml", controloPasta, dadosPasta));
               if (Model.Boquilhas is { } boquilhasPasta) pastas.Add(await Html.PartialAsync("/Pages/Boquilhas/_DefinicoesPasta.cshtml", boquilhasPasta, dadosPasta));
               if (Model.TemJobOn) pastas.Add(await Html.PartialAsync("/Pages/JobOn/_DefinicoesImagens.cshtml", null, dadosPasta));
-              if (Model.Ferramentas is { } ferramentasPasta) pastas.Add(await Html.PartialAsync("/Pages/Ferramentas/_DefinicoesPasta.cshtml", ferramentasPasta, dadosPasta));
+              // O SAP só no ADMIN (Diogo, 30/10/2026: «remover isto dos users, não deve existir SAP nos users»).
+              if (Model.EAdmin && Model.Ferramentas is { } ferramentasPasta) pastas.Add(await Html.PartialAsync("/Pages/Ferramentas/_DefinicoesPasta.cshtml", ferramentasPasta, dadosPasta));
               var naPrimeira = (pastas.Count + 1) / 2;
           }
           <div class="def-pastas">
