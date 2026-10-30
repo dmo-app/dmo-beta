@@ -190,6 +190,9 @@ public sealed class FolhaModel(
     /// </summary>
     public DMO.Alpha.Core.Tools.CadenciaDoJobOn? CadenciaSap { get; private set; }
 
+    /// <summary>O peso médio do SAP desta produção, ou da anterior (R14).</summary>
+    public DMO.Alpha.Core.Tools.PesoDoJobOn? PesoSap { get; private set; }
+
     /// <summary>Os factos das ferramentas da produção (referência, lote, % de uso).</summary>
     public IReadOnlyList<JobOnToolFacts> Facts { get; private set; } = [];
 
@@ -664,6 +667,7 @@ public sealed class FolhaModel(
                 }
             }
             CadenciaSap = await fabricoSap.CadenciaDoJobOnAsync(aberto.JobOnId, ct);
+            PesoSap = await fabricoSap.PesoDoJobOnAsync(aberto.JobOnId, ct);
             if (Editar)
             {
                 Machines = await machineList.ListAsync(ct);

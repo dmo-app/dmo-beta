@@ -278,15 +278,11 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
         Assert.Equal(esperado, dias.Groups["v"].Value);
     }
 
-    // Os números da folha com duas casas decimais no máximo e, quando têm casas, com ponto e
-    // duas casas (Diogo, 23/10/2026: «quando não tem fica sem os 00»; 26/10: «2.5 fica 2.50»).
+    // R14 (Diogo, 30/10/2026): o Peso vem do SAP como a Cadência usada; o que ficou escrito à mão já não
+    // aparece. Sem produção no SAP, «—».
     [Theory]
-    [InlineData("365.000", "365")]
-    [InlineData("36.850", "36.85")]
-    [InlineData("2,50", "2.50")]
-    [InlineData("12.345", "12.35")]
-    [InlineData("12", "12")]
-    [InlineData("1/2 volta", "1/2 volta")]
+    [InlineData("145", "—")]
+    [InlineData("36.850", "—")]
     public async Task Peso_DuasCasasDecimaisNoMaximo_ComPonto(string gravado, string esperado)
     {
         var jobOnId = await SeedAsync();
@@ -299,7 +295,7 @@ public class JobOnFolhaPrimeiraFilaTests : IClassFixture<CustomWebApplicationFac
         using var client = await LoginAsync("7305", DmoCapabilities.JobOnCreate);
 
         var html = await PageAsync(client, $"/JobOn/Folha?jobon_id={jobOnId}");
-        var peso = Regex.Match(html, "<span class=\"fl\">Peso</span>\\s*<span class=\"fv\">\\s*<strong>(?<v>[^<]*)</strong>");
+        var peso = Regex.Match(html, "<span class=\"fl\">Peso</span>\\s*<span class=\"fv\">\\s*<strong[^>]*>(?<v>[^<]*)</strong>");
         Assert.True(peso.Success, "Sem o Peso no cabeçalho.");
         Assert.Equal(esperado, System.Net.WebUtility.HtmlDecode(peso.Groups["v"].Value));
     }

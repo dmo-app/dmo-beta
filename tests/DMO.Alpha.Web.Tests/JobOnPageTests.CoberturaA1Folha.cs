@@ -234,7 +234,8 @@ public partial class JobOnPageTests
         Assert.Contains("<div><dt>Secções</dt><dd>12</dd></div>", abrir, StringComparison.Ordinal);
         Assert.Contains("<div><dt>Gota</dt><dd>3</dd></div>", abrir, StringComparison.Ordinal);
         Assert.Contains("<div><dt>Processo</dt><dd>PS</dd></div>", abrir, StringComparison.Ordinal);
-        Assert.Contains("<div><dt>Peso</dt><dd>161 g</dd></div>", abrir, StringComparison.Ordinal);
+        // O Peso vem do SAP (R14); sem produção no SAP, «—» mesmo com 161 escrito.
+        Assert.Contains("<div><dt>Peso</dt><dd>—</dd></div>", System.Net.WebUtility.HtmlDecode(abrir), StringComparison.Ordinal);
         // As peças: referência e lote da CM, do MF e da BQ, e a referência do PU.
         Assert.Matches("<th scope=\"row\">CM</th>\\s*<td><b>9395</b></td>\\s*<td>34</td>", abrir);
         Assert.Matches("<th scope=\"row\">MF</th>\\s*<td><b>9395</b></td>\\s*<td>23</td>", abrir);
