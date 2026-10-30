@@ -37,4 +37,32 @@ public sealed class JobOnUsoNoInicioTests
     {
         Assert.Equal(6.7m, FolhaModel.UsoNoInicio(J(2, new DateOnly(2026, 11, 2)), Producoes, Atual)["CM1"]);
     }
+
+    // R13 (Diogo, 30/10/2026, MF 7080): 202601 ≈ 0,48 % e 202602 ≈ 1,52 % de 2 %; no Job On da 202602 o
+    // «antes» é o fim da 202601, nunca os 2 % de hoje; o número grande da 202601 é o fim dela.
+    private static readonly IReadOnlyDictionary<string, IReadOnlyList<FerramentaProducao>> Mf7080 =
+        new Dictionary<string, IReadOnlyList<FerramentaProducao>>
+        {
+            ["CM1"] =
+            [
+                new(1, "7080C002", "202601", "C3", new DateOnly(2026, 5, 18), new DateOnly(2026, 5, 19), 24000, null, 3),
+                new(2, "7080C002", "202602", "C3", new DateOnly(2026, 8, 17), new DateOnly(2026, 8, 20), 76000, null, 3),
+            ]
+        };
+
+    private static readonly IReadOnlyDictionary<string, decimal> Dois = new Dictionary<string, decimal> { ["CM1"] = 2m };
+
+    [Fact]
+    public void SemLeituraAntes_AntesEOFimDaProducaoAnterior()
+    {
+        Assert.Equal(0.48m, FolhaModel.UsoNoInicio(J(2, new DateOnly(2026, 8, 17)), Mf7080, Dois)["CM1"]);
+    }
+
+    [Fact]
+    public void PrimeiraProducao_AntesZeroEFimPeloProduzido()
+    {
+        Assert.Equal(0m, FolhaModel.UsoNoInicio(J(1, new DateOnly(2026, 5, 18)), Mf7080, Dois)["CM1"]);
+        Assert.Equal(0.48m, FolhaModel.UsoNoFim(J(1, new DateOnly(2026, 5, 18)), Mf7080, Dois)["CM1"]);
+        Assert.Equal(2m, FolhaModel.UsoNoFim(J(2, new DateOnly(2026, 8, 17)), Mf7080, Dois)["CM1"]);
+    }
 }

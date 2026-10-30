@@ -124,7 +124,27 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
     public Task<DateTime?> UltimoFicheiroAsync(CancellationToken cancellationToken = default) =>
         db.SapFabricos.AsNoTracking().MaxAsync(s => s.FicheiroModificadoEmUtc, cancellationToken);
 
-    public async Task<CadenciaDoJobOn?> CadenciaDoJobOnAsync(int jobOnId, CancellationToken cancellationToken = default)
+    public Task<CadenciaDoJobOn?> CadenciaDoJobOnAsync(int jobOnId, CancellationToken cancellationToken = default) =>
+        DoJobOnAsync(jobOnId, s => s.Cadencia != null, (ordens, j) => FabricoSapCadencia.Resumo(ordens, j.InicioEm!.Value, j.FimEm),
+            (resumo, anterior, producao) => new CadenciaDoJobOn(resumo, anterior, producao), cancellationToken);
+
+    /// <summary>
+    /// O peso do Job On (R14, Diogo, 30/10/2026: «onde diz peso vai ter o mesmo que cadência, usar o peso dessa
+    /// produção, só vem depois da produção ser feita e usamos a média»): a média do SAP desta produção; sem ela,
+    /// a da anterior, como a cadência.
+    /// </summary>
+    public Task<PesoDoJobOn?> PesoDoJobOnAsync(int jobOnId, CancellationToken cancellationToken = default) =>
+        DoJobOnAsync(jobOnId, s => s.PesoMedioGramas != null, (ordens, j) => FabricoSapPeso.Resumo(ordens, j.InicioEm!.Value, j.FimEm),
+            (resumo, anterior, producao) => new PesoDoJobOn(resumo, anterior, producao), cancellationToken);
+
+    private async Task<TDoJobOn?> DoJobOnAsync<TResumo, TDoJobOn>(
+        int jobOnId,
+        System.Linq.Expressions.Expression<Func<SapFabrico, bool>> comValor,
+        Func<IEnumerable<SapFabrico>, (DateOnly? InicioEm, DateOnly? FimEm), TResumo?> resumir,
+        Func<TResumo, int?, string?, TDoJobOn> criar,
+        CancellationToken cancellationToken)
+        where TResumo : class
+        where TDoJobOn : class
     {
         var atual = await db.JobOns.AsNoTracking()
             .Where(j => j.Id == jobOnId)
@@ -135,7 +155,7 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
             return null;
         }
 
-        // A própria produção; sem cadência, as anteriores da mesma referência
+        // A própria produção; sem valor, as anteriores da mesma referência
         // pela regra única de «anterior» (a do Peso), a mais recente primeiro.
         var anteriores = await db.JobOns.AsNoTracking()
             .Where(j => j.Reference == atual.Reference && j.Id != atual.Id)
@@ -153,18 +173,17 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
         var maquinas = producoes.Select(j => j.Maquina.ToUpperInvariant()).Distinct().ToList();
         var de = producoes.Min(j => j.InicioEm!.Value);
         var sap = await db.SapFabricos.AsNoTracking()
-            .Where(s => maquinas.Contains(s.Linha) && s.FimEm >= de && s.Cadencia != null)
+            .Where(s => maquinas.Contains(s.Linha) && s.FimEm >= de)
+            .Where(comValor)
             .ToListAsync(cancellationToken);
         var iniciosPorMaquina = await IniciosPorMaquinaAsync(maquinas, cancellationToken);
         foreach (var j in producoes)
         {
             var proximo = ProximoNaMaquina(iniciosPorMaquina, j.Maquina, j.InicioEm!.Value);
             var ordens = sap.Where(s => FabricoSapExportacao.Corresponde(s.Material, s.Linha, s.InicioEm, s.FimEm, j.Reference, j.Maquina, j.InicioEm, j.FimEm, proximo));
-            if (FabricoSapCadencia.Resumo(ordens, j.InicioEm!.Value, j.FimEm) is { } resumo)
+            if (resumir(ordens, (j.InicioEm, j.FimEm)) is { } resumo)
             {
-                return j.Id == atual.Id
-                    ? new CadenciaDoJobOn(resumo)
-                    : new CadenciaDoJobOn(resumo, j.Id, j.ProductionNumber);
+                return j.Id == atual.Id ? criar(resumo, null, null) : criar(resumo, j.Id, j.ProductionNumber);
             }
         }
 

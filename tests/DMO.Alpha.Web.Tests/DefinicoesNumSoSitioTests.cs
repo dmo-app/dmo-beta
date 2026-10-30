@@ -320,21 +320,10 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         var (client, _) = await LoginOperatorAsync("7314", DmoCapabilities.Boquilhas, DmoCapabilities.ControloCreate, DmoCapabilities.Ferramentas);
         var html = WebUtility.HtmlDecode(await GetOkAsync(client, "/Definicoes"));
 
-        // Ferramentas: «Utilização pela produção» no Geral; «Atualizar do SAP» e
-        // «Instalar» saíram para o Admin (SEC-01, 29/10/2026): levavam a senha
-        // do SAP a quem só tem as Ferramentas. Só as opções sem senha ficam.
-        var producao = Regex.Match(html, "<section id=\"ferrDefSap\"[\\s\\S]*?</section>").Value;
-        Assert.Contains("Utilização pela produção", producao);
-        Assert.DoesNotContain("SAP</h3>", Regex.Match(producao, "<h3 id=\"ferr-sap-title\"[\\s\\S]*?</h3>").Value);
-        Assert.Contains("data-ferr-sap-codigos disabled=\"disabled\"", producao);
-        Assert.DoesNotContain("data-ferr-sap-atualizar", producao);
-        Assert.DoesNotContain("data-ferr-sap-instalar", producao);
-        Assert.DoesNotContain("data-ferr-sap-janela", producao);
-        Assert.DoesNotContain("data-ferr-sap-ler", producao);
-        Assert.DoesNotContain("data-ferr-sap-pasta", producao);
-        // As pastas juntas em Este computador (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP).
+        // Ferramentas: o cartão «Utilização pela produção» é do SAP e o SAP é só do ADMIN
+        // (Diogo, 30/10/2026: «remover isto dos users, não deve existir SAP nos users»).
+        Assert.DoesNotContain("id=\"ferrDefSap\"", html);
         var computador = Regex.Match(html, "<section id=\"sec-computador\"[\\s\\S]*?(?=<section id=\"sec-controlo\")").Value;
-        Assert.Contains("id=\"ferrDefSap\"", computador);
 
         // Boquilhas: a pasta e o ficheiro com cadeado; «Atualizar» fica.
         var excel = Regex.Match(html, "<section id=\"bqDefExcel\"[\\s\\S]*?</section>").Value;

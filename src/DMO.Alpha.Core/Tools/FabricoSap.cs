@@ -314,6 +314,12 @@ public sealed record CadenciaDoJobOn(CadenciaSapResumo Resumo, int? AnteriorJobO
     public bool DaAnterior => AnteriorJobOnId.HasValue;
 }
 
+/// <summary>O peso médio do SAP de um Job On (R14), como a <see cref="CadenciaDoJobOn"/>: o desta produção ou o da anterior.</summary>
+public sealed record PesoDoJobOn(PesoSapResumo Resumo, int? AnteriorJobOnId = null, string? AnteriorProducao = null)
+{
+    public bool DaAnterior => AnteriorJobOnId.HasValue;
+}
+
 /// <summary>
 /// O que se leu do relatório de fabrico: as linhas, quantas eram novas e
 /// quantas ordens da janela do relatório deixaram de lá vir e foram retiradas
@@ -395,6 +401,9 @@ public interface IFerramentasFabricoSap
     /// as tem (das últimas <see cref="DMO.Alpha.Core.Production.IProductionPickerQuery.MaxResults"/>); nenhuma sem nenhuma.
     /// </summary>
     Task<CadenciaDoJobOn?> CadenciaDoJobOnAsync(int jobOnId, CancellationToken cancellationToken = default);
+
+    /// <summary>O peso médio do SAP do Job On (R14): o desta produção ou o da anterior.</summary>
+    Task<PesoDoJobOn?> PesoDoJobOnAsync(int jobOnId, CancellationToken cancellationToken = default);
 
     /// <summary>Os Job On em que a ferramenta foi a CM, o MF ou a BQ, do mais recente para o mais antigo.</summary>
     Task<FerramentaProducoes> ProducoesAsync(string toolId, int? pagina, int porPagina, CancellationToken cancellationToken = default);

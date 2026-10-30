@@ -147,6 +147,12 @@
   function mostrarTodas(todas) {
     const botao = cartao ? cartao.querySelector("[data-ferr-sap-todas]") : null;
     if (botao) botao.textContent = todas ? "Atualizar" : "Pedir todas";
+    // O seletor «Tudo | Desatualizadas» do Admin › SAP (Diogo, 30/10/2026: «criar no cartão um selecionador»).
+    if (cartao) cartao.querySelectorAll("[data-ferr-sap-escolha]").forEach((b) => {
+      const ativo = (b.getAttribute("data-ferr-sap-escolha") === "todas") === todas;
+      b.classList.toggle("rp-modo-ativo", ativo);
+      b.setAttribute("aria-pressed", ativo ? "true" : "false");
+    });
   }
 
   async function esquecerPasta() {
@@ -430,8 +436,8 @@
   }
 
   // Ligar ou desligar o «Pedir todas» e escrever logo o dmo-codigos.txt.
-  async function alternarTodas() {
-    const todas = !(await pedirTodas());
+  async function alternarTodas(escolha) {
+    const todas = typeof escolha === "boolean" ? escolha : !(await pedirTodas());
     await guardarTodas(todas);
     mostrarTodas(todas);
     const pasta = await pastaGuardada();
@@ -501,6 +507,10 @@
     const copiar = cartao.querySelector("[data-ferr-sap-codigos]");
     const apagar = cartao.querySelector("[data-ferr-sap-apagar]");
     const todas = cartao.querySelector("[data-ferr-sap-todas]");
+    cartao.querySelectorAll("[data-ferr-sap-escolha]").forEach((b) => {
+      if (!suportado) b.disabled = true;
+      b.addEventListener("click", () => alternarTodas(b.getAttribute("data-ferr-sap-escolha") === "todas").catch(falhou));
+    });
     const remover = cartao.querySelector("[data-ferr-sap-remover]");
     if (copiar) copiar.addEventListener("click", () => copiarCodigos().catch(falhou));
     if (!suportado) {

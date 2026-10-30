@@ -151,12 +151,14 @@
         var valor = Vazio(Model.Folha.Valor(chave));
         // No ver, a % de uso vem sempre da ferramenta pelo tool_id, não do que ficou escrito no Job On
         // (Diogo, 28/10/2026, modelo de dados; 29/10/2026: «está a acontecer a todos»).
-        if (!editar && f?.ToolId is { } toolDoUso && Model.UsosNoInicio.TryGetValue(toolDoUso, out var usoDaFerramenta))
+        // O número grande é o uso no fim desta produção e o «antes» o do início dela, pelas datas do SAP
+        // (R13, Diogo, 30/10/2026: «o antes está trocado»).
+        if (!editar && f?.ToolId is { } toolDoUso && Model.UsosNoFim.TryGetValue(toolDoUso, out var usoDaFerramenta))
         {
             valor = usoDaFerramenta.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
         }
         var agora = Numero(valor);
-        var antes = f?.Utilizacao;
+        decimal? antes = f?.ToolId is { } toolAntes && Model.UsosNoInicio.TryGetValue(toolAntes, out var noInicio) ? noInicio : (editar ? f?.Utilizacao : null);
         <div class="use">
           <div class="use-top"><span>Utilização</span>
             @if (editar)
@@ -179,7 +181,7 @@
               }
               @if (antes is { } a)
               {
-                <em class="was" title="A última leitura do uso">antes @a.ToString("0.##", culture)%</em>
+                <em class="was" title="O uso no início desta produção">antes @a.ToString("0.##", culture)%</em>
               }
             }
           </div>
@@ -468,7 +470,9 @@
     <dl class="jof-painel-faixa">
       @foreach (var (rotulo, chave, unidade) in new[] { ("Secções", "cab_seccoes", ""), ("Gota", "cab_gota", ""), ("Processo", "cab_processo", ""), ("Peso", "cab_peso", " g") })
       {
-        var valorFaixa = Mostra(chave == "cab_gota" ? Model.Gota : Vazio(Model.Folha.Valor(chave)));
+        var valorFaixa = chave == "cab_peso"
+            ? (Model.PesoSap is { } pesoFaixa ? (pesoFaixa.DaAnterior ? "ant. " : null) + DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(pesoFaixa.Resumo.MediaGramas) : null)
+            : Mostra(chave == "cab_gota" ? Model.Gota : Vazio(Model.Folha.Valor(chave)));
         <div><dt>@rotulo</dt><dd>@(valorFaixa is null ? "—" : unidade.Length > 0 && !valorFaixa.TrimEnd().EndsWith(unidade.Trim(), StringComparison.OrdinalIgnoreCase) ? valorFaixa + unidade : valorFaixa)</dd></div>
       }
     </dl>
@@ -659,6 +663,14 @@ else
                      jobon já tem em consideração nome técnico para mudar gota e meter número correto»). No Editar,
                      a escrita à mão vai como está. *@
                   <strong title="@origemGota" data-jof-gota-nome-tecnico>@Model.Gota</strong>
+                  @if (editar) {<input type="hidden" name="@campo.NomeNoFormulario" value="@Model.Folha.Valor(chave)" />}
+                }
+                else if (chave == "cab_peso")
+                {
+                  @* O Peso vem do SAP como a Cadência usada, não se escreve (R14, Diogo, 30/10/2026: «usar o peso dessa
+                     produção, só vem depois da produção ser feita e usamos a média»); sem ele, o da anterior com «ant.». *@
+                  var peso = Model.PesoSap;
+                  <strong title="@(peso is null ? "Do SAP (relatório de produções)" : $"Do SAP{(peso.DaAnterior ? $", produção anterior {peso.AnteriorProducao}" : null)}: média {DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(peso.Resumo.MediaGramas)} g")">@(peso is null ? "—" : DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(peso.Resumo.MediaGramas))</strong>@if (peso is not null) {<span class="unit">g</span>}@if (peso is { DaAnterior: true }) {<span class="unit">ant.</span>}
                   @if (editar) {<input type="hidden" name="@campo.NomeNoFormulario" value="@Model.Folha.Valor(chave)" />}
                 }
                 else if (editar)

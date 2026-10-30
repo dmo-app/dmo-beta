@@ -190,6 +190,9 @@ public sealed class FolhaModel(
     /// </summary>
     public DMO.Alpha.Core.Tools.CadenciaDoJobOn? CadenciaSap { get; private set; }
 
+    /// <summary>O peso médio do SAP desta produção, ou da anterior (R14).</summary>
+    public DMO.Alpha.Core.Tools.PesoDoJobOn? PesoSap { get; private set; }
+
     /// <summary>Os factos das ferramentas da produção (referência, lote, % de uso).</summary>
     public IReadOnlyList<JobOnToolFacts> Facts { get; private set; } = [];
 
@@ -248,6 +251,9 @@ public sealed class FolhaModel(
     /// <summary>A % de uso de cada ferramenta no início desta produção, pelo tool_id (sem entrada: fica a da folha).</summary>
     public IReadOnlyDictionary<string, decimal> UsosNoInicio { get; private set; } = new Dictionary<string, decimal>();
 
+    /// <summary>O uso no fim desta produção, pelo tool_id (o número grande do cartão).</summary>
+    public IReadOnlyDictionary<string, decimal> UsosNoFim { get; private set; } = new Dictionary<string, decimal>();
+
     /// <summary>
     /// A % de uso de cada ferramenta quando esta produção começou, ligada pelo tool_id e nunca pelo que ficou
     /// escrito no Job On (Diogo, 28/10/2026; 29/10/2026: «dupliquei o jobon e % uso do CM passou 6.7% para 2%»,
@@ -268,16 +274,68 @@ public sealed class FolhaModel(
             {
                 usos[toolId] = antes;
             }
-            else if (esta is null || (esta.ProducaoBruta ?? 0) == 0)
+            else if (FimDaAnterior(lista, jobOn, atuais.TryGetValue(toolId, out var atual) ? atual : null) is { } anterior)
             {
-                if (atuais.TryGetValue(toolId, out var atual))
-                {
-                    usos[toolId] = atual;
-                }
+                usos[toolId] = anterior;
             }
-            else if (!lista.Any(p => p.JobOnId != jobOn.JobOnId && (p.ProducaoBruta ?? 0) > 0 && p.InicioEm < jobOn.InicioEm))
+        }
+
+        return usos;
+    }
+
+    /// <summary>
+    /// Sem leitura do SAP antes do início (R13, Diogo, 30/10/2026: «antes tem de ler a leitura correcta do
+    /// jobon», «associar as datas que existem no sap com o jobon»): o uso no fim da produção anterior, pelas
+    /// datas do SAP. Medido quando há leitura depois dela; senão a parte da % atual que cabe ao que se produziu
+    /// até lá (a conta «≈» do histórico); sem nenhuma produção antes, 0. Nunca a % de hoje inteira.
+    /// </summary>
+    private static decimal? FimDaAnterior(IReadOnlyList<DMO.Alpha.Core.Tools.FerramentaProducao> lista, ProductionContextReadModel jobOn, decimal? atual)
+    {
+        var anteriores = lista
+            .Where(p => p.JobOnId != jobOn.JobOnId && (p.ProducaoBruta ?? 0) > 0 && p.InicioEm < jobOn.InicioEm)
+            .OrderBy(p => p.InicioEm).ToList();
+        if (anteriores.Count == 0)
+        {
+            return 0m;
+        }
+
+        if (anteriores[^1].UtilizacaoDepois is { } medido)
+        {
+            return medido;
+        }
+
+        var total = lista.Sum(p => p.ProducaoBruta ?? 0);
+        return atual is { } a && total > 0 ? Math.Round(a * anteriores.Sum(p => p.ProducaoBruta ?? 0) / total, 2) : null;
+    }
+
+    /// <summary>
+    /// O uso no fim desta produção (R13): o medido pelo SAP depois dela; sem ele, a estimativa «≈» pelo
+    /// produzido; ainda sem produção no SAP, a % atual.
+    /// </summary>
+    public static IReadOnlyDictionary<string, decimal> UsoNoFim(
+        ProductionContextReadModel jobOn,
+        IReadOnlyDictionary<string, IReadOnlyList<DMO.Alpha.Core.Tools.FerramentaProducao>> producoes,
+        IReadOnlyDictionary<string, decimal> atuais)
+    {
+        var usos = new Dictionary<string, decimal>(StringComparer.Ordinal);
+        foreach (var toolId in new[] { jobOn.CmToolId, jobOn.MfToolId, jobOn.BqToolId }.OfType<string>())
+        {
+            var lista = producoes.TryGetValue(toolId, out var l) ? l : [];
+            var esta = lista.FirstOrDefault(p => p.JobOnId == jobOn.JobOnId);
+            var total = lista.Sum(p => p.ProducaoBruta ?? 0);
+            if (esta?.UtilizacaoDepois is { } depois)
             {
-                usos[toolId] = 0m;
+                usos[toolId] = depois;
+            }
+            else if (esta is { ProducaoBruta: > 0 } && total > 0 && atuais.TryGetValue(toolId, out var hoje))
+            {
+                // Sem leitura depois: a parte da % atual produzida até ao fim desta (a conta «≈» do histórico).
+                var ate = lista.Where(p => p.InicioEm <= esta.InicioEm).Sum(p => p.ProducaoBruta ?? 0);
+                usos[toolId] = Math.Round(hoje * ate / total, 2);
+            }
+            else if (atuais.TryGetValue(toolId, out var atual))
+            {
+                usos[toolId] = atual;
             }
         }
 
@@ -603,10 +661,13 @@ public sealed class FolhaModel(
                 Folha = Folha.ComLoteFfDoMf(Fact(aberto.MfToolId)?.Lot);
                 if (!Editar)
                 {
-                    UsosNoInicio = UsoNoInicio(aberto, await fabricoSap.ProducoesDeFerramentasAsync(ids, null, ct), Usos);
+                    var producoesDoJobOn = await fabricoSap.ProducoesDeFerramentasAsync(ids, null, ct);
+                    UsosNoInicio = UsoNoInicio(aberto, producoesDoJobOn, Usos);
+                    UsosNoFim = UsoNoFim(aberto, producoesDoJobOn, Usos);
                 }
             }
             CadenciaSap = await fabricoSap.CadenciaDoJobOnAsync(aberto.JobOnId, ct);
+            PesoSap = await fabricoSap.PesoDoJobOnAsync(aberto.JobOnId, ct);
             if (Editar)
             {
                 Machines = await machineList.ListAsync(ct);
