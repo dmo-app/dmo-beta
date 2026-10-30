@@ -6015,3 +6015,14 @@ Novos: 3 · mudaram: 2 · saíram: 0
 - mudou: `tests/ShellProof/peso-live.test.cjs :: (resto do ficheiro)`
 
 Selo depois: `f7ab53c834bb7e35`
+
+## A-0456 · 2026-10-30 · teste-novo
+
+Porquê: Diogo 30/10 15:13: «isso acontece em muitas tabelas desde que fizeram lock a pagina». Teste novo: nenhuma página fica presa à altura da janela com o resto escondido (DMO-690).
+Referência: DMO-690, cmsg_01K75FTs9bQnbhhH7qttpgraYMTY9VDLC6nhPCDumWYQN3
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/PaginasDeslizamCssTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PaginasDeslizamCssTests.cs :: PaginasDeslizamCssTests.NenhumaPaginaFicaPresaAAlturaDaJanela`
+
+Selo depois: `f12eeb480f9c61cf`
