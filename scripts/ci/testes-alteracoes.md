@@ -6016,7 +6016,7 @@ Novos: 3 · mudaram: 2 · saíram: 0
 
 Selo depois: `f7ab53c834bb7e35`
 
-## A-0456 · 2026-10-30 · ok-do-diogo
+## A-0458 · 2026-10-30 · ok-do-diogo
 
 Porquê: Refinamentos 30/10 pedidos pelo Diogo: R13 «antes» trocado, R14 Peso do SAP, R11 pinça na impressão, R8 Excel 14:00/16:20 («continua»), SAP só no ADMIN («sim»)
 Referência: PR #366
