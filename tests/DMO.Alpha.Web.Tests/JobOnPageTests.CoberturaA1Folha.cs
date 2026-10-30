@@ -85,9 +85,9 @@ public partial class JobOnPageTests
         var pincas = CoberturaA1Bloco(impressao, "<b>Pinças</b>", "</table>");
         Assert.Matches("<tr><th>Pinças</th><td>Latão duplo com anel</td></tr><tr><th>Diâmetro</th><td>59[.,]3\\d*</td></tr>", pincas);
         Assert.DoesNotContain("<th>Tipo</th>", pincas, StringComparison.Ordinal);
-        // No Trabalho de Equipa, a pinça leva o diâmetro e, por baixo, as pinças como escritas.
+        // No Trabalho de Equipa, a pinça leva o diâmetro e, por baixo, as pinças como escritas e as notas da PI (R11).
         Assert.Matches(
-            "<span>PI</span> Pinça</div>\\s*<div class=\"jfc-ref\"><b>Ø 59[.,]3\\d*</b></div>\\s*<div class=\"jfc-obs\">Latão duplo com anel</div>",
+            "<span>PI</span> Pinça</div>\\s*<div class=\"jfc-ref\"><b>Ø 59[.,]3\\d*</b></div>\\s*<div class=\"jfc-obs\">Latão duplo com anel · CHANFRO POR DENTRO</div>",
             impressao);
     }
 
