@@ -1,5 +1,5 @@
 {
-  "selo": "b44f23ff5141538d",
+  "selo": "396e012bf7240730",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2537,7 +2537,7 @@
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoPeloArmazem.cs :: (resto do ficheiro)": "6c2650dc5a5c2ce9",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoPeloArmazem.cs :: DefinicoesPorModuloPageTests.AJanelaDaUtilizacao_MostraOsJobOnDaLinhaEnquantoAFerramentaLaEsteve": "7dde981e2d321bd2",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoReferencia.cs :: (resto do ficheiro)": "ac921f9156cccc90",
-    "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoReferencia.cs :: DefinicoesPorModuloPageTests.AJanelaDaUtilizacao_MostraAReferenciaDeCadaProducao": "0e2c2a28fd1038f8",
+    "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoReferencia.cs :: DefinicoesPorModuloPageTests.AJanelaDaUtilizacao_MostraAReferenciaDeCadaProducao": "46f3767e5ec6cbff",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoVoltar.cs :: (resto do ficheiro)": "021e6dddb922151e",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoVoltar.cs :: DefinicoesPorModuloPageTests.AUtilizacaoPorProducao_TemOVoltarPorCimaESemQuadrosVerdes": "cb98d1dbcbeea74b",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.cs :: (resto do ficheiro)": "bacae70c55fb549f",

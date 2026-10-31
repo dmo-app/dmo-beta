@@ -6008,3 +6008,9 @@ Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; no
 | `BoquilhasHistoricoPageTests.HistoryDay_ReplacesRangePreservesFiltersAndExportsTheSameSelection` (alterado) | O Registo do dia mostra, na linha da máquina, as quantidades que saíram e entraram nesse dia (S/E/SR). | OK | A-0457 |
 | `BoquilhasHistoricoPageTests.DailySummaryGrid_RendersDayByMachine_FromTheBackend` (alterado) | O Resumo diário já não tem a linha «Total» (a soma de boquilhas diferentes por máquina). | OK | A-0457 |
 | `tests/visual/bq_historico_lista_browser.py` (alterado) | Em Boquilhas › Movimentos os cartões das linhas nunca ficam esmagados (≥70 px) e a lista mantém o cabeçalho e uma linha inteira; a 1366×768 a página não desliza; em ecrãs mais baixos pode deslizar. | OK | A-0457 |
+
+## R1 (A-0463, DMO-695)
+
+| Teste | O que prova | Estado | Notas |
+|---|---|---|---|
+| `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoReferencia.cs` › `AJanelaDaUtilizacao_MostraAReferenciaDeCadaProducao` (ajustado) | Janela Utilização: colunas Referência antes de Produção, Linha e N.º | OK | R1, Diogo 30/10. A ordem (mais antiga em cima) ver no ensaio. |

@@ -6059,3 +6059,13 @@ Novos: 0 · mudaram: 3 · saíram: 0
 - mudou: `tests/visual/bq_historico_lista_browser.py`
 
 Selo depois: `b44f23ff5141538d`
+
+## A-0463 · 2026-10-31 · ok-do-diogo
+
+Porquê: R1 (Diogo 30/10/2026): janela Utilização com Referência, Produção, Linha e N.º; mais antiga em cima
+Referência: DMO-695, pedido BQgXPD5r
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoReferencia.cs :: DefinicoesPorModuloPageTests.AJanelaDaUtilizacao_MostraAReferenciaDeCadaProducao`
+
+Selo depois: `396e012bf7240730`
