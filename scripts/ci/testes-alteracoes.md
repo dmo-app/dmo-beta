@@ -6027,6 +6027,16 @@ Novos: 0 · mudaram: 2 · saíram: 0
 
 Selo depois: `c989842196348da8`
 
+## A-0460 · 2026-10-31 · ok-do-diogo
+
+Porquê: R16 (Diogo 30/10/2026): o Remover do canto saiu; o × de cada linha abre a mesma janela
+Referência: A-0459, DMO-693
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.cs :: PuncoesPageTests.NumberWithQuotes_IsWrittenAsText_NeverInsideAnOnclick`
+
+Selo depois: `0e040b84cc8004e4`
+
 ## A-0457 · 2026-10-31 · ok-do-diogo
 
 Porquê: Diogo 30/10 15:47 «remover o total daqui… só total de produções, tool_id»: sai a linha Total do Resumo diário. Diogo 30/10 15:49 «a importância do calendário é mostrar o que entrou e saiu nesse dia»: o Registo do dia mostra S/E/SR. Diogo 30/10 15:45 (cards esmagados) e 31/10 19:33 «o importante é ecrã 1366 768, mais pequenos não têm relevância»: o teste do browser da lista exige os cartões das linhas inteiros e a página sem deslizar só a 1366×768.
@@ -6037,4 +6047,4 @@ Novos: 0 · mudaram: 3 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.HistoryDay_ReplacesRangePreservesFiltersAndExportsTheSameSelection`
 - mudou: `tests/visual/bq_historico_lista_browser.py`
 
-Selo depois: `7832e77c380e1ecf`
+Selo depois: `eb8a751f9b3fa2b4`

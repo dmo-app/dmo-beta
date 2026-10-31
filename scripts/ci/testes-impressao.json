@@ -1,5 +1,5 @@
 {
-  "selo": "7832e77c380e1ecf",
+  "selo": "eb8a751f9b3fa2b4",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -3138,7 +3138,7 @@
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.cs :: (resto do ficheiro)": "fb3d6be3ca252ceb",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.cs :: PuncoesPageTests.CmWithoutProcess_TheNoticeLinksToTheCmSheet_OnlyWithFerramentas": "0b80710ea35a7324",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.cs :: PuncoesPageTests.NnpbProduction_RegistersPunches_ShowsAlteracao_TotalsResumoAndPdf": "cab07327bf4b75e5",
-    "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.cs :: PuncoesPageTests.NumberWithQuotes_IsWrittenAsText_NeverInsideAnOnclick": "2758756666b4ec8a",
+    "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.cs :: PuncoesPageTests.NumberWithQuotes_IsWrittenAsText_NeverInsideAnOnclick": "aeb36404fa2e4bf8",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.cs :: PuncoesPageTests.NumeroRepetido_PeloFormularioDaPagina_GravaOLoteDessaPuncao": "2634acf05480d163",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.cs :: PuncoesPageTests.Procura_TrocaSoAsZonas_ComAProducaoAoLadoDaReferencia": "7e06b5a1ec18d959",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.cs :: PuncoesPageTests.PsProduction_HasNoRegisto_NoCardAndNoWrite": "de0c49269e9b1de2",
