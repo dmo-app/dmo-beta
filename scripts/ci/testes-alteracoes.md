@@ -6015,3 +6015,14 @@ Novos: 3 · mudaram: 2 · saíram: 0
 - mudou: `tests/ShellProof/peso-live.test.cjs :: (resto do ficheiro)`
 
 Selo depois: `f7ab53c834bb7e35`
+
+## A-0459 · 2026-10-31 · ok-do-diogo
+
+Porquê: R16 (Diogo 30/10/2026): tirar os botões Punção visto / Arrefecedor visto / Remover do canto do PU NNPB e voltar a carregar no «Visto» da tabela
+Referência: A-0459, DMO-693, pedido F6wQwWdF
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.Vistos_UmaLinhaEscolhe_EOsDoisBotoesDoCantoTrocam`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.Vistos_UmaSoPuncao_VemEscolhida`
+
+Selo depois: `c989842196348da8`

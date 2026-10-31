@@ -1,5 +1,5 @@
 {
-  "selo": "f7ab53c834bb7e35",
+  "selo": "c989842196348da8",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -3131,8 +3131,8 @@
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: (resto do ficheiro)": "beb9224286e0cafb",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.RegistosSemJobOn_UmaLinhaEscolhe_EUmSoBotaoNoCantoAssocia": "d41a1673d58a8820",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.UmSoRegistoSemJobOn_VemEscolhido": "01d612724b2a222c",
-    "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.Vistos_UmaLinhaEscolhe_EOsDoisBotoesDoCantoTrocam": "9297ea3d1e284c06",
-    "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.Vistos_UmaSoPuncao_VemEscolhida": "3a54e8e6cccc2cff",
+    "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.Vistos_UmaLinhaEscolhe_EOsDoisBotoesDoCantoTrocam": "95d91eac35529903",
+    "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.Vistos_UmaSoPuncao_VemEscolhida": "92132977d4a39ce4",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.TabelaNoBrowser.cs :: (resto do ficheiro)": "d8707b3b07485bcf",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.TabelaNoBrowser.cs :: PuncoesPageTests.Tabela_TemLargurasFixas_EVaiParaOBrowser": "73a45e463bd4e898",
     "tests/DMO.Alpha.Web.Tests/PuncoesPageTests.cs :: (resto do ficheiro)": "fb3d6be3ca252ceb",
