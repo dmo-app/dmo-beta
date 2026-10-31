@@ -6026,3 +6026,13 @@ Novos: 0 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.Vistos_UmaSoPuncao_VemEscolhida`
 
 Selo depois: `c989842196348da8`
+
+## A-0460 · 2026-10-31 · ok-do-diogo
+
+Porquê: R16 (Diogo 30/10/2026): o Remover do canto saiu; o × de cada linha abre a mesma janela
+Referência: A-0459, DMO-693
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.cs :: PuncoesPageTests.NumberWithQuotes_IsWrittenAsText_NeverInsideAnOnclick`
+
+Selo depois: `0e040b84cc8004e4`
