@@ -6036,3 +6036,13 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/visual/bq_historico_lista_browser.py`
 
 Selo depois: `2620f54d6967d5af`
+
+## A-0457 · 2026-10-31 · ok-do-diogo
+
+Porquê: Diogo 31/10 19:33: «o importante é ecrã 1366 768, mais pequenos não têm relevância». O teste volta a exigir a página sem deslizar a 1366×768; nos ecrãs mais baixos exige só os cartões das linhas inteiros e a lista com cabeçalho e uma linha.
+Referência: DMO-691, cmsg_01K75FTs9bQnbhhH7qttpgraFDfD89qRubVjYgvCKXujeN
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/visual/bq_historico_lista_browser.py`
+
+Selo depois: `fe7491ed5111a5ba`
