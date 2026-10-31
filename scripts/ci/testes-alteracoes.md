@@ -6091,3 +6091,13 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoPeloArmazem.cs :: DefinicoesPorModuloPageTests.AJanelaDaUtilizacao_MostraOsJobOnDaLinhaEnquantoAFerramentaLaEsteve`
 
 Selo depois: `b0a25fe649f689bf`
+
+## A-0466 · 2026-10-31 · ok-do-diogo
+
+Porquê: R1 (Diogo 30/10/2026): referência e linha em colunas próprias
+Referência: DMO-695
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoPeloArmazem.cs :: DefinicoesPorModuloPageTests.AJanelaDaUtilizacao_MostraOsJobOnDaLinhaEnquantoAFerramentaLaEsteve`
+
+Selo depois: `a35203b4ead44771`
