@@ -6081,3 +6081,13 @@ Novos: 0 · mudaram: 3 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoPeloArmazem.cs :: DefinicoesPorModuloPageTests.AJanelaDaUtilizacao_MostraOsJobOnDaLinhaEnquantoAFerramentaLaEsteve`
 
 Selo depois: `22bced9b8dbc71d5`
+
+## A-0465 · 2026-10-31 · ok-do-diogo
+
+Porquê: R1 (Diogo 30/10/2026): a segunda produção também passa para a coluna Produção
+Referência: DMO-695
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoPeloArmazem.cs :: DefinicoesPorModuloPageTests.AJanelaDaUtilizacao_MostraOsJobOnDaLinhaEnquantoAFerramentaLaEsteve`
+
+Selo depois: `b0a25fe649f689bf`

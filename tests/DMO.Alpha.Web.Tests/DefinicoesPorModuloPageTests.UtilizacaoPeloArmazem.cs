@@ -39,7 +39,7 @@ public sealed partial class DefinicoesPorModuloPageTests
         var quadro = ZonaUsoSap(WebUtility.HtmlDecode(await resposta.Content.ReadAsStringAsync()), "ferrProducoes");
 
         Assert.Contains("<small class=\"ferr-producao-maquina\">202501</small>", quadro, StringComparison.Ordinal);
-        Assert.Contains("<strong>202502</strong>", quadro, StringComparison.Ordinal);
+        Assert.Contains("<small class=\"ferr-producao-maquina\">202502</small>", quadro, StringComparison.Ordinal);
         Assert.Contains($"{referencia}X · {maquina}", quadro, StringComparison.Ordinal);
         Assert.DoesNotContain("202509", quadro, StringComparison.Ordinal);
         Assert.Contains("Total · 2 produções", quadro, StringComparison.Ordinal);
