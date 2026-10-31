@@ -6036,3 +6036,14 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.cs :: PuncoesPageTests.NumberWithQuotes_IsWrittenAsText_NeverInsideAnOnclick`
 
 Selo depois: `0e040b84cc8004e4`
+
+## A-0461 · 2026-10-31 · ok-do-diogo
+
+Porquê: R10 e R16 (Diogo 30/10/2026): a folha inteira no painel abre com a largura toda; no PU NNPB o Visto da tabela e o × substituem os botões do canto
+Referência: DMO-692, DMO-693
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_JobOnNoPainel_TituloLarguraEFolha`
+- mudou: `tests/visual/puncoes_tabela_browser.py`
+
+Selo depois: `38bfeac246059eb7`
