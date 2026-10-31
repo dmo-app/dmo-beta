@@ -6037,6 +6037,17 @@ Novos: 0 · mudaram: 1 · saíram: 0
 
 Selo depois: `0e040b84cc8004e4`
 
+## A-0461 · 2026-10-31 · ok-do-diogo
+
+Porquê: R10 e R16 (Diogo 30/10/2026): a folha inteira no painel abre com a largura toda; no PU NNPB o Visto da tabela e o × substituem os botões do canto
+Referência: DMO-692, DMO-693
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_JobOnNoPainel_TituloLarguraEFolha`
+- mudou: `tests/visual/puncoes_tabela_browser.py`
+
+Selo depois: `38bfeac246059eb7`
+
 ## A-0457 · 2026-10-31 · ok-do-diogo
 
 Porquê: Diogo 30/10 15:47 «remover o total daqui… só total de produções, tool_id»: sai a linha Total do Resumo diário. Diogo 30/10 15:49 «a importância do calendário é mostrar o que entrou e saiu nesse dia»: o Registo do dia mostra S/E/SR. Diogo 30/10 15:45 (cards esmagados) e 31/10 19:33 «o importante é ecrã 1366 768, mais pequenos não têm relevância»: o teste do browser da lista exige os cartões das linhas inteiros e a página sem deslizar só a 1366×768.
@@ -6047,4 +6058,4 @@ Novos: 0 · mudaram: 3 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.HistoryDay_ReplacesRangePreservesFiltersAndExportsTheSameSelection`
 - mudou: `tests/visual/bq_historico_lista_browser.py`
 
-Selo depois: `eb8a751f9b3fa2b4`
+Selo depois: `b44f23ff5141538d`
