@@ -5994,3 +5994,9 @@ Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; no
 |---|---|---|---|
 | `tests/ShellProof/jobon-folha-avisos-canto.test.cjs` (2 testes) | Nada do que a app faz hoje: afirma que os avisos dos cartões da folha do Job On vão para uma pilha própria `[data-jof-avisos-canto]`, com um × que os fecha | OBSOLETO | **Fora do `test:js` de propósito.** Prova o ramo `else` de `wwwroot/js/jobon-folha.js:859-872`, que só corre quando `window.DMOLive` não existe — e o `dmo-live.js` vem no `Pages/Shared/_DmoShellLayout.cshtml:77`, por isso na app esse ramo nunca corre. Afirma ainda o contrário do pedido do Diogo de 29/10 («deve aparecer como aparecem os alertas»), que o `jobon-folha-avisos-alerta.test.cjs` prova (A-0411); os dois não podem correr os dois. Apagar este teste **e** o ramo morto precisa do «sim» do Diogo. Ver A-0450. |
 
+
+## R10 e R16 (A-0459, DMO-692/693)
+
+| Teste | O que prova | Estado | Notas |
+|---|---|---|---|
+| `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs` › `Vistos_UmaLinhaEscolhe_EOsDoisBotoesDoCantoTrocam` (ajustado) | PU NNPB: nenhum botão no canto da lista; 4 botões «Visto» na tabela que enviam o Seen; × de remover por linha; 6 colunas | OK | R16, Diogo 30/10. O R10 (largura do painel em `dmo-support.js`) não tem teste automático: ver no ensaio. |

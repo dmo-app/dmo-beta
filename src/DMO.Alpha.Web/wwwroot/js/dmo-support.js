@@ -96,7 +96,10 @@
   function acertarPainel(caminho, doc) {
     title.textContent = destinations.get(caminho) || outrasPaginas.get(caminho)
       || doc?.querySelector('main h1')?.textContent.trim() || title.textContent;
-    panel.dataset.largura = largas.has(caminho) ? 'total' : resumos.has(caminho) ? 'media' : 'larga';
+    // R10 (Diogo 30/10/2026): depois de gravar, a folha inteira (sem o resumo
+    // .jof-painel) ficava no painel médio e caía no formato antigo (precisa de 1181 px).
+    const folhaInteira = resumos.has(caminho) && doc && !doc.querySelector('.jof-painel');
+    panel.dataset.largura = largas.has(caminho) || folhaInteira ? 'total' : resumos.has(caminho) ? 'media' : 'larga';
   }
   function close() {
     panel.close(); frame.removeAttribute('src'); dirty = false; aberta = null; paginas = 0; pilha.length = 0; voltar.hidden = true;

@@ -6015,3 +6015,35 @@ Novos: 3 · mudaram: 2 · saíram: 0
 - mudou: `tests/ShellProof/peso-live.test.cjs :: (resto do ficheiro)`
 
 Selo depois: `f7ab53c834bb7e35`
+
+## A-0459 · 2026-10-31 · ok-do-diogo
+
+Porquê: R16 (Diogo 30/10/2026): tirar os botões Punção visto / Arrefecedor visto / Remover do canto do PU NNPB e voltar a carregar no «Visto» da tabela
+Referência: A-0459, DMO-693, pedido F6wQwWdF
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.Vistos_UmaLinhaEscolhe_EOsDoisBotoesDoCantoTrocam`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.Vistos_UmaSoPuncao_VemEscolhida`
+
+Selo depois: `c989842196348da8`
+
+## A-0460 · 2026-10-31 · ok-do-diogo
+
+Porquê: R16 (Diogo 30/10/2026): o Remover do canto saiu; o × de cada linha abre a mesma janela
+Referência: A-0459, DMO-693
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.cs :: PuncoesPageTests.NumberWithQuotes_IsWrittenAsText_NeverInsideAnOnclick`
+
+Selo depois: `0e040b84cc8004e4`
+
+## A-0461 · 2026-10-31 · ok-do-diogo
+
+Porquê: R10 e R16 (Diogo 30/10/2026): a folha inteira no painel abre com a largura toda; no PU NNPB o Visto da tabela e o × substituem os botões do canto
+Referência: DMO-692, DMO-693
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_JobOnNoPainel_TituloLarguraEFolha`
+- mudou: `tests/visual/puncoes_tabela_browser.py`
+
+Selo depois: `38bfeac246059eb7`
