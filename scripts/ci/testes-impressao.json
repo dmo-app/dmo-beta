@@ -1,5 +1,5 @@
 {
-  "selo": "5e5ece5a23ca8092",
+  "selo": "2b148ce6d00771be",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2359,7 +2359,7 @@
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.ErrosDoResumo.cs :: ControloCapabilitiesCutHPageTests.Resumo_ErrosDe27Out_CabecalhoMcaliperRegistarEVoltar": "09210a55a9e12b9a",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: (resto do ficheiro)": "67df1872b1d0b8fc",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_Folha_SoOCorpoDesliza": "f69d1890b3c8a652",
-    "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_JobOnNoPainel_TituloLarguraEFolha": "b5a11fb575ed74f6",
+    "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_JobOnNoPainel_TituloLarguraEFolha": "eb62a139e454957e",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_Pagina_TopoComTituloEAcoesECorpo": "5948a52c95a5a0cf",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelDeApoio_TemOEsqueletoFixo": "9a60a8e13ff8a5c3",
     "tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_PainelMedio_AbreMaisLargo": "e1ed1205c8eee493",
@@ -3717,7 +3717,7 @@
     "tests/visual/pendentes_a1_browser.py": "417559ad846bb3ba",
     "tests/visual/pendentes_a2_browser.py": "5d88b3d8e5717b08",
     "tests/visual/pendentes_b_browser.py": "7c707384089509d5",
-    "tests/visual/puncoes_tabela_browser.py": "85f38f0093870709",
+    "tests/visual/puncoes_tabela_browser.py": "f2be0c1a59cf8928",
     "tests/visual/reparacao_listas_browser.py": "1f05e6c0354a0b43",
     "tests/visual/resumo_parcial_browser.py": "c422fd31d6088551",
     "tests/visual/revisao_aprovar_browser.py": "7407907f87a08d2d",
