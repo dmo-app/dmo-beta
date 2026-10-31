@@ -6015,3 +6015,72 @@ Novos: 3 · mudaram: 2 · saíram: 0
 - mudou: `tests/ShellProof/peso-live.test.cjs :: (resto do ficheiro)`
 
 Selo depois: `f7ab53c834bb7e35`
+
+## A-0459 · 2026-10-31 · ok-do-diogo
+
+Porquê: R16 (Diogo 30/10/2026): tirar os botões Punção visto / Arrefecedor visto / Remover do canto do PU NNPB e voltar a carregar no «Visto» da tabela
+Referência: A-0459, DMO-693, pedido F6wQwWdF
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.Vistos_UmaLinhaEscolhe_EOsDoisBotoesDoCantoTrocam`
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs :: PuncoesPageTests.Vistos_UmaSoPuncao_VemEscolhida`
+
+Selo depois: `c989842196348da8`
+
+## A-0460 · 2026-10-31 · ok-do-diogo
+
+Porquê: R16 (Diogo 30/10/2026): o Remover do canto saiu; o × de cada linha abre a mesma janela
+Referência: A-0459, DMO-693
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.cs :: PuncoesPageTests.NumberWithQuotes_IsWrittenAsText_NeverInsideAnOnclick`
+
+Selo depois: `0e040b84cc8004e4`
+
+## A-0461 · 2026-10-31 · ok-do-diogo
+
+Porquê: R10 e R16 (Diogo 30/10/2026): a folha inteira no painel abre com a largura toda; no PU NNPB o Visto da tabela e o × substituem os botões do canto
+Referência: DMO-692, DMO-693
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_JobOnNoPainel_TituloLarguraEFolha`
+- mudou: `tests/visual/puncoes_tabela_browser.py`
+
+Selo depois: `38bfeac246059eb7`
+
+## A-0457 · 2026-10-31 · ok-do-diogo
+
+Porquê: Diogo 30/10 15:47 «remover o total daqui… só total de produções, tool_id»: sai a linha Total do Resumo diário. Diogo 30/10 15:49 «a importância do calendário é mostrar o que entrou e saiu nesse dia»: o Registo do dia mostra S/E/SR. Diogo 30/10 15:45 (cards esmagados) e 31/10 19:33 «o importante é ecrã 1366 768, mais pequenos não têm relevância»: o teste do browser da lista exige os cartões das linhas inteiros e a página sem deslizar só a 1366×768.
+Referência: DMO-691, cmsg_01K75FTs9bQnbhhH7qttpgraS69GxEz22mhdY4RVpNX8KX, cmsg_01K75FTs9bQnbhhH7qttpgra121hM4DcRXqDgjxZAz3NDz, cmsg_01K75FTs9bQnbhhH7qttpgraFDfD89qRubVjYgvCKXujeN
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.DailySummaryGrid_RendersDayByMachine_FromTheBackend`
+- mudou: `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasHistoricoPageTests.cs :: BoquilhasHistoricoPageTests.HistoryDay_ReplacesRangePreservesFiltersAndExportsTheSameSelection`
+- mudou: `tests/visual/bq_historico_lista_browser.py`
+
+Selo depois: `b44f23ff5141538d`
+Selo depois: `eb8a751f9b3fa2b4`
+## A-0458 · 2026-10-30 · ok-do-diogo
+
+Porquê: Refinamentos 30/10 pedidos pelo Diogo: R13 «antes» trocado, R14 Peso do SAP, R11 pinça na impressão, R8 Excel 14:00/16:20 («continua»), SAP só no ADMIN («sim»)
+Referência: PR #366
+Novos: 2 · mudaram: 14 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.PrimeiraProducao_AntesZeroEFimPeloProduzido`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.SemLeituraAntes_AntesEOFimDaProducaoAnterior`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.AsPastas_SaoGerais_SoAsAcoesFicamParaTodos`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AjudaSap.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_AAjudaDoSapAbreAPaginaDeAjuda`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.AjudaSap.cs :: DefinicoesPorModuloPageTests.FerramentasDefinicoes_OCartaoDoSapTemApagarLidos_EAAjudaExplica`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PastasEmColunas.cs :: DefinicoesPorModuloPageTests.AsPastasDesteComputador_FicamCadaUmaNaSuaColuna`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.ATabelaDosCodigosDeProcura_GravaNoAdminEMudaOsCodigosPedidos`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.AListaDoSap_GravaOUsoQueAFichaDaFerramentaMostra`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoSap.cs :: DefinicoesPorModuloPageTests.PedirTodas_DaOsCodigosDeTodasAsFerramentasComNomeTecnico`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_MostramOUsoDaUltimaLeitura`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs :: JobOnFolhaPrimeiraFilaTests.Peso_DuasCasasDecimaisNoMaximo_ComPonto`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Imprimir_UsaAsPincasDoCartaoPiInteiras_ComODiametro_SemALinhaTipo`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs :: JobOnPageTests.Painel_FolhaNoPainel_EUmResumoComAbrirFolha_SemOsCartoesDaFolha`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: (resto do ficheiro)`
+- mudou: `tests/ShellProof/excel-bq-escritas.test.cjs :: (resto do ficheiro)`
+- mudou: `tests/visual/excel_bq_browser.py`
+
+Selo depois: `2b148ce6d00771be`

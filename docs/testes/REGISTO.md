@@ -5994,3 +5994,27 @@ Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; no
 |---|---|---|---|
 | `tests/ShellProof/jobon-folha-avisos-canto.test.cjs` (2 testes) | Nada do que a app faz hoje: afirma que os avisos dos cartões da folha do Job On vão para uma pilha própria `[data-jof-avisos-canto]`, com um × que os fecha | OBSOLETO | **Fora do `test:js` de propósito.** Prova o ramo `else` de `wwwroot/js/jobon-folha.js:859-872`, que só corre quando `window.DMOLive` não existe — e o `dmo-live.js` vem no `Pages/Shared/_DmoShellLayout.cshtml:77`, por isso na app esse ramo nunca corre. Afirma ainda o contrário do pedido do Diogo de 29/10 («deve aparecer como aparecem os alertas»), que o `jobon-folha-avisos-alerta.test.cjs` prova (A-0411); os dois não podem correr os dois. Apagar este teste **e** o ramo morto precisa do «sim» do Diogo. Ver A-0450. |
 
+
+## R10 e R16 (A-0459, DMO-692/693)
+
+| Teste | O que prova | Estado | Notas |
+|---|---|---|---|
+| `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs` › `Vistos_UmaLinhaEscolhe_EOsDoisBotoesDoCantoTrocam` (ajustado) | PU NNPB: nenhum botão no canto da lista; 4 botões «Visto» na tabela que enviam o Seen; × de remover por linha; 6 colunas | OK | R16, Diogo 30/10. O R10 (largura do painel em `dmo-support.js`) não tem teste automático: ver no ensaio. |
+
+## DMO-691 · A-0457 · 30/10/2026
+
+| Teste | O que garante | Estado | Registo |
+|---|---|---|---|
+| `BoquilhasHistoricoPageTests.HistoryDay_ReplacesRangePreservesFiltersAndExportsTheSameSelection` (alterado) | O Registo do dia mostra, na linha da máquina, as quantidades que saíram e entraram nesse dia (S/E/SR). | OK | A-0457 |
+| `BoquilhasHistoricoPageTests.DailySummaryGrid_RendersDayByMachine_FromTheBackend` (alterado) | O Resumo diário já não tem a linha «Total» (a soma de boquilhas diferentes por máquina). | OK | A-0457 |
+| `tests/visual/bq_historico_lista_browser.py` (alterado) | Em Boquilhas › Movimentos os cartões das linhas nunca ficam esmagados (≥70 px) e a lista mantém o cabeçalho e uma linha inteira; a 1366×768 a página não desliza; em ecrãs mais baixos pode deslizar. | OK | A-0457 |
+## Refinamentos de 30/10/2026 (R5, R8, R11, R13, R14, SAP só no ADMIN)
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| `tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs` (2 novos) | No Job On, o «antes» é o uso no início da produção (o fim da anterior, ≈ pelo produzido quando falta leitura) e o número grande o uso no fim dela | NOVO | R13 (Diogo, 30/10: «o antes está trocado») |
+| `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs` · `Ficha_FerramentasUsadas_MostramOUsoDaUltimaLeitura` | O cartão mostra a última leitura em grande e a do início como «antes» | MUDADO | R13 |
+| `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs` · `Peso_…` e `JobOnPageTests.CoberturaA1Folha.cs` (painel) | O Peso do cabeçalho vem do SAP; o escrito à mão já não aparece | MUDADO | R14 |
+| `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs` · `Imprimir_UsaAsPincas…` | A impressão leva as pinças e as notas da PI; sem diâmetro, as pinças no lugar dele | MUDADO | R11 |
+| `tests/visual/excel_bq_browser.py` | O Excel das Boquilhas escreve-se sozinho só às 14:00 e às 16:20 (Portugal) | MUDADO | R8, «sim» do Diogo 30/10 («continua») |
+| `DefinicoesPorModuloPageTests.*`, `DefinicoesNumSoSitioTests` | O cartão «Utilização pela produção» já não aparece nas Definições dos users; seletor «Tudo \| Desatualizadas» no Admin › SAP | MUDADO | SAP só no ADMIN (Diogo, 30/10, «sim») |
