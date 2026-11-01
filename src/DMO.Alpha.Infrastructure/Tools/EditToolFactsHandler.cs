@@ -140,9 +140,12 @@ public sealed class EditToolFactsHandler : IEditToolFactsHandler
         }
 
         // A B2 em que trabalha (Diogo, 28/10/2026): sem a B2 nas linhas não há modo.
-        if (command.B2Modo is not null) tool.B2Modo = Codificacao.ModoDe(command.B2Modo);
-        var naB2 = machineIds.Count > 0 && await _db.Machines.AnyAsync(m => machineIds.Contains(m.Id) && m.Code == "B2", cancellationToken);
-        if (!naB2) tool.B2Modo = null;
+        // R4 (Diogo, 01/11/2026): sem escolha à mão; a app identifica pelas linhas (C1 = Dupla, C3 = Tripla).
+        var codigos = machineIds.Count > 0
+            ? await _db.Machines.Where(m => machineIds.Contains(m.Id)).Select(m => m.Code).ToListAsync(cancellationToken)
+            : [];
+        var naB2 = codigos.Contains("B2");
+        tool.B2Modo = naB2 ? Codificacao.ModoPelasLinhas(codigos) ?? tool.B2Modo : null;
 
         var existingLinks = await _db.ToolMachineLinks
             .Where(link => link.ToolId == tool.ToolId)

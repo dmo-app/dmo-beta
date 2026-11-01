@@ -58,7 +58,7 @@ public sealed class CodificacaoNasFerramentasTests : IDisposable
         Assert.Equal(("M10774TMFPSV", B2Modo.Tripla, 54), (Ler(escolhido).TechnicalName, Ler(escolhido).B2Modo, Ler(escolhido).BqAccountedQuantity));
     }
 
-    /// <summary>Garante: o Editar escolhe e tira o modo da B2, e sem a B2 nas linhas o modo sai.</summary>
+    /// <summary>Garante (R4, Diogo 01/11/2026): o Editar identifica o modo da B2 pelas linhas (C1 = Dupla, C3 = Tripla); sem a B2 o modo sai.</summary>
     [Fact]
     public async Task Editar_muda_o_modo_da_B2()
     {
@@ -67,13 +67,14 @@ public sealed class CodificacaoNasFerramentasTests : IDisposable
         var editar = new EditToolFactsHandler(_db);
         B2Modo? Modo() => _db.Tools.AsNoTracking().Single(t => t.ToolId == id).B2Modo;
 
-        await editar.HandleAsync(new EditToolFacts(id, "CM", "1076", "3", MachineIds: [_maquinas["B2"]], B2Modo: "Dupla"));
-        Assert.Equal(B2Modo.Dupla, Modo());
-        await editar.HandleAsync(new EditToolFacts(id, "CM", "1076", "3", MachineIds: [_maquinas["B2"]]));
-        Assert.Equal(B2Modo.Dupla, Modo());
-        await editar.HandleAsync(new EditToolFacts(id, "CM", "1076", "3", MachineIds: [_maquinas["B2"]], B2Modo: ""));
         Assert.Null(Modo());
-        await editar.HandleAsync(new EditToolFacts(id, "CM", "1076", "3", MachineIds: [_maquinas["B1"]], B2Modo: "Tripla"));
+        await editar.HandleAsync(new EditToolFacts(id, "CM", "1076", "3", MachineIds: [_maquinas["C1"], _maquinas["B2"]]));
+        Assert.Equal(B2Modo.Dupla, Modo());
+        await editar.HandleAsync(new EditToolFacts(id, "CM", "1076", "3", MachineIds: [_maquinas["B2"]], B2Modo: "Tripla"));
+        Assert.Equal(B2Modo.Dupla, Modo());
+        await editar.HandleAsync(new EditToolFacts(id, "CM", "1076", "3", MachineIds: [_maquinas["C3"], _maquinas["B2"]]));
+        Assert.Equal(B2Modo.Tripla, Modo());
+        await editar.HandleAsync(new EditToolFacts(id, "CM", "1076", "3", MachineIds: [_maquinas["B1"]]));
         Assert.Null(Modo());
     }
 
