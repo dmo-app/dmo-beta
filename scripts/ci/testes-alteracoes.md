@@ -6101,3 +6101,13 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoPeloArmazem.cs :: DefinicoesPorModuloPageTests.AJanelaDaUtilizacao_MostraOsJobOnDaLinhaEnquantoAFerramentaLaEsteve`
 
 Selo depois: `a35203b4ead44771`
+
+## A-0467 · 2026-11-01 · ok-do-diogo
+
+Porquê: R4 (Diogo 01/11/2026): tirar a escolha B2 Dupla/Tripla; a app identifica pelas linhas
+Referência: DMO-698, cmsg_01K75FTs9bQnbhhH7qttpgraBGfupgQthRtyieV31cVLrp
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs :: CodificacaoNasFerramentasTests.Editar_muda_o_modo_da_B2`
+
+Selo depois: `32dd153e6500c0bd`
