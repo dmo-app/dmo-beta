@@ -6020,3 +6020,9 @@ Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; no
 | Teste | O que prova | Estado | Notas |
 |---|---|---|---|
 | `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs` › `SemAPermissao_OGeralLeSeComCadeado_ENaoGrava` (ajustado) | Sem PIN, a hora de viragem não grava; os reparadores das Boquilhas ficam fora do cadeado e gravam | OK | R6, Diogo 02/11. Fabricante/Data de aquisição: ver no ensaio (migração nova FerramentaFabricanteDataAquisicao). |
+
+## PU NNPB esquerda/direita (A-0469, DMO-700)
+
+| Teste | O que prova | Estado | Notas |
+|---|---|---|---|
+| `tests/visual/cobertura_b_browser.py` (sem mudança) | O número e o botão na mesma linha e altura; o grupo continua encostado à direita do cartão | OK | Diogo 02/11: Registar, número e lote à esquerda; o resto à direita. Só disposição. |

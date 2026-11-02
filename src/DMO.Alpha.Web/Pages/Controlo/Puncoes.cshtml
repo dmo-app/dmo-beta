@@ -338,9 +338,6 @@
 
       <section class="dmo-card pu-card" id="puncoes-lista" aria-labelledby="pu-list-title" data-dmo-parcial>
         <div class="pu-section-head">
-          <div>
-            <h3 id="pu-list-title" title="Ao registar, a punção e o arrefecedor ficam vistos; desmarque o que não foi visto. Um número repetido aparece como «Alteração» e pede o lote dessa punção. O lote de cima aplica-se às novas punções; as anteriores mantêm o seu.">Lista de punções</h3>
-          </div>
           @* UM SÓ BOTÃO «OPÇÕES» (Diogo, 21/10/2026: «um botao com opcoes e nao
              espalhado pela pagina»): o PDF e, no registo sem Job On, o
              associar a uma produção, numa janela pequena. *@
@@ -367,6 +364,7 @@
             <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
             <input type="hidden" name="referencia" value="@Model.ShownPunchReference" data-pu-mirror="pu-referencia" />
             <input type="hidden" name="lote" value="@Model.ShownLot" data-pu-mirror="pu-lote" />
+            <button type="submit" class="dmo-button">+ Adicionar punção</button>
             <div class="dmo-field">
               <label for="pu-numero" class="pu-oculto">Número da punção</label>
               <input id="pu-numero" name="numero" maxlength="40" required value="@Model.EchoNumber" placeholder="Número da punção, ex.: 41" autofocus="@(Model.Refusal is not null || registo is not null ? "autofocus" : null)" />
@@ -375,8 +373,13 @@
               <label for="pu-lote-puncao" class="pu-oculto">Lote desta punção</label>
               <input id="pu-lote-puncao" name="lote_puncao" inputmode="numeric" maxlength="12" placeholder="Lote desta punção, ex.: 2" />
             </div>
-            <button type="submit" class="dmo-button">+ Adicionar punção</button>
           </form>
+          @* LADO ESQUERDO / LADO DIREITO (Diogo, 02/11/2026): à esquerda o «Registar»,
+             o número e o lote (quando o número é repetido); o resto à direita. *@
+          <div class="pu-topo-direita">
+            <div>
+            <h3 id="pu-list-title" title="Ao registar, a punção e o arrefecedor ficam vistos; desmarque o que não foi visto. Um número repetido aparece como «Alteração» e pede o lote dessa punção. O lote de cima aplica-se às novas punções; as anteriores mantêm o seu.">Lista de punções</h3>
+          </div>
           <div class="dmo-card-topo-acoes" data-dmo-for="puLista">
             @if (linhasPu.Count > 0)
             {
@@ -396,6 +399,7 @@
                 }
               </div>
             </details>
+          </div>
           </div>
           </div>
         </div>
