@@ -1,5 +1,5 @@
 {
-  "selo": "ab5dc5308891a01e",
+  "selo": "e7c488b9eeb06628",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1683,6 +1683,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.OsNumerosComPercentagemOuEspacosEstranhos_LeemSe": "a0c38dbc1d9280fa",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.OsNumerosDoSap_EmFormatoPortugues": "a30d30389c7631b8",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.Pedir_AbreUmLembreteSoUmaVez": "3fbb7378191f2d27",
+    "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.SemNomeTecnico_OCodigoVemDaCodificacaoPorLinha": "791f26af04bd090b",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.TodosOsCodigos_SaoOsDeTodasAsFerramentasComNomeTecnico": "d00d9cf90582c0a8",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.UmFicheiroQueNaoEALista_NaoGravaNada": "d89c470b95cc11b2",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.UmFicheiroQueNaoEALista_NaoTemCabecalho": "400c99660ea937fc",

@@ -186,19 +186,24 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
     {
         var regras = await SapProcuraRegras.LerDeAsync(db, cancellationToken);
         var ferramentas = await ferramentasPedidas.AsNoTracking()
-            .Select(t => new { t.ToolId, t.Type, t.TechnicalName, t.Reference, t.Lot, t.SapCodigo })
+            .Select(t => new { t.ToolId, t.Type, t.TechnicalName, t.Reference, t.Lot, t.SapCodigo, t.B2Modo })
             .ToListAsync(cancellationToken);
-        var comLinhas = regras.Any(r => r.Linha.Length > 0);
         var ids = ferramentas.Select(f => f.ToolId).ToList();
-        var linhas = comLinhas
-            ? (await db.ToolMachineLinks.AsNoTracking()
+        var linhas = (await db.ToolMachineLinks.AsNoTracking()
                 .Where(l => ids.Contains(l.ToolId))
                 .Select(l => new { l.ToolId, l.Machine.Code })
                 .ToListAsync(cancellationToken))
-                .ToLookup(l => l.ToolId, l => l.Code)
-            : null;
+            .ToLookup(l => l.ToolId, l => l.Code);
+        // Sem nome técnico na ferramenta, o da tabela «Codificação por linha»
+        // pela linha da ferramenta (Diogo, 02/11/2026); não grava nada.
+        var pelaTabela = await CodificacaoFerramentas.NomePelaTabelaAsync(db, cancellationToken);
         return ferramentas
-            .Select(f => (f.ToolId, Codigo: SapProcura.Codigo(regras, f.Type, linhas?[f.ToolId] ?? [], f.SapCodigo, f.TechnicalName, f.Reference, f.Lot)))
+            .Select(f =>
+            {
+                var maquinas = linhas[f.ToolId].ToList();
+                var nomeTecnico = string.IsNullOrWhiteSpace(f.TechnicalName) ? pelaTabela(f.Type, f.Reference, maquinas, f.B2Modo) : f.TechnicalName;
+                return (f.ToolId, Codigo: SapProcura.Codigo(regras, f.Type, maquinas, f.SapCodigo, nomeTecnico, f.Reference, f.Lot));
+            })
             .Where(c => c.Codigo is not null)
             .Select(c => (c.ToolId, c.Codigo!))
             .ToList();

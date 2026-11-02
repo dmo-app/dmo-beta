@@ -665,7 +665,8 @@
     { "id": "DMO-710", "module": "SAP", "description": "(A-0481): a leitura das produções só avança depois de entrar no SAP (o ecrã da senha já não conta como pronto), e o dmo-sap.log diz quando o SAP ficou pronto e quantas produções foram gravadas." },
     { "id": "DMO-711", "module": "SAP", "description": "(A-0482): os scripts do SAP preenchem o ecrã de entrada do SAP sempre que aparecer (no máximo 2 vezes, para uma senha errada não bloquear o utilizador), e só escrevem pelo teclado com a janela da senha à frente." },
     { "id": "DMO-712", "module": "SAP", "description": "(A-0483): os scripts do SAP nunca escrevem pelo teclado com uma janela do SAP aberta (escreviam por cima do utilizador e davam «Função impossível»); o ecrã de entrada do SAP preenche-se pelo próprio SAP." },
-    { "id": "DMO-713", "module": "SAP", "description": "(A-0484): a leitura das produções, com o SAP já aberto no ecrã de entrada, entra primeiro (pelo SAP) e só depois lê." }
+    { "id": "DMO-713", "module": "SAP", "description": "(A-0484): a leitura das produções, com o SAP já aberto no ecrã de entrada, entra primeiro (pelo SAP) e só depois lê." },
+    { "id": "DMO-714", "module": "SAP", "description": "(A-0485): a ferramenta sem nome técnico vai na lista de códigos do SAP com o nome da Codificação por linha (referência e linha), sem gravar nada na ferramenta." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

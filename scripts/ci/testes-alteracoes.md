@@ -6315,3 +6315,12 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OFabrico_ComOSapAbertoNoEcraDeEntrada_EntraPrimeiro`
 
 Selo depois: `ab5dc5308891a01e`
+
+## A-0485 · 2026-11-02 · teste-novo
+
+Porquê: SAP: sem nome técnico, o código de procura vem da Codificação por linha pela referência e linha (DMO-714)
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.SemNomeTecnico_OCodigoVemDaCodificacaoPorLinha`
+
+Selo depois: `e7c488b9eeb06628`
