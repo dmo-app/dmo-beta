@@ -53,7 +53,9 @@
       cartao.classList.remove('bq-varias-escolhido');
       cartao.setAttribute('aria-pressed', 'false');
     } else {
-      const codigo = cartao.querySelector('strong')?.textContent || '';
+      const spans = cartao.querySelectorAll('span');
+      const producao = spans.length > 1 ? spans[spans.length - 1].textContent.trim() : '';
+      const codigo = [cartao.querySelector('strong')?.textContent || '', producao].filter(Boolean).join(' · ');
       f.querySelector('.bq-varias-linhas').appendChild(linhaHtml(id, codigo, cartao.title || ''));
       cartao.classList.add('bq-varias-escolhido');
       cartao.setAttribute('aria-pressed', 'true');
