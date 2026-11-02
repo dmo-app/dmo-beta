@@ -151,12 +151,15 @@ public sealed class EditToolFactsHandler : IEditToolFactsHandler
             tool.DataAquisicao = DateOnly.TryParseExact(command.DataAquisicao.Trim(), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var data) ? data : null;
         }
 
-        // R4 (Diogo, 01/11/2026): sem escolha à mão; a app identifica pelas linhas (C1 = Dupla, C3 = Tripla).
+        // R4 (Diogo, 02/11/2026): a escolha à mão fica e manda; sem escolha, a app
+        // identifica pelas linhas (C1 = Dupla, C3 = Tripla) e depois pelo nome técnico.
         var codigos = machineIds.Count > 0
             ? await _db.Machines.Where(m => machineIds.Contains(m.Id)).Select(m => m.Code).ToListAsync(cancellationToken)
             : [];
         var naB2 = codigos.Contains("B2");
-        tool.B2Modo = naB2 ? Codificacao.ModoPelasLinhas(codigos) ?? tool.B2Modo : null;
+        var escolhido = string.IsNullOrWhiteSpace(command.B2Modo) ? null : Codificacao.ModoDe(command.B2Modo);
+        tool.B2Modo = !naB2 ? null
+            : escolhido ?? Codificacao.ModoIdentificado(codigos, tool.TechnicalName) ?? (command.B2Modo is null ? tool.B2Modo : null);
 
         var existingLinks = await _db.ToolMachineLinks
             .Where(link => link.ToolId == tool.ToolId)

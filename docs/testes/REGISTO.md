@@ -6031,3 +6031,17 @@ Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; no
 | Teste | O que prova | Estado | Notas |
 |---|---|---|---|
 | `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs` › `SemAPermissao_OGeralLeSeComCadeado_ENaoGrava` (ajustado) | Sem PIN, a hora de viragem não grava; os reparadores das Boquilhas ficam fora do cadeado e gravam | OK | R6, Diogo 02/11. Fabricante/Data de aquisição: ver no ensaio (migração nova FerramentaFabricanteDataAquisicao). |
+
+## PU NNPB esquerda/direita (A-0469, DMO-700)
+
+| Teste | O que prova | Estado | Notas |
+|---|---|---|---|
+| `tests/visual/cobertura_b_browser.py` (sem mudança) | O número e o botão na mesma linha e altura; o grupo continua encostado à direita do cartão | OK | Diogo 02/11: Registar, número e lote à esquerda; o resto à direita. Só disposição. |
+
+## R4 com escolha (A-0471, DMO-701)
+
+| Teste | O que prova | Estado | Notas |
+|---|---|---|---|
+| `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs` › `Editar_muda_o_modo_da_B2` (ajustado) | A escolha à mão manda; sem escolha, as linhas e depois o nome técnico dão o modo | OK | Diogo 02/11: «quando dê para identificar selecionar o certo, caso não dê aviso». |
+| `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs` › `O_nome_tecnico_da_o_modo_da_B2` (novo) | CM 44/55, MF 4T/55, BQ PX77/PX8855 | OK | |
+| `tests/DMO.Alpha.Web.Tests/PaginasDeslizamCssTests.cs` › `NenhumaPaginaFicaPresaAAlturaDaJanela` | Nenhuma regra de página no CSS junta altura do ecrã com overflow escondido: a página desliza sempre quando não cabe | OK | Vem do #367 (DMO-690); entrou pelo DMO-694 (A-0472). |

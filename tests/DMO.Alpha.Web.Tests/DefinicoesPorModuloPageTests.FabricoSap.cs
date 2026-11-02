@@ -162,8 +162,8 @@ public sealed partial class DefinicoesPorModuloPageTests
         var client = await LoginOperatorAsync("7109", DmoCapabilities.Ferramentas);
         var ficha = await (await client.GetAsync($"/Ferramentas/Ficha?tool_id={toolId}")).Content.ReadAsStringAsync();
 
-        // Vem depois da informação técnica, fechado.
-        Assert.True(ficha.IndexOf("id=\"ferrHistoricoProducoes\"", StringComparison.Ordinal) > ficha.IndexOf("id=\"ferr-tech-title\"", StringComparison.Ordinal));
+        // Vem antes da informação técnica, fechado (Diogo, 02/11/2026: «primeiro histórico de produções, depois informação técnica»).
+        Assert.True(ficha.IndexOf("id=\"ferrHistoricoProducoes\"", StringComparison.Ordinal) < ficha.IndexOf("id=\"ferr-tech-title\"", StringComparison.Ordinal));
         var historico = WebUtility.HtmlDecode(ZonaUsoSap(ficha, "ferrHistoricoProducoes"));
         Assert.Contains("Histórico de produções", historico, StringComparison.Ordinal);
         Assert.Contains("<details>", historico, StringComparison.Ordinal);

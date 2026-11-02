@@ -6158,3 +6158,36 @@ Novos: 0 · mudaram: 3 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.CriarEEditar_UmSoFormulario_EditarGravaONomeTecnico`
 
 Selo depois: `9ca61cb078844f42`
+
+## A-0471 · 2026-11-02 · ok-do-diogo
+
+Porquê: R4 (Diogo 02/11): a escolha B2 volta e manda; sem escolha a app identifica pelas linhas e pelo nome técnico
+Referência: R4, DMO-701
+Novos: 1 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs :: CodificacaoNasFerramentasTests.O_nome_tecnico_da_o_modo_da_B2`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs :: CodificacaoNasFerramentasTests.Editar_muda_o_modo_da_B2`
+
+Selo depois: `191770e3e538d0c0`
+
+## A-0472 · 2026-11-02 · teste-novo
+
+Porquê: DMO-694/A-0472: teste do #367 (DMO-690) trazido para o #376: nenhuma página presa à altura da janela
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/PaginasDeslizamCssTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PaginasDeslizamCssTests.cs :: PaginasDeslizamCssTests.NenhumaPaginaFicaPresaAAlturaDaJanela`
+
+Selo depois: `bba26ec491f95779`
+
+## A-0462 · 2026-11-02 · ok-do-diogo
+
+Porquê: DMO-694: Diogo 02/11 «primeiro histórico de produções depois informação técnica e informação opcional no fim» (opcional num cartão próprio, minimizado)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraQTyzTr1xBieiKB7FJvdyjQ
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraAsGarrafasOPesoEAPercentagemDeCadaJobOn`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Ficha_Editar_LinhasCompativeis_InformacaoOpcionalComFabricaDeOrigem`
+
+Selo depois: `e9fefdf708b5eda7`
+

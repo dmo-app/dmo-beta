@@ -541,3 +541,13 @@ html body main.ferr-page #ferr-create-form>.ferr-create-tech>summary:is(:hover,:
 /* O «Voltar» da Utilização por produção: link no canto superior esquerdo, por cima do título (Diogo, 29/10/2026). */
 html body .ferr-producoes-janela>.ferr-producoes-voltar:not(#_){display:block;margin:0 0 4px;padding:0;color:var(--dmo-muted);font-size:13px;font-weight:500}
 html body .ferr-producoes-janela>.ferr-producoes-voltar:is(:hover,:focus-visible):not(#_){color:var(--dmo-text)}
+
+/* R12 (DMO-694): Boquilhas › Movimentos: «Vista» na linha de «Limpar filtros» e «Imprimir / PDF»;
+   os outros filtros todos juntos na linha de baixo (o «Até» já não cai sozinho). */
+html body .beta-bq-layout form#bqHistoryFilters{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 10px}
+html body .beta-bq-layout form#bqHistoryFilters>#bqHistContexto{display:none}
+html body .beta-bq-layout form#bqHistoryFilters>.bq-history-filter-grid{display:contents}
+html body .beta-bq-layout form#bqHistoryFilters .bq-history-filter-grid>.dmo-field{order:2}
+html body .beta-bq-layout form#bqHistoryFilters .bq-history-filter-grid>.dmo-field:has(#vista){order:0}
+html body .beta-bq-layout form#bqHistoryFilters>.bq-history-filters-head{order:1;flex:1 1 auto;margin:0;align-self:flex-end}
+html body .beta-bq-layout form#bqHistoryFilters::after{content:"";order:1;flex:0 0 100%;height:0}

@@ -93,3 +93,6 @@ html body .pu-topo .pu-add-form>.dmo-button{margin:0}
 .pu-table-fixa .pu-col-acoes{width:48px}
 .pu-remove{all:unset;cursor:pointer;padding:0 8px;font-size:18px;line-height:1;color:var(--dmo-muted)}
 .pu-remove:hover{color:var(--dmo-danger)}
+#puncoes-lista .pu-section-head>.pu-topo{flex:1 1 auto;justify-content:space-between}
+#puncoes-lista .pu-topo-direita{display:flex;align-items:center;gap:8px 16px;margin-left:auto}
+#puncoes-lista .pu-topo-direita h3{margin:0}
