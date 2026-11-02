@@ -6084,3 +6084,45 @@ Novos: 2 · mudaram: 14 · saíram: 0
 - mudou: `tests/visual/excel_bq_browser.py`
 
 Selo depois: `2b148ce6d00771be`
+
+## A-0463 · 2026-10-31 · ok-do-diogo
+
+Porquê: R1 (Diogo 30/10/2026): janela Utilização com Referência, Produção, Linha e N.º; mais antiga em cima
+Referência: DMO-695, pedido BQgXPD5r
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoReferencia.cs :: DefinicoesPorModuloPageTests.AJanelaDaUtilizacao_MostraAReferenciaDeCadaProducao`
+
+Selo depois: `396e012bf7240730`
+
+## A-0464 · 2026-10-31 · ok-do-diogo
+
+Porquê: R1 (Diogo 30/10/2026): na janela Utilização a produção passa para a coluna própria, depois da Referência
+Referência: DMO-695
+Novos: 0 · mudaram: 3 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.ORelatorioDeFabrico_MostraOQueCadaJobOnDaFerramentaProduziu`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UsoNoPainel.cs :: DefinicoesPorModuloPageTests.OHistoricoDoUso_MostraAsProducoesEOUsoQueFoiAcumulando`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoPeloArmazem.cs :: DefinicoesPorModuloPageTests.AJanelaDaUtilizacao_MostraOsJobOnDaLinhaEnquantoAFerramentaLaEsteve`
+
+Selo depois: `22bced9b8dbc71d5`
+
+## A-0465 · 2026-10-31 · ok-do-diogo
+
+Porquê: R1 (Diogo 30/10/2026): a segunda produção também passa para a coluna Produção
+Referência: DMO-695
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoPeloArmazem.cs :: DefinicoesPorModuloPageTests.AJanelaDaUtilizacao_MostraOsJobOnDaLinhaEnquantoAFerramentaLaEsteve`
+
+Selo depois: `b0a25fe649f689bf`
+
+## A-0466 · 2026-10-31 · ok-do-diogo
+
+Porquê: R1 (Diogo 30/10/2026): referência e linha em colunas próprias
+Referência: DMO-695
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoPeloArmazem.cs :: DefinicoesPorModuloPageTests.AJanelaDaUtilizacao_MostraOsJobOnDaLinhaEnquantoAFerramentaLaEsteve`
+
+Selo depois: `a35203b4ead44771`

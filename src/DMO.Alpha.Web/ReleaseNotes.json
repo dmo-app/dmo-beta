@@ -647,7 +647,9 @@
     { "id": "DMO-689", "module": "Peso", "description": "0.3.0-beta.251 (A-0449): no Peso, as datas e os dias da produção anterior ficam dentro da tabela, e as diferenças dizem «peso médio atual menos a média» ou «menos a moda», com gramas e percentagem com sinal. O PDF não muda." },
     { "id": "DMO-692", "module": "Job On", "description": "R10 (A-0459): depois de gravar, a folha do Job On no painel deslizante abre com a largura toda e mantém o formato novo (Notas gerais em cima, artigo pequeno ao lado das Pinças)." },
     { "id": "DMO-693", "module": "PU NNPB", "description": "R16 (A-0459): saem os botões Punção visto, Arrefecedor visto e Remover do canto; volta-se a carregar no «Visto» da tabela, com o × de remover na linha. O número da punção e o «+ Adicionar punção» já não saltam." },
-    { "id": "DMO-691", "module": "Boquilhas", "description": "Nos Movimentos das Boquilhas: os cards das máquinas já não ficam esmagados ao abrir a partir do Registo (Opções › Movimentos); o Registo do dia mostra o que saiu e entrou em cada máquina (S/E/SR); o Resumo diário deixa de ter a linha «Total»." }
+    { "id": "DMO-691", "module": "Boquilhas", "description": "Nos Movimentos das Boquilhas: os cards das máquinas já não ficam esmagados ao abrir a partir do Registo (Opções › Movimentos); o Registo do dia mostra o que saiu e entrou em cada máquina (S/E/SR); o Resumo diário deixa de ter a linha «Total»." },
+    { "id": "DMO-695", "module": "Ferramentas", "description": "R1 (A-0463): na janela «Utilização», as colunas passam a Referência, Produção, Linha e N.º da produção (1, 2, 3…), com a mais antiga em cima e a mais recente em baixo, junto ao total." },
+    { "id": "DMO-696", "module": "Job On", "description": "R15: no aviso de rascunho do Job On, «Usar o rascunho» e «Descartar rascunho» passam a links com a cor dos botões, dentro do aviso e separados." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

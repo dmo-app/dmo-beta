@@ -6018,3 +6018,10 @@ Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; no
 | `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs` · `Imprimir_UsaAsPincas…` | A impressão leva as pinças e as notas da PI; sem diâmetro, as pinças no lugar dele | MUDADO | R11 |
 | `tests/visual/excel_bq_browser.py` | O Excel das Boquilhas escreve-se sozinho só às 14:00 e às 16:20 (Portugal) | MUDADO | R8, «sim» do Diogo 30/10 («continua») |
 | `DefinicoesPorModuloPageTests.*`, `DefinicoesNumSoSitioTests` | O cartão «Utilização pela produção» já não aparece nas Definições dos users; seletor «Tudo \| Desatualizadas» no Admin › SAP | MUDADO | SAP só no ADMIN (Diogo, 30/10, «sim») |
+
+
+## R1 (A-0463, DMO-695)
+
+| Teste | O que prova | Estado | Notas |
+|---|---|---|---|
+| `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoReferencia.cs` › `AJanelaDaUtilizacao_MostraAReferenciaDeCadaProducao` (ajustado) | Janela Utilização: colunas Referência antes de Produção, Linha e N.º | OK | R1, Diogo 30/10. A ordem (mais antiga em cima) ver no ensaio. |

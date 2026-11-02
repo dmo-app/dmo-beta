@@ -456,3 +456,8 @@ html body .jof2-gaveta .rail-item.selected:not(:disabled){background:var(--dmo-c
 html body .jof2-gaveta .rail-item.dmo-linha-cor.selected:not(:disabled){border-left-color:var(--dmo-machine-color)}
 html[data-theme="dark"] body .jof2-gaveta .rail-item.selected:not(:disabled){background:var(--dmo-brand-600);color:#fff;border-color:#fff}
 html[data-theme="dark"] body .jof2-gaveta .rail-item.dmo-linha-cor.selected:not(:disabled){border-left-color:var(--dmo-machine-color)}
+/* R15 (Diogo, 30/10/2026): «Usar o rascunho» / «Descartar rascunho» são links com a cor dos botões, dentro do aviso e separados. */
+.jobon-aviso .jobon-aviso-link{all:unset;cursor:pointer;margin-left:14px;color:var(--dmo-brand-600);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.jobon-aviso .jobon-aviso-link:hover{color:var(--dmo-brand-700)}
+.jobon-aviso .jobon-aviso-link:focus-visible{outline:2px solid var(--dmo-brand-500);outline-offset:2px}
+:root[data-theme="dark"] .jobon-aviso .jobon-aviso-link{color:var(--dmo-brand-300,var(--dmo-text))}
