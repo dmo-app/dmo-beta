@@ -247,7 +247,7 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
     @* A B2 sem Dupla nem Tripla é um aviso importante (Diogo, 28/10/2026); escolhe-se no Editar. *@
     @if (tool.B2Modo is null && tool.Machines.Any(m => m.Code == "B2"))
     {
-      <p class="dmo-aviso warn" data-dmo-aviso id="ferrAvisoB2">@DMO.Alpha.Core.Tools.Codificacao.AvisoSemModo("Esta ferramenta") Escolha a B2 no Editar.</p>
+      <p class="dmo-aviso warn" data-dmo-aviso id="ferrAvisoB2">@DMO.Alpha.Core.Tools.Codificacao.AvisoSemModo("Esta ferramenta") Junte a C1 (Dupla) ou a C3 (Tripla) às linhas no Editar.</p>
     }
 
     @if (Model.SavedSection == FichaModel.SavedGeneral)

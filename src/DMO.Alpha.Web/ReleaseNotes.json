@@ -650,7 +650,8 @@
     { "id": "DMO-691", "module": "Boquilhas", "description": "Nos Movimentos das Boquilhas: os cards das máquinas já não ficam esmagados ao abrir a partir do Registo (Opções › Movimentos); o Registo do dia mostra o que saiu e entrou em cada máquina (S/E/SR); o Resumo diário deixa de ter a linha «Total»." },
     { "id": "DMO-695", "module": "Ferramentas", "description": "R1 (A-0463): na janela «Utilização», as colunas passam a Referência, Produção, Linha e N.º da produção (1, 2, 3…), com a mais antiga em cima e a mais recente em baixo, junto ao total." },
     { "id": "DMO-696", "module": "Job On", "description": "R15: no aviso de rascunho do Job On, «Usar o rascunho» e «Descartar rascunho» passam a links com a cor dos botões, dentro do aviso e separados." },
-    { "id": "DMO-697", "module": "Ferramentas", "description": "R3: nos avisos do SAP da ficha, os botões Sim/Não passam a links («Substituir» com a cor dos botões e «Manter») e o × fica simples, no canto do aviso." }
+    { "id": "DMO-697", "module": "Ferramentas", "description": "R3: nos avisos do SAP da ficha, os botões Sim/Não passam a links («Substituir» com a cor dos botões e «Manter») e o × fica simples, no canto do aviso." },
+    { "id": "DMO-698", "module": "Ferramentas", "description": "R4 (A-0467): sai a escolha B2 Dupla/Tripla das Ferramentas (Criar, Editar, ficha e janela); a app identifica pelas linhas escolhidas: com a C1 é Dupla, com a C3 é Tripla." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
