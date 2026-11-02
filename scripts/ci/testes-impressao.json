@@ -1,5 +1,5 @@
 {
-  "selo": "f7ab53c834bb7e35",
+  "selo": "8eb6dc0ee896b7a1",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2470,7 +2470,7 @@
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OCadeado_SemPin_PedeAoAdminParaOCriar": "730c3743c296e60b",
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OModoEscuro_GuardaSeSoParaQuemOMuda": "5424285fcc6b10f7",
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.OsSeparadores_AMinhaContaEsteComputadorEGerais_CadaEntradaMostraSoASuaSeccao": "70d5943a31c412f9",
-    "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Pessoal_SoTemAContaAPalavraPasseEAAparencia": "bdea2d423c892c7f",
+    "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Pessoal_SoTemAContaAPalavraPasseEAAparencia": "d8dcec56f6520027",
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.PuNnpb_UmGuardarParaB1EC3_AsOutrasLinhasFicamComoEstao": "bf6dcf543adb9977",
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.SemAPermissao_OGeralLeSeComCadeado_ENaoGrava": "d337051ca82210e8",
     "tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.SemSenhaDoSap_OsScriptsNaoSeDao": "91f870206c5708b3",
@@ -2706,6 +2706,10 @@
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisoArmazemEmEsperaTests.cs :: JobOnAvisoArmazemEmEsperaTests.ComOInterruptor_OAvisoDoArmazemVolta": "54d1954406b14a97",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisoArmazemEmEsperaTests.cs :: JobOnAvisoArmazemEmEsperaTests.PorOmissao_OAvisoDoArmazemMostraSe": "03abfb5f31b05462",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisoArmazemEmEsperaTests.cs :: JobOnAvisoArmazemEmEsperaTests.SemOInterruptor_OAvisoDoArmazemNaoAparece_EOsOutrosSim": "540b4ec643f449af",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs :: (resto do ficheiro)": "c5dc625e0cc4ffa4",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs :: JobOnAvisosPessoaisTests.ArmazemDesligado_SaiSoOAvisoDoArmazem": "2a6caba6f442ecae",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs :: JobOnAvisosPessoaisTests.LerEEscrever_IgnoramChavesQueNaoExistem": "82eefb26fe84db79",
+    "tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs :: JobOnAvisosPessoaisTests.SemNadaDesligado_MostraTodos": "fb6e3b9fce3a8e18",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnDuplicarFolhaTests.cs :: (resto do ficheiro)": "6a92afcc7f565ec5",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnDuplicarFolhaTests.cs :: JobOnDuplicarFolhaTests.Duplicar_MarcaConfirmarNaMaquinaNasFerramentasENasUtilizacoesCopiadas": "ba33675d4676e1e9",
     "tests/DMO.Alpha.Web.Tests/JobOn/JobOnDuplicarFolhaTests.cs :: JobOnDuplicarFolhaTests.Duplicar_SemFolhaNaOrigem_AbreAsMedidasPorOmissao_SemMarcasNaFolha": "a072a77d1de1b270",

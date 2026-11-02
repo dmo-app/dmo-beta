@@ -48,6 +48,8 @@ public sealed class FolhaModel(
     IConfiguration configuration,
     DMO.Alpha.Core.Tools.IFerramentasUsoSap usoSap,
     IFolhaDaFerramenta folhaDaFerramenta,
+    ICurrentAccountContext account,
+    IDefinicoesPessoais pessoais,
     DMO.Alpha.Core.Tools.IFerramentasFabricoSap fabricoSap,
     [FromKeyedServices(FolhaModel.RelogioDaExperiencia)] TimeProvider? relogioExperiencia = null) : PageModel
 {
@@ -86,6 +88,17 @@ public sealed class FolhaModel(
 
     /// <summary>O aviso «não está registada no Armazém» (o mesmo interruptor do Planeamento, Dmo:Avisos:ArmazemSemRegisto).</summary>
     public bool MostrarAvisoArmazem { get; } = configuration.GetValue(IndexModel.AvisoArmazemChave, IndexModel.AvisoArmazemPorOmissao);
+
+    /// <summary>Os avisos que esta pessoa desligou nas Definições (lidos antes de cada handler).</summary>
+    public IReadOnlySet<string> AvisosEscondidos { get; private set; } = new HashSet<string>();
+
+    public override async Task OnPageHandlerExecutionAsync(
+        Microsoft.AspNetCore.Mvc.Filters.PageHandlerExecutingContext context,
+        Microsoft.AspNetCore.Mvc.Filters.PageHandlerExecutionDelegate next)
+    {
+        AvisosEscondidos = await AvisosPessoaisDaConta.LerAsync(account, pessoais, HttpContext.RequestAborted);
+        await next();
+    }
 
     /// <summary>
     /// Os avisos depois de gravar, os mesmos do Planeamento (a ficha antiga
