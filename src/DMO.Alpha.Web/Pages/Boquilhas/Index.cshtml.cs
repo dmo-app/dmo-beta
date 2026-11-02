@@ -1515,6 +1515,64 @@ public sealed partial class IndexModel : PageModel
             ("data_antiga", occurredValidLocal is DateTime escrita ? LocalFieldValue(escrita) : null)));
     }
 
+    // VÁRIAS LINHAS DE UMA VEZ (Diogo, 02/11/2026, DMO-721): escolhem-se os
+    // cartões das linhas no painel, cada um com o seu movimento, e o reparador
+    // e a hora são os mesmos para todos. Cada linha grava no registo da
+    // produção que está nela (o bq_id do cartão), pelo MESMO handler do
+    // registo de um movimento. Uma linha recusada não impede as outras.
+    [BindProperty(SupportsGet = true, Name = "varias_ok")] public string? VariasOk { get; set; }
+    [BindProperty(SupportsGet = true, Name = "varias_falhou")] public string? VariasFalhou { get; set; }
+
+    public async Task<IActionResult> OnPostRegisterManyAsync(
+        [FromForm(Name = "linha_bq_id")] int[]? bqIds,
+        [FromForm(Name = "linha_tipo")] string[]? tipos,
+        [FromForm(Name = "linha_qtd")] string[]? quantidades,
+        [FromForm(Name = "linha_qtd_an")] string[]? quantidadesAn,
+        [FromForm(Name = "occurred_at")] string? occurredAt)
+    {
+        if (User?.Identity?.IsAuthenticated != true)
+        {
+            return Challenge();
+        }
+
+        DateTime? occurredAtUtc = null;
+        if (!string.IsNullOrWhiteSpace(occurredAt)
+            && DateTime.TryParse(occurredAt, CultureInfo.InvariantCulture, DateTimeStyles.None, out var local))
+        {
+            occurredAtUtc = DMO.Alpha.Core.Runtime.DmoBusinessTime.ToUtc(
+                DMO.Alpha.Core.Runtime.DmoBusinessTime.NextValidLocal(local, out _));
+        }
+
+        var currents = await _currentQuery.ListAsync(HttpContext.RequestAborted);
+        var operatorId = User.FindFirst(DmoClaimTypes.OperatorId)?.Value;
+        var ok = new List<string>();
+        var falhou = new List<string>();
+        bqIds ??= [];
+        for (var i = 0; i < bqIds.Length; i++)
+        {
+            var linha = currents.FirstOrDefault(c => c.BqContextId == bqIds[i]);
+            var nome = linha?.MachineCode ?? "?";
+            var tipo = tipos?.ElementAtOrDefault(i) ?? string.Empty;
+            if (!int.TryParse(quantidades?.ElementAtOrDefault(i), out var qtd) || qtd < 1
+                || !TryReadAnQuantity(quantidadesAn?.ElementAtOrDefault(i), out var an))
+            {
+                falhou.Add(nome);
+                continue;
+            }
+
+            var outcome = await _movementHandler.HandleForContextAsync(
+                new RegisterBqMovementForContext(bqIds[i], tipo, qtd, operatorId, occurredAtUtc, linha?.MachineId, an),
+                HttpContext.RequestAborted);
+            (outcome.Result == RegisterBqMovementResult.Success ? ok : falhou).Add(nome);
+        }
+
+        return RedirectToPage("/Boquilhas/Index", new
+        {
+            varias_ok = ok.Count == 0 ? null : string.Join(", ", ok),
+            varias_falhou = falhou.Count == 0 ? null : string.Join(", ", falhou)
+        });
+    }
+
     /// <summary>
     /// A data e hora que o form volta a mostrar depois de gravar (Diogo,
     /// 17/10/2026: lançar muitas guias seguidas): a indicada, quando não era

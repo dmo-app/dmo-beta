@@ -551,3 +551,13 @@ html body .beta-bq-layout form#bqHistoryFilters .bq-history-filter-grid>.dmo-fie
 html body .beta-bq-layout form#bqHistoryFilters .bq-history-filter-grid>.dmo-field:has(#vista){order:0}
 html body .beta-bq-layout form#bqHistoryFilters>.bq-history-filters-head{order:1;flex:1 1 auto;margin:0;align-self:flex-end}
 html body .beta-bq-layout form#bqHistoryFilters::after{content:"";order:1;flex:0 0 100%;height:0}
+
+/* VÁRIAS LINHAS DE UMA VEZ (Diogo, 02/11/2026, DMO-721): o cartão escolhido
+   fica com um contorno forte; o botão «Várias linhas» é uma opção que liga
+   e desliga, por isso ligado fica invertido. */
+html body #registo .beta-production-lines button.bq-varias-escolhido{box-shadow:inset 0 0 0 3px var(--dmo-brand-600)!important}
+html body #bqVariasLigar[aria-pressed="true"]{background:var(--dmo-card);border:2px solid var(--dmo-brand-600);color:var(--dmo-brand-600)}
+.bq-varias{display:flex;flex-direction:column;gap:8px;padding:10px 12px}
+.bq-varias-linhas{display:flex;flex-direction:column;gap:6px}
+.bq-varias-codigo{min-width:44px;font-size:15px}
+.bq-varias-vazio{margin:0}
