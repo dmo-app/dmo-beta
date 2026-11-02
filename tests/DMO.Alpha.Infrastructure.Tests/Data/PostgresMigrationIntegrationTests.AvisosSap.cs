@@ -236,8 +236,9 @@ public sealed partial class PostgresMigrationIntegrationTests
             await uso.ImportarAsync(CsvAvisos(id, 5, 20), "diferente.csv", null);
             await using var leitura = CreateContext();
             var aviso = (await new FerramentasAvisosSap(leitura, new SessaoUsoSap()).LerAsync(id))!;
-            Assert.Equal(15m, aviso.UsoAtual);
-            Assert.Equal(20m, aviso.Uso);
+            // DMO-716 (Diogo, 02/11/2026): a % do SAP diferente substitui a manual, sem aviso.
+            Assert.Equal(20m, aviso.UsoAtual);
+            Assert.Null(aviso.Uso);
             // A ficha ainda tem a Tool em tracking; outra importação chega
             // antes de o operador escrever um novo valor manual.
             await using (var outra = CreateContext())
@@ -246,7 +247,7 @@ public sealed partial class PostgresMigrationIntegrationTests
             await using var verificar = CreateContext();
             var atual = (await new FerramentasAvisosSap(verificar, new SessaoUsoSap()).LerAsync(id))!;
             Assert.Equal(17m, atual.UsoAtual);
-            Assert.Equal(25m, atual.Uso);
+            Assert.Null(atual.Uso);
         }
         finally { await LimparAvisosAsync(id); }
     }

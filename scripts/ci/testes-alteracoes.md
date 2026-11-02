@@ -6346,3 +6346,13 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OUso_ProcuraTodosPrimeiro_ESaltaOsOutros_EDizOPasso`
 
 Selo depois: `38c53a75db31c4ec`
+
+## A-0489 · 2026-11-02 · ok-do-diogo
+
+Porquê: DMO-716: mais um teste do Postgres que esperava o aviso de % com a % manual; agora a % do SAP aplica-se e não há aviso
+Referência: thread cmsg_01K75FTs9bQnbhhH7qttpgra7vYFcJvQUaiLE6LHsbqGZh, Diogo 02/11 14:58 «sim» (cmsg_01K75FTs9bQnbhhH7qttpgraUqU2VL7wVxqkpnPCYWWi4f)
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_UmValorManualIgualAoSapContinuaProtegidoQuandoOSapMuda`
+
+Selo depois: `903ec41b854f252d`
