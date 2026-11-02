@@ -38,6 +38,20 @@
     return d;
   }
 
+  // O rótulo da linha veste o cartão dela: a mesma cor e o mesmo formato, mais baixo.
+  // Lê a cor de uma cópia do cartão, para não apanhar a cor do rato por cima.
+  function vestir(rotulo, cartao) {
+    const copia = cartao.cloneNode(true);
+    copia.classList.remove('bq-varias-escolhido', 'selected');
+    copia.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none';
+    cartao.parentNode.appendChild(copia);
+    const c = getComputedStyle(copia);
+    rotulo.style.background = c.backgroundColor;
+    rotulo.style.color = c.color;
+    rotulo.style.borderRadius = c.borderRadius;
+    copia.remove();
+  }
+
   function alternar(cartao) {
     const f = form();
     const id = cartao.dataset.id;
@@ -50,7 +64,9 @@
       const spans = cartao.querySelectorAll('span');
       const producao = spans.length > 1 ? spans[spans.length - 1].textContent.trim() : '';
       const codigo = [cartao.querySelector('strong')?.textContent || '', producao].filter(Boolean).join(' · ');
-      f.querySelector('.bq-varias-linhas').appendChild(linhaHtml(id, codigo));
+      const nova = linhaHtml(id, codigo);
+      f.querySelector('.bq-varias-linhas').appendChild(nova);
+      vestir(nova.querySelector('.bq-varias-codigo'), cartao);
       cartao.classList.add('bq-varias-escolhido');
       cartao.setAttribute('aria-pressed', 'true');
       f.querySelector(`.bq-varias-linha[data-id="${id}"] input[name=linha_qtd]`).focus();
@@ -71,6 +87,12 @@
       cartoes().forEach((c) => { c.classList.remove('bq-varias-escolhido'); c.removeAttribute('aria-pressed'); });
     }
     atualizar();
+  }
+
+  // Depois de registar, a página volta com «Várias linhas» ligado.
+  if (new URLSearchParams(location.search).get('varias') === '1') {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => ligar(true));
+    else ligar(true);
   }
 
   document.addEventListener('change', (e) => {

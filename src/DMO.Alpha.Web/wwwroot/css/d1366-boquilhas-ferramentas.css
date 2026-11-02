@@ -559,5 +559,6 @@ html body #registo .beta-production-lines button.bq-varias-escolhido{box-shadow:
 html body #bqVariasLigar[aria-pressed="true"]{background:var(--dmo-card);border:2px solid var(--dmo-brand-600);color:var(--dmo-brand-600)}
 .bq-varias{display:flex;flex-direction:column;gap:8px;padding:10px 12px}
 .bq-varias-linhas{display:flex;flex-direction:column;gap:6px}
-.bq-varias-codigo{min-width:190px;font-size:14px;white-space:nowrap}
+.bq-varias-codigo{min-width:200px;font-size:13px;white-space:nowrap;border:0;padding:6px 10px;align-self:flex-end;height:var(--dmo-control-height,34px);display:inline-flex;align-items:center;box-sizing:border-box}
+.bq-varias-ultimos-titulo{margin:6px 0 0;font-size:14px}
 .bq-varias-vazio{margin:0}

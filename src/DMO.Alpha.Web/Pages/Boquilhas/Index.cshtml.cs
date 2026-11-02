@@ -707,6 +707,10 @@ public sealed partial class IndexModel : PageModel
         // Histórico o painel ficava sem informação.
         Currents = await _currentQuery.ListAsync(HttpContext.RequestAborted);
 
+        // Os últimos registos por baixo de «Várias linhas» (Diogo, 02/11/2026).
+        UltimosRegistos = await _history.ListMovementsAsync(
+            null, null, null, null, null, null, HttpContext.RequestAborted, limit: 8);
+
         // A VISTA DO HISTÓRICO (o Owner: «o calendario pertence ao
         // historico das boquilhas, para conseguirmos carregar num dia e ver
         // os movimentos desse dia. depois poder filtrar por reparador
@@ -1520,6 +1524,7 @@ public sealed partial class IndexModel : PageModel
     // e a hora são os mesmos para todos. Cada linha grava no registo da
     // produção que está nela (o bq_id do cartão), pelo MESMO handler do
     // registo de um movimento. Uma linha recusada não impede as outras.
+    public IReadOnlyList<BqHistoryMovementItem> UltimosRegistos { get; private set; } = [];
     [BindProperty(SupportsGet = true, Name = "varias_ok")] public string? VariasOk { get; set; }
     [BindProperty(SupportsGet = true, Name = "varias_falhou")] public string? VariasFalhou { get; set; }
 
@@ -1586,6 +1591,7 @@ public sealed partial class IndexModel : PageModel
 
         return RedirectToPage("/Boquilhas/Index", new
         {
+            varias = 1,
             varias_ok = ok.Count == 0 ? null : string.Join(", ", ok),
             varias_falhou = falhou.Count == 0 ? null : string.Join(", ", falhou)
         });

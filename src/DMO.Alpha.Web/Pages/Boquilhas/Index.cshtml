@@ -99,6 +99,29 @@
           </div>
           <p class="muted bq-varias-vazio">Carregue nos cartões das linhas acima para as escolher.</p>
           <div class="bq-varias-linhas"></div>
+          @if (Model.UltimosRegistos.Count > 0)
+          {
+            <h3 class="bq-varias-ultimos-titulo">Últimos registos</h3>
+            <div class="dmo-table-wrap">
+              <table class="dmo-table" id="bqVariasUltimos">
+                <thead><tr><th>Data/hora</th><th>Linha</th><th>BQ · lote</th><th>Movimento</th><th>Qtd. BQ</th><th>Qtd. AN</th><th>Produção</th></tr></thead>
+                <tbody>
+                  @foreach (var m in Model.UltimosRegistos)
+                  {
+                    <tr>
+                      <td>@fmtDate(m.OccurredAtUtc)</td>
+                      <td>@(m.MachineCode ?? "—")</td>
+                      <td>@m.ToolReference@(m.ToolLot is null ? null : $" · Lote {m.ToolLot}")</td>
+                      <td>@movementLabel(m.MovementType)</td>
+                      <td>@m.Quantity</td>
+                      <td>@(m.AnQuantity is int an ? an.ToString() : "—")</td>
+                      <td>@(m.Reference ?? "—") · @(m.ProductionNumber ?? "—")</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
         </form>
 
         @* AS ZONAS DO REGISTO (cada uma existe sempre, mesmo vazia): o
