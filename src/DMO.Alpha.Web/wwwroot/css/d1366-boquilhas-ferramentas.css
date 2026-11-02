@@ -551,3 +551,7 @@ html body .beta-bq-layout form#bqHistoryFilters .bq-history-filter-grid>.dmo-fie
 html body .beta-bq-layout form#bqHistoryFilters .bq-history-filter-grid>.dmo-field:has(#vista){order:0}
 html body .beta-bq-layout form#bqHistoryFilters>.bq-history-filters-head{order:1;flex:1 1 auto;margin:0;align-self:flex-end}
 html body .beta-bq-layout form#bqHistoryFilters::after{content:"";order:1;flex:0 0 100%;height:0}
+/* DMO-718 (Diogo 02/11): Boquilhas › Registo «muito branco» no tema claro → fundo e cartões com tom ligeiro. */
+:root:not([data-theme="dark"]) body .beta-bq-layout>.main{background:color-mix(in srgb,var(--dmo-brand-500) 11%,var(--dmo-bg,#fff))}
+:root:not([data-theme="dark"]) body .beta-bq-layout>.main>section.view .card{background:color-mix(in srgb,var(--dmo-brand-500) 4%,var(--dmo-card,#fff))}
+html body .beta-bq-layout #bqMetrics{display:flex;flex-direction:column;justify-content:center}
