@@ -101,7 +101,8 @@
   // Em captura, antes do ouvinte que abre a linha: ligado, o clique escolhe.
   document.addEventListener('click', (e) => {
     if (e.target.closest && e.target.closest('#bqVariasLigar')) {
-      ligar(!ligado);
+      // Ligar abre ?varias=1 (traz os últimos registos); desligar volta ao Registo.
+      location.href = ligado ? '/Boquilhas' : '/Boquilhas?varias=1';
       return;
     }
     if (!ligado) return;

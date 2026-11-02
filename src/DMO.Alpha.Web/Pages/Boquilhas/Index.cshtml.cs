@@ -708,8 +708,12 @@ public sealed partial class IndexModel : PageModel
         Currents = await _currentQuery.ListAsync(HttpContext.RequestAborted);
 
         // Os últimos registos por baixo de «Várias linhas» (Diogo, 02/11/2026).
-        UltimosRegistos = await _history.ListMovementsAsync(
-            null, null, null, null, null, null, HttpContext.RequestAborted, limit: 8);
+        // Só com «Várias linhas» ligado (?varias=1): as outras vistas não pagam esta consulta.
+        if (Request.Query["varias"] == "1")
+        {
+            UltimosRegistos = await _history.ListMovementsAsync(
+                null, null, null, null, null, null, HttpContext.RequestAborted, limit: 8);
+        }
 
         // A VISTA DO HISTÓRICO (o Owner: «o calendario pertence ao
         // historico das boquilhas, para conseguirmos carregar num dia e ver
