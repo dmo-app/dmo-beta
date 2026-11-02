@@ -5994,4 +5994,43 @@ Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; no
 |---|---|---|---|
 | `tests/ShellProof/jobon-folha-avisos-canto.test.cjs` (2 testes) | Nada do que a app faz hoje: afirma que os avisos dos cartões da folha do Job On vão para uma pilha própria `[data-jof-avisos-canto]`, com um × que os fecha | OBSOLETO | **Fora do `test:js` de propósito.** Prova o ramo `else` de `wwwroot/js/jobon-folha.js:859-872`, que só corre quando `window.DMOLive` não existe — e o `dmo-live.js` vem no `Pages/Shared/_DmoShellLayout.cshtml:77`, por isso na app esse ramo nunca corre. Afirma ainda o contrário do pedido do Diogo de 29/10 («deve aparecer como aparecem os alertas»), que o `jobon-folha-avisos-alerta.test.cjs` prova (A-0411); os dois não podem correr os dois. Apagar este teste **e** o ramo morto precisa do «sim» do Diogo. Ver A-0450. |
 
+
+## R10 e R16 (A-0459, DMO-692/693)
+
+| Teste | O que prova | Estado | Notas |
+|---|---|---|---|
+| `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs` › `Vistos_UmaLinhaEscolhe_EOsDoisBotoesDoCantoTrocam` (ajustado) | PU NNPB: nenhum botão no canto da lista; 4 botões «Visto» na tabela que enviam o Seen; × de remover por linha; 6 colunas | OK | R16, Diogo 30/10. O R10 (largura do painel em `dmo-support.js`) não tem teste automático: ver no ensaio. |
+
+## DMO-691 · A-0457 · 30/10/2026
+
+| Teste | O que garante | Estado | Registo |
+|---|---|---|---|
+| `BoquilhasHistoricoPageTests.HistoryDay_ReplacesRangePreservesFiltersAndExportsTheSameSelection` (alterado) | O Registo do dia mostra, na linha da máquina, as quantidades que saíram e entraram nesse dia (S/E/SR). | OK | A-0457 |
+| `BoquilhasHistoricoPageTests.DailySummaryGrid_RendersDayByMachine_FromTheBackend` (alterado) | O Resumo diário já não tem a linha «Total» (a soma de boquilhas diferentes por máquina). | OK | A-0457 |
+| `tests/visual/bq_historico_lista_browser.py` (alterado) | Em Boquilhas › Movimentos os cartões das linhas nunca ficam esmagados (≥70 px) e a lista mantém o cabeçalho e uma linha inteira; a 1366×768 a página não desliza; em ecrãs mais baixos pode deslizar. | OK | A-0457 |
+
+## R1 (A-0463, DMO-695)
+
+| Teste | O que prova | Estado | Notas |
+|---|---|---|---|
+| `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoReferencia.cs` › `AJanelaDaUtilizacao_MostraAReferenciaDeCadaProducao` (ajustado) | Janela Utilização: colunas Referência antes de Produção, Linha e N.º | OK | R1, Diogo 30/10. A ordem (mais antiga em cima) ver no ensaio. |
+
+## R6 (A-0468, DMO-699)
+
+| Teste | O que prova | Estado | Notas |
+|---|---|---|---|
+| `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs` › `SemAPermissao_OGeralLeSeComCadeado_ENaoGrava` (ajustado) | Sem PIN, a hora de viragem não grava; os reparadores das Boquilhas ficam fora do cadeado e gravam | OK | R6, Diogo 02/11. Fabricante/Data de aquisição: ver no ensaio (migração nova FerramentaFabricanteDataAquisicao). |
+
+## PU NNPB esquerda/direita (A-0469, DMO-700)
+
+| Teste | O que prova | Estado | Notas |
+|---|---|---|---|
+| `tests/visual/cobertura_b_browser.py` (sem mudança) | O número e o botão na mesma linha e altura; o grupo continua encostado à direita do cartão | OK | Diogo 02/11: Registar, número e lote à esquerda; o resto à direita. Só disposição. |
+
+## R4 com escolha (A-0471, DMO-701)
+
+| Teste | O que prova | Estado | Notas |
+|---|---|---|---|
+| `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs` › `Editar_muda_o_modo_da_B2` (ajustado) | A escolha à mão manda; sem escolha, as linhas e depois o nome técnico dão o modo | OK | Diogo 02/11: «quando dê para identificar selecionar o certo, caso não dê aviso». |
+| `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs` › `O_nome_tecnico_da_o_modo_da_B2` (novo) | CM 44/55, MF 4T/55, BQ PX77/PX8855 | OK | |
 | `tests/DMO.Alpha.Web.Tests/PaginasDeslizamCssTests.cs` › `NenhumaPaginaFicaPresaAAlturaDaJanela` | Nenhuma regra de página no CSS junta altura do ecrã com overflow escondido: a página desliza sempre quando não cabe | OK | Vem do #367 (DMO-690); entrou pelo DMO-694 (A-0472). |

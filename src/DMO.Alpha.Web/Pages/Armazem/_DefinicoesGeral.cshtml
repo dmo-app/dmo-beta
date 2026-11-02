@@ -68,6 +68,8 @@ html body .arm-linha .dmo-field input.arm-fab-sigla{width:56px}
       </div>
     }
   </section>
+  @* R6 (Diogo, 02/11/2026): os reparadores ficam fora do PIN; o resto continua atrás do cadeado. *@
+  <fieldset class="def-geral-campos" disabled="@(ViewData["DefCadeado"] is true)"><legend class="dmo-visually-hidden">Fechado pelo PIN das Definições</legend>
 
   @* AS FÁBRICAS DA BA (Diogo, 28/10/2026): sigla de duas letras e nome, como a
      tabela dos emails. Começa vazia («deixar só forma de adicionar»); não se
@@ -122,3 +124,4 @@ html body .arm-linha .dmo-field input.arm-fab-sigla{width:56px}
       </div>
     }
   </section>
+  </fieldset>
