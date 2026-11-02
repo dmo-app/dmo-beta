@@ -184,4 +184,20 @@ public sealed class SapScriptsVbsTests
         Assert.Contains("Registo \"SAP pronto (\" & tituloSap & \")\"", vbs);
         Assert.Contains("Registo total & \" produções gravadas em \" & fso.GetFileName(saida)", vbs);
     }
+
+    // Diogo, 02/11/2026 12:49 (DMO-711): depois de escrever pelo teclado ficou o SAP Logon à
+    // frente e o FABRICO falhou. O ecrã de entrada do SAP preenche-se sempre que aparecer
+    // (no máximo 2 vezes), e o teclado só escreve com a janela da senha à frente.
+    [Theory]
+    [InlineData("Sap.DMO_USO_SAP.vbs")]
+    [InlineData("Sap.DMO_FABRICO_SAP.vbs")]
+    public void AEntradaPeloSap_TentaSempre_EOTecladoSoComAJanelaAFrente(string nome)
+    {
+        using var stream = typeof(SapScripts).Assembly.GetManifestResourceStream(nome)!;
+        var vbs = new StreamReader(stream).ReadToEnd();
+
+        Assert.Matches(new Regex(@"If entradasSap < 2 Then\s+If EntrarPeloSap\(\) Then\s+senhaEscrita = True\s+entradasSap = entradasSap \+ 1"), vbs);
+        Assert.Matches(new Regex(@"If codigo <> 0 And codigo <> 3 Then(\s+'[^\n]*)*\s+If shell\.AppActivate\(JANELA_LOGON\) Then\s+WScript\.Sleep 300\s+shell\.SendKeys"), vbs);
+        Assert.Contains("a janela da senha não veio para a frente: nada escrito", vbs);
+    }
 }

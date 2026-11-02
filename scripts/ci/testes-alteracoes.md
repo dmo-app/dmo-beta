@@ -6288,3 +6288,12 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OFabrico_SoAvancaDepoisDeEntrar_EDizNoLog`
 
 Selo depois: `1c3b4cc01ba3b96e`
+
+## A-0482 · 2026-11-02 · teste-novo
+
+Porquê: DMO-711: Diogo 02/11 12:49 o FABRICO falhou depois de escrever pelo teclado com o SAP Logon à frente: o ecrã de entrada do SAP preenche-se sempre (máx. 2) e o teclado só escreve com a janela da senha à frente
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.AEntradaPeloSap_TentaSempre_EOTecladoSoComAJanelaAFrente`
+
+Selo depois: `51cd82140d9b3090`

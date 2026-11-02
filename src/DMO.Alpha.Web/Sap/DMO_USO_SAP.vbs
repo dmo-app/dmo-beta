@@ -137,7 +137,8 @@ shell.Run Chr(34) & atalho & Chr(34), 7, False
 
 ' Esperar por uma sessão do SAP com o campo de procura da ZPPG.
 startedAt = Timer
-Dim senhaEscrita
+Dim senhaEscrita, entradasSap
+entradasSap = 0
 ' Mesmo com o SAP já aberto, o atalho pode abrir a janela da senha (Diogo,
 ' 29/10/2026: «o sap já estava aberto», ficou preso na senha): escreve-se se ela aparecer.
 senhaEscrita = False
@@ -146,7 +147,16 @@ Do
     ' Primeiro pelo próprio SAP (o ecrã de entrada tem as caixas
     ' RSYST-BNAME e RSYST-BCODE): sem Windows nem teclado (Diogo,
     ' 29/10/2026: «preciso disto automático», DMO-683).
-    If Not senhaEscrita Then senhaEscrita = EntrarPeloSap()
+    ' O ecrã de entrada do SAP pode vir também depois da janela «Moldes
+    ' Existentes» (Diogo, 02/11/2026: parou no ecrã de entrada depois de
+    ' escrever pelo teclado): tenta-se sempre, no máximo 2 vezes (senha errada
+    ' não bloqueia o utilizador).
+    If entradasSap < 2 Then
+        If EntrarPeloSap() Then
+            senhaEscrita = True
+            entradasSap = entradasSap + 1
+        End If
+    End If
     If Not senhaEscrita Then
         If shell.AppActivate(JANELA_LOGON) Then
             WScript.Sleep 500
@@ -651,9 +661,15 @@ Sub EscreverSenha()
     ' caixas: escreve-se pelo teclado, como até 29/10.
     If codigo = 4 Then Registo "janela de entrada sem caixas à vista: pelo teclado"
     If codigo <> 0 And codigo <> 3 Then
-        shell.AppActivate JANELA_LOGON
-        WScript.Sleep 300
-        shell.SendKeys "^a" & ParaSendKeys(UTILIZADOR) & "{TAB}" & ParaSendKeys(SENHA) & "{ENTER}"
+        ' Só com a janela da senha à frente: senão o teclado ia para o SAP Logon
+        ' (Diogo, 02/11/2026: ficou o SAP Logon à frente com o BAS escolhido).
+        If shell.AppActivate(JANELA_LOGON) Then
+            WScript.Sleep 300
+            shell.SendKeys "^a" & ParaSendKeys(UTILIZADOR) & "{TAB}" & ParaSendKeys(SENHA) & "{ENTER}"
+            Registo "senha escrita pelo teclado"
+        Else
+            Registo "a janela da senha não veio para a frente: nada escrito"
+        End If
     End If
 End Sub
 

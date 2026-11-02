@@ -662,7 +662,8 @@
     { "id": "DMO-707", "module": "SAP", "description": "(A-0478): os scripts do SAP voltam a escrever a senha na janela de entrada «Moldes Existentes» (a do botão Logon), mesmo quando o Windows não a mostra como caixa de senha. Com o SAP já aberto continuam a não escrever nada." },
     { "id": "DMO-708", "module": "SAP", "description": "(A-0479): no Admin › Definições › SAP, escolher «Tudo» ou «Desatualizadas» já não dá «Não foi possível ler a pasta do SAP: Unexpected token»; os códigos a pedir ao SAP vêm da própria página do Admin." },
     { "id": "DMO-709", "module": "SAP", "description": "(A-0480): quando o Windows não lê a janela de entrada «Moldes Existentes», os scripts do SAP voltam a escrever a senha pelo teclado, desde que nenhuma janela do SAP já aberta tenha esse nome." },
-    { "id": "DMO-710", "module": "SAP", "description": "(A-0481): a leitura das produções só avança depois de entrar no SAP (o ecrã da senha já não conta como pronto), e o dmo-sap.log diz quando o SAP ficou pronto e quantas produções foram gravadas." }
+    { "id": "DMO-710", "module": "SAP", "description": "(A-0481): a leitura das produções só avança depois de entrar no SAP (o ecrã da senha já não conta como pronto), e o dmo-sap.log diz quando o SAP ficou pronto e quantas produções foram gravadas." },
+    { "id": "DMO-711", "module": "SAP", "description": "(A-0482): os scripts do SAP preenchem o ecrã de entrada do SAP sempre que aparecer (no máximo 2 vezes, para uma senha errada não bloquear o utilizador), e só escrevem pelo teclado com a janela da senha à frente." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
