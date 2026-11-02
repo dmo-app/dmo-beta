@@ -6214,3 +6214,14 @@ Novos: 3 · mudaram: 11 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Ficha_Editar_LinhasCompativeis_InformacaoOpcionalComFabricaDeOrigem`
 
 Selo depois: `317fb893f262828f`
+
+## A-0492 · 2026-11-02 · teste-novo
+
+Porquê: DMO-721: registar várias linhas de uma vez nas Boquilhas (Diogo 02/11)
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: BoquilhasRegistoPageTests.RegisterMany_ALineWithoutQuantity_DoesNotStopTheOthers`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: BoquilhasRegistoPageTests.RegisterMany_RecordsEachLineOnItsOwnProduction_WithTheSameTime`
+
+Selo depois: `6fe5eb9f6fdf87ed`
