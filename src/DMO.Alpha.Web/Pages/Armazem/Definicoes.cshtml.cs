@@ -117,6 +117,7 @@ public sealed class DefinicoesModel(IReparadores reparadores, IFabricasBa fabric
     /// <summary>POST: criar um reparador de CM e MF.</summary>
     [EnvioUnico]
     // R6 (Diogo, 02/11/2026): os reparadores não ficam atrás do PIN.
+    [DefinicaoSemPin]
     public async Task<IActionResult> OnPostCriarAsync(
         [FromForm(Name = "nome")] string? nome,
         [FromForm(Name = "familias")] string? familias)
@@ -133,6 +134,7 @@ public sealed class DefinicoesModel(IReparadores reparadores, IFabricasBa fabric
     /// escolhas da linha (PRG).
     /// </summary>
     // R6 (Diogo, 02/11/2026): os reparadores não ficam atrás do PIN.
+    [DefinicaoSemPin]
     public async Task<IActionResult> OnPostMudarAsync(
         [FromForm(Name = "reparador_id")] int reparadorId,
         [FromForm(Name = "nome")] string? nome,

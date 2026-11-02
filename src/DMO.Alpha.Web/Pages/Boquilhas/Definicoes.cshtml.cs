@@ -127,6 +127,7 @@ public sealed class DefinicoesModel(
     /// nome repetido; a gravação nunca bloqueia a folha.
     /// </summary>
     // R6 (Diogo, 02/11/2026): os reparadores não ficam atrás do PIN.
+    [DefinicaoSemPin]
     public async Task<IActionResult> OnPostCreateRepairerAsync(string? name)
     {
         var outcome = await createRepairer.HandleAsync(
@@ -147,6 +148,7 @@ public sealed class DefinicoesModel(
     /// guarda o nome com que foi feita.
     /// </summary>
     // R6 (Diogo, 02/11/2026): os reparadores não ficam atrás do PIN.
+    [DefinicaoSemPin]
     public async Task<IActionResult> OnPostEditRepairerAsync(
         [FromForm(Name = "repairer_id")] int? repairerId,
         string? name)
@@ -176,6 +178,7 @@ public sealed class DefinicoesModel(
     /// guardam o nome; as rotas que o usavam ficam sem reparador.
     /// </summary>
     // R6 (Diogo, 02/11/2026): os reparadores não ficam atrás do PIN.
+    [DefinicaoSemPin]
     public async Task<IActionResult> OnPostDeleteRepairerAsync(
         [FromForm(Name = "repairer_id")] int? repairerId)
     {

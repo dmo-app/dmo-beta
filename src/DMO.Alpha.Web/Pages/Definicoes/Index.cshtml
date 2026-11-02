@@ -29,6 +29,7 @@ html body .def-secao[hidden]{display:none}
 .def-cartoes{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start}
 .def-cartoes > *{flex:0 1 auto}
 .def-geral-campos{border:0;margin:0;padding:0;min-width:0}
+.def-geral-campos:has(> legend.dmo-visually-hidden){display:contents}
 .def-pin{display:flex;gap:10px;align-items:flex-end}
 .def-pin .dmo-field{margin:0}
 .def-geral-campos:disabled .dmo-button,.def-geral-campos:disabled input,.def-geral-campos:disabled select,.def-geral-campos:disabled textarea{cursor:not-allowed;opacity:.7}
