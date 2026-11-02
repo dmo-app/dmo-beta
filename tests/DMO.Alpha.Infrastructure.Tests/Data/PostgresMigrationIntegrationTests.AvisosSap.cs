@@ -76,11 +76,10 @@ public sealed partial class PostgresMigrationIntegrationTests
             db.ChangeTracker.Clear();
             var servico = new FerramentasAvisosSap(db, new SessaoUsoSap());
             var aviso = (await servico.LerAsync(id))!;
-            Assert.Equal((98, 50m), (aviso.Pecas, aviso.Uso));
-            Assert.Equal(15m, (await importar.DaFerramentaAsync(id)).Ultima!.Percentagem);
+            // DMO-716 (Diogo, 02/11/2026): a % do SAP substitui a escrita à mão, sem aviso.
+            Assert.Equal((98, (decimal?)null), (aviso.Pecas, aviso.Uso));
+            Assert.Equal(50m, (await importar.DaFerramentaAsync(id)).Ultima!.Percentagem);
             Assert.Equal(DecisaoSapResultado.Gravado, await servico.DecidirAsync(id, aviso.Versao, "pecas", false));
-            aviso = (await servico.LerAsync(id))!;
-            Assert.Equal(DecisaoSapResultado.Gravado, await servico.DecidirAsync(id, aviso.Versao, "uso", false));
             db.ChangeTracker.Clear();
             await importar.ImportarAsync(CsvAvisos(id, 98, 50), "teste.csv", null);
             await using var leitura = CreateContext();
@@ -88,11 +87,11 @@ public sealed partial class PostgresMigrationIntegrationTests
             Assert.Null(apos.Pecas);
             Assert.Null(apos.Uso);
             Assert.Equal(10, apos.QuantidadeAtual);
-            Assert.Equal(15m, apos.UsoAtual);
+            Assert.Equal(50m, apos.UsoAtual);
             await importar.ImportarAsync(CsvAvisos(id, 99, 51), "novo.csv", null);
             await using var nova = CreateContext();
             var novos = (await new FerramentasAvisosSap(nova, new SessaoUsoSap()).LerAsync(id))!;
-            Assert.Equal((99, 51m), (novos.Pecas, novos.Uso));
+            Assert.Equal((99, (decimal?)null, 51m), (novos.Pecas, novos.Uso, novos.UsoAtual));
         }
         finally { await LimparAvisosAsync(id); }
     }
@@ -113,10 +112,9 @@ public sealed partial class PostgresMigrationIntegrationTests
             Assert.Equal(10m, (await uso.DaFerramentaAsync(id)).Ultima!.Percentagem);
             await uso.RegistarPercentagemManualAsync(id, 15);
             await uso.ImportarAsync(CsvAvisos(id, 5, 20), "2.csv", null);
-            var servico = new FerramentasAvisosSap(db, new SessaoUsoSap());
-            var aviso = (await servico.LerAsync(id))!;
-            Assert.Equal(20m, aviso.Uso);
-            Assert.Equal(DecisaoSapResultado.Gravado, await servico.DecidirAsync(id, aviso.Versao, "uso", true));
+            // DMO-716: sem aviso; a % do SAP já substituiu a escrita à mão.
+            Assert.Equal(20m, (await uso.DaFerramentaAsync(id)).Ultima!.Percentagem);
+            Assert.Null((await new FerramentasAvisosSap(db, new SessaoUsoSap()).LerAsync(id))!.Uso);
             db.ChangeTracker.Clear();
             await uso.ImportarAsync(CsvAvisos(id, 5, 30), "3.csv", null);
             await using var leitura = CreateContext();

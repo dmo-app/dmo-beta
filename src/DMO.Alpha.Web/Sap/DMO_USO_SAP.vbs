@@ -29,7 +29,10 @@ Const CENTRO = "MG"
 ' Faz uma só procura na ZPPG com «*» (todos os moldes do SAP); o DMO, no
 ' «Ler pasta», grava só nas ferramentas que tem (pelo nome técnico e lote)
 ' e ignora as outras. Os códigos do dmo-codigos.txt continuam a ser pedidos.
-Const PEDIR_TODAS = False
+' Diogo, 02/11/2026 («sim»): uma ferramenta de cada vez demorava 17 minutos.
+' Primeiro a procura «*»; se trouxer a lista, as procuras uma a uma saltam-se.
+' Se falhar, segue-se como antes, código a código (DMO-717).
+Const PEDIR_TODAS = True
 Const LISTA_TODAS_WAIT_SECONDS = 600
 
 ' A senha do utilizador do «Moldes Existentes.SAP» (Diogo, 28/10/2026: «mete a
@@ -105,9 +108,13 @@ With fso.OpenTextFile(ficheiroCodigos, 1)
 End With
 End If
 
-If PEDIR_TODAS Then
+If PEDIR_TODAS And total > 0 Then
+    ' O «*» vai à frente: lido, as outras procuras saltam-se.
     ReDim Preserve codigos(total)
-    codigos(total) = "*"
+    For i = total To 1 Step -1
+        codigos(i) = codigos(i - 1)
+    Next
+    codigos(0) = "*"
     total = total + 1
 End If
 
@@ -203,8 +210,12 @@ outFile.Open
 outFile.WriteText "search,equipment,percent_use,last_production,batch_description,status,error,consumption,expected life,pieces,supplier,purchase", 1
 encontrados = 0
 
+Dim todasLidas
+todasLidas = False
 For i = 0 To total - 1
     codigo = codigos(i)
+    If todasLidas Then Exit For
+    Passo "% de uso: " & IIf(codigo = "*", "a ler a lista de todos os moldes", (i + 1) & " de " & total)
 
     On Error Resume Next
     Err.Clear
@@ -252,7 +263,10 @@ For i = 0 To total - 1
             WriteErrorRow outFile, codigo, "Sem resultados"
             GoBackToSearch session
         Else
-            If codigo = "*" Then Registo "lista de todos os moldes: " & grid.RowCount & " linhas"
+            If codigo = "*" Then
+                Registo "lista de todos os moldes: " & grid.RowCount & " linhas"
+                todasLidas = True
+            End If
             ' As colunas das peças pelo título (o id no SAP não se conhece):
             ' Consumption, Expected life e No. of pieces.
             colConsumo = ColunaPorTitulo(grid, "consumption")
@@ -552,6 +566,21 @@ End Function
 
 ' Um registo do que o script fez, para se perceber onde parou
 ' (dmo-sap.log, na mesma pasta; o DMO não lê .log).
+' O passo em que está, para a app mostrar (dmo-sap-passo.txt, DMO-717).
+Sub Passo(ByVal texto)
+    On Error Resume Next
+    With fso.CreateTextFile(fso.BuildPath(pasta, "dmo-sap-passo.txt"), True)
+        .WriteLine texto
+        .Close
+    End With
+    Err.Clear
+    On Error GoTo 0
+End Sub
+
+Function IIf(ByVal condicao, ByVal sim, ByVal nao)
+    If condicao Then IIf = sim Else IIf = nao
+End Function
+
 Sub Registo(ByVal texto)
     Dim f
     On Error Resume Next

@@ -6324,3 +6324,25 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.SemNomeTecnico_OCodigoVemDaCodificacaoPorLinha`
 
 Selo depois: `e7c488b9eeb06628`
+
+## A-0487 · 2026-11-02 · ok-do-diogo
+
+Porquê: DMO-716: a % do SAP substitui sempre a escrita à mão, sem aviso; aviso das peças com frase normal
+Referência: thread cmsg_01K75FTs9bQnbhhH7qttpgra7vYFcJvQUaiLE6LHsbqGZh, Diogo 02/11 14:58 «sim» (cmsg_01K75FTs9bQnbhhH7qttpgraUqU2VL7wVxqkpnPCYWWi4f)
+Novos: 1 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.APercentDoSap_SubstituiAEscritaAMao_SemAviso`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_NaoMantemQuantidadeEUsoManual_NaoRepeteMesmoValorEMostraNovoValor`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_SimUsaOPercentDoServidorEDepoisVoltaAAplicarAutomaticamente`
+
+Selo depois: `3ccd1f33ee7dc26f`
+
+## A-0488 · 2026-11-02 · teste-novo
+
+Porquê: DMO-717: USO procura «*» primeiro e salta as outras; BQ ligadas pelo padrão; passo no dmo-sap-passo.txt
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.AListaDeTodos_LigaPeloCodigo_EAsBqPeloPadrao`
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OUso_ProcuraTodosPrimeiro_ESaltaOsOutros_EDizOPasso`
+
+Selo depois: `38c53a75db31c4ec`

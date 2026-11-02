@@ -34,6 +34,7 @@
   const URL_CODIGOS_REF = PAGINA + "?handler=CodigosSap";
   const PEDIDO = "dmo-codigos-pedido.txt";
   const ESTADO_SAP = "dmo-sap-estado.txt";
+  const PASSO_SAP = "dmo-sap-passo.txt";
   // Os ficheiros que o DMO e os scripts escrevem na pasta: nunca vão para o servidor.
   const DO_DMO = /^(dmo-sap[-.]|dmo-codigos)/i;
   const CODIGOS = "dmo-codigos.txt";
@@ -83,6 +84,9 @@
 
   function mostrarEstado(texto) {
     if (estado) estado.textContent = texto;
+    // No Admin › SAP não há cartão: o passo vai para o estado da pasta.
+    const doAdminEstado = !estado ? document.querySelector("[data-sap-admin-estado]") : null;
+    if (doAdminEstado) doAdminEstado.textContent = texto;
   }
 
   // As mensagens vão para a pilha do canto, como as do servidor.
@@ -267,9 +271,9 @@
     }
   }
 
-  async function lerEstado(pasta) {
+  async function lerEstado(pasta, nome) {
     try {
-      const ficheiro = await (await pasta.getFileHandle(ESTADO_SAP)).getFile();
+      const ficheiro = await (await pasta.getFileHandle(nome || ESTADO_SAP)).getFile();
       return { texto: (await ficheiro.text()).trim(), quando: ficheiro.lastModified };
     } catch (erro) {
       return null;
@@ -403,6 +407,15 @@
           continue;
         }
         arrancou = true;
+        // O passo em que o SAP está (Diogo, 02/11/2026: «diz SAP a correr mas
+        // não está a fazer nada»): o dmo-sap-passo.txt que os scripts escrevem.
+        if (estadoSap.texto.startsWith("a correr")) {
+          const passo = await lerEstado(pasta, PASSO_SAP);
+          if (passo && passo.texto && passo.quando >= comeco - 2000) {
+            mostrarEstado("«" + pasta.name + "» · SAP: " + passo.texto);
+          }
+          continue;
+        }
         if (estadoSap.texto.startsWith("feito")) {
           if (!doAdmin) await sincronizar(pasta, false);
           mensagem("ok", "Leitura do SAP feita e gravada.");
