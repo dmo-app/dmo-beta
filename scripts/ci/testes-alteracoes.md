@@ -6214,3 +6214,113 @@ Novos: 3 · mudaram: 11 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Ficha_Editar_LinhasCompativeis_InformacaoOpcionalComFabricaDeOrigem`
 
 Selo depois: `317fb893f262828f`
+
+## A-0475 · 2026-11-02 · contagem-lista
+
+Porquê: DMO-704: Diogo 02/11 «A leitura do SAP falhou» com a % uso gravada, e a janela do SAP já não minimizava; o aviso diz o passo que falhou e o que correu bem; o package.json só acrescenta o teste novo à lista
+Novos: 6 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.AJanelaDoSap_VoltaAMinimizarSe`
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.UmPassoFalhado_OEstadoDizTambemOQueCorreuBem`
+- novo: `tests/ShellProof/sap-estado-erro.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/sap-estado-erro.test.cjs :: As produções falham e a % de uso corre bem: aviso, não erro, e diz as duas coisas`
+- novo: `tests/ShellProof/sap-estado-erro.test.cjs :: Tudo falhou: diz cada passo e o motivo`
+- novo: `tests/ShellProof/sap-estado-erro.test.cjs :: Um estado antigo, sem motivo, continua a dizer que falhou`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `e6c349e263596c8c`
+
+## A-0476 · 2026-11-02 · teste-novo
+
+Porquê: DMO-705: Diogo 02/11 «meteram guardada e não estava»: a Senha do SAP só diz «guardada» quando a senha gravada se consegue ler
+Novos: 4 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapSenhaGuardadaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapSenhaGuardadaTests.cs :: SapSenhaGuardadaTests.ComASenhaIlegivel_NaoDizGuardada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapSenhaGuardadaTests.cs :: SapSenhaGuardadaTests.ComASenhaLegivel_DizGuardada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapSenhaGuardadaTests.cs :: SapSenhaGuardadaTests.SemSenha_NaoDizGuardada`
+
+Selo depois: `8c5aaf416cb9b7ab`
+
+## A-0477 · 2026-11-02 · teste-novo
+
+Porquê: DMO-706: Diogo 02/11 «metemos o tudo dentro do atualizar SAP» (ok «sim» à imagem): o Tudo | Desatualizadas passa para a janela do Atualizar do SAP
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapEscolhaNaJanela.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapEscolhaNaJanela.cs :: DefinicoesPorModuloPageTests.OTudoEDesatualizadas_FicamDentroDaJanelaDoAtualizarDoSap`
+
+Selo depois: `7055908ddeafb614`
+
+## A-0478 · 2026-11-02 · teste-novo
+
+Porquê: DMO-707: Diogo 02/11 «não abre para fazer update, mesmo metendo a pass»: parado na janela Moldes Existentes com a senha por escrever; na janela de entrada (botão Logon) a senha volta a escrever-se
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.NaJanelaDeEntrada_ASenhaEscreveSe`
+
+Selo depois: `358b5678c87019c4`
+
+## A-0479 · 2026-11-02 · teste-novo
+
+Porquê: DMO-708: Diogo 02/11 «Unexpected token '<'» no Tudo | Desatualizadas do Admin › SAP: o ADMIN pede os códigos à página do Admin (o /Ferramentas/Definicoes manda-o para /Admin/Users)
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapAdminUsoSap.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapAdminUsoSap.cs :: DefinicoesPorModuloPageTests.OAdmin_PedeOsCodigosDoSapASuaPagina_ERecebeJson`
+
+Selo depois: `cb38cd69200a903e`
+
+## A-0480 · 2026-11-02 · teste-novo
+
+Porquê: DMO-709: Diogo 02/11 log «código 3 … nada escrito» com a janela de entrada aberta: o código 3 só trava a escrita se uma janela do SAP tiver o nome Moldes Existentes
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.Codigo3SemJanelaDoSapComEsseNome_EscrevePeloTeclado`
+
+Selo depois: `f682e75dfdacad22`
+
+## A-0481 · 2026-11-02 · teste-novo
+
+Porquê: DMO-710: Diogo 02/11 o FABRICO acabava com 0 sem ler; o ecrã de entrada já não conta como SAP pronto e o log diz quando entrou e quantas produções gravou
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OFabrico_SoAvancaDepoisDeEntrar_EDizNoLog`
+
+Selo depois: `1c3b4cc01ba3b96e`
+
+## A-0482 · 2026-11-02 · teste-novo
+
+Porquê: DMO-711: Diogo 02/11 12:49 o FABRICO falhou depois de escrever pelo teclado com o SAP Logon à frente: o ecrã de entrada do SAP preenche-se sempre (máx. 2) e o teclado só escreve com a janela da senha à frente
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.AEntradaPeloSap_TentaSempre_EOTecladoSoComAJanelaAFrente`
+
+Selo depois: `51cd82140d9b3090`
+
+## A-0483 · 2026-11-02 · teste-novo
+
+Porquê: DMO-712: Diogo 02/11 13:17 «começa a escrever na janela do SAP se estiver aberta» (AUSERREQMG, Função impossível): com qualquer sessão do SAP aberta o teclado não escreve
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.ComUmaJanelaDoSapAberta_OTecladoNaoEscreve`
+
+Selo depois: `2aacb9a38ebc16b5`
+
+## A-0484 · 2026-11-02 · teste-novo
+
+Porquê: DMO-713: Diogo 02/11 13:17 «SAP pronto (SAP)» e falhou: com o SAP aberto no ecrã de entrada o FABRICO entra primeiro pelo SAP
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OFabrico_ComOSapAbertoNoEcraDeEntrada_EntraPrimeiro`
+
+Selo depois: `ab5dc5308891a01e`
+
+## A-0485 · 2026-11-02 · teste-novo
+
+Porquê: SAP: sem nome técnico, o código de procura vem da Codificação por linha pela referência e linha (DMO-714)
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.SemNomeTecnico_OCodigoVemDaCodificacaoPorLinha`
+
+Selo depois: `e7c488b9eeb06628`

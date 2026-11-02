@@ -17,13 +17,32 @@ public sealed class CodificacaoFerramentas(DmoDbContext db) : ICodificacaoFerram
 
     private static string Sigla(ToolType tipo) => tipo.ToString().ToUpperInvariant();
 
-    private Task<Dictionary<string, string>> DefinicoesAsync(CancellationToken cancellationToken) =>
+    private Task<Dictionary<string, string>> DefinicoesAsync(CancellationToken cancellationToken) => DefinicoesAsync(db, cancellationToken);
+
+    private static Task<Dictionary<string, string>> DefinicoesAsync(DmoDbContext db, CancellationToken cancellationToken) =>
         db.ModuleSettings.AsNoTracking()
             .Where(s => s.SettingKey.StartsWith(Codificacao.PadraoPrefixo)
                 || s.SettingKey.StartsWith(Codificacao.AplicadoPrefixo)
                 || s.SettingKey.StartsWith(ToolLotQuantityKeys.Prefix)
                 || s.SettingKey == Codificacao.ModoB2Chave)
             .ToDictionaryAsync(s => s.SettingKey, s => s.SettingValue, cancellationToken);
+
+    /// <summary>
+    /// O nome técnico que a tabela da codificação dá a uma ferramenta pelas
+    /// suas linhas (Diogo, 02/11/2026: «existe o nome técnico de cada
+    /// ferramenta associado à linha numa tabela da app»). Null sem linha, sem
+    /// modo na B2 ou sem padrão; não grava nada.
+    /// </summary>
+    public static async Task<Func<ToolType, string?, IReadOnlyCollection<string>, B2Modo?, string?>> NomePelaTabelaAsync(DmoDbContext db, CancellationToken cancellationToken = default)
+    {
+        var valores = await DefinicoesAsync(db, cancellationToken);
+        return (tipo, referencia, maquinas, modo) =>
+        {
+            if (!TiposFerramenta.Contains(tipo) || maquinas.Count == 0) return null;
+            var linha = Codificacao.LinhaDe(maquinas, modo ?? Codificacao.ModoPelasLinhas(maquinas));
+            return linha is null ? null : Codificacao.NomeTecnico(Padrao(valores, Sigla(tipo), linha), referencia);
+        };
+    }
 
     private static string? Padrao(Dictionary<string, string> valores, string tipo, CodificacaoLinha linha) =>
         valores.TryGetValue(Codificacao.ChavePadrao(tipo, linha), out var texto)
