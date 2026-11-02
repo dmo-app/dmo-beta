@@ -1,5 +1,5 @@
 {
-  "selo": "6fe5eb9f6fdf87ed",
+  "selo": "63e4ca06a40aacb2",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2037,8 +2037,8 @@
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.Sobreposicao.cs :: BoquilhasRegistoPageTests.SobreposicaoReal_OPainelMostraAsDuasProducoes_ComAviso": "25632d4cc89f4e3e",
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.Sobreposicao.cs :: BoquilhasRegistoPageTests.UmaSoProducao_OPainelFicaComoAntes": "91a402ee54bf3ec8",
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: (resto do ficheiro)": "f97f92e0a605ca23",
-    "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: BoquilhasRegistoPageTests.RegisterMany_ALineWithoutQuantity_DoesNotStopTheOthers": "447949d02d88d2aa",
-    "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: BoquilhasRegistoPageTests.RegisterMany_RecordsEachLineOnItsOwnProduction_WithTheSameTime": "f4b7bb67f6207947",
+    "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: BoquilhasRegistoPageTests.RegisterMany_ALineWithoutQuantity_DoesNotStopTheOthers": "29a220497f6bd9dc",
+    "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: BoquilhasRegistoPageTests.RegisterMany_RecordsEachLineOnItsOwnProduction_WithTheSameTime": "4708dea88193e7f5",
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.ZeroNoBrowser.cs :: (resto do ficheiro)": "1ccbfdbf855b9e39",
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.ZeroNoBrowser.cs :: BoquilhasRegistoPageTests.PostaAZero_ADicaDaDiscrepanciaFicaNaEtiqueta_ParaOBrowser": "9136d58457a1bc3b",
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: (resto do ficheiro)": "6dc5a52b11f86365",
