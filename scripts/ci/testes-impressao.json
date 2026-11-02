@@ -1,5 +1,5 @@
 {
-  "selo": "9ca61cb078844f42",
+  "selo": "191770e3e538d0c0",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1568,8 +1568,9 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoFerramentasTests.cs :: CodificacaoFerramentasTests.Sugerir_pela_linha_e_pelo_modo_da_B2": "da0a27f9cd2a0e74",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs :: (resto do ficheiro)": "0aff5381be2700ac",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs :: CodificacaoNasFerramentasTests.Criar_poe_o_nome_tecnico_da_linha_e_o_modo_da_B2": "9eb944bcab010473",
-    "tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs :: CodificacaoNasFerramentasTests.Editar_muda_o_modo_da_B2": "26f3d5645cbedb1a",
+    "tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs :: CodificacaoNasFerramentasTests.Editar_muda_o_modo_da_B2": "1986ebbaecca5c21",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs :: CodificacaoNasFerramentasTests.O_Job_On_da_B2_filtra_pelo_modo_escolhido": "9e73b56d52a2552a",
+    "tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs :: CodificacaoNasFerramentasTests.O_nome_tecnico_da_o_modo_da_B2": "636522a1b9e36365",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/CsFurosTextoTests.cs :: (resto do ficheiro)": "173a2a1b6dfb31ab",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/CsFurosTextoTests.cs :: CsFurosTextoTests.Escrever": "6b9e06005613a816",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/CsFurosTextoTests.cs :: CsFurosTextoTests.Ler": "807871e250a45058",

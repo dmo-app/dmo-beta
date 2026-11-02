@@ -28,7 +28,19 @@
       }
     </div>
   </div>
-  @* R4 (Diogo, 01/11/2026): sem a escolha B2 Dupla/Tripla; a app identifica pelas linhas escolhidas (C1 = Dupla, C3 = Tripla). *@
+  @* R4 (Diogo, 02/11/2026): a escolha B2 fica; vem já com o que a app identifica
+     (as linhas C1 = Dupla, C3 = Tripla; depois o nome técnico). Sem identificar, aviso. *@
+  @if (Model.Maquinas.Any(m => m.Code == "B2"))
+  {
+    <div class="dmo-field ferr-w-b2">
+      <label for="@(p)-b2">B2</label>
+      <select id="@(p)-b2" name="b2_modo" title="A B2 em que esta ferramenta trabalha: Dupla (com a C1) ou Tripla (com a C3)">
+        <option value="" selected="@(Model.B2Modo is null)">Sem escolha</option>
+        <option value="Dupla" selected="@(Model.B2Modo == "Dupla")">Dupla</option>
+        <option value="Tripla" selected="@(Model.B2Modo == "Tripla")">Tripla</option>
+      </select>
+    </div>
+  }
   @if (Model.Criar)
   {
     <div class="ferr-quantity-suggestion">
