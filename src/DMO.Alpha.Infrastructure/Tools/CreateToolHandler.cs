@@ -183,6 +183,8 @@ public sealed class CreateToolHandler : ICreateToolHandler
             // operador escreveu — o decode é PROPOSTA na ficha.
             TechnicalName = TrimToNull(command.TechnicalName) ?? sugestao?.NomeTecnico,
             B2Modo = b2Modo,
+            Fabricante = string.IsNullOrWhiteSpace(command.Fabricante) ? null : command.Fabricante.Trim()[..Math.Min(command.Fabricante.Trim().Length, 120)],
+            DataAquisicao = command.DataAquisicao,
             RegisteredAtUtc = DateTime.UtcNow
         };
         _db.Tools.Add(tool);

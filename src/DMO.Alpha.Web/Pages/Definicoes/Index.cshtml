@@ -29,6 +29,7 @@ html body .def-secao[hidden]{display:none}
 .def-cartoes{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start}
 .def-cartoes > *{flex:0 1 auto}
 .def-geral-campos{border:0;margin:0;padding:0;min-width:0}
+.def-geral-campos:has(> legend.dmo-visually-hidden){display:contents}
 .def-pin{display:flex;gap:10px;align-items:flex-end}
 .def-pin .dmo-field{margin:0}
 .def-geral-campos:disabled .dmo-button,.def-geral-campos:disabled input,.def-geral-campos:disabled select,.def-geral-campos:disabled textarea{cursor:not-allowed;opacity:.7}
@@ -288,7 +289,7 @@ html body #sec-ferramentas > .def-parte > fieldset.def-geral-campos:only-child{g
         <section id="sec-boquilhas" class="def-secao" data-dmo-def-secao="boquilhas" aria-labelledby="def-boquilhas-title" hidden="@(Model.Secao != "boquilhas")">
           <h2 id="def-boquilhas-title" class="dmo-visually-hidden">Boquilhas</h2>
           <div class="def-parte" id="boquilhas">
-            <fieldset class="def-geral-campos" disabled="@cadeado"><legend class="dmo-visually-hidden">Definições gerais das Boquilhas</legend>
+            @{ ViewData["DefCadeado"] = cadeado; }<fieldset class="def-geral-campos"><legend class="dmo-visually-hidden">Definições gerais das Boquilhas</legend>
               <div class="def-cartoes"><partial name="/Pages/Boquilhas/_DefinicoesGeral.cshtml" model="boquilhas" /></div>
             </fieldset>
           </div>
@@ -311,7 +312,7 @@ html body #sec-ferramentas > .def-parte > fieldset.def-geral-campos:only-child{g
         <section id="sec-armazem" class="def-secao" data-dmo-def-secao="armazem" aria-labelledby="def-armazem-title" hidden="@(Model.Secao != "armazem")">
           <h2 id="def-armazem-title" class="dmo-visually-hidden">Armazém</h2>
           <div class="def-parte" id="armazem">
-            <fieldset class="def-geral-campos" disabled="@cadeado"><legend class="dmo-visually-hidden">Definições gerais do Armazém</legend>
+            @{ ViewData["DefCadeado"] = cadeado; }<fieldset class="def-geral-campos"><legend class="dmo-visually-hidden">Definições gerais do Armazém</legend>
               <div class="def-cartoes"><partial name="/Pages/Armazem/_DefinicoesGeral.cshtml" model="armazem" /></div>
             </fieldset>
           </div>

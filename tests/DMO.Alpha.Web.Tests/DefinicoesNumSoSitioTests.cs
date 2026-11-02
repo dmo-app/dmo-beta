@@ -229,14 +229,19 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         Assert.Contains("id=\"bqDefReparadores\"", html);
 
         var token = HtmlFormHelpers.ExtractRequestVerificationToken(html)!;
-        var post = await client.PostAsync("/Boquilhas/Definicoes?handler=CreateRepairer",
-            HtmlFormHelpers.BuildFormPost(("name", "Sem Permissão"), ("__RequestVerificationToken", token)));
+        var post = await client.PostAsync("/Boquilhas/Definicoes?handler=SaveDayChangeHour",
+            HtmlFormHelpers.BuildFormPost(("dayChangeHour", "9"), ("__RequestVerificationToken", token)));
         Assert.Equal(HttpStatusCode.Redirect, post.StatusCode);
         Assert.Equal("/Definicoes?geral=sem-permissao&secao=boquilhas", post.Headers.Location!.OriginalString);
         Assert.Contains("Abra o cadeado com o PIN das Definições", await GetOkAsync(client, post.Headers.Location!.OriginalString));
 
+        // R6 (Diogo, 02/11/2026): os reparadores não ficam atrás do PIN.
+        Assert.DoesNotMatch("<fieldset class=\"def-geral-campos\"[^>]*disabled[^>]*>(?:(?!</fieldset>)[\\s\\S])*id=\"bqDefReparadores\"", html);
+        var reparador = await client.PostAsync("/Boquilhas/Definicoes?handler=CreateRepairer",
+            HtmlFormHelpers.BuildFormPost(("name", "Sem PIN"), ("__RequestVerificationToken", token)));
+        Assert.Equal("/Definicoes?save=ok-reparador&secao=boquilhas", reparador.Headers.Location!.OriginalString);
         using var scope = _factory.Services.CreateScope();
-        Assert.Empty(await scope.ServiceProvider.GetRequiredService<DmoDbContext>().BqRepairers.AsNoTracking().ToListAsync());
+        Assert.Single(await scope.ServiceProvider.GetRequiredService<DmoDbContext>().BqRepairers.AsNoTracking().ToListAsync());
     }
 
     [Fact]
