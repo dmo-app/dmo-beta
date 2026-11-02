@@ -95,13 +95,24 @@ If session Is Nothing Then
         Set session = PrimeiraSessao()
         If Not session Is Nothing Then
             ' Pronto: com o campo dos comandos e sem nenhuma janela por cima.
-            If Not Campo(session, "wnd[0]/tbar[0]/okcd") Is Nothing And Campo(session, "wnd[1]") Is Nothing Then Exit Do
+            ' O ecrã de entrada também tem o campo dos comandos: só conta sem a caixa da senha.
+            If Not Campo(session, "wnd[0]/tbar[0]/okcd") Is Nothing And Campo(session, "wnd[1]") Is Nothing _
+                And Campo(session, "wnd[0]/usr/pwdRSYST-BCODE") Is Nothing Then Exit Do
         End If
         If ElapsedSeconds(startedAt) >= SAP_WAIT_SECONDS Then
             Falhar "O SAP não ficou pronto em " & SAP_WAIT_SECONDS & " segundos."
         End If
     Loop
 End If
+
+' O que se vê no dmo-sap.log (Diogo, 02/11/2026: o script acabava sem dizer se entrou).
+Dim tituloSap
+tituloSap = ""
+On Error Resume Next
+tituloSap = session.findById("wnd[0]").Text
+Err.Clear
+On Error GoTo 0
+Registo "SAP pronto (" & tituloSap & ")"
 
 ' Minimizar o SAP (Diogo, 22/10/2026: correr com a página minimizada).
 MinimizarSap session
@@ -187,6 +198,7 @@ stream.Close
 ' nada antes do MoveFile (SAP-02: apagar antes de mover perdia o ficheiro
 ' anterior se o MoveFile falhasse a seguir).
 fso.MoveFile temporario, saida
+Registo total & " produções gravadas em " & fso.GetFileName(saida)
 
 ' Voltar ao menu do SAP.
 On Error Resume Next

@@ -6279,3 +6279,12 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.Codigo3SemJanelaDoSapComEsseNome_EscrevePeloTeclado`
 
 Selo depois: `f682e75dfdacad22`
+
+## A-0481 · 2026-11-02 · teste-novo
+
+Porquê: DMO-710: Diogo 02/11 o FABRICO acabava com 0 sem ler; o ecrã de entrada já não conta como SAP pronto e o log diz quando entrou e quantas produções gravou
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OFabrico_SoAvancaDepoisDeEntrar_EDizNoLog`
+
+Selo depois: `1c3b4cc01ba3b96e`

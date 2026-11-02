@@ -170,4 +170,18 @@ public sealed class SapScriptsVbsTests
         Assert.True(vbs.IndexOf("codigo = 4", StringComparison.Ordinal) < vbs.IndexOf("If codigo <> 0 And codigo <> 3 Then", StringComparison.Ordinal));
         Assert.Contains("titulo = s.findById(\"wnd[0]\").Text", vbs);
     }
+
+    // Diogo, 02/11/2026 (DMO-710): o FABRICO acabava com 0 sem dizer se tinha entrado no SAP.
+    // O ecrã de entrada (tem a caixa da senha) não conta como «pronto», e o log diz quando
+    // o SAP ficou pronto e quantas produções gravou.
+    [Fact]
+    public void OFabrico_SoAvancaDepoisDeEntrar_EDizNoLog()
+    {
+        using var stream = typeof(SapScripts).Assembly.GetManifestResourceStream("Sap.DMO_FABRICO_SAP.vbs")!;
+        var vbs = new StreamReader(stream).ReadToEnd();
+
+        Assert.Matches(new Regex(@"Campo\(session, ""wnd\[1\]""\) Is Nothing _\s+And Campo\(session, ""wnd\[0\]/usr/pwdRSYST-BCODE""\) Is Nothing Then Exit Do"), vbs);
+        Assert.Contains("Registo \"SAP pronto (\" & tituloSap & \")\"", vbs);
+        Assert.Contains("Registo total & \" produções gravadas em \" & fso.GetFileName(saida)", vbs);
+    }
 }
