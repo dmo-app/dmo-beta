@@ -668,7 +668,8 @@
     { "id": "DMO-713", "module": "SAP", "description": "(A-0484): a leitura das produções, com o SAP já aberto no ecrã de entrada, entra primeiro (pelo SAP) e só depois lê." },
     { "id": "DMO-714", "module": "SAP", "description": "(A-0485): a ferramenta sem nome técnico vai na lista de códigos do SAP com o nome da Codificação por linha (referência e linha), sem gravar nada na ferramenta." },
     { "id": "DMO-716", "module": "SAP", "description": "(A-0487): a % de uso do SAP substitui sempre a escrita à mão (que fica no histórico), sem aviso no canto; o aviso das peças por lote passa a ser uma frase normal." },
-    { "id": "DMO-717", "module": "SAP", "description": "(A-0488): a % de uso lê-se com uma só procura «*» na ZPPG (antes uma por ferramenta, 17 minutos); se falhar, segue como antes. A app mostra o passo em que o SAP está." }
+    { "id": "DMO-717", "module": "SAP", "description": "(A-0488): a % de uso lê-se com uma só procura «*» na ZPPG (antes uma por ferramenta, 17 minutos); se falhar, segue como antes. A app mostra o passo em que o SAP está." },
+    { "id": "DMO-723", "module": "SAP", "description": "(A-0495): o envio para o DMO recusado (403) ou sem rede já não diz «Leitura do SAP feita e gravada»: o aviso diz que o envio falhou e porquê (com 403, carregar outra vez em «Instalar»)." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

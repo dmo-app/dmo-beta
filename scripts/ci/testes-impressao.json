@@ -1,5 +1,5 @@
 {
-  "selo": "903ec41b854f252d",
+  "selo": "b93840dff2faec4f",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -3250,6 +3250,7 @@
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.Codigo3SemJanelaDoSapComEsseNome_EscrevePeloTeclado": "5bbd1284889d26a0",
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.ComUmaJanelaDoSapAberta_OTecladoNaoEscreve": "15361a17284b044f",
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.NaJanelaDeEntrada_ASenhaEscreveSe": "2147e765befd0077",
+    "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.ODiario_SoUm200ContaComoEnviado": "cb85f7648e9dbace",
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OFabrico_ComOSapAbertoNoEcraDeEntrada_EntraPrimeiro": "a947b251a0126a4e",
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OFabrico_SoAvancaDepoisDeEntrar_EDizNoLog": "ee7d51b5e2eff719",
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OScriptDaZppg_ProcuraSoNaPlantMg": "ef9aa9ed84f29785",
@@ -3613,8 +3614,10 @@
     "tests/ShellProof/referencia-dependencias.test.cjs :: Escrever outra referência limpa a produção e as linhas da BQ anterior": "c8e0ccaf7d9d966e",
     "tests/ShellProof/referencia-dependencias.test.cjs :: Retirar o Job On anterior repõe apenas as linhas da ficha da BQ": "d03551095e9a6aa9",
     "tests/ShellProof/referencia-dependencias.test.cjs :: Uma ferramenta sem linhas configuradas não propõe linhas compatíveis": "4d3bea24aa2bc3c7",
-    "tests/ShellProof/sap-estado-erro.test.cjs :: (resto do ficheiro)": "0a8ff972e9c9a35f",
+    "tests/ShellProof/sap-estado-erro.test.cjs :: (resto do ficheiro)": "c335f25bf43b36cd",
     "tests/ShellProof/sap-estado-erro.test.cjs :: As produções falham e a % de uso corre bem: aviso, não erro, e diz as duas coisas": "c385bbecbe47b479",
+    "tests/ShellProof/sap-estado-erro.test.cjs :: Leu tudo mas o DMO recusou o envio (403): aviso com o «Instalar»": "c775b5c7a36f05c7",
+    "tests/ShellProof/sap-estado-erro.test.cjs :: Sem rede ou com erro 500 no envio: diz o motivo": "5b77d6cb9a69bac6",
     "tests/ShellProof/sap-estado-erro.test.cjs :: Tudo falhou: diz cada passo e o motivo": "40cd916a9f2b801a",
     "tests/ShellProof/sap-estado-erro.test.cjs :: Um estado antigo, sem motivo, continua a dizer que falhou": "27dc7cf817162760",
     "tests/ShellProof/troca-escolhas.test.cjs :: (resto do ficheiro)": "0dbfc26748ac4d96",

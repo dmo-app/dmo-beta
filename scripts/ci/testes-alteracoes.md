@@ -6356,3 +6356,16 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_UmValorManualIgualAoSapContinuaProtegidoQuandoOSapMuda`
 
 Selo depois: `903ec41b854f252d`
+
+## A-0495 · 2026-11-02 · ok-do-diogo
+
+Porquê: DMO-723 (QD253-01): só um 200 conta como enviado; a app diz que o envio falhou; 2 testes novos no fim do sap-estado-erro.test.cjs
+Referência: Diogo 02/11 23:46 «sim 1 e 2» (cmsg_01K75FTs9bQnbhhH7qttpgra8GuZdgudXRrHYbaBivwoqZ)
+Novos: 3 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.ODiario_SoUm200ContaComoEnviado`
+- novo: `tests/ShellProof/sap-estado-erro.test.cjs :: Leu tudo mas o DMO recusou o envio (403): aviso com o «Instalar»`
+- novo: `tests/ShellProof/sap-estado-erro.test.cjs :: Sem rede ou com erro 500 no envio: diz o motivo`
+- mudou: `tests/ShellProof/sap-estado-erro.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `b93840dff2faec4f`

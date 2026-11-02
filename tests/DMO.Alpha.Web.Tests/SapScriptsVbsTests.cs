@@ -257,4 +257,19 @@ public sealed class SapScriptsVbsTests
         Assert.Contains("Passo \"a ler as produções (ZFMD)\"", fabrico);
         Assert.Contains("\"dmo-sap-passo.txt\"", fabrico);
     }
+
+    // DMO-723 (QD253-01, Diogo 02/11 23:46 «sim»): o diário não testava o http.status, por isso
+    // um 403/500 contava como enviado e o estado dizia «feito». Só um 200 conta.
+    [Fact]
+    public void ODiario_SoUm200ContaComoEnviado()
+    {
+        using var stream = typeof(SapScripts).Assembly.GetManifestResourceStream("Sap.DMO_SAP_DIARIO.vbs")!;
+        var vbs = new StreamReader(stream).ReadToEnd();
+        var enviar = vbs[vbs.IndexOf("Sub Enviar(ByVal nome)", StringComparison.Ordinal)..];
+        enviar = enviar[..enviar.IndexOf("End Sub", StringComparison.Ordinal)];
+        Assert.Contains("ElseIf http.status <> 200 Then", enviar);
+        Assert.Contains("Falhar \"envio\", \"http\" & http.status", enviar);
+        Assert.Contains("Falhar \"envio\", \"rede\"", enviar);
+        Assert.True(vbs.IndexOf("EnviarNovos \"dmo-uso-sap-\"", StringComparison.Ordinal) < vbs.IndexOf("If erroGeral = \"\" Then", StringComparison.Ordinal));
+    }
 }

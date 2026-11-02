@@ -65,6 +65,17 @@
     const re = /(DMO_\w+\.vbs):(\S+)/g;
     let m;
     while ((m = re.exec(semOk))) falhas.push((PASSOS[m[1]] ? PASSOS[m[1]].nome : m[1]) + " (" + motivoSap(m[2]) + ")");
+    // DMO-723 (QD253-01): leu-se do SAP mas o DMO não recebeu (403 = chave
+    // errada, «Instalar» outra vez; outro código ou sem rede).
+    const envio = /(?:^|\s)envio:(\S+)/.exec(semOk);
+    if (envio) {
+      const porque = envio[1] === "http403"
+        ? "o DMO recusou a chave deste PC; carregue outra vez em «Instalar»"
+        : envio[1] === "rede" ? "sem ligação ao DMO" : "o DMO respondeu com erro " + envio[1].replace(/^http/, "");
+      const lido = certos.length ? certos.join(". ") + ". Mas o" : "O";
+      const tambem = falhas.length ? " Também não foi possível ler " + falhas.join(" nem ") + "." : "";
+      return { parcial: true, texto: lido + " envio para o DMO falhou (" + porque + ")." + tambem + " Os ficheiros ficaram na pasta. Veja o dmo-sap.log." };
+    }
     const naoLido = falhas.length ? "não foi possível ler " + falhas.join(" nem ") : "o motivo não ficou escrito";
     if (certos.length) {
       return { parcial: true, texto: certos.join(". ") + ". Mas " + naoLido + ". Veja o dmo-sap.log na pasta." };
