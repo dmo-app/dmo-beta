@@ -430,7 +430,9 @@
             @* OS AN (Diogo, 28/10/2026): com AN no lote ou nos movimentos, cada
                valor mostra as BQ e, por baixo, os AN, com a mesma conta. *@
             @{
-              var temAn = trace.ToolAnQuantity is not null || trace.AnQuantityOut is not null;
+              // O cartão é igual para todas as BQ (Diogo, 02/11/2026: «páginas diferentes… só por escolher linha»):
+              // sempre as BQ e os AN, com «—» nos AN que a BQ não tem.
+              var temAn = true;
               var anFora = trace.AnQuantityOut ?? 0;
             }
             <div class="lot-data@(temAn ? " bq-com-an" : null)">
