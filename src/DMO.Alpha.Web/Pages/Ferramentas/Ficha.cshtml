@@ -596,7 +596,7 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
             Model.FactsUso(Model.Utilizacao?.Ultima?.Percentagem),
             Model.Utilizacao?.Ultima is { } usoData ? DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(usoData.RegistadaEmUtc).ToString("dd/MM/yyyy", pt) : null,
             Model.FactsAnQuantity(tool.AnQuantity), Model.Fabricas, tool.B2Modo?.ToString(), Model.AvisosSap,
-            tool.Fabricante ?? tool.SapFornecedor, (tool.DataAquisicao ?? tool.SapDataAquisicao)?.ToString("yyyy-MM-dd")))" />
+            tool.Fabricante, tool.DataAquisicao?.ToString("yyyy-MM-dd")))" />
       </form>
 
     </section>
