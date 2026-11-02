@@ -107,7 +107,7 @@ html body #bqDefExcel [hidden]{display:none}
     }
   </section>
   @* R6 (Diogo, 02/11/2026): os reparadores ficam fora do PIN; o resto continua atrás do cadeado. *@
-  <fieldset class="def-geral-campos" style="display:contents" disabled="@(ViewData["DefCadeado"] is true)"><legend class="dmo-visually-hidden">Fechado pelo PIN das Definições</legend>
+  <fieldset class="def-geral-campos" disabled="@(ViewData["DefCadeado"] is true)"><legend class="dmo-visually-hidden">Fechado pelo PIN das Definições</legend>
 
   <section id="bqDefRotas" class="dmo-card bq-def-card" aria-labelledby="boquilhas-routing-title" data-dmo-regiao data-dmo-parcial>
     <h3 id="boquilhas-routing-title" title="O reparador usado pela saída de cada linha (B1 a C3); sem reparador configurado, a saída regista-se na mesma. «— sem reparador —» limpa a rota.">Linhas</h3>
