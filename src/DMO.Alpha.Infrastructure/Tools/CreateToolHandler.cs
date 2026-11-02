@@ -159,7 +159,7 @@ public sealed class CreateToolHandler : ICreateToolHandler
         // B2 conta o modo da ferramenta (ou C1 → Dupla, C3 → Tripla).
         var maquinas = machineIds.Count == 0 ? new List<string>()
             : await _db.Machines.AsNoTracking().Where(m => machineIds.Contains(m.Id)).Select(m => m.Code).ToListAsync(cancellationToken);
-        var b2Modo = maquinas.Contains("B2") ? command.B2Modo ?? Codificacao.ModoPelasLinhas(maquinas) : null;
+        var b2Modo = maquinas.Contains("B2") ? command.B2Modo ?? Codificacao.ModoIdentificado(maquinas, command.TechnicalName) : null;
         var sugestao = _codificacao is null ? null
             : await _codificacao.SugerirAsync(type, reference, machineIds, b2Modo, cancellationToken);
         // A Qtd. continua a do total por máquina (máquinas com totais

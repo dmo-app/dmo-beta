@@ -58,7 +58,7 @@ public sealed class CodificacaoNasFerramentasTests : IDisposable
         Assert.Equal(("M10774TMFPSV", B2Modo.Tripla, 54), (Ler(escolhido).TechnicalName, Ler(escolhido).B2Modo, Ler(escolhido).BqAccountedQuantity));
     }
 
-    /// <summary>Garante (R4, Diogo 01/11/2026): o Editar identifica o modo da B2 pelas linhas (C1 = Dupla, C3 = Tripla); sem a B2 o modo sai.</summary>
+    /// <summary>Garante (R4, Diogo 02/11/2026): o Editar identifica o modo da B2 pelas linhas (C1 = Dupla, C3 = Tripla) e pelo nome técnico; a escolha à mão manda; sem a B2 o modo sai.</summary>
     [Fact]
     public async Task Editar_muda_o_modo_da_B2()
     {
@@ -71,12 +71,29 @@ public sealed class CodificacaoNasFerramentasTests : IDisposable
         await editar.HandleAsync(new EditToolFacts(id, "CM", "1076", "3", MachineIds: [_maquinas["C1"], _maquinas["B2"]]));
         Assert.Equal(B2Modo.Dupla, Modo());
         await editar.HandleAsync(new EditToolFacts(id, "CM", "1076", "3", MachineIds: [_maquinas["B2"]], B2Modo: "Tripla"));
-        Assert.Equal(B2Modo.Dupla, Modo());
-        await editar.HandleAsync(new EditToolFacts(id, "CM", "1076", "3", MachineIds: [_maquinas["C3"], _maquinas["B2"]]));
         Assert.Equal(B2Modo.Tripla, Modo());
+        await editar.HandleAsync(new EditToolFacts(id, "CM", "1076", "3", MachineIds: [_maquinas["C1"], _maquinas["B2"]], B2Modo: ""));
+        Assert.Equal(B2Modo.Dupla, Modo());
+        await editar.HandleAsync(new EditToolFacts(id, "CM", "1076", "3", MachineIds: [_maquinas["B2"]], TechnicalName: "M107644MPPSX", B2Modo: ""));
+        Assert.Equal(B2Modo.Tripla, Modo());
+        await editar.HandleAsync(new EditToolFacts(id, "CM", "1076", "3", MachineIds: [_maquinas["B2"]], TechnicalName: "M107655MPPSX", B2Modo: ""));
+        Assert.Equal(B2Modo.Dupla, Modo());
         await editar.HandleAsync(new EditToolFacts(id, "CM", "1076", "3", MachineIds: [_maquinas["B1"]]));
         Assert.Null(Modo());
     }
+
+    /// <summary>Garante (Diogo 02/11/2026): o nome técnico dá o modo da B2: CM 44/55, MF 4T/55, BQ PX77/PX8855.</summary>
+    [Theory]
+    [InlineData("M536244MPPSX", B2Modo.Tripla)]
+    [InlineData("M536255MPPSX", B2Modo.Dupla)]
+    [InlineData("M10774TMFPSV", B2Modo.Tripla)]
+    [InlineData("M536255MFPSV", B2Modo.Dupla)]
+    [InlineData("ABT194PX77", B2Modo.Tripla)]
+    [InlineData("ABT194PX8855", B2Modo.Dupla)]
+    [InlineData("M544795MPPSX", null)]
+    [InlineData(null, null)]
+    public void O_nome_tecnico_da_o_modo_da_B2(string? nome, B2Modo? esperado) =>
+        Assert.Equal(esperado, Codificacao.ModoPeloNome(nome));
 
     /// <summary>Garante: no Job On da B2 só aparecem as ferramentas do modo escolhido e as sem modo; nas outras linhas nada muda.</summary>
     [Fact]

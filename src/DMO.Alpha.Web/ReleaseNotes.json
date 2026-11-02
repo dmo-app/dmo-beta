@@ -653,7 +653,8 @@
     { "id": "DMO-697", "module": "Ferramentas", "description": "R3: nos avisos do SAP da ficha, os botões Sim/Não passam a links («Substituir» com a cor dos botões e «Manter») e o × fica simples, no canto do aviso." },
     { "id": "DMO-698", "module": "Ferramentas", "description": "R4 (A-0467): sai a escolha B2 Dupla/Tripla das Ferramentas (Criar, Editar, ficha e janela); a app identifica pelas linhas escolhidas: com a C1 é Dupla, com a C3 é Tripla." },
     { "id": "DMO-699", "module": "Ferramentas", "description": "R6 (A-0468): a Informação opcional (Criar e Editar) ganha Fabricante (escolhe-se dos reparadores ou escreve-se) e Data de aquisição; vêm do SAP quando o SAP os tem, senão à mão ou em branco. Nas Definições, os reparadores do Armazém e das Boquilhas deixam de pedir o PIN." },
-    { "id": "DMO-700", "module": "PU NNPB", "description": "A-0469: na Lista de punções, o «+ Adicionar punção», o número e o lote (quando o número é repetido) ficam à esquerda; o título e as Opções à direita." }
+    { "id": "DMO-700", "module": "PU NNPB", "description": "A-0469: na Lista de punções, o «+ Adicionar punção», o número e o lote (quando o número é repetido) ficam à esquerda; o título e as Opções à direita." },
+    { "id": "DMO-701", "module": "Ferramentas", "description": "R4 (A-0471): a escolha B2 Dupla/Tripla volta ao Editar e vem já com o que a app identifica: pelas linhas (C1 = Dupla, C3 = Tripla) e, com só a B2, pelo nome técnico (CM 44/55, MF 4T/55, BQ PX77/PX8855). Escolhida à mão, manda. Sem identificar, fica o aviso." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

@@ -6026,3 +6026,10 @@ Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; no
 | Teste | O que prova | Estado | Notas |
 |---|---|---|---|
 | `tests/visual/cobertura_b_browser.py` (sem mudança) | O número e o botão na mesma linha e altura; o grupo continua encostado à direita do cartão | OK | Diogo 02/11: Registar, número e lote à esquerda; o resto à direita. Só disposição. |
+
+## R4 com escolha (A-0471, DMO-701)
+
+| Teste | O que prova | Estado | Notas |
+|---|---|---|---|
+| `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs` › `Editar_muda_o_modo_da_B2` (ajustado) | A escolha à mão manda; sem escolha, as linhas e depois o nome técnico dão o modo | OK | Diogo 02/11: «quando dê para identificar selecionar o certo, caso não dê aviso». |
+| `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs` › `O_nome_tecnico_da_o_modo_da_B2` (novo) | CM 44/55, MF 4T/55, BQ PX77/PX8855 | OK | |
