@@ -6016,22 +6016,12 @@ Novos: 3 · mudaram: 2 · saíram: 0
 
 Selo depois: `f7ab53c834bb7e35`
 
-## A-0462 · 2026-11-02 · ok-do-diogo
-
-Porquê: DMO-694/A-0462: Diogo 02/11 «não quero páginas presas sem scroll»; a página com a estrutura passa de height:100dvh+overflow:hidden para min-height:100dvh
-Referência: cmsg_01K75FTs9bQnbhhH7qttpgraGPzwBvedsCF6ZayL4SAkAS
-Novos: 0 · mudaram: 1 · saíram: 0
-
-- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_Folha_SoOCorpoDesliza`
-
-Selo depois: `6c64067c1de02fd9`
-
 ## A-0472 · 2026-11-02 · teste-novo
 
-Porquê: DMO-694/A-0462: teste do #367 (DMO-690) trazido para o #376: nenhuma página presa à altura da janela
+Porquê: DMO-694/A-0472: teste do #367 (DMO-690) trazido para o #376: nenhuma página presa à altura da janela
 Novos: 2 · mudaram: 0 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Web.Tests/PaginasDeslizamCssTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/PaginasDeslizamCssTests.cs :: PaginasDeslizamCssTests.NenhumaPaginaFicaPresaAAlturaDaJanela`
 
-Selo depois: `4ca6823aebb0da41`
+Selo depois: `f12eeb480f9c61cf`

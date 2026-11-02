@@ -67,13 +67,14 @@ public sealed partial class ControloCapabilitiesCutHPageTests
             + "<div class=\"dmo-pagina-acoes\"><a class=\"dmo-button\" href=\"/i\">Imprimir</a></div></header>"
             + "<div class=\"dmo-pagina-corpo\"><section>cartão</section></div></main>", escrita.ToString());
     }
-    // DMO-694: a página nunca fica presa ao ecrã; cresce e desliza quando não cabe.
+
+    // O esqueleto é da folha da estrutura: só o corpo desliza (a página não), e
     // o painel entra pelo lado com o cabeçalho fixo e o corpo a deslizar.
     [Fact]
     public void Estrutura_Folha_SoOCorpoDesliza()
     {
         var css = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "src", "DMO.Alpha.Web", "wwwroot", "css", "dmo-estrutura.css"));
-        Assert.Contains("html body .app:has(> main > .dmo-pagina-topo){display:flex;flex-direction:column;min-height:100dvh}", css);
+        Assert.Contains("html body .app:has(> main > .dmo-pagina-topo){display:flex;flex-direction:column;height:100dvh;min-height:0;overflow:hidden}", css);
         Assert.Matches(new Regex("html body \\.dmo-pagina-corpo\\{flex:1 1 auto;min-height:0;overflow:auto;"), css);
         Assert.Matches(new Regex("html body \\.dmo-painel-corpo\\{flex:1 1 auto;min-height:0;overflow:auto;"), css);
         Assert.Contains("html[data-dmo-embedded=\"true\"] body :is(.dmo-pagina-titulo,.dmo-pagina-voltar){display:none}", css);

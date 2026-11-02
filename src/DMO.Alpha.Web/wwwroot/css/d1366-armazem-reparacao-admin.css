@@ -368,7 +368,7 @@ html body #riLinhasRail .beta-production-lines :is(button,.dmo-rail-link):is(.dm
   html body main:is(.arm-page,:has(#armMovimentos)) .dmo-table-wrap>.dmo-table thead th{position:sticky;top:-4px;z-index:2}
 
   /* REGISTO: a página tem a altura do ecrã; as últimas entradas e saídas ficam com o que sobra. */
-  html body main.beta-light-main.arm-page{box-sizing:border-box;min-height:calc(100vh - 95px);grid-template-rows:auto auto 104px auto auto minmax(0,1fr)}
+  html body main.beta-light-main.arm-page{box-sizing:border-box;height:calc(100vh - 95px);grid-template-rows:auto auto 104px auto auto minmax(0,1fr)}
   html body main.arm-page #armRegisto>#armLog{align-self:start;display:flex;flex-direction:column;min-height:0;max-height:calc(100% - 12px);margin:12px 0 0;padding:12px 20px}
   html body main.arm-page #armLog>.dmo-card-topo{flex:none;min-height:0;margin:0 0 8px}
   html body main.arm-page #armLog>.dmo-table-wrap{flex:0 1 auto;min-height:0}
@@ -386,11 +386,11 @@ html body #riLinhasRail .beta-production-lines :is(button,.dmo-rail-link):is(.dm
   html body main.arm-page #armProcuraLista .dmo-table-wrap{max-height:max(150px,calc(100vh - 560px))}
 
   /* MOVIMENTOS: os dois cartões chegam ao fundo do ecrã; as tabelas deslizam dentro deles. */
-  html body main.dmo-workspace:has(#armMovimentos){box-sizing:border-box;min-height:calc(100vh - 95px);display:flex;flex-direction:column}
+  html body main.dmo-workspace:has(#armMovimentos){box-sizing:border-box;height:calc(100vh - 95px);display:flex;flex-direction:column}
   html body main.dmo-workspace:has(#armMovimentos)>.page-head{flex:none}
   html body main:has(#armMovimentos) .arm-mov{flex:1 1 auto;min-height:0;align-items:start;grid-template-rows:minmax(0,1fr)}
   /* O cartão tem a altura do que leva; só chega ao fundo (e a tabela desliza) quando não cabe. */
-  html body main:has(#armMovimentos) .arm-card{display:flex;flex-direction:column;min-height:0;max-height:100%}
+  html body main:has(#armMovimentos) .arm-card{display:flex;flex-direction:column;min-height:0;max-height:100%;overflow:hidden}
   html body main:has(#armMovimentos) .arm-card>.arm-card-head,
   html body main:has(#armMovimentos) .arm-card>.arm-filtros,
   html body main:has(#armMovimentos) .arm-card>.arm-filtro-ferramenta,
