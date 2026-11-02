@@ -660,7 +660,8 @@
     { "id": "DMO-705", "module": "SAP", "description": "(A-0476): em Admin › Definições › SAP, a «Senha do SAP» só diz «guardada» quando a senha gravada se consegue mesmo usar; se não, diz «por escrever» e é preciso escrevê-la outra vez e gravar." },
     { "id": "DMO-706", "module": "SAP", "description": "(A-0477): em Admin › Definições › SAP, o «Tudo | Desatualizadas» passa para dentro da janela do «Atualizar do SAP»; o cartão fica só com Atualizar do SAP, Instalar e Opções." },
     { "id": "DMO-707", "module": "SAP", "description": "(A-0478): os scripts do SAP voltam a escrever a senha na janela de entrada «Moldes Existentes» (a do botão Logon), mesmo quando o Windows não a mostra como caixa de senha. Com o SAP já aberto continuam a não escrever nada." },
-    { "id": "DMO-708", "module": "SAP", "description": "(A-0479): no Admin › Definições › SAP, escolher «Tudo» ou «Desatualizadas» já não dá «Não foi possível ler a pasta do SAP: Unexpected token»; os códigos a pedir ao SAP vêm da própria página do Admin." }
+    { "id": "DMO-708", "module": "SAP", "description": "(A-0479): no Admin › Definições › SAP, escolher «Tudo» ou «Desatualizadas» já não dá «Não foi possível ler a pasta do SAP: Unexpected token»; os códigos a pedir ao SAP vêm da própria página do Admin." },
+    { "id": "DMO-709", "module": "SAP", "description": "(A-0480): quando o Windows não lê a janela de entrada «Moldes Existentes», os scripts do SAP voltam a escrever a senha pelo teclado, desde que nenhuma janela do SAP já aberta tenha esse nome." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

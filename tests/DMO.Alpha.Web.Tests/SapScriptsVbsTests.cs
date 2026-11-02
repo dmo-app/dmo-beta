@@ -154,4 +154,20 @@ public sealed class SapScriptsVbsTests
         Assert.Contains("if (-not $nome -or -not $senha) { if ($logon) { exit 4 } else { exit 3 } }", vbs);
         Assert.Contains("If codigo <> 0 And codigo <> 3 Then", vbs);
     }
+
+    // Diogo, 02/11/2026 (DMO-709): o log dizia «código 3 … nada escrito» com a janela de
+    // entrada aberta. O código 3 só trava a escrita se uma janela do SAP tiver esse nome
+    // (o SAP já aberto, DMO-677); sem nenhuma, escreve-se pelo teclado.
+    [Theory]
+    [InlineData("Sap.DMO_USO_SAP.vbs")]
+    [InlineData("Sap.DMO_FABRICO_SAP.vbs")]
+    public void Codigo3SemJanelaDoSapComEsseNome_EscrevePeloTeclado(string nome)
+    {
+        using var stream = typeof(SapScripts).Assembly.GetManifestResourceStream(nome)!;
+        var vbs = new StreamReader(stream).ReadToEnd();
+
+        Assert.Matches(new Regex(@"If codigo = 3 And Not SapTemJanela\(JANELA_LOGON\) Then\s+Registo [^\n]*\s+codigo = 4\s+End If"), vbs);
+        Assert.True(vbs.IndexOf("codigo = 4", StringComparison.Ordinal) < vbs.IndexOf("If codigo <> 0 And codigo <> 3 Then", StringComparison.Ordinal));
+        Assert.Contains("titulo = s.findById(\"wnd[0]\").Text", vbs);
+    }
 }

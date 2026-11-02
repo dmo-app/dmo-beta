@@ -638,6 +638,14 @@ Sub EscreverSenha()
     ' Código 3: a janela «Moldes Existentes» não tem a caixa da senha (o SAP
     ' já está aberto). Pelo teclado escrevia-se na janela do SAP em uso
     ' (Diogo, 29/10/2026: «Função impossível», DMO-677): não se escreve nada.
+    ' Código 3 só é «o SAP já aberto» (DMO-677) se uma janela do SAP tiver mesmo
+    ' esse nome. Se nenhuma tiver, a «Moldes Existentes» é a janela de entrada que o
+    ' Windows não lê (Diogo, 02/11/2026: ficava parada com a senha por escrever):
+    ' escreve-se pelo teclado, como até 29/10.
+    If codigo = 3 And Not SapTemJanela(JANELA_LOGON) Then
+        Registo "nenhuma janela do SAP com este nome: é a janela de entrada"
+        codigo = 4
+    End If
     If codigo = 3 Then Registo "janela sem caixa da senha: nada escrito"
     ' Código 4: é a janela de entrada (tem «Logon»), mas o Windows não chega às
     ' caixas: escreve-se pelo teclado, como até 29/10.
@@ -648,6 +656,26 @@ Sub EscreverSenha()
         shell.SendKeys "^a" & ParaSendKeys(UTILIZADOR) & "{TAB}" & ParaSendKeys(SENHA) & "{ENTER}"
     End If
 End Sub
+
+' Alguma sessão do SAP com uma janela com este nome (o título começa por ele)?
+Function SapTemJanela(ByVal nome)
+    Dim gui, motor, c, s, titulo
+    SapTemJanela = False
+    On Error Resume Next
+    Set gui = GetObject("SAPGUI")
+    If Err.Number <> 0 Or gui Is Nothing Then Err.Clear: On Error GoTo 0: Exit Function
+    Set motor = gui.GetScriptingEngine
+    For Each c In motor.Children
+        For Each s In c.Children
+            titulo = ""
+            titulo = s.findById("wnd[0]").Text
+            If LCase(Left(titulo, Len(nome))) = LCase(nome) Then SapTemJanela = True
+            Err.Clear
+        Next
+    Next
+    Err.Clear
+    On Error GoTo 0
+End Function
 
 ' Um texto entre plicas no PowerShell: a plica dobra-se.
 Function ParaPs(ByVal texto)

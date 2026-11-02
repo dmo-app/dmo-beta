@@ -6270,3 +6270,12 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapAdminUsoSap.cs :: DefinicoesPorModuloPageTests.OAdmin_PedeOsCodigosDoSapASuaPagina_ERecebeJson`
 
 Selo depois: `cb38cd69200a903e`
+
+## A-0480 · 2026-11-02 · teste-novo
+
+Porquê: DMO-709: Diogo 02/11 log «código 3 … nada escrito» com a janela de entrada aberta: o código 3 só trava a escrita se uma janela do SAP tiver o nome Moldes Existentes
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.Codigo3SemJanelaDoSapComEsseNome_EscrevePeloTeclado`
+
+Selo depois: `f682e75dfdacad22`
