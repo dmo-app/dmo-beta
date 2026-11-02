@@ -299,7 +299,8 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         var pessoal = Regex.Match(html, "<section id=\"sec-pessoal\"[\\s\\S]*?(?=<section id=\"sec-computador\")").Value;
         var cartoes = Regex.Matches(pessoal, "<section id=\"(\\w+)\" class=\"dmo-card").Select(m => m.Groups[1].Value).ToArray();
         // A aparência passa a cartão, ao lado da sessão (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP).
-        Assert.Equal(new[] { "defConta", "defTema", "defPalavraPasse" }, cartoes);
+        // Os avisos do Job On ao lado da aparência (Diogo, 30/10/2026, DMO-715).
+        Assert.Equal(new[] { "defConta", "defAvisos", "defTema", "defPalavraPasse" }, cartoes);
         Assert.Matches("<section id=\"defTema\"[\\s\\S]*?id=\"defTemaBotao\"", pessoal);
         // O «Mudar» no canto superior direito do cartão, como os outros botões (Diogo, 27/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraQVvJwFV5LYqaod3CuetwJ6).
         Assert.Matches("<div class=\"dmo-card-topo-acoes\"><button type=\"submit\" class=\"dmo-button\" id=\"defPalavraGuardar\" form=\"defPalavraPasseForm\">", pessoal);

@@ -87,6 +87,17 @@ public sealed class FolhaModel(
     /// <summary>O aviso «não está registada no Armazém» (o mesmo interruptor do Planeamento, Dmo:Avisos:ArmazemSemRegisto).</summary>
     public bool MostrarAvisoArmazem { get; } = configuration.GetValue(IndexModel.AvisoArmazemChave, IndexModel.AvisoArmazemPorOmissao);
 
+    /// <summary>Os avisos que esta pessoa desligou nas Definições (lidos antes de cada handler).</summary>
+    public IReadOnlySet<string> AvisosEscondidos { get; private set; } = new HashSet<string>();
+
+    public override async Task OnPageHandlerExecutionAsync(
+        Microsoft.AspNetCore.Mvc.Filters.PageHandlerExecutingContext context,
+        Microsoft.AspNetCore.Mvc.Filters.PageHandlerExecutionDelegate next)
+    {
+        AvisosEscondidos = await AvisosPessoaisDaConta.LerAsync(HttpContext);
+        await next();
+    }
+
     /// <summary>
     /// Os avisos depois de gravar, os mesmos do Planeamento (a ficha antiga
     /// deixou de existir, Diogo 23/10/2026): a sobreposição na linha com as

@@ -212,6 +212,19 @@ html body #sec-ferramentas > .def-parte > fieldset.def-geral-campos:only-child{g
                 </form>
               </section>
             }
+            @* Os avisos do Job On que cada pessoa quer ver (Diogo, 30/10/2026); os erros e as mensagens das páginas aparecem sempre. *@
+            <section id="defAvisos" class="dmo-card def-linha" aria-labelledby="def-avisos-title">
+              <form method="post" asp-page="/Definicoes/Index" asp-page-handler="Avisos" data-dmo-avisos-pessoais>
+                <div class="dmo-card-topo">
+                  <h3 id="def-avisos-title">Avisos do Job On</h3>
+                  <button type="submit" class="dmo-button">Guardar</button>
+                </div>
+                @foreach (var (chave, nome) in DMO.Alpha.Core.Admin.AvisosPessoais.Todos)
+                {
+                  <div><label><input type="checkbox" name="mostrar" value="@chave" checked="@(!Model.AvisosEscondidos.Contains(chave))" /> @nome</label></div>
+                }
+              </form>
+            </section>
             @* O modo claro ou escuro (Diogo, 22/10/2026): troca o modo e grava-o na conta. *@
             <section id="defTema" class="dmo-card def-linha" aria-labelledby="def-tema-title" data-dmo-regiao>
               <h3 id="def-tema-title">Aparência</h3>
