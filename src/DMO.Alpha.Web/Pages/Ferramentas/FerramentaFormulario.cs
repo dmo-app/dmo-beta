@@ -30,7 +30,9 @@ public sealed record FerramentaFactosForm(
     string? QuantidadeAn = null,
     IReadOnlyList<string>? Fabricas = null,
     string? B2Modo = null,
-    DMO.Alpha.Core.Tools.AvisosSap? Sap = null);
+    DMO.Alpha.Core.Tools.AvisosSap? Sap = null,
+    string? Fabricante = null,
+    string? DataAquisicao = null);
 
 /// <param name="Prefixo">O início dos ids («ferr-new» no Criar, «ferr-tech» na ficha).</param>
 /// <param name="Criar">No Criar vêm os campos de todos os tipos (o browser mostra os do tipo escolhido); na ficha, só os do tipo da ferramenta.</param>

@@ -6111,3 +6111,13 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs :: CodificacaoNasFerramentasTests.Editar_muda_o_modo_da_B2`
 
 Selo depois: `32dd153e6500c0bd`
+
+## A-0468 · 2026-11-02 · ok-do-diogo
+
+Porquê: R6 (Diogo 02/11/2026): os reparadores não ficam atrás do PIN das Definições
+Referência: DMO-699, cmsg_01K75FTs9bQnbhhH7qttpgra2EAF8R42LTWvo8iNGjth7o
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.SemAPermissao_OGeralLeSeComCadeado_ENaoGrava`
+
+Selo depois: `f16fa4cd0b5fc385`
