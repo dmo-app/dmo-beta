@@ -6347,7 +6347,7 @@ Novos: 2 · mudaram: 0 · saíram: 0
 
 Selo depois: `38c53a75db31c4ec`
 
-## A-0489 · 2026-11-02 · ok-do-diogo
+## A-0493 · 2026-11-02 · ok-do-diogo
 
 Porquê: DMO-716: mais um teste do Postgres que esperava o aviso de % com a % manual; agora a % do SAP aplica-se e não há aviso
 Referência: thread cmsg_01K75FTs9bQnbhhH7qttpgra7vYFcJvQUaiLE6LHsbqGZh, Diogo 02/11 14:58 «sim» (cmsg_01K75FTs9bQnbhhH7qttpgraUqU2VL7wVxqkpnPCYWWi4f)
