@@ -71,14 +71,13 @@ html body dialog.ferr-producoes-janela .ferr-producoes-lista{flex:0 1 auto;min-h
 html[data-dmo-embedded="true"] body main.ferr-page:has(>.dmo-pagina-topo){padding:0}
 /* O «← Voltar» está no cabeçalho fixo (<dmo-voltar>); o botão do cartão Geral fica escondido. */
 html body main.ferr-page #ferrVoltar{display:none}
-/* A Informação opcional na mesma linha de Tipo, Referência, Lote, Qtd. lote e % uso. */
-html body main.ferr-page #ferrEditar .ferr-editar-linha{flex-wrap:nowrap;align-items:flex-end}
-html body main.ferr-page #ferrEditar .ferr-editar-linha>.ferr-editar-principal{flex:0 0 auto}
-html body main.ferr-page #ferrEditar .ferr-editar-linha>.ferr-opcional{flex:0 1 auto;margin:0;padding:0 0 0 24px;border-top:0;border-left:1px solid var(--dmo-border)}
-html body main.ferr-page #ferrEditar .ferr-editar-linha>.ferr-opcional>.ferr-tech-campos{flex-wrap:nowrap}
-/* O título «Informação opcional» sobe para o espaço livre à direita das linhas, por cima dos campos. */
-html body main.ferr-page #ferrEditar .ferr-opcional{position:relative}
-html body main.ferr-page #ferrEditar .ferr-opcional>legend{position:absolute;top:-24px;left:24px;margin:0}
+/* A Informação opcional numa linha própria por baixo, minimizada, como a Informação técnica (Diogo, 02/11/2026:
+   «meter os dados opcionais noutra como informação técnica minimizado»): sem scroll para o lado no painel a 1366. */
+html body main.ferr-page #ferrEditar .ferr-editar-linha{flex-wrap:wrap;align-items:flex-end}
+html body main.ferr-page #ferrEditar .ferr-editar-linha>.ferr-editar-principal{flex:0 1 auto;min-width:0}
+html body main.ferr-page #ferrEditar .ferr-editar-linha>.ferr-opcional{flex:1 0 100%;min-width:0;margin:4px 0 0;padding:12px 0 0;border:0;border-top:1px solid var(--dmo-border)}
+html body main.ferr-page #ferrEditar .ferr-editar-linha>.ferr-opcional>.ferr-tech-campos{flex-wrap:wrap;margin-top:8px}
+html body main.ferr-page #ferrEditar .ferr-opcional>legend{float:left;width:100%;display:flex;align-items:center;gap:4px;margin:0}
 html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
 </style>
 }

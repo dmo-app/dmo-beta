@@ -109,8 +109,9 @@
    fábrica de origem num bloco à parte, ao lado, com o traço vertical das colunas da Informação técnica (Diogo, 22/10/2026). *@
 <fieldset class="ferr-tech-bloco ferr-opcional" id="@(p)-opcional">
   @* O triângulo abre e fecha o bloco (Diogo, 27/10/2026: «adiciona o triângulo de minimizar»). *@
-  <legend class="ferr-tech-titulo ferr-opcional-titulo" role="button" tabindex="0" aria-expanded="true" aria-controls="@(p)-opcional-campos"><span class="dmo-caret" aria-hidden="true"></span>Informação opcional</legend>
-  <div class="ferr-tech-campos" id="@(p)-opcional-campos">
+  <legend class="ferr-tech-titulo ferr-opcional-titulo" role="button" tabindex="0" aria-expanded="@(Model.Criar ? "true" : "false")" aria-controls="@(p)-opcional-campos"><span class="dmo-caret" aria-hidden="true"></span>Informação opcional</legend>
+  @* Na ficha começa minimizada, numa linha própria, como a Informação técnica (Diogo, 02/11/2026). *@
+  <div class="ferr-tech-campos" id="@(p)-opcional-campos" hidden="@(!Model.Criar)">
     @if (Model.Sap is { } sap && (sap.Fornecedor is not null || sap.DataAquisicao is not null))
     {
       <div class="dmo-field" id="@(p)-sap-fornecedor"><span class="dmo-label">Fornecedor (SAP)</span><span>@(sap.Fornecedor ?? "—")</span></div>
