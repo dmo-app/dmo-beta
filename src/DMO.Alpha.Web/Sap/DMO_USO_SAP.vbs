@@ -182,10 +182,7 @@ Loop
 
 ' Minimizar o SAP (Diogo, 22/10/2026: correr com a página minimizada).
 ' O script do SAP continua a funcionar com a janela minimizada.
-On Error Resume Next
-session.findById("wnd[0]").iconify
-Err.Clear
-On Error GoTo 0
+MinimizarSap session
 
 ' Grava primeiro num ficheiro à parte: o DMO só vê a lista quando estiver completa.
 ' UTF-8: os nomes dos fornecedores podem ter acentos. O leitor já aceita BOM.
@@ -220,7 +217,8 @@ For i = 0 To total - 1
         Set grid = WaitForControl(session, "wnd[0]/usr/cntlCUSTOM_CONTROL_0010/shellcont/shell", espera)
         ' Com a janela minimizada o SAP pode não desenhar a lista: mostra-se a
         ' janela e espera-se outra vez antes de dar erro.
-        Dim aviso
+        Dim aviso, mostrada
+        mostrada = False
         aviso = AvisoSap(session)
         If grid Is Nothing And Len(aviso) = 0 Then
             Registo "a lista não apareceu com o SAP minimizado; a mostrar a janela"
@@ -229,6 +227,7 @@ For i = 0 To total - 1
             Err.Clear
             On Error GoTo 0
             Set grid = WaitForControl(session, "wnd[0]/usr/cntlCUSTOM_CONTROL_0010/shellcont/shell", espera)
+            mostrada = True
         End If
 
         If grid Is Nothing And Len(aviso) > 0 Then
@@ -299,6 +298,9 @@ For i = 0 To total - 1
             Next
             GoBackToSearch session
         End If
+        ' Mostrada para desenhar a lista, volta a minimizar-se depois de lida
+        ' (Diogo, 02/11/2026: «a janela já não está a minimizar»).
+        If mostrada Then MinimizarSap session
     End If
 Next
 
@@ -313,6 +315,31 @@ If Not automatico Then
     MsgBox "Feito: " & encontrados & " ferramentas lidas de " & total & " códigos." & vbCrLf & _
            "Abra as Ferramentas no DMO para gravar a utilização.", 64, TITULO
 End If
+
+' Minimiza a janela do SAP usada e as outras que estejam no ecrã da ZPPG:
+' cada «Moldes Existentes.SAP» pode abrir uma janela nova, e a escrita da
+' senha (AppActivate/SetFocus) traz a janela para a frente (Diogo,
+' 02/11/2026: a janela do SAP já não minimizava enquanto trabalhava).
+Sub MinimizarSap(ByVal usada)
+    Dim gui, motor, c, s, campo
+    On Error Resume Next
+    usada.findById("wnd[0]").iconify
+    Err.Clear
+    Set gui = GetObject("SAPGUI")
+    If Err.Number = 0 And Not gui Is Nothing Then
+        Set motor = gui.GetScriptingEngine
+        For Each c In motor.Children
+            For Each s In c.Children
+                Set campo = Nothing
+                Set campo = s.findById("wnd[0]/usr/ctxtCOD_EQ-LOW")
+                If Not campo Is Nothing Then s.findById("wnd[0]").iconify
+                Err.Clear
+            Next
+        Next
+    End If
+    Err.Clear
+    On Error GoTo 0
+End Sub
 
 ' A sessão que já está na ZPPG (a que o atalho abriu, ou outra já aberta).
 Function ProcurarSessaoZppg(ByVal app)

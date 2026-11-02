@@ -102,4 +102,39 @@ public sealed class SapScriptsVbsTests
         Assert.Contains("wnd[0]/usr/txtRSYST-BNAME", vbs);
         Assert.True(vbs.IndexOf("senhaEscrita = EntrarPeloSap()", StringComparison.Ordinal) < vbs.IndexOf("If shell.AppActivate(JANELA_LOGON) Then", StringComparison.Ordinal));
     }
+    // Diogo, 02/11/2026: a % uso foi gravada e a app dizia «A leitura do SAP falhou» (DMO-704):
+    // com um passo falhado e outro certo, o estado diz também o que correu bem («ok:»).
+    [Fact]
+    public void UmPassoFalhado_OEstadoDizTambemOQueCorreuBem()
+    {
+        using var stream = typeof(SapScripts).Assembly.GetManifestResourceStream("Sap.DMO_SAP_DIARIO.vbs")!;
+        var vbs = new StreamReader(stream).ReadToEnd();
+
+        Assert.Matches(new Regex(@"If processo\.ExitCode <> 0 Then\s+Falhar nome, ""codigo"" & processo\.ExitCode\s+Else\s+okGeral = okGeral & nome & "" """), vbs);
+        Assert.Contains("\"erro \" & Trim(erroGeral) & \" ok:\" & Trim(okGeral) & \" \" & Agora()", vbs);
+        Assert.Contains("\"erro \" & Trim(erroGeral) & \" \" & Agora()", vbs);
+    }
+
+    // Diogo, 02/11/2026: «a janela já não está a minimizar» (DMO-704): mostrada para
+    // desenhar a lista, a janela do SAP volta a minimizar-se; e minimiza-se outra vez
+    // depois da entrada com senha.
+    [Fact]
+    public void AJanelaDoSap_VoltaAMinimizarSe()
+    {
+        var assembly = typeof(SapScripts).Assembly;
+        string Ler(string nome)
+        {
+            using var stream = assembly.GetManifestResourceStream(nome)!;
+            return new StreamReader(stream).ReadToEnd();
+        }
+        var uso = Ler("Sap.DMO_USO_SAP.vbs");
+        var fabrico = Ler("Sap.DMO_FABRICO_SAP.vbs");
+
+        Assert.True(uso.IndexOf(".maximize", StringComparison.Ordinal) < uso.IndexOf("If mostrada Then MinimizarSap session", StringComparison.Ordinal));
+        Assert.Contains("mostrada = True", uso);
+        Assert.Contains("Sub MinimizarSap(", uso);
+        Assert.True(fabrico.IndexOf("MinimizarSap session", fabrico.IndexOf("ctxtCENTRO-LOW\", 30)", StringComparison.Ordinal), StringComparison.Ordinal)
+            < fabrico.IndexOf("session.findById(\"wnd[0]/usr/ctxtCENTRO-LOW\").text = CENTRO", StringComparison.Ordinal));
+        Assert.Contains("Sub MinimizarSap(", fabrico);
+    }
 }

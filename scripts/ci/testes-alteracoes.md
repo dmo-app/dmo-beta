@@ -6214,3 +6214,18 @@ Novos: 3 · mudaram: 11 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Ficha_Editar_LinhasCompativeis_InformacaoOpcionalComFabricaDeOrigem`
 
 Selo depois: `317fb893f262828f`
+
+## A-0475 · 2026-11-02 · contagem-lista
+
+Porquê: DMO-704: Diogo 02/11 «A leitura do SAP falhou» com a % uso gravada, e a janela do SAP já não minimizava; o aviso diz o passo que falhou e o que correu bem; o package.json só acrescenta o teste novo à lista
+Novos: 6 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.AJanelaDoSap_VoltaAMinimizarSe`
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.UmPassoFalhado_OEstadoDizTambemOQueCorreuBem`
+- novo: `tests/ShellProof/sap-estado-erro.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/sap-estado-erro.test.cjs :: As produções falham e a % de uso corre bem: aviso, não erro, e diz as duas coisas`
+- novo: `tests/ShellProof/sap-estado-erro.test.cjs :: Tudo falhou: diz cada passo e o motivo`
+- novo: `tests/ShellProof/sap-estado-erro.test.cjs :: Um estado antigo, sem motivo, continua a dizer que falhou`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `e6c349e263596c8c`

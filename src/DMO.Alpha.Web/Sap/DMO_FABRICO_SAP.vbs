@@ -104,10 +104,7 @@ If session Is Nothing Then
 End If
 
 ' Minimizar o SAP (Diogo, 22/10/2026: correr com a página minimizada).
-On Error Resume Next
-session.findById("wnd[0]").iconify
-Err.Clear
-On Error GoTo 0
+MinimizarSap session
 
 ' A ZFMD na mesma janela.
 session.findById("wnd[0]/tbar[0]/okcd").text = "/nzfmd"
@@ -123,6 +120,10 @@ End If
 If EsperarCampo(session, "wnd[0]/usr/ctxtCENTRO-LOW", 30) Is Nothing Then
     Falhar "O ecrã da ZFMD não abriu."
 End If
+
+' Outra vez, já no ecrã da ZFMD (Diogo, 02/11/2026: «a janela já não está
+' a minimizar»): a escrita da senha pode tê-la trazido para a frente.
+MinimizarSap session
 
 session.findById("wnd[0]/usr/ctxtCENTRO-LOW").text = CENTRO
 session.findById("wnd[0]/usr/ctxtDATA-LOW").text = dataInicio
@@ -198,6 +199,14 @@ If Not automatico Then
     MsgBox "Feito: " & total & " produções gravadas." & vbCrLf & _
            "Abra as Ferramentas no DMO para as ler.", 64, TITULO
 End If
+
+' Minimiza a janela do SAP usada (o script continua com ela minimizada).
+Sub MinimizarSap(ByVal usada)
+    On Error Resume Next
+    usada.findById("wnd[0]").iconify
+    Err.Clear
+    On Error GoTo 0
+End Sub
 
 Function PrimeiraSessao()
     Dim cn, s

@@ -39,6 +39,37 @@
   const BASE = "dmo-sap";
   const LOJA = "pasta";
 
+  // O «erro …» do dmo-sap-estado.txt em palavras (Diogo, 02/11/2026: a % uso
+  // foi gravada e a app dizia «A leitura do SAP falhou»). O script escreve
+  // «erro <script>:<motivo> … ok:<scripts> <hora>»: diz-se o passo que falhou,
+  // porquê, e o que correu bem. «parcial» quando alguma parte ficou gravada.
+  const PASSOS = {
+    "DMO_FABRICO_SAP.vbs": { nome: "as produções", feito: "As produções foram lidas do SAP" },
+    "DMO_USO_SAP.vbs": { nome: "a % de uso", feito: "A % de uso foi lida do SAP" }
+  };
+  function motivoSap(motivo) {
+    if (motivo === "falta") return "o script não está na pasta";
+    if (motivo === "tempo") return "passou de 30 minutos";
+    const codigo = /^codigo(-?\d+)$/.exec(motivo);
+    if (codigo) return "o script parou com erro, código " + codigo[1];
+    return motivo;
+  }
+  function erroSap(texto) {
+    const okParte = /\sok:(DMO_\S+(?:\s+DMO_\S+)*)/.exec(texto);
+    const certos = okParte ? okParte[1].split(/\s+/).filter((nome) => PASSOS[nome]).map((nome) => PASSOS[nome].feito) : [];
+    const semOk = okParte ? texto.replace(okParte[0], "") : texto;
+    const falhas = [];
+    const re = /(DMO_\w+\.vbs):(\S+)/g;
+    let m;
+    while ((m = re.exec(semOk))) falhas.push((PASSOS[m[1]] ? PASSOS[m[1]].nome : m[1]) + " (" + motivoSap(m[2]) + ")");
+    const naoLido = falhas.length ? "não foi possível ler " + falhas.join(" nem ") : "o motivo não ficou escrito";
+    if (certos.length) {
+      return { parcial: true, texto: certos.join(". ") + ". Mas " + naoLido + ". Veja o dmo-sap.log na pasta." };
+    }
+    return { parcial: false, texto: "A leitura do SAP falhou: " + naoLido + ". Veja o dmo-sap.log na pasta." };
+  }
+  window.DMOSapErro = erroSap;
+
   const cartao = document.querySelector("[data-ferr-sap]");
   const automatico = document.querySelector("[data-ferr-sap-auto]");
   const admin = document.querySelector("[data-sap-admin-pasta]");
@@ -376,8 +407,10 @@
           return;
         }
         if (estadoSap.texto.startsWith("erro")) {
-          mensagem("erro", "A leitura do SAP falhou: veja o dmo-sap.log na pasta.");
-          mostrarEstado("«" + pasta.name + "» · a leitura do SAP falhou");
+          const erro = erroSap(estadoSap.texto);
+          if (erro.parcial && !doAdmin) await sincronizar(pasta, false);
+          mensagem(erro.parcial ? "aviso" : "erro", erro.texto);
+          mostrarEstado("«" + pasta.name + "» · " + (erro.parcial ? "a leitura do SAP ficou a meio" : "a leitura do SAP falhou"));
           return;
         }
       }
