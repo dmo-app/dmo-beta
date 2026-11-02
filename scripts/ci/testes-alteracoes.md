@@ -6192,7 +6192,7 @@ Novos: 0 · mudaram: 2 · saíram: 0
 Selo depois: `e9fefdf708b5eda7`
 
 
-## A-0473 · 2026-11-02 · ok-do-diogo
+## A-0474 · 2026-11-02 · ok-do-diogo
 
 Porquê: Lote beta.252: junta #366, #372-#378 (pilha do portátil) à main; impressão refeita; os testes mudados estão explicados nas entradas de cada PR
 Referência: Diogo 02/11 10:56-10:58: «tudo que está testado pode ir para beta main»; «tem minha autorização para gravar no github»
