@@ -72,11 +72,14 @@ public sealed class IndexModel : PageModel
     /// <summary>Os avisos que esta pessoa desligou nas Definições (lidos antes de cada handler).</summary>
     public IReadOnlySet<string> AvisosEscondidos { get; private set; } = new HashSet<string>();
 
+    private readonly ICurrentAccountContext _account;
+    private readonly IDefinicoesPessoais _pessoais;
+
     public override async Task OnPageHandlerExecutionAsync(
         Microsoft.AspNetCore.Mvc.Filters.PageHandlerExecutingContext context,
         Microsoft.AspNetCore.Mvc.Filters.PageHandlerExecutionDelegate next)
     {
-        AvisosEscondidos = await AvisosPessoaisDaConta.LerAsync(HttpContext);
+        AvisosEscondidos = await AvisosPessoaisDaConta.LerAsync(_account, _pessoais, HttpContext.RequestAborted);
         await next();
     }
 
@@ -112,8 +115,12 @@ public sealed class IndexModel : PageModel
         CurrentUserCapabilities capabilities,
         IJobOnFichaQuery ficha,
         IJobOnFolhaQuery folha,
-        Microsoft.Extensions.Configuration.IConfiguration configuration)
+        Microsoft.Extensions.Configuration.IConfiguration configuration,
+        ICurrentAccountContext account,
+        IDefinicoesPessoais pessoais)
     {
+        _account = account;
+        _pessoais = pessoais;
         MostrarAvisoArmazem = configuration.GetValue(AvisoArmazemChave, AvisoArmazemPorOmissao);
         _createJobOn = createJobOn;
         _updateJobOn = updateJobOn;

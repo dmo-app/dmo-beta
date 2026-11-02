@@ -9,15 +9,14 @@ namespace DMO.Alpha.Web.Pages.JobOn;
 /// </summary>
 public static class AvisosPessoaisDaConta
 {
-    public static async Task<IReadOnlySet<string>> LerAsync(HttpContext http)
+    public static async Task<IReadOnlySet<string>> LerAsync(
+        ICurrentAccountContext account, IDefinicoesPessoais pessoais, CancellationToken cancellationToken)
     {
-        var account = http.RequestServices.GetService<ICurrentAccountContext>();
-        var pessoais = http.RequestServices.GetService<IDefinicoesPessoais>();
-        if (account?.Current.ActorId is not { } userId || pessoais is null)
+        if (account.Current.ActorId is not { } userId)
         {
             return new HashSet<string>();
         }
 
-        return AvisosPessoais.Ler(await pessoais.LerAsync(userId, UserSettingKeys.AvisosEscondidos, http.RequestAborted));
+        return AvisosPessoais.Ler(await pessoais.LerAsync(userId, UserSettingKeys.AvisosEscondidos, cancellationToken));
     }
 }

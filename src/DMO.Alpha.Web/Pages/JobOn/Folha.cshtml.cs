@@ -48,6 +48,8 @@ public sealed class FolhaModel(
     IConfiguration configuration,
     DMO.Alpha.Core.Tools.IFerramentasUsoSap usoSap,
     IFolhaDaFerramenta folhaDaFerramenta,
+    ICurrentAccountContext account,
+    IDefinicoesPessoais pessoais,
     DMO.Alpha.Core.Tools.IFerramentasFabricoSap fabricoSap,
     [FromKeyedServices(FolhaModel.RelogioDaExperiencia)] TimeProvider? relogioExperiencia = null) : PageModel
 {
@@ -94,7 +96,7 @@ public sealed class FolhaModel(
         Microsoft.AspNetCore.Mvc.Filters.PageHandlerExecutingContext context,
         Microsoft.AspNetCore.Mvc.Filters.PageHandlerExecutionDelegate next)
     {
-        AvisosEscondidos = await AvisosPessoaisDaConta.LerAsync(HttpContext);
+        AvisosEscondidos = await AvisosPessoaisDaConta.LerAsync(account, pessoais, HttpContext.RequestAborted);
         await next();
     }
 
