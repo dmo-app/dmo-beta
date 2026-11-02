@@ -6260,3 +6260,13 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.NaJanelaDeEntrada_ASenhaEscreveSe`
 
 Selo depois: `358b5678c87019c4`
+
+## A-0479 · 2026-11-02 · teste-novo
+
+Porquê: DMO-708: Diogo 02/11 «Unexpected token '<'» no Tudo | Desatualizadas do Admin › SAP: o ADMIN pede os códigos à página do Admin (o /Ferramentas/Definicoes manda-o para /Admin/Users)
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapAdminUsoSap.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapAdminUsoSap.cs :: DefinicoesPorModuloPageTests.OAdmin_PedeOsCodigosDoSapASuaPagina_ERecebeJson`
+
+Selo depois: `cb38cd69200a903e`

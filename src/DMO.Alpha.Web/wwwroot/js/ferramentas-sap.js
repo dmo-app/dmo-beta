@@ -26,7 +26,9 @@
   const cartaoBase = document.querySelector("[data-ferr-sap]");
   const doAdmin = !!(cartaoBase && cartaoBase.hasAttribute("data-ferr-sap-admin"));
   const PAGINA = (cartaoBase && cartaoBase.getAttribute("data-ferr-sap-base")) || "/Ferramentas/Definicoes";
-  const URL_SAP = "/Ferramentas/Definicoes?handler=UsoSap";
+  // O ADMIN pede os códigos à página dele: o /Ferramentas/Definicoes manda-o
+  // para /Admin/Users e vinha HTML (Diogo, 02/11/2026, DMO-708).
+  const URL_SAP = (doAdmin ? PAGINA : "/Ferramentas/Definicoes") + "?handler=UsoSap";
   const URL_IMPORTAR = "/Ferramentas/Definicoes?handler=ImportarUsoSap";
   const URL_SCRIPTS = PAGINA + "?handler=ScriptsSap";
   const URL_CODIGOS_REF = PAGINA + "?handler=CodigosSap";

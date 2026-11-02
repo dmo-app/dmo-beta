@@ -1,5 +1,5 @@
 {
-  "selo": "358b5678c87019c4",
+  "selo": "cb38cd69200a903e",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2517,6 +2517,8 @@
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PesoPorProducao.cs :: (resto do ficheiro)": "15a550359070c5ac",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PesoPorProducao.cs :: DefinicoesPorModuloPageTests.OPesoDoHistorico_AbreAJanelaComTodasAsProducoes_MediaModaEDeltaEmGEPercentagem": "d020936d66b8b1dc",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.PesoPorProducao.cs :: DefinicoesPorModuloPageTests.OPesoDoHistorico_DeltaSaltaAsProducoesAnterioresSemPeso": "597c260521a23f0f",
+    "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapAdminUsoSap.cs :: (resto do ficheiro)": "d765b4434dbe782f",
+    "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapAdminUsoSap.cs :: DefinicoesPorModuloPageTests.OAdmin_PedeOsCodigosDoSapASuaPagina_ERecebeJson": "40b0fb8b20d59a22",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapEscolhaNaJanela.cs :: (resto do ficheiro)": "58aa9e56b17e73e7",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapEscolhaNaJanela.cs :: DefinicoesPorModuloPageTests.OTudoEDesatualizadas_FicamDentroDaJanelaDoAtualizarDoSap": "9a77da46f7373497",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapMaisAntigo.cs :: (resto do ficheiro)": "6d6aca8933b8917d",
