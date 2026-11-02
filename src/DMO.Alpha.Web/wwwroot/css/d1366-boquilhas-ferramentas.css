@@ -162,6 +162,8 @@ html body .beta-bq-layout section.view .beta-production-rail{margin:0;padding:8p
 /* A 1366×768 e abaixo, o painel das linhas de produção não cresce à vontade: a lista de movimentos (auditoria do Codex de 28/10/2026, C03) ficava sem altura quando havia várias linhas ou filtros que ocupavam mais espaço. */
 @media (min-width:1100px){
   html body .beta-bq-layout section#historico .beta-production-rail{max-height:132px;overflow:auto}
+  /* Nunca encolhe abaixo dos cards (Diogo, 30/10/2026): com os filtros em duas linhas (Movimentos aberto do Registo, com BQ e lote) a página não cabia e a faixa ficava esmagada; fica pelo menos com uma fila de cards e a página desliza. */
+  html body .beta-bq-layout section#historico .beta-production-rail{box-sizing:border-box;min-height:76px}
 }
 html body .beta-bq-layout section.view .beta-production-lines :is(button,.dmo-rail-link){padding:4px 12px}
 /* Passar o rato num cartão (as linhas, os factos com link) muda só a cor do texto. */
@@ -456,7 +458,10 @@ html body .beta-bq-layout button.bq-sem-jobon-link:focus-visible{outline:0;box-s
      spans sem classe (d1366-planeamento.css) apanhava também estas. Colunas fixas, iguais em todas as barras, e cada barra com a
      mesma altura, com ou sem ficha; uma linha com duas fichas cresce. */
   html body .beta-bq-layout section#historico #bqHistDia .beta-light-machine-row{height:auto;min-height:32px;display:grid;gap:4px}
-  html body .beta-bq-layout section#historico #bqHistDia .beta-light-production{grid-template-columns:44px minmax(0,120px) minmax(0,160px) minmax(0,1fr);grid-template-rows:32px;column-gap:16px;padding-inline:12px}
+  html body .beta-bq-layout section#historico #bqHistDia .beta-light-production{grid-template-columns:44px minmax(0,120px) minmax(0,160px) minmax(0,1fr) auto;grid-template-rows:32px;column-gap:16px;padding-inline:12px}
+  /* Os selos S/E/SR do dia, na mesma linha, à direita (Diogo, 30/10/2026). */
+  html body .beta-bq-layout section#historico #bqHistDia .bq-dia-quantidades{grid-row:1;display:flex;gap:6px;align-items:center;justify-content:flex-end;white-space:nowrap}
+  html:root body .beta-bq-layout section#historico #bqHistDia .bq-dia-quantidades>span:not(#_){color:var(--dmo-text,#172d42);margin:0}
   html body .beta-bq-layout section#historico #bqHistDia .beta-light-production>span:not([class]){position:static;width:auto;height:auto;margin:0;clip:auto;grid-row:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
   html body .beta-bq-layout section#historico #bqHistDia .beta-light-machine-empty{height:32px;min-height:32px;box-sizing:border-box;padding:0 12px}
 
@@ -536,3 +541,17 @@ html body main.ferr-page #ferr-create-form>.ferr-create-tech>summary:is(:hover,:
 /* O «Voltar» da Utilização por produção: link no canto superior esquerdo, por cima do título (Diogo, 29/10/2026). */
 html body .ferr-producoes-janela>.ferr-producoes-voltar:not(#_){display:block;margin:0 0 4px;padding:0;color:var(--dmo-muted);font-size:13px;font-weight:500}
 html body .ferr-producoes-janela>.ferr-producoes-voltar:is(:hover,:focus-visible):not(#_){color:var(--dmo-text)}
+
+/* R12 (DMO-694): Boquilhas › Movimentos: «Vista» na linha de «Limpar filtros» e «Imprimir / PDF»;
+   os outros filtros todos juntos na linha de baixo (o «Até» já não cai sozinho). */
+html body .beta-bq-layout form#bqHistoryFilters{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 10px}
+html body .beta-bq-layout form#bqHistoryFilters>#bqHistContexto{display:none}
+html body .beta-bq-layout form#bqHistoryFilters>.bq-history-filter-grid{display:contents}
+html body .beta-bq-layout form#bqHistoryFilters .bq-history-filter-grid>.dmo-field{order:2}
+html body .beta-bq-layout form#bqHistoryFilters .bq-history-filter-grid>.dmo-field:has(#vista){order:0}
+html body .beta-bq-layout form#bqHistoryFilters>.bq-history-filters-head{order:1;flex:1 1 auto;margin:0;align-self:flex-end}
+html body .beta-bq-layout form#bqHistoryFilters::after{content:"";order:1;flex:0 0 100%;height:0}
+/* DMO-718 (Diogo 02/11): Boquilhas › Registo «muito branco» no tema claro → fundo e cartões com tom ligeiro. */
+:root:not([data-theme="dark"]) body .beta-bq-layout>.main{background:color-mix(in srgb,var(--dmo-brand-500) 11%,var(--dmo-bg,#fff))}
+:root:not([data-theme="dark"]) body .beta-bq-layout>.main>section.view .card{background:color-mix(in srgb,var(--dmo-brand-500) 4%,var(--dmo-card,#fff))}
+html body .beta-bq-layout #bqMetrics{display:flex;flex-direction:column;justify-content:center}

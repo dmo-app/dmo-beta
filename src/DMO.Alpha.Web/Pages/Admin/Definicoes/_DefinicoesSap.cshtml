@@ -42,6 +42,11 @@
         <div class="dmo-card-topo">
             <h3 id="admin-sap-pasta-title">Pasta do SAP neste computador</h3>
             <div class="dmo-card-topo-acoes">
+                @* O que o «Atualizar» pede ao SAP, à vista (Diogo, 30/10/2026: «criar no cartão um selecionador como temos das linhas nas ferramentas»). *@
+                <span class="rp-modo" role="group" aria-label="Que ferramentas pedir ao SAP">
+                    <button type="button" class="dmo-button rp-modo-ativo" data-ferr-sap-escolha="todas" aria-pressed="true">Tudo</button>
+                    <button type="button" class="dmo-button" data-ferr-sap-escolha="espera" aria-pressed="false">Desatualizadas</button>
+                </span>
                 <button type="button" class="dmo-button" data-ferr-sap-atualizar>Atualizar do SAP</button>
                 @* «Instalar» à vista, ao lado do Atualizar (Diogo, 28/10/2026 18:31). *@
                 <button type="button" class="dmo-button" data-ferr-sap-instalar>Instalar</button>

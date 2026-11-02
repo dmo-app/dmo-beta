@@ -278,6 +278,10 @@ html:root body .jof2.jof2.jof2:not(.editing) .use>.use-top>span{margin:0}
 html:root body .jof2.jof2.jof2:not(.editing) .use>.use-top>b{font-size:15px;font-weight:700;color:var(--dmo-brand-700)}
 html:root[data-theme="dark"] body .jof2.jof2.jof2:not(.editing) .use>.use-top>b{color:var(--dmo-text)}
 html:root body .jof2.jof2.jof2:not(.editing) .use>.bar{flex:1 0 100%;margin:0}
+/* R2 (DMO-694): «Utilização 82% antes 86.2%» numa só linha em todos os cartões, para a barra ficar sempre à mesma altura */
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .use{display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:baseline;column-gap:6px}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .use>.use-top>.was{grid-column:3;grid-row:1;justify-self:end;margin:0;min-width:0;overflow:hidden;text-overflow:ellipsis}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .use>.bar{grid-column:1/-1;grid-row:2}
 
 /* ---- dimensões e folgas à vista no cartão (ver) ---- */
 html:root body .jof2.jof2.jof2:not(.editing) .jof-dims{display:grid;gap:3px;margin:0;padding:6px 0 0;border-top:1px solid var(--dmo-border)}
@@ -483,7 +487,8 @@ html:root body .jof2.editing.editing.editing table.calv thead th{position:sticky
   html:root body .jof2.jof2.jof2:not(.editing) [data-jof-familia="TP"]>.kv>dd{margin:0;font-size:15px;font-weight:700}
   html:root body .jof2.jof2.jof2:not(.editing) .jof-furos-ver{flex-wrap:wrap;gap:0 8px}
   html:root body .jof2.jof2.jof2.jof2:not(.editing) [data-jof-familia="CS"]>.kv{column-gap:6px}
-  html:root body .jof2.jof2.jof2.jof2.jof2:not(.editing) .zones .sec>.note-box.note-view:not(.is-ampliada){min-height:auto !important}
+  html:root body .jof2.jof2.jof2.jof2.jof2:not(.editing) .zones .sec>.note-box.note-view:not(.is-ampliada){min-height:0 !important}
+  /* DMO-694 (bug 02/11): a caixa da nota pode encolher, para uma nota comprida (TP «ALTERADO CALOTE PARA 4,7 MM») deslizar dentro do cartão em vez de sair por baixo */
   html:root body .jof2.jof2.jof2.jof2.jof2:not(.editing) .zones .sec>.note-box.note-view:not(.is-ampliada)>p{min-height:36px !important}
   html:root body .jof2.jof2.jof2.jof2.jof2:not(.editing) .zones :is([data-jof-familia="TP"],[data-jof-familia="CS"])>.note-box.note-view:not(.is-ampliada)>p{min-height:18px !important}
 }
