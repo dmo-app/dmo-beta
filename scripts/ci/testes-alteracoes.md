@@ -6306,3 +6306,12 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.ComUmaJanelaDoSapAberta_OTecladoNaoEscreve`
 
 Selo depois: `2aacb9a38ebc16b5`
+
+## A-0484 · 2026-11-02 · teste-novo
+
+Porquê: DMO-713: Diogo 02/11 13:17 «SAP pronto (SAP)» e falhou: com o SAP aberto no ecrã de entrada o FABRICO entra primeiro pelo SAP
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OFabrico_ComOSapAbertoNoEcraDeEntrada_EntraPrimeiro`
+
+Selo depois: `ab5dc5308891a01e`

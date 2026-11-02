@@ -1,5 +1,5 @@
 {
-  "selo": "2aacb9a38ebc16b5",
+  "selo": "ab5dc5308891a01e",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -3247,6 +3247,7 @@
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.Codigo3SemJanelaDoSapComEsseNome_EscrevePeloTeclado": "5bbd1284889d26a0",
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.ComUmaJanelaDoSapAberta_OTecladoNaoEscreve": "15361a17284b044f",
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.NaJanelaDeEntrada_ASenhaEscreveSe": "2147e765befd0077",
+    "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OFabrico_ComOSapAbertoNoEcraDeEntrada_EntraPrimeiro": "a947b251a0126a4e",
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OFabrico_SoAvancaDepoisDeEntrar_EDizNoLog": "ee7d51b5e2eff719",
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OScriptDaZppg_ProcuraSoNaPlantMg": "ef9aa9ed84f29785",
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OsScriptsDoSap_NaoUsamOLikeDoVba": "b6343316fdb3f4ef",

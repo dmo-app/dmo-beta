@@ -68,6 +68,22 @@ temporario = fso.BuildPath(pasta, "dmo-fabrico-sap.a-gravar")
 
 ' Uma sessão do SAP: a que já está aberta ou a que o atalho abre.
 Set session = PrimeiraSessao()
+' A sessão já aberta pode estar no ecrã de entrada (Diogo, 02/11/2026 13:17:
+' «SAP pronto (SAP)» e falhou): entra-se pelo SAP e espera-se que fique pronta.
+If Not session Is Nothing Then
+    If Not Campo(session, "wnd[0]/usr/pwdRSYST-BCODE") Is Nothing Then
+        Registo "SAP aberto no ecrã de entrada: a entrar"
+        If Not EntrarPeloSap() Then Falhar "O SAP está no ecrã de entrada e não foi possível entrar."
+        startedAt = Timer
+        Do
+            WScript.Sleep 1000
+            If TratarLogonMultiplo() Then WScript.Sleep 2000
+            If Campo(session, "wnd[0]/usr/pwdRSYST-BCODE") Is Nothing And Campo(session, "wnd[1]") Is Nothing _
+                And Not Campo(session, "wnd[0]/tbar[0]/okcd") Is Nothing Then Exit Do
+            If ElapsedSeconds(startedAt) >= 60 Then Falhar "O SAP ficou no ecrã de entrada (utilizador ou senha errados?)."
+        Loop
+    End If
+End If
 If session Is Nothing Then
     If Not fso.FileExists(atalho) Then
         Falhar "O SAP não está aberto e falta o «Moldes Existentes.SAP» nesta pasta:" & vbCrLf & pasta

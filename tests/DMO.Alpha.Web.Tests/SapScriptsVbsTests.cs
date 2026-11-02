@@ -215,4 +215,20 @@ public sealed class SapScriptsVbsTests
         Assert.Contains("If c.Children.Count > 0 Then SapTemSessao = True", vbs);
         Assert.Single(Regex.Matches(vbs, @"shell\.SendKeys"));
     }
+
+    // Diogo, 02/11/2026 13:17 (DMO-713): com o SAP já aberto no ecrã de entrada, o FABRICO
+    // dizia «SAP pronto (SAP)» e falhava. Agora entra pelo SAP e espera que fique pronto.
+    [Fact]
+    public void OFabrico_ComOSapAbertoNoEcraDeEntrada_EntraPrimeiro()
+    {
+        using var stream = typeof(SapScripts).Assembly.GetManifestResourceStream("Sap.DMO_FABRICO_SAP.vbs")!;
+        var vbs = new StreamReader(stream).ReadToEnd();
+
+        var inicio = vbs.IndexOf("Set session = PrimeiraSessao()", StringComparison.Ordinal);
+        var entrada = vbs.IndexOf("Registo \"SAP aberto no ecrã de entrada: a entrar\"", StringComparison.Ordinal);
+        var bloco = vbs.IndexOf("If session Is Nothing Then", inicio, StringComparison.Ordinal);
+        Assert.True(inicio > 0 && entrada > inicio && bloco > entrada);
+        Assert.Contains("If Not EntrarPeloSap() Then Falhar", vbs);
+        Assert.Contains("If ElapsedSeconds(startedAt) >= 60 Then Falhar \"O SAP ficou no ecrã de entrada", vbs);
+    }
 }
