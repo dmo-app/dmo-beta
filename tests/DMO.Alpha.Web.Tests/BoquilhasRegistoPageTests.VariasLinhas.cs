@@ -36,8 +36,9 @@ public partial class BoquilhasRegistoPageTests
 
         var token = await GetVerificationTokenAsync(client, PagePath);
         var response = await client.PostAsync($"{PagePath}?handler=RegisterMany", HtmlFormHelpers.BuildFormPost(
-            ("linha_bq_id", b1.Id.ToString()), ("linha_tipo", "saida"), ("linha_qtd", "4"), ("linha_qtd_an", ""),
-            ("linha_bq_id", c2.Id.ToString()), ("linha_tipo", "entrada"), ("linha_qtd", "2"), ("linha_qtd_an", "1"),
+            ("movement_type", "entrada"),
+            ("linha_bq_id", b1.Id.ToString()), ("linha_qtd", "30"), ("linha_qtd_sr", "22"), ("linha_qtd_an", ""),
+            ("linha_bq_id", c2.Id.ToString()), ("linha_qtd", "2"), ("linha_qtd_sr", ""), ("linha_qtd_an", "1"),
             ("occurred_at", "2026-10-20T14:30"),
             ("__RequestVerificationToken", token)));
 
@@ -52,9 +53,10 @@ public partial class BoquilhasRegistoPageTests
         Assert.Equal(2, traces.Count);
         var movimentos = await db.BqMovements.AsNoTracking()
             .Where(m => traces.Select(t => t.Id).Contains(m.BqRepairTraceId)).ToListAsync();
-        Assert.Equal(2, movimentos.Count);
+        Assert.Equal(3, movimentos.Count);
         Assert.Single(movimentos.Select(m => m.OccurredAtUtc).Distinct());
-        Assert.Contains(movimentos, m => m.Quantity == 4 && m.AnQuantity == null);
+        Assert.Contains(movimentos, m => m.Quantity == 30 && m.AnQuantity == null);
+        Assert.Contains(movimentos, m => m.Quantity == 22 && m.AnQuantity == null);
         Assert.Contains(movimentos, m => m.Quantity == 2 && m.AnQuantity == 1);
     }
 
@@ -70,8 +72,9 @@ public partial class BoquilhasRegistoPageTests
 
         var token = await GetVerificationTokenAsync(client, PagePath);
         var response = await client.PostAsync($"{PagePath}?handler=RegisterMany", HtmlFormHelpers.BuildFormPost(
-            ("linha_bq_id", b2.Id.ToString()), ("linha_tipo", "saida"), ("linha_qtd", ""), ("linha_qtd_an", ""),
-            ("linha_bq_id", c3.Id.ToString()), ("linha_tipo", "saida"), ("linha_qtd", "3"), ("linha_qtd_an", ""),
+            ("movement_type", "saida"),
+            ("linha_bq_id", b2.Id.ToString()), ("linha_qtd", ""), ("linha_qtd_an", ""),
+            ("linha_bq_id", c3.Id.ToString()), ("linha_qtd", "3"), ("linha_qtd_an", ""),
             ("__RequestVerificationToken", token)));
 
         var destino = Uri.UnescapeDataString(response.Headers.Location!.OriginalString);

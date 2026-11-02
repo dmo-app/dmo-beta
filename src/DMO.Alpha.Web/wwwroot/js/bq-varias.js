@@ -1,46 +1,40 @@
 // VÁRIAS LINHAS DE UMA VEZ (Diogo, 02/11/2026, DMO-721): com «Várias linhas»
-// ligado, um clique no cartão de uma linha escolhe-o em vez de o abrir, e
-// o formulário ganha a linha dele (Saída/Entrada, Qtd. BQ, Qtd. AN). A data e
-// a hora são as mesmas para todas; «Registar» grava tudo de uma vez.
+// ligado, um clique no cartão de uma linha escolhe-o em vez de o abrir, e o
+// formulário ganha a linha dele. O tipo (Saída ou Entrada), a data e a hora
+// são os mesmos para todas: um tipo de movimento por registo. Com Entrada,
+// cada linha tem «Reparadas» e «Sem reparação» (ex.: 30 e 22 no mesmo registo).
 (function () {
   'use strict';
   let ligado = false;
 
   function form() { return document.getElementById('bqVarias'); }
   function cartoes() { return document.querySelectorAll('#registo .beta-production-lines button[data-id]'); }
+  function tipo() { return form()?.querySelector('input[name=movement_type]:checked')?.value || 'saida'; }
 
   function atualizar() {
     const f = form();
     if (!f) return;
     const n = f.querySelectorAll('.bq-varias-linha').length;
     f.querySelector('.bq-varias-vazio').hidden = n > 0;
+    const entrada = tipo() === 'entrada';
+    f.querySelectorAll('.bq-varias-sr').forEach((c) => { c.hidden = !entrada; });
+    f.querySelectorAll('.bq-varias-qtd-rotulo').forEach((r) => { r.textContent = entrada ? 'Reparadas' : 'Qtd. BQ'; });
     const b = f.querySelector('button[type=submit]');
     b.disabled = n === 0;
     b.textContent = n > 1 ? `Registar ${n} linhas` : 'Registar';
   }
 
-  function linhaHtml(id, codigo, detalhe) {
+  function linhaHtml(id, codigo) {
     const d = document.createElement('div');
     d.className = 'bq-movement-line bq-varias-linha';
     d.dataset.id = id;
-    const nome = `t${id}`;
     d.innerHTML = `
       <input type="hidden" name="linha_bq_id" value="${id}" />
       <strong class="bq-varias-codigo"></strong>
-      <fieldset class="bq-movement-types">
-        <legend class="visually-hidden">Movimento</legend>
-        <label><input type="radio" name="${nome}" value="saida" checked /><span>Saída</span></label>
-        <label><input type="radio" name="${nome}" value="entrada" /><span>Entrada</span></label>
-        <label><input type="radio" name="${nome}" value="entrada_sem_reparacao" /><span>Entrada sem reparação</span></label>
-      </fieldset>
-      <input type="hidden" name="linha_tipo" value="saida" />
-      <div class="field dmo-field bq-line-quantity"><label>Qtd. BQ</label><input name="linha_qtd" type="number" lang="en" min="1" required placeholder="Ex.: 1" /></div>
+      <div class="field dmo-field bq-line-quantity"><label class="bq-varias-qtd-rotulo">Qtd. BQ</label><input name="linha_qtd" type="number" lang="en" min="0" placeholder="Ex.: 1" /></div>
+      <div class="field dmo-field bq-line-quantity bq-varias-sr" hidden><label>Sem reparação</label><input name="linha_qtd_sr" type="number" lang="en" min="0" placeholder="Ex.: 1" /></div>
       <div class="field dmo-field bq-line-quantity"><label>Qtd. AN</label><input name="linha_qtd_an" type="number" lang="en" min="0" placeholder="Ex.: 1" /></div>`;
     d.querySelector('.bq-varias-codigo').textContent = codigo;
-    d.querySelector('.bq-varias-codigo').title = detalhe;
-    d.addEventListener('change', (e) => {
-      if (e.target.name === nome) d.querySelector('input[name=linha_tipo]').value = e.target.value;
-    });
     return d;
   }
 
@@ -56,7 +50,7 @@
       const spans = cartao.querySelectorAll('span');
       const producao = spans.length > 1 ? spans[spans.length - 1].textContent.trim() : '';
       const codigo = [cartao.querySelector('strong')?.textContent || '', producao].filter(Boolean).join(' · ');
-      f.querySelector('.bq-varias-linhas').appendChild(linhaHtml(id, codigo, cartao.title || ''));
+      f.querySelector('.bq-varias-linhas').appendChild(linhaHtml(id, codigo));
       cartao.classList.add('bq-varias-escolhido');
       cartao.setAttribute('aria-pressed', 'true');
       f.querySelector(`.bq-varias-linha[data-id="${id}"] input[name=linha_qtd]`).focus();
@@ -79,6 +73,9 @@
     atualizar();
   }
 
+  document.addEventListener('change', (e) => {
+    if (e.target.closest && e.target.closest('#bqVarias') && e.target.name === 'movement_type') atualizar();
+  });
   // Em captura, antes do ouvinte que abre a linha: ligado, o clique escolhe.
   document.addEventListener('click', (e) => {
     if (e.target.closest && e.target.closest('#bqVariasLigar')) {

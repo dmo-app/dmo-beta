@@ -1525,8 +1525,9 @@ public sealed partial class IndexModel : PageModel
 
     public async Task<IActionResult> OnPostRegisterManyAsync(
         [FromForm(Name = "linha_bq_id")] int[]? bqIds,
-        [FromForm(Name = "linha_tipo")] string[]? tipos,
+        [FromForm(Name = "movement_type")] string? tipo,
         [FromForm(Name = "linha_qtd")] string[]? quantidades,
+        [FromForm(Name = "linha_qtd_sr")] string[]? quantidadesSemReparacao,
         [FromForm(Name = "linha_qtd_an")] string[]? quantidadesAn,
         [FromForm(Name = "occurred_at")] string? occurredAt)
     {
@@ -1552,18 +1553,35 @@ public sealed partial class IndexModel : PageModel
         {
             var linha = currents.FirstOrDefault(c => c.BqContextId == bqIds[i]);
             var nome = linha?.MachineCode ?? "?";
-            var tipo = tipos?.ElementAtOrDefault(i) ?? string.Empty;
-            if (!int.TryParse(quantidades?.ElementAtOrDefault(i), out var qtd) || qtd < 1
+            // Com Entrada, a mesma linha pode ter reparadas e sem reparação
+            // (Diogo, 02/11/2026: «entrou 30 reparadas e 22 sem reparação»).
+            var movimentos = new List<(string Tipo, string? Qtd)>
+            {
+                (tipo ?? string.Empty, quantidades?.ElementAtOrDefault(i))
+            };
+            if (tipo == "entrada")
+            {
+                movimentos.Add(("entrada_sem_reparacao", quantidadesSemReparacao?.ElementAtOrDefault(i)));
+            }
+            movimentos.RemoveAll(m => string.IsNullOrWhiteSpace(m.Qtd));
+            if (movimentos.Count == 0
+                || movimentos.Any(m => !int.TryParse(m.Qtd, out var q) || q < 1)
                 || !TryReadAnQuantity(quantidadesAn?.ElementAtOrDefault(i), out var an))
             {
                 falhou.Add(nome);
                 continue;
             }
 
-            var outcome = await _movementHandler.HandleForContextAsync(
-                new RegisterBqMovementForContext(bqIds[i], tipo, qtd, operatorId, occurredAtUtc, linha?.MachineId, an),
-                HttpContext.RequestAborted);
-            (outcome.Result == RegisterBqMovementResult.Success ? ok : falhou).Add(nome);
+            var tudoBem = true;
+            for (var m = 0; m < movimentos.Count; m++)
+            {
+                var outcome = await _movementHandler.HandleForContextAsync(
+                    new RegisterBqMovementForContext(bqIds[i], movimentos[m].Tipo, int.Parse(movimentos[m].Qtd!), operatorId,
+                        occurredAtUtc, linha?.MachineId, m == 0 ? an : null),
+                    HttpContext.RequestAborted);
+                tudoBem &= outcome.Result == RegisterBqMovementResult.Success;
+            }
+            (tudoBem ? ok : falhou).Add(nome);
         }
 
         return RedirectToPage("/Boquilhas/Index", new
