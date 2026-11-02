@@ -200,4 +200,19 @@ public sealed class SapScriptsVbsTests
         Assert.Matches(new Regex(@"If codigo <> 0 And codigo <> 3 Then(\s+'[^\n]*)*\s+If shell\.AppActivate\(JANELA_LOGON\) Then\s+WScript\.Sleep 300\s+shell\.SendKeys"), vbs);
         Assert.Contains("a janela da senha não veio para a frente: nada escrito", vbs);
     }
+
+    // Diogo, 02/11/2026 13:17 (DMO-712): «começa a escrever na janela do SAP se estiver aberta»
+    // («AUSERREQMG», «Função impossível»). Com qualquer sessão do SAP aberta o teclado não escreve.
+    [Theory]
+    [InlineData("Sap.DMO_USO_SAP.vbs")]
+    [InlineData("Sap.DMO_FABRICO_SAP.vbs")]
+    public void ComUmaJanelaDoSapAberta_OTecladoNaoEscreve(string nome)
+    {
+        using var stream = typeof(SapScripts).Assembly.GetManifestResourceStream(nome)!;
+        var vbs = new StreamReader(stream).ReadToEnd();
+
+        Assert.Matches(new Regex(@"If codigo <> 0 And codigo <> 3 And SapTemSessao\(\) Then\s+Registo ""há uma janela do SAP aberta: nada pelo teclado""\s+codigo = 3\s+End If\s+If codigo <> 0 And codigo <> 3 Then"), vbs);
+        Assert.Contains("If c.Children.Count > 0 Then SapTemSessao = True", vbs);
+        Assert.Single(Regex.Matches(vbs, @"shell\.SendKeys"));
+    }
 }

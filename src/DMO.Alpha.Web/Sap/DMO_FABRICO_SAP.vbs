@@ -427,6 +427,14 @@ Sub EscreverSenha()
     ' Código 4: é a janela de entrada (tem «Logon»), mas o Windows não chega às
     ' caixas: escreve-se pelo teclado, como até 29/10.
     If codigo = 4 Then Registo "janela de entrada sem caixas à vista: pelo teclado"
+    ' Nunca pelo teclado com uma janela do SAP aberta (Diogo, 02/11/2026 13:17:
+    ' «começa a escrever na janela do SAP se estiver aberta», escreveu «AUSERREQMG»
+    ' e deu «Função impossível»). O ecrã de entrada do SAP preenche-se pelo SAP
+    ' (EntrarPeloSap); o teclado só serve quando não há nenhuma sessão do SAP.
+    If codigo <> 0 And codigo <> 3 And SapTemSessao() Then
+        Registo "há uma janela do SAP aberta: nada pelo teclado"
+        codigo = 3
+    End If
     If codigo <> 0 And codigo <> 3 Then
         ' Só com a janela da senha à frente: senão o teclado ia para o SAP Logon
         ' (Diogo, 02/11/2026: ficou o SAP Logon à frente com o BAS escolhido).
@@ -439,6 +447,22 @@ Sub EscreverSenha()
         End If
     End If
 End Sub
+
+' Alguma sessão do SAP aberta (qualquer janela do SAP, mesmo o ecrã de entrada)?
+Function SapTemSessao()
+    Dim gui, motor, c
+    SapTemSessao = False
+    On Error Resume Next
+    Set gui = GetObject("SAPGUI")
+    If Err.Number <> 0 Or gui Is Nothing Then Err.Clear: On Error GoTo 0: Exit Function
+    Set motor = gui.GetScriptingEngine
+    For Each c In motor.Children
+        If c.Children.Count > 0 Then SapTemSessao = True
+        Err.Clear
+    Next
+    Err.Clear
+    On Error GoTo 0
+End Function
 
 ' Alguma sessão do SAP com uma janela com este nome (o título começa por ele)?
 Function SapTemJanela(ByVal nome)

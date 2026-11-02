@@ -6297,3 +6297,12 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.AEntradaPeloSap_TentaSempre_EOTecladoSoComAJanelaAFrente`
 
 Selo depois: `51cd82140d9b3090`
+
+## A-0483 · 2026-11-02 · teste-novo
+
+Porquê: DMO-712: Diogo 02/11 13:17 «começa a escrever na janela do SAP se estiver aberta» (AUSERREQMG, Função impossível): com qualquer sessão do SAP aberta o teclado não escreve
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.ComUmaJanelaDoSapAberta_OTecladoNaoEscreve`
+
+Selo depois: `2aacb9a38ebc16b5`
