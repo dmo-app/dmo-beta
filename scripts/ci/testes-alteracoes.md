@@ -6241,3 +6241,13 @@ Novos: 4 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapSenhaGuardadaTests.cs :: SapSenhaGuardadaTests.SemSenha_NaoDizGuardada`
 
 Selo depois: `8c5aaf416cb9b7ab`
+
+## A-0477 · 2026-11-02 · teste-novo
+
+Porquê: DMO-706: Diogo 02/11 «metemos o tudo dentro do atualizar SAP» (ok «sim» à imagem): o Tudo | Desatualizadas passa para a janela do Atualizar do SAP
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapEscolhaNaJanela.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapEscolhaNaJanela.cs :: DefinicoesPorModuloPageTests.OTudoEDesatualizadas_FicamDentroDaJanelaDoAtualizarDoSap`
+
+Selo depois: `7055908ddeafb614`
