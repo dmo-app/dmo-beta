@@ -6014,3 +6014,9 @@ Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; no
 | Teste | O que prova | Estado | Notas |
 |---|---|---|---|
 | `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoReferencia.cs` › `AJanelaDaUtilizacao_MostraAReferenciaDeCadaProducao` (ajustado) | Janela Utilização: colunas Referência antes de Produção, Linha e N.º | OK | R1, Diogo 30/10. A ordem (mais antiga em cima) ver no ensaio. |
+
+## R6 (A-0468, DMO-699)
+
+| Teste | O que prova | Estado | Notas |
+|---|---|---|---|
+| `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs` › `SemAPermissao_OGeralLeSeComCadeado_ENaoGrava` (ajustado) | Sem PIN, a hora de viragem não grava; os reparadores das Boquilhas ficam fora do cadeado e gravam | OK | R6, Diogo 02/11. Fabricante/Data de aquisição: ver no ensaio (migração nova FerramentaFabricanteDataAquisicao). |

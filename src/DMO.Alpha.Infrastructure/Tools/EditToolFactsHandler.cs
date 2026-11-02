@@ -140,6 +140,17 @@ public sealed class EditToolFactsHandler : IEditToolFactsHandler
         }
 
         // A B2 em que trabalha (Diogo, 28/10/2026): sem a B2 nas linhas não há modo.
+        // R6 (Diogo, 02/11/2026): fabricante e data de aquisição à mão; vazio = em branco.
+        if (command.Fabricante is not null)
+        {
+            var fabricante = TrimToNull(command.Fabricante);
+            tool.Fabricante = fabricante is { Length: > 120 } ? fabricante[..120] : fabricante;
+        }
+        if (command.DataAquisicao is not null)
+        {
+            tool.DataAquisicao = DateOnly.TryParseExact(command.DataAquisicao.Trim(), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var data) ? data : null;
+        }
+
         // R4 (Diogo, 01/11/2026): sem escolha à mão; a app identifica pelas linhas (C1 = Dupla, C3 = Tripla).
         var codigos = machineIds.Count > 0
             ? await _db.Machines.Where(m => machineIds.Contains(m.Id)).Select(m => m.Code).ToListAsync(cancellationToken)
