@@ -86,3 +86,13 @@ html body table.dmo-table.pu-grelha tbody th{font-size:14px}
 .pu-topo .pu-add-form .dmo-field{flex:0 0 auto;margin:0}
 .pu-oculto{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 html body .pu-topo .pu-add-form>.dmo-button{margin:0}
+/* R16 (Diogo, 30/10/2026): o «Visto» / «Por verificar» da tabela volta a ser o botão que troca o estado; × de remover na última coluna. */
+.pu-check-form{margin:0}
+.pu-check{all:unset;cursor:pointer;color:inherit;font-weight:inherit;text-decoration:underline dotted;text-underline-offset:3px}
+.pu-check:focus-visible,.pu-remove:focus-visible{outline:2px solid var(--dmo-brand-500);outline-offset:2px}
+.pu-table-fixa .pu-col-acoes{width:48px}
+.pu-remove{all:unset;cursor:pointer;padding:0 8px;font-size:18px;line-height:1;color:var(--dmo-muted)}
+.pu-remove:hover{color:var(--dmo-danger)}
+#puncoes-lista .pu-section-head>.pu-topo{flex:1 1 auto;justify-content:space-between}
+#puncoes-lista .pu-topo-direita{display:flex;align-items:center;gap:8px 16px;margin-left:auto}
+#puncoes-lista .pu-topo-direita h3{margin:0}

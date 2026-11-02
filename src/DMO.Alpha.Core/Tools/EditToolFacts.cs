@@ -26,4 +26,7 @@ public sealed record EditToolFacts(
     // A quantidade de AN do lote (só na BQ; Diogo, 28/10/2026). null = vazia.
     int? AnQuantity = null,
     // A B2 em que trabalha: null mantém, vazio tira, «Dupla»/«Tripla» escolhe.
-    string? B2Modo = null);
+    string? B2Modo = null,
+    // R6: o fabricante e a data de aquisição (aaaa-mm-dd). null = fica como está; vazio = limpa.
+    string? Fabricante = null,
+    string? DataAquisicao = null);

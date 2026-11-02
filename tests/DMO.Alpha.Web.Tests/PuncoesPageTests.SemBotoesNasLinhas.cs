@@ -101,33 +101,16 @@ public partial class PuncoesPageTests
         var cartao = Regex.Match(html, "<section class=\"dmo-card pu-card\" id=\"puncoes-lista\"[\\s\\S]*?</section>").Value;
         Assert.NotEmpty(cartao);
 
-        // Dois botões no canto, ligados ao formulário do Seen; com duas
-        // punções, nenhuma vem escolhida e os botões esperam.
+        // R16 (Diogo, 30/10/2026): sem Punção visto / Arrefecedor visto / Remover no canto.
         var canto = Regex.Match(cartao, "<div class=\"dmo-card-topo-acoes\" data-dmo-for=\"puLista\">[\\s\\S]*?<details").Value;
-        var botoes = Regex.Matches(canto, "<button[^>]*>[^<]*</button>").Select(m => m.Value).ToList();
-        Assert.Equal(3, botoes.Count);
-        Assert.Contains("form=\"puVistoForm\" name=\"campo\" value=\"puncao\"", botoes[0]);
-        Assert.EndsWith(">Punção visto</button>", botoes[0]);
-        Assert.Contains("form=\"puVistoForm\" name=\"campo\" value=\"arrefecedor\"", botoes[1]);
-        Assert.EndsWith(">Arrefecedor visto</button>", botoes[1]);
-        Assert.Contains("id=\"pu-remover\" data-dmo-dialog-modelo=\"pu-remover-{id}\"", botoes[2]);
-        Assert.EndsWith(">Remover</button>", botoes[2]);
-        Assert.All(botoes, b => Assert.Contains("data-dmo-precisa-escolha disabled=\"disabled\"", b));
-        Assert.Contains("<form method=\"post\" id=\"puVistoForm\" data-pu-visto-form action=\"/Controlo/Puncoes?handler=Seen\">", cartao);
+        Assert.DoesNotContain("<button", canto);
 
-        // Nas linhas: só o estado em texto; o «Remover» também está no canto (Diogo, 27/10/2026).
+        // Nas linhas: carrega-se no «Visto» / «Por verificar» da tabela; × para remover.
         var corpo = Regex.Match(cartao, "<table class=\"dmo-table pu-table pu-table-fixa\" id=\"puLista\"[\\s\\S]*?</table>").Value;
-        Assert.DoesNotContain("pu-check", corpo);
-        Assert.DoesNotContain("pu-box", corpo);
-        var semJanelas = Regex.Replace(corpo, "<dialog[\\s\\S]*?</dialog>", "");
-        var nasLinhas = Regex.Matches(semJanelas, "<button[^>]*>").Select(m => m.Value).ToList();
-        Assert.Empty(nasLinhas);
-        Assert.Equal(4, Regex.Matches(corpo, "<td class=\"pu-estado on\" data-pu-estado=\"(puncao|arrefecedor)\">Visto</td>").Count);
-        var radios = Regex.Matches(corpo, "<input type=\"radio\" name=\"inspecao_id\"[^>]*>").Select(m => m.Value).ToList();
-        Assert.Equal(2, radios.Count);
-        Assert.All(radios, r => Assert.Contains("form=\"puVistoForm\" required", r));
-        Assert.All(radios, r => Assert.DoesNotContain("checked", r));
-        Assert.Equal(5, Regex.Matches(corpo, "<col ").Count);
+        Assert.Equal(4, Regex.Matches(corpo, "<button type=\"submit\" class=\"pu-check on\" aria-pressed=\"true\"").Count);
+        Assert.Equal(4, Regex.Matches(corpo, "action=\"/Controlo/Puncoes\\?handler=Seen\"").Count);
+        Assert.Equal(2, Regex.Matches(corpo, "class=\"pu-remove\" data-dmo-dialog=\"pu-remover-\\d+\"").Count);
+        Assert.Equal(6, Regex.Matches(corpo, "<col ").Count);
 
         int primeiro;
         using (var scope = _factory.Services.CreateScope())
@@ -144,9 +127,8 @@ public partial class PuncoesPageTests
         var depois = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, trocado.Headers.Location!.ToString().Split('#')[0]));
         var linha = Regex.Match(depois, $"<tr data-dmo-row data-id=\"{primeiro}\"[\\s\\S]*?</tr>").Value;
         Assert.Matches("data-pu-arrefecedor=\"false\"\\s+class=\"selected\" aria-selected=\"true\"", linha);
-        Assert.Contains("<td class=\"pu-estado\" data-pu-estado=\"arrefecedor\">Por verificar</td>", linha);
-        Assert.Contains("required checked=\"checked\"", linha);
-        Assert.DoesNotContain("disabled", Regex.Match(depois, "<div class=\"dmo-card-topo-acoes\" data-dmo-for=\"puLista\">[\\s\\S]*?<details").Value);
+        Assert.Contains("<td class=\"pu-estado\" data-pu-estado=\"arrefecedor\">", linha);
+        Assert.Contains("<input type=\"hidden\" name=\"visto\" value=\"true\" />", linha);
         Assert.Contains("<span>Arrefecedores vistos</span><strong>1</strong>", depois);
 
         // Outra vez, volta a «Visto»; com «visto» (o script) vale o que diz.
@@ -174,10 +156,5 @@ public partial class PuncoesPageTests
         var corpo = Regex.Match(html, "id=\"puLista\"[\\s\\S]*?</tbody>").Value;
         Assert.Matches("<tr data-dmo-row[^>]*class=\"selected\" aria-selected=\"true\"", corpo);
         Assert.Matches("<input type=\"radio\" name=\"inspecao_id\" value=\"\\d+\" form=\"puVistoForm\" required checked=\"checked\"", corpo);
-        var canto = Regex.Match(html, "<div class=\"dmo-card-topo-acoes\" data-dmo-for=\"puLista\">[\\s\\S]*?<details").Value;
-        // Os dois vistos e o «Remover», este já a abrir a janela da escolhida.
-        Assert.Equal(3, Regex.Matches(canto, "data-dmo-precisa-escolha").Count);
-        Assert.Matches("id=\"pu-remover\" data-dmo-dialog-modelo=\"pu-remover-\\{id\\}\" data-dmo-dialog=\"pu-remover-\\d+\"", canto);
-        Assert.DoesNotContain("disabled", canto);
     }
 }

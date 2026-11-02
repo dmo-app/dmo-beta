@@ -267,9 +267,9 @@ html body main.peg-page :is(.peg-folha,.peg-folha-leituras){min-width:0}
    a lista com linhas baixas. A página não desliza (Diogo, 27/10/2026): o ecrã
    é a altura da janela e só a tabela das punções desliza, por dentro. */
 @media (min-width:1100px){
-  html body .app:has(>main.pu-page){display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+  html body .app:has(>main.pu-page){display:flex;flex-direction:column;min-height:100dvh}
   html body .app:has(>main.pu-page)>.dmo-shell-header{flex:0 0 auto}
-  html body main.pu-page.dmo-workspace{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;overflow:hidden;padding:8px 24px 12px;gap:8px}
+  html body main.pu-page.dmo-workspace{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;padding:8px 24px 12px;gap:8px}
   html body main.pu-page>*{flex:0 0 auto}
   html body main.pu-page>#puFolha{flex:1 1 auto;min-height:0}
   html body main.pu-page #puFolha>*{flex:0 0 auto}
@@ -354,9 +354,9 @@ html body main.peg-page :is(.peg-folha,.peg-folha-leituras){min-width:0}
    consultas fica sempre à vista). A Consulta dos Pegamentos: as tabelas deslizam numa coluna e
    o mapa fica ao lado. */
 @media (min-width:1100px){
-  html body .app:has(>main:is(.revisao-page,.revisao-peg-consulta-page)){height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+  html body .app:has(>main:is(.revisao-page,.revisao-peg-consulta-page)){min-height:100dvh;display:flex;flex-direction:column}
   html body .app:has(>main:is(.revisao-page,.revisao-peg-consulta-page))>:not(main){flex:none}
-  html body .app:has(>main:is(.revisao-page,.revisao-peg-consulta-page))>main{flex:1 1 0;min-height:0;box-sizing:border-box;overflow:hidden}
+  html body .app:has(>main:is(.revisao-page,.revisao-peg-consulta-page))>main{flex:1 1 0;min-height:0;box-sizing:border-box}
 
   /* Título à esquerda e filtros à direita, na mesma linha. */
   html body main.revisao-page.dmo-workspace{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;align-items:center;column-gap:24px;row-gap:8px}
@@ -398,9 +398,9 @@ html body main.peg-page :is(.peg-folha,.peg-folha-leituras){min-width:0}
   /* Resumo do Controlo e Resumo do controlo (Revisão › detalhe): a página não desliza (Diogo,
      28/10/2026); o título e a procura ficam à vista e só o cartão do resumo desliza, com a linha
      do título (produção, Exportar/Enviar, ou as consultas) sempre visível. */
-  html body .app:has(>main.resumo-page:not(.revisao-peg-consulta-page)>:is(.resumo-sheet,.revisao-consulta)){height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+  html body .app:has(>main.resumo-page:not(.revisao-peg-consulta-page)>:is(.resumo-sheet,.revisao-consulta)){min-height:100dvh;display:flex;flex-direction:column}
   html body .app:has(>main.resumo-page:not(.revisao-peg-consulta-page)>:is(.resumo-sheet,.revisao-consulta))>:not(main){flex:none}
-  html body .app:has(>main.resumo-page:not(.revisao-peg-consulta-page)>:is(.resumo-sheet,.revisao-consulta))>main{flex:1 1 0;min-height:0;box-sizing:border-box;overflow:hidden;grid-template-rows:auto minmax(0,1fr)}
+  html body .app:has(>main.resumo-page:not(.revisao-peg-consulta-page)>:is(.resumo-sheet,.revisao-consulta))>main{flex:1 1 0;min-height:0;box-sizing:border-box;grid-template-rows:auto minmax(0,1fr)}
   html body main.resumo-page:not(.revisao-peg-consulta-page)>:is(.resumo-sheet,.revisao-consulta){align-self:stretch;min-height:0;height:100%;box-sizing:border-box;overflow:auto;margin:0}
   html body main.resumo-page:not(.revisao-peg-consulta-page)>.revisao-consulta{padding-top:0}
   html body main.resumo-page:not(.revisao-peg-consulta-page)>.revisao-consulta>.revisao-parte-topo:first-child{position:sticky;top:0;z-index:2;margin:0 0 8px;padding:12px 0 8px;min-height:0;background:var(--dmo-card);border-bottom:1px solid var(--dmo-border)}
