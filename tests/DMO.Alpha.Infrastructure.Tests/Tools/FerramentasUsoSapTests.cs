@@ -260,6 +260,32 @@ public sealed class FerramentasUsoSapTests
         Assert.Equal(new[] { "M544744MPPSX03", "M544744MPPSX11", "M544744MPPSX12" }, codigos);
     }
 
+    // Diogo, 02/11/2026: «existe o nome técnico de cada ferramenta associado
+    // à linha numa tabela da app»; sem nome técnico escrito, o código vem da
+    // «Codificação por linha» pela referência e pela linha (DMO-714).
+    [Fact]
+    public async Task SemNomeTecnico_OCodigoVemDaCodificacaoPorLinha()
+    {
+        await using var db = CreateContext();
+        db.Machines.AddRange(new DMO.Alpha.Core.Production.Machine { Id = 31, Code = "C3" }, new DMO.Alpha.Core.Production.Machine { Id = 11, Code = "B1" });
+        db.Tools.AddRange(
+            new Tool { ToolId = "cm-c3", Type = ToolType.Cm, Reference = "2032", Lot = "4" },
+            new Tool { ToolId = "bq-b1", Type = ToolType.Bq, Reference = "2032", Lot = "7" },
+            new Tool { ToolId = "cm-sem-linha", Type = ToolType.Cm, Reference = "2033", Lot = "1" });
+        db.ToolMachineLinks.AddRange(
+            new ToolMachineLink { ToolId = "cm-c3", MachineId = 31 },
+            new ToolMachineLink { ToolId = "bq-b1", MachineId = 11 });
+        await db.SaveChangesAsync();
+        db.ChangeTracker.Clear();
+
+        var codigos = await Servico(db).TodosOsCodigosAsync();
+
+        Assert.Contains("M203244MPPSX04", codigos);
+        Assert.Contains("AB2032NX*07", codigos);
+        Assert.DoesNotContain(codigos, c => c.Contains("2033", StringComparison.Ordinal));
+        Assert.Null((await db.Tools.AsNoTracking().SingleAsync(t => t.ToolId == "cm-c3")).TechnicalName);
+    }
+
     [Fact]
     public async Task Pedir_AbreUmLembreteSoUmaVez()
     {

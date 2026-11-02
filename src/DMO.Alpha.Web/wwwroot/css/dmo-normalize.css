@@ -285,6 +285,9 @@ html body .dmo-secondary-nav .dmo-tab-menu-list{position:absolute;top:100%;left:
 html body .dmo-secondary-nav .dmo-tab-menu-list a{display:block;padding:9px 10px;border:0;border-radius:6px;color:var(--dmo-text);white-space:nowrap}
 html body .dmo-secondary-nav .dmo-tab-menu-list a:hover{background:var(--dmo-subtle);color:var(--dmo-brand-700)}
 html body .dmo-secondary-nav .dmo-tab-menu-list a.active{background:var(--dmo-brand-050);color:var(--dmo-brand-700)}
+/* DMO-694 (Diogo, 02/11/2026: «diminuir tamanho do dropdown»): o menu das Funções mais pequeno. */
+html body .dmo-secondary-nav .dmo-tab-menu-list.dmo-tab-menu-list{min-width:132px;padding:4px}
+html body .dmo-secondary-nav .dmo-tab-menu-list.dmo-tab-menu-list a{padding:5px 10px;font-size:13px;line-height:18px}
 /* «Opções»: as ações raras de uma folha num só botão com dropdown (menos
    clutter, Diogo 17/10/2026). Fecha ao clicar fora ou com Esc (dmo-live.js). */
 html body .dmo-options{position:relative;display:inline-block}
@@ -361,7 +364,7 @@ html body .dmo-dialog input[type=url]{width:100%;min-height:40px;padding:8px 10p
 html body .dmo-dialog textarea{width:100%;padding:8px 10px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);font:inherit;font-size:var(--dmo-fs-base);line-height:1.45;resize:vertical}
 html body .dmo-dialog textarea:focus{border-color:var(--dmo-brand-600);outline:0}
 html body .dmo-dialog-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:4px}
-html body .dmo-dialog .dmo-dialog-cancel{background:none;border-color:var(--dmo-border);color:var(--dmo-brand-700)}
+/* DMO-694 (Diogo, 02/11/2026: «o cancelar aparece carregado»): o Cancelar das janelas é um botão de ação como os outros. */
 /* Job On: as produções encontradas ao escrever, por baixo do campo e afastadas dele. */
 
 /* Avisos (Diogo 17/10/2026: «estes notices estão sempre colados aos
@@ -456,3 +459,8 @@ html body .jof2-gaveta .rail-item.selected:not(:disabled){background:var(--dmo-c
 html body .jof2-gaveta .rail-item.dmo-linha-cor.selected:not(:disabled){border-left-color:var(--dmo-machine-color)}
 html[data-theme="dark"] body .jof2-gaveta .rail-item.selected:not(:disabled){background:var(--dmo-brand-600);color:#fff;border-color:#fff}
 html[data-theme="dark"] body .jof2-gaveta .rail-item.dmo-linha-cor.selected:not(:disabled){border-left-color:var(--dmo-machine-color)}
+/* R15 (Diogo, 30/10/2026): «Usar o rascunho» / «Descartar rascunho» são links com a cor dos botões, dentro do aviso e separados. */
+.jobon-aviso .jobon-aviso-link{all:unset;cursor:pointer;margin-left:14px;color:var(--dmo-brand-600);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.jobon-aviso .jobon-aviso-link:hover{color:var(--dmo-brand-700)}
+.jobon-aviso .jobon-aviso-link:focus-visible{outline:2px solid var(--dmo-brand-500);outline-offset:2px}
+:root[data-theme="dark"] .jobon-aviso .jobon-aviso-link{color:var(--dmo-brand-300,var(--dmo-text))}

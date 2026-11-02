@@ -28,7 +28,7 @@ public sealed partial class DefinicoesPorModuloPageTests
         var html = await client.GetStringAsync(url);
         var opcional = ZonaUsoSap(html, "ferr-edit-opcional");
         Assert.Contains("Fornecedor de teste", opcional);
-        Assert.Contains("19/12/2025", opcional);
+        Assert.Contains("2025-12-19", opcional); // R6: campo de data (o valor do SAP vem preenchido)
         Assert.Contains("SAP tem 98", ZonaUsoSap(html, "sap-aviso-pecas"));
         var (acao, campos) = EnvioDoFormulario.Enviar(html, [], idDoBotao: "sap-pecas-sim");
         var resposta = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos));

@@ -1585,9 +1585,13 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
             using var client = await LoginClientAsync("4599", "JobUso1!");
             var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{PagePath}?jobon_id={jobOnId}"));
 
-            // Só a CM tem leitura: um só «antes», com a mais recente.
-            var usos = Regex.Matches(html, "<em class=\"was\" title=\"A última leitura do uso\">antes ([^<]*)</em>");
-            Assert.Equal("33.5%", Assert.Single(usos).Groups[1].Value);
+            // Só a CM tem leitura: o número grande é a mais recente (sem leitura depois da produção) e o
+            // «antes» a leitura do início dela (R13, Diogo, 30/10/2026: «o antes está trocado»).
+            var cm = html.Substring(html.IndexOf("data-jof-familia=\"CM\"", StringComparison.Ordinal), 3000);
+            Assert.Contains("<b>33.50%</b>", cm);
+            var usos = Regex.Matches(html, "<em class=\"was\" title=\"O uso no início desta produção\">antes ([^<]*)</em>");
+            // As outras, sem produção anterior, começam a 0.
+            Assert.Equal(["30%", "0%", "0%"], usos.Select(u => u.Groups[1].Value));
             Assert.True(usos[0].Index > html.IndexOf("data-jof-familia=\"CM\"", StringComparison.Ordinal));
             Assert.True(usos[0].Index < html.IndexOf("data-jof-familia=\"MF\"", StringComparison.Ordinal));
         }

@@ -47,7 +47,7 @@ public sealed partial class DefinicoesPorModuloPageTests
 
         Assert.Contains("202501", quadro, StringComparison.Ordinal);
         Assert.Contains("202502", quadro, StringComparison.Ordinal);
-        Assert.Matches("<a class=\"ferr-armazem-link\" href=\"/JobOn\\?jobon_id=\\d+\"><strong>202502</strong></a>", quadro);
+        Assert.Matches("<a class=\"ferr-armazem-link\" href=\"/JobOn\\?jobon_id=\\d+\"><strong>[^<]*</strong></a></td>\\s*<td><small class=\"ferr-producao-maquina\">202502</small></td>", quadro); // R1
         // A 1.ª medida (+7.5 %, fica em 47.5 %); a 2.ª sem leitura depois: a parte do % de hoje
         // pelo que se produziu até ao fim dela (4 de 4 milhões), ≈ 47.5 %.
         Assert.Contains("+7.5 %", quadro, StringComparison.Ordinal);
