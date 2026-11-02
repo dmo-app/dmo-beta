@@ -6026,7 +6026,7 @@ Novos: 0 · mudaram: 1 · saíram: 0
 
 Selo depois: `6c64067c1de02fd9`
 
-## A-0463 · 2026-11-02 · teste-novo
+## A-0472 · 2026-11-02 · teste-novo
 
 Porquê: DMO-694/A-0462: teste do #367 (DMO-690) trazido para o #376: nenhuma página presa à altura da janela
 Novos: 2 · mudaram: 0 · saíram: 0
