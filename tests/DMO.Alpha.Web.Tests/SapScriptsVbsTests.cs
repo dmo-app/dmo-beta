@@ -137,4 +137,21 @@ public sealed class SapScriptsVbsTests
             < fabrico.IndexOf("session.findById(\"wnd[0]/usr/ctxtCENTRO-LOW\").text = CENTRO", StringComparison.Ordinal));
         Assert.Contains("Sub MinimizarSap(", fabrico);
     }
+
+    // Diogo, 02/11/2026 (DMO-707): parou na janela «Moldes Existentes» com a senha por escrever.
+    // Na janela de entrada (tem o botão «Logon») a 2.ª caixa é a senha; sem caixas à vista
+    // escreve-se pelo teclado (código 4). Sem «Logon» (o SAP já aberto, DMO-677) nada se escreve.
+    [Theory]
+    [InlineData("Sap.DMO_USO_SAP.vbs")]
+    [InlineData("Sap.DMO_FABRICO_SAP.vbs")]
+    public void NaJanelaDeEntrada_ASenhaEscreveSe(string nome)
+    {
+        using var stream = typeof(SapScripts).Assembly.GetManifestResourceStream(nome)!;
+        var vbs = new StreamReader(stream).ReadToEnd();
+
+        Assert.Contains("-match '^\\W*log\\s*on\\W*$'", vbs);
+        Assert.Contains("if ($logon -and -not $senha -and $caixas.Count -ge 2) { $nome = $caixas[0]; $senha = $caixas[1] }", vbs);
+        Assert.Contains("if (-not $nome -or -not $senha) { if ($logon) { exit 4 } else { exit 3 } }", vbs);
+        Assert.Contains("If codigo <> 0 And codigo <> 3 Then", vbs);
+    }
 }

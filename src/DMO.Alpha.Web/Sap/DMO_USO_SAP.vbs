@@ -608,7 +608,13 @@ Sub EscreverSenha()
     f.WriteLine "$caixas = $w.FindAll($T::Descendants, (New-Object System.Windows.Automation.PropertyCondition($A::ControlTypeProperty, [System.Windows.Automation.ControlType]::Edit)))"
     f.WriteLine "$nome = $null; $senha = $null"
     f.WriteLine "foreach ($c in $caixas) { if ($c.Current.IsPassword) { $senha = $c } elseif (-not $nome) { $nome = $c } }"
-    f.WriteLine "if (-not $nome -or -not $senha) { exit 3 }"
+    ' A janela de entrada tem o botão «Logon»; a do SAP já aberto não (DMO-677).
+    ' Na de entrada a caixa da senha pode não se dar a conhecer como senha
+    ' (Diogo, 02/11/2026: ficou parado com a senha por escrever): a 2.ª caixa é a senha.
+    f.WriteLine "$logon = $false"
+    f.WriteLine "foreach ($b in $w.FindAll($T::Descendants, (New-Object System.Windows.Automation.PropertyCondition($A::ControlTypeProperty, [System.Windows.Automation.ControlType]::Button)))) { if ($b.Current.Name -match '^\W*log\s*on\W*$') { $logon = $true } }"
+    f.WriteLine "if ($logon -and -not $senha -and $caixas.Count -ge 2) { $nome = $caixas[0]; $senha = $caixas[1] }"
+    f.WriteLine "if (-not $nome -or -not $senha) { if ($logon) { exit 4 } else { exit 3 } }"
     f.WriteLine "$caps = [Console]::CapsLock"
     f.WriteLine "if ($caps) { $K::SendWait('{CAPSLOCK}') }"
     f.WriteLine "try {"
@@ -633,6 +639,9 @@ Sub EscreverSenha()
     ' já está aberto). Pelo teclado escrevia-se na janela do SAP em uso
     ' (Diogo, 29/10/2026: «Função impossível», DMO-677): não se escreve nada.
     If codigo = 3 Then Registo "janela sem caixa da senha: nada escrito"
+    ' Código 4: é a janela de entrada (tem «Logon»), mas o Windows não chega às
+    ' caixas: escreve-se pelo teclado, como até 29/10.
+    If codigo = 4 Then Registo "janela de entrada sem caixas à vista: pelo teclado"
     If codigo <> 0 And codigo <> 3 Then
         shell.AppActivate JANELA_LOGON
         WScript.Sleep 300

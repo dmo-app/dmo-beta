@@ -6251,3 +6251,12 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapEscolhaNaJanela.cs :: DefinicoesPorModuloPageTests.OTudoEDesatualizadas_FicamDentroDaJanelaDoAtualizarDoSap`
 
 Selo depois: `7055908ddeafb614`
+
+## A-0478 · 2026-11-02 · teste-novo
+
+Porquê: DMO-707: Diogo 02/11 «não abre para fazer update, mesmo metendo a pass»: parado na janela Moldes Existentes com a senha por escrever; na janela de entrada (botão Logon) a senha volta a escrever-se
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.NaJanelaDeEntrada_ASenhaEscreveSe`
+
+Selo depois: `358b5678c87019c4`
