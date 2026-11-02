@@ -6229,3 +6229,15 @@ Novos: 6 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `e6c349e263596c8c`
+
+## A-0476 · 2026-11-02 · teste-novo
+
+Porquê: DMO-705: Diogo 02/11 «meteram guardada e não estava»: a Senha do SAP só diz «guardada» quando a senha gravada se consegue ler
+Novos: 4 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapSenhaGuardadaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapSenhaGuardadaTests.cs :: SapSenhaGuardadaTests.ComASenhaIlegivel_NaoDizGuardada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapSenhaGuardadaTests.cs :: SapSenhaGuardadaTests.ComASenhaLegivel_DizGuardada`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapSenhaGuardadaTests.cs :: SapSenhaGuardadaTests.SemSenha_NaoDizGuardada`
+
+Selo depois: `8c5aaf416cb9b7ab`

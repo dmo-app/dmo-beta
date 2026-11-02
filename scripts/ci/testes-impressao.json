@@ -1,5 +1,5 @@
 {
-  "selo": "e6c349e263596c8c",
+  "selo": "8c5aaf416cb9b7ab",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1698,6 +1698,10 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.OCsvDoScript_DaABqPeloCodigoComEstrela": "d7547168d8802857",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.OCsvDoScript_LigaPeloCodigoProcurado_QuandoONomeTecnicoNaoBate": "ab6c7a3b58f60e22",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/SapProcuraRegrasTests.cs :: SapProcuraRegrasTests.OsCodigosPedidosAoSap_SeguemATabelaEOCodigoSap_DeTodosOsTipos": "15e4704d185c44f7",
+    "tests/DMO.Alpha.Infrastructure.Tests/Tools/SapSenhaGuardadaTests.cs :: (resto do ficheiro)": "e94b67b446281497",
+    "tests/DMO.Alpha.Infrastructure.Tests/Tools/SapSenhaGuardadaTests.cs :: SapSenhaGuardadaTests.ComASenhaIlegivel_NaoDizGuardada": "98c7178c46c757a6",
+    "tests/DMO.Alpha.Infrastructure.Tests/Tools/SapSenhaGuardadaTests.cs :: SapSenhaGuardadaTests.ComASenhaLegivel_DizGuardada": "8a6de62a491361cd",
+    "tests/DMO.Alpha.Infrastructure.Tests/Tools/SapSenhaGuardadaTests.cs :: SapSenhaGuardadaTests.SemSenha_NaoDizGuardada": "1772787f7b41d427",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserAvisoTests.cs :: (resto do ficheiro)": "da6c059e1ccc82da",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserAvisoTests.cs :: TechnicalNameParserAvisoTests.UmNomeForaDaRegra_Avisa": "a38e885b693cec28",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserAvisoTests.cs :: TechnicalNameParserAvisoTests.UmNomeQueBate_NaoTemAviso": "e23f4f7ccfc1ae12",
