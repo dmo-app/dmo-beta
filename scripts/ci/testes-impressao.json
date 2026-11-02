@@ -1,5 +1,5 @@
 {
-  "selo": "f7ab53c834bb7e35",
+  "selo": "d39b95a8407be96b",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2086,6 +2086,7 @@
     "tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_ALinhaSoTemAsDaFichaDaBq_EVemJaEscolhida": "8c15b0cf8da42693",
     "tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_NaPaginaBoquilhas_GravaEMostraOMovimento": "31485474a84ab5ad",
     "tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_NumJobOnAnterior_FicaNoRegistoDesseJobOn_EODaEntradaDizQuemRegistou": "beb7b55d049fff0e",
+    "tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_PeloJobOnJaFeito_OferecePorReferenciaEProducao_ComABqELoteQueUsou": "d198c1847da928a6",
     "tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_SemQuantidade_ReabreAJanelaComAFrase": "0028663fd2a12e22",
     "tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.SemJobOnTool_Label_MostraOQueIdentificaABq_PelaReferencia": "bfb4ce38e3c87d9e",
     "tests/DMO.Alpha.Web.Tests/BoquilhasToolCatalogTests.CliquesRepetidos.cs :: (resto do ficheiro)": "b476e1f4f12b596a",
@@ -3299,6 +3300,8 @@
     "tests/ShellProof/bq-registo.test.cjs :: (resto do ficheiro)": "1832f1aaab4df37d",
     "tests/ShellProof/bq-registo.test.cjs :: gravar um movimento não mexe no scroll": "b0cd8a804a964504",
     "tests/ShellProof/bq-registo.test.cjs :: o registo aberto fora do ecrã vem à vista": "3e3c265eb872a99b",
+    "tests/ShellProof/bq-sem-jobon-pelo-jobon.test.cjs :: (resto do ficheiro)": "bd23b01abdd33a8c",
+    "tests/ShellProof/bq-sem-jobon-pelo-jobon.test.cjs :: Escolher um Job On já feito preenche a BQ, a referência, a produção e a linha": "820db46636039008",
     "tests/ShellProof/calendario-filtros.test.cjs :: (resto do ficheiro)": "016f18de41467364",
     "tests/ShellProof/calendario-filtros.test.cjs :: a seta do mês leva os filtros escolhidos; «Todas» tira a máquina": "cfad1d886b829b08",
     "tests/ShellProof/calendario-filtros.test.cjs :: o dia do calendário leva os filtros escolhidos depois de a página abrir": "1186a4ae8757b6ee",
