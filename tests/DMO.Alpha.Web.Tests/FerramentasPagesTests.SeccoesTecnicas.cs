@@ -113,7 +113,9 @@ public partial class FerramentasPagesTests
         Assert.DoesNotContain("Linhas compatíveis (SAP)", ficha, StringComparison.Ordinal);
         var bloco = ficha[Posicao(ficha, "id=\"ferr-edit-opcional\"")..];
         bloco = bloco[..bloco.IndexOf("</fieldset>", StringComparison.Ordinal)];
-        Assert.Contains(">Informação opcional</legend>", bloco, StringComparison.Ordinal);
+        // Num cartão próprio, o último, minimizado; os campos gravam com o Editar (Diogo, 02/11/2026).
+        Assert.True(Posicao(ficha, "id=\"ferr-tech-title\"") < Posicao(ficha, "id=\"ferr-opcional-title\""));
+        Assert.Contains("<input id=\"ferr-edit-mf\" form=\"ferr-edit-form\"", bloco, StringComparison.Ordinal);
         Assert.True(Posicao(bloco, "id=\"ferr-edit-mf\"") < Posicao(bloco, "id=\"ferr-edit-technical\""));
         Assert.True(Posicao(bloco, "id=\"ferr-edit-technical\"") < Posicao(bloco, "id=\"ferr-edit-fabrica\""));
         // Ao lado dos campos, depois do traço vertical da Informação técnica.

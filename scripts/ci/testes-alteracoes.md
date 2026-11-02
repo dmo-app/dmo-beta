@@ -6154,3 +6154,14 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/PaginasDeslizamCssTests.cs :: PaginasDeslizamCssTests.NenhumaPaginaFicaPresaAAlturaDaJanela`
 
 Selo depois: `bba26ec491f95779`
+
+## A-0462 · 2026-11-02 · ok-do-diogo
+
+Porquê: DMO-694: Diogo 02/11 «primeiro histórico de produções depois informação técnica e informação opcional no fim» (opcional num cartão próprio, minimizado)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraQTyzTr1xBieiKB7FJvdyjQ
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.FabricoSap.cs :: DefinicoesPorModuloPageTests.OHistoricoDeProducoes_MostraAsGarrafasOPesoEAPercentagemDeCadaJobOn`
+- mudou: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Ficha_Editar_LinhasCompativeis_InformacaoOpcionalComFabricaDeOrigem`
+
+Selo depois: `e9fefdf708b5eda7`
