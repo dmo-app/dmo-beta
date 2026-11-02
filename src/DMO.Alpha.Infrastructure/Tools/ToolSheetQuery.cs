@@ -52,6 +52,8 @@ public sealed class ToolSheetQuery : IToolSheetQuery
                 t.FabricaOrigem,
                 t.DuplicateWarningAtUtc,
                 t.DuplicateWarningByNameFrozen,
+                Fabricante = t.Fabricante ?? t.SapFornecedor,
+                DataAquisicao = t.DataAquisicao ?? t.SapDataAquisicao,
                 Version = EF.Property<uint>(t, DmoDbContext.RowVersion),
                 TechnicalVersion = _db.ToolTechnicalContexts
                     .Where(c => c.ToolId == t.ToolId)
@@ -103,6 +105,8 @@ public sealed class ToolSheetQuery : IToolSheetQuery
             facts.DuplicateWarningByNameFrozen,
             facts.FabricaOrigem,
             facts.AnQuantity,
-            facts.B2Modo);
+            facts.B2Modo,
+            facts.Fabricante,
+            facts.DataAquisicao);
     }
 }
