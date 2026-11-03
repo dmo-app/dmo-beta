@@ -6414,3 +6414,4 @@ Novos: 3 · mudaram: 0 · saíram: 0
 - novo: `tests/ShellProof/bq-sem-jobon-pelo-jobon.test.cjs :: Escolher um Job On já feito preenche a BQ, a referência, a produção e a linha`
 
 Selo depois: `d39b95a8407be96b`
+
