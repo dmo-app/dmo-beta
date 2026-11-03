@@ -6325,7 +6325,7 @@ Novos: 1 · mudaram: 0 · saíram: 0
 
 Selo depois: `e7c488b9eeb06628`
 
-## A-0486 · 2026-11-03 · ok-do-diogo
+## A-0504 · 2026-11-03 · ok-do-diogo
 
 Porquê: Diogo pediu tirar a palavra «antes» do uso anterior nos cartões do Job On; o teste lê o número sem a palavra
 Referência: DMO-731 A-0504, Diogo 03/11 14:53
