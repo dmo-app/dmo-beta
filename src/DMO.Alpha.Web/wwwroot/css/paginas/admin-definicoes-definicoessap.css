@@ -1,0 +1,6 @@
+.adm-sap-form{display:flex;gap:14px;flex-wrap:wrap}
+.adm-sap-procura-campos{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin:10px 0 14px}
+.adm-sap-procura-campos label{display:flex;flex-direction:column;gap:4px;font-size:12.5px}
+.adm-sap-procura-campos label.adm-sap-procura-lote{flex-direction:row;align-items:center}
+.adm-sap-script{width:min(1100px,94vw)}
+.adm-sap-script textarea{width:100%;height:56vh;font-family:ui-monospace,Consolas,monospace;font-size:12px;white-space:pre}

@@ -6015,3 +6015,19 @@ Novos: 3 · mudaram: 2 · saíram: 0
 - mudou: `tests/ShellProof/peso-live.test.cjs :: (resto do ficheiro)`
 
 Selo depois: `f7ab53c834bb7e35`
+
+## A-0498 · 2026-11-03 · ok-do-diogo
+
+Porquê: Limpeza CSS parte 2: os blocos <style> passaram para css/paginas; os testes leem as mesmas regras pela folha ligada (EstilosDasPaginas.Juntar). Nenhuma regra mudou.
+Referência: Diogo 03/11 «se nao quebrar podemos continuar»; DMO-725
+Novos: 1 · mudaram: 6 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/EstilosDasPaginas.cs :: (resto do ficheiro)`
+- mudou: `tests/DMO.Alpha.Web.Tests/AdminUsersAndTemplatesPagesTests.Gestao.cs :: AdminUsersAndTemplatesPagesTests.AdminTemplates_SemCaixas_EscolhidoEscuroComLetraBranca`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Definicoes_ListasDeAntes_SemNomes_MostramSeFechadasComOTraco`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapProcura.cs :: DefinicoesPorModuloPageTests.AJanelaDoSap_EscondeAsPartesQueNaoEstaoEscolhidas`
+- mudou: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.ArmazemEntrada_DeFerramentaNaLista_SugereReparado_AvisaAoMudar_EALinhaFicaCinza`
+- mudou: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.cs :: ReparacaoProgramadaPaginaTests.Lista_MostraSoOReparador_EAProcuraCorreAoEscrever`
+- mudou: `tests/DMO.Alpha.Web.Tests/SharedComponentsTests.cs :: SharedComponentsTests.AdminUsersToasts_StayClearOfTheCreateButton`
+
+Selo depois: `9cb1f246fc3147ca`

@@ -1,0 +1,62 @@
+/* O % da Utilização abre a janela das produções (Diogo, 21/10/2026). */
+.ferr-utilizacao-abrir{all:unset;cursor:pointer;font-weight:800;color:var(--dmo-link,var(--dmo-brand-600));text-decoration:none}
+.ferr-utilizacao-abrir:hover{color:var(--dmo-text)}
+html body .dmo-table tbody tr[data-dmo-row]:hover :is(.ferr-utilizacao-abrir,.ferr-producao-maquina){color:#fff}
+.ferr-utilizacao-abrir:focus-visible{outline:2px solid var(--dmo-focus-ring);outline-offset:2px}
+/* As janelas da Utilização e do Peso abrem como painel deslizante pela direita (Diogo,
+   27/10/2026: «abre um slide»), com o aspeto da estrutura dos painéis (dmo-estrutura.css):
+   título em cima, «Fechar» no canto superior direito, só a lista desliza. */
+html body dialog.dmo-dialog.ferr-producoes-janela{position:fixed;inset:0 0 0 auto;margin:0;box-sizing:border-box;width:min(640px,calc(100vw - 48px));max-width:none;height:100dvh;max-height:none;padding:0;border:0;border-left:1px solid var(--dmo-border);border-radius:0;box-shadow:none;background:var(--dmo-card);color:var(--dmo-text);overflow:hidden;transition:transform .22s ease}
+html body dialog.dmo-dialog.ferr-producoes-janela[open]{display:flex;flex-direction:column;gap:12px}
+@starting-style{html body dialog.dmo-dialog.ferr-producoes-janela[open]{transform:translateX(100%)}}
+html body dialog.dmo-dialog.ferr-producoes-janela::backdrop{background:var(--dmo-painel-fundo,rgba(11,19,32,.24))}
+html body dialog.ferr-producoes-janela>h3{flex:0 0 auto;margin:0;padding:12px 20px;min-height:calc(var(--dmo-control-height,34px) + 24px);box-sizing:border-box;display:flex;align-items:center;padding-right:300px;border-bottom:1px solid var(--dmo-border);font-size:17px;font-weight:650;line-height:1.25}
+html body dialog.ferr-producoes-janela>.dmo-dialog-actions{position:absolute;top:12px;right:20px;margin:0;display:flex;align-items:center;gap:12px}
+html body dialog.ferr-producoes-janela>:not(h3,.dmo-dialog-actions){margin-left:20px;margin-right:20px}
+html body dialog.ferr-producoes-janela .ferr-nota{margin-top:0;margin-bottom:0}
+html body dialog.ferr-producoes-janela [data-ferr-peso-lugar]{min-height:0;overflow:auto}
+html body dialog.ferr-producoes-janela .ferr-producoes-lista{flex:0 1 auto;min-height:0;max-height:none;overflow:auto}
+@media (prefers-reduced-motion:reduce){html body dialog.dmo-dialog.ferr-producoes-janela{transition:none}}
+.ferr-producoes-janela .dmo-table{min-width:0}
+.ferr-producao-maquina{color:var(--dmo-muted);font-size:12px}
+.ferr-armazem-link{color:var(--dmo-brand-900);font-weight:600}
+.ferr-page{max-width:1240px;margin:0 auto;padding:24px 22px 40px;display:grid;gap:16px}
+.ferr-page .page-head h2{margin:0;font-size:23px;color:var(--dmo-brand-700,#193046)}
+.ferr-page .page-head p{margin:4px 0 0;color:var(--dmo-muted)}
+.ferr-card .dmo-card-topo-acoes .dmo-options-list{left:auto;right:0}
+#ferr-delete-dialog .dmo-aviso-discreto{margin:8px 0 22px}
+.ferr-card{padding:18px}
+.ferr-card h3{margin:0;font-size:16px}
+/* A linha do título com os botões do card (.dmo-card-topo, canto superior direito). */
+.ferr-card .dmo-card-topo{margin-bottom:12px}
+.ferr-card details:not([open])>summary.dmo-card-topo{margin-bottom:0}
+.ferr-card .dmo-facts{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+.ferr-card .card-note{margin:3px 0 14px;color:var(--dmo-muted);font-size:12.5px}
+.ferr-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:var(--dmo-danger-soft);border-radius:8px}
+/* O aviso âmbar (o mesmo de .jobon-aviso.warn / .peg-aviso.warn): o trabalho foi gravado, o aviso diz o que ficou de fora. */
+.ferr-aviso.warn{border-left-color:var(--dmo-warning);background:var(--dmo-warning-soft)}
+.ferr-nota{padding:11px 13px;border-left:4px solid var(--dmo-ok);background:var(--dmo-ok-soft);border-radius:8px}
+.ferr-nota.avisoria{border-left-color:var(--dmo-warning);background:var(--dmo-warning-soft)}
+.ferr-hint{color:var(--dmo-muted);font-size:11.5px;margin:10px 0 0}
+.ferr-vazia{padding:38px 20px;text-align:center;color:var(--dmo-muted);border:1px dashed var(--dmo-border,#d9e6f2);border-radius:12px}
+.ferr-subtitle{margin:20px 0 8px;padding-top:16px;border-top:1px solid var(--dmo-border);font-size:14px}
+.ferr-danger{background:var(--dmo-danger,#9a625d)}
+.ferr-danger:hover{background:color-mix(in srgb,var(--dmo-danger) 80%,#000)}
+.ferr-link-botao{all:unset;cursor:pointer;margin-right:auto}
+.ferr-link-botao:hover{color:var(--dmo-text)}
+.ferr-link-botao:focus-visible{outline:2px solid var(--dmo-focus-ring);outline-offset:2px}
+.ferr-cancel{font-size:12.5px;color:var(--dmo-brand-600,#3c73a8);font-weight:700}
+/* No painel de apoio a regra «.dmo-workspace» do dmo-design.css (padding 16px 18px 24px) ganhava à da estrutura e
+   deixava uma faixa de 18 px à direita e à esquerda: o espaço é o do corpo (20 px), o <main> fica sem margem. */
+html[data-dmo-embedded="true"] body main.ferr-page:has(>.dmo-pagina-topo){padding:0}
+/* O «← Voltar» está no cabeçalho fixo (<dmo-voltar>); o botão do cartão Geral fica escondido. */
+html body main.ferr-page #ferrVoltar{display:none}
+/* A Informação opcional na mesma linha de Tipo, Referência, Lote, Qtd. lote e % uso. */
+html body main.ferr-page #ferrEditar .ferr-editar-linha{flex-wrap:nowrap;align-items:flex-end}
+html body main.ferr-page #ferrEditar .ferr-editar-linha>.ferr-editar-principal{flex:0 0 auto}
+html body main.ferr-page #ferrEditar .ferr-editar-linha>.ferr-opcional{flex:0 1 auto;margin:0;padding:0 0 0 24px;border-top:0;border-left:1px solid var(--dmo-border)}
+html body main.ferr-page #ferrEditar .ferr-editar-linha>.ferr-opcional>.ferr-tech-campos{flex-wrap:nowrap}
+/* O título «Informação opcional» sobe para o espaço livre à direita das linhas, por cima dos campos. */
+html body main.ferr-page #ferrEditar .ferr-opcional{position:relative}
+html body main.ferr-page #ferrEditar .ferr-opcional>legend{position:absolute;top:-24px;left:24px;margin:0}
+html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}

@@ -18,26 +18,7 @@
 <link rel="stylesheet" href="~/0_ASSET_CANONICAL_DESIGN_SYSTEM.css" asp-append-version="true" />
 @* O «Imprimir» igual aos botões da app (altura, letra, canto e rato por cima). *@
 <link rel="stylesheet" href="~/css/dmo-botoes.css" asp-append-version="true" />
-<style>
-.dmo-ferr-ref{font-size:12px;font-weight:500;color:var(--dmo-muted);margin-left:4px}
-body{margin:0;padding:24px;background:var(--dmo-page);color:var(--dmo-text);font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-.rp-imp-folha{background:var(--dmo-card);border:1px solid var(--dmo-border);border-radius:var(--dmo-r-card);padding:18px;max-width:1100px;margin:0 auto}
-.rp-imp-topo{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin:0 0 16px}
-h1{font-size:20px;margin:0 0 4px}
-.rp-imp-meta{color:var(--dmo-muted);font-size:13px}
-.rp-imp-wrap{overflow-x:auto}
-/* A altura, o canto e o tom do rato por cima dos botões da app (o design system sozinho dava 40 px). */
-body{--dmo-control-height:34px;--dmo-r-control:6px}
-html body #rpImpImprimir{--dmo-brand-800:#1e2b40}
-html body .rp-imp-folha .dmo-table{width:100%;min-width:0}
-html body .rp-imp-folha .dmo-table td{padding:6px 8px;vertical-align:top}
-td.rp-imp-visto{width:70px}
-html body .rp-imp-folha .dmo-table tbody tr.rp-entrou td{color:var(--dmo-muted);background:var(--dmo-neutral-soft)}
-.rp-imp-assina{margin-top:28px;display:flex;gap:40px;flex-wrap:wrap}
-.rp-imp-assina div{min-width:220px;border-top:1px solid var(--dmo-text);padding-top:4px;font-size:12px;color:var(--dmo-muted)}
-@@media (max-width:600px){body{padding:16px 8px}.rp-imp-folha{padding:12px}.rp-imp-topo{flex-direction:column}}
-@@media print{body{padding:0;background:#fff;color:#000}.rp-imp-folha{border:0;padding:0;max-width:none;background:#fff}#rpImpImprimir{display:none}@@page{margin:14mm}tr{break-inside:avoid}html body .rp-imp-folha .dmo-table th,html body .rp-imp-folha .dmo-table td{border:1px solid #888;color:#000}html body .rp-imp-folha .dmo-table tbody tr.rp-entrou td{color:#666;background:#eee}}
-</style>
+<link rel="stylesheet" href="~/css/paginas/ferramentas-reparacaoprogramadaimprimir.css" asp-append-version="true">
 </head>
 <body>
   <div class="rp-imp-folha">

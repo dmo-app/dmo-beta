@@ -4,36 +4,7 @@
     var tipos = new[] { ("CM", "Contra-molde"), ("MF", "Molde final"), ("BQ", "Boquilha") };
     var tabela = Model.Tabela;
 }
-<style>
-.ferr-def-page{display:flex;flex-direction:column;gap:14px}
-.ferr-def-card{padding:20px 22px;width:fit-content;max-width:100%}
-.ferr-def-card h3{margin:0;font-size:16px}
-.ferr-def-card .dmo-card-topo{margin-bottom:4px}
-.ferr-def-card .dmo-card-topo h3{display:flex;align-items:center;gap:6px}
-.ferr-def-falta{margin:0 0 12px;font-size:13px;color:var(--dmo-muted)}
-.ferr-cod{display:grid;grid-template-columns:auto repeat(3,128px 56px) 56px;gap:8px 8px;align-items:center;width:max-content;max-width:100%;overflow-x:auto}
-.ferr-cod-tipo{grid-column:span 2;display:flex;flex-direction:column;align-items:center;line-height:1.2}
-.ferr-cod-tipo.ferr-cod-an{grid-column:span 1}
-.ferr-cod-tipo strong{font-size:15px;color:var(--dmo-text)}
-.ferr-cod-tipo small{font-size:11.5px;color:var(--dmo-muted)}
-.ferr-cod-sub{font-size:11.5px;color:var(--dmo-muted);text-align:center}
-.ferr-totais-maquina{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--dmo-text);padding-right:12px;white-space:nowrap}
-.ferr-totais-maquina::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--dmo-machine-color,var(--dmo-brand-400))}
-.ferr-totais-maquina.mch-B1{--dmo-machine-color:var(--dmo-machine-b1)}
-.ferr-totais-maquina.mch-B2{--dmo-machine-color:var(--dmo-machine-b2)}
-.ferr-totais-maquina.mch-B3{--dmo-machine-color:var(--dmo-machine-b3)}
-.ferr-totais-maquina.mch-C1{--dmo-machine-color:var(--dmo-machine-c1)}
-.ferr-totais-maquina.mch-C2{--dmo-machine-color:var(--dmo-machine-c2)}
-.ferr-totais-maquina.mch-C3{--dmo-machine-color:var(--dmo-machine-c3)}
-/* O seletor da B2 (Diogo, 28/10/2026: «como nos Templates»): o escolhido invertido, o hover só na letra. */
-.ferr-cod input[type=text],.ferr-cod input:not([type]){box-sizing:border-box;height:34px;padding:4px 6px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-card);color:var(--dmo-text);font:inherit;font-size:13.5px;font-variant-numeric:tabular-nums}
-.ferr-cod .ferr-cod-nome{width:128px}
-.ferr-cod-b2{display:inline-flex;align-items:center;gap:6px}
-.ferr-cod-b2 select{height:30px;padding:2px 6px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-card);color:var(--dmo-text);font:inherit;font-size:13px}
-.ferr-cod .ferr-cod-qtd{width:56px;text-align:center}
-.ferr-cod input:focus{border-color:var(--dmo-brand-600);outline:none;box-shadow:0 0 0 3px var(--dmo-focus-ring)}
-.ferr-cod input::placeholder{font-size:11.5px;color:var(--dmo-muted)}
-</style>
+<link rel="stylesheet" href="~/css/paginas/ferramentas-definicoesgeral.css" asp-append-version="true">
   <section id="ferrDefTotais" class="dmo-card ferr-def-card" aria-labelledby="tool-quantities-title" data-dmo-regiao data-dmo-parcial>
     <div class="dmo-card-topo">
       @* A codificação dos moldes e acessórios por linha (Diogo, 28/10/2026); a bola de ajuda explica (o cartão «Ao criar ou associar» saiu). *@

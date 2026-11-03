@@ -6,54 +6,7 @@
     Layout = "_DmoShellLayout";
 }
 @section Head {
-<style>
-.ri-page{display:flex;flex-direction:column;gap:14px}
-.ri-card{padding:18px}
-.ri-card h3{margin:0 0 12px;font-size:16px}
-/* Os filtros numa linha e o «Limpar filtros» encostado à direita, alinhado
-   pelo fundo dos campos (como na Revisão). Cada campo com a largura do que
-   leva; num ecrã estreito passam à linha seguinte. */
-.ri-filtros-card{padding:12px 16px;display:flex;flex-wrap:wrap;gap:10px 12px;align-items:flex-end}
-.ri-filtros-card .dmo-filter-bar{column-gap:10px}
-.ri-filtros-card>.dmo-zona>.dmo-filter-bar{flex:1 1 auto;min-width:0}
-html body .ri-filtros-card .dmo-filter-bar>.dmo-field{flex:0 0 auto;margin:0}
-html body .ri-filtros-card .dmo-filter-bar>.dmo-field>:is(input,select){width:100%}
-.ri-w-maquina{width:96px}
-.ri-w-data{width:132px}
-.ri-w-pessoa{width:150px}
-.ri-w-tipo{width:96px}
-.ri-w-referencia{width:124px}
-html body .ri-filtros-card .dmo-filter-bar>.ri-w-producao{min-width:220px;max-width:100%}
-html body .ri-filtros-card .dmo-filter-bar>.ri-w-producao>select{width:auto;min-width:100%}
-.ri-filtros-acoes{display:flex;gap:8px;align-items:center;margin-left:auto}
-.ri-card .dmo-table td{padding:6px 8px;vertical-align:top}
-.ri-card .dmo-table td:is(:nth-child(1),:nth-child(2),:nth-child(3),:nth-child(5)){white-space:nowrap}
-/* Links escuros (padrão da beta): a produção abre a ficha do Job On. */
-.ri-card .dmo-table td a{color:var(--dmo-brand-900);font-weight:600}
-.ri-vazia{margin:0;color:var(--dmo-muted)}
-/* «Sem Job On»: um botão que fica escolhido (cor cheia) quando o filtro está ligado. */
-html body .ri-filtros-acoes>.ri-so-por-associar{position:relative;display:inline-flex;gap:6px;align-items:center;height:var(--dmo-control-height);margin:0;padding:0 14px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control,8px);background:var(--dmo-card);color:var(--dmo-text);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
-html body .ri-filtros-acoes>.ri-so-por-associar>input{position:absolute;width:1px;height:1px;margin:0;opacity:0;pointer-events:none}
-html body .ri-filtros-acoes>.ri-so-por-associar:has(>input:checked){background:var(--dmo-palette-slate);border-color:var(--dmo-palette-slate);color:#fff}
-html body .ri-filtros-acoes>.ri-so-por-associar:has(>input:focus-visible){outline:2px solid var(--dmo-palette-ocean);outline-offset:1px}
-/* O nome em «Quem» numa só linha (Diogo, 27/10/2026). */
-html body .ri-filtros-card .dmo-filter-bar>.ri-w-pessoa{width:auto;min-width:150px}
-html body .ri-filtros-card .dmo-filter-bar>.ri-w-pessoa>select{width:auto;min-width:150px;white-space:nowrap}
-/* A marca «Por associar»: texto escuro numa pílula clara, não um botão; abre a janela de associar. */
-.ri-card .dmo-table td .ri-por-associar{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;background:var(--dmo-warning-soft);color:var(--dmo-brand-900);font-size:12px;font-weight:700;white-space:nowrap}
-/* A janela de associar: o formulário em grelha (dmo-normalize) dá o espaço; o dropdown curto. */
-html body .dmo-dialog.ri-janela h3{margin:0 0 10px}
-html body .dmo-dialog.ri-janela>p{margin:0 0 12px}
-html body .dmo-dialog.ri-janela form p{margin:0}
-html body .dmo-dialog.ri-janela .dmo-field{margin:0}
-html body .dmo-dialog.ri-janela .dmo-field select{width:auto;min-width:min(240px,100%);max-width:100%}
-@@media (max-width:640px){
-  .ri-card{padding:14px}
-  .ri-card .dmo-table :is(td,th){padding:4px 6px}
-  html body .ri-filtros-card .dmo-filter-bar>.dmo-field{flex:1 1 140px;width:auto}
-  .ri-filtros-acoes{margin-left:0}
-}
-</style>
+<link rel="stylesheet" href="~/css/paginas/reparacaointerna-consultar.css" asp-append-version="true">
 }
 
 @* Consultar (RI-05): os chefes veem quem reparou o quê e em que produção.

@@ -543,6 +543,6 @@ public sealed partial class EnvioEmailPesoPageTests : IClassFixture<CustomWebApp
         Assert.Contains("name=\"email\" value=\"producao@fabrica.pt\"", html);
         Assert.Contains("name=\"nome\" placeholder=\"—\"", html);
         // O espaço entre os campos e as listas é o do cartão.
-        Assert.Contains(".ctl-def-listas{display:grid;gap:var(--dmo-space-2);margin-top:var(--dmo-space-4)}", html);
+        Assert.Contains(".ctl-def-listas{display:grid;gap:var(--dmo-space-2);margin-top:var(--dmo-space-4)}", EstilosDasPaginas.Juntar(html));
     }
 }
