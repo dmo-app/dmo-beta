@@ -9,7 +9,8 @@
 '       modo=ref     só a % uso das ferramentas do dmo-codigos-pedido.txt.
 '   - pelo Agendador de Tarefas (/agendado, uma vez por dia à HORA, ou ao
 '     ligar o PC se estava desligado): como o modo normal.
-' No fim escreve «feito» no dmo-sap-estado.txt. Cada ficheiro lido vai logo
+' No fim escreve «feito» no dmo-sap-estado.txt (ou «erro», com o passo que
+' falhou e, em «ok:», os que correram bem). Cada ficheiro lido vai logo
 ' para o DMO (URL, com a CHAVE do Admin › SAP): grava sem ninguém abrir a app
 ' (Diogo, 28/10/2026: «sem ter de ler pasta»).
 
@@ -20,11 +21,12 @@ Const HORA = {{HORA}}
 Const URL = "{{URL}}"
 Const CHAVE = "{{CHAVE}}"
 
-Dim fso, shell, pasta, pedido, modo, inicio, fim, comecoGeral, erroGeral
+Dim fso, shell, pasta, pedido, modo, inicio, fim, comecoGeral, erroGeral, okGeral
 Set fso = CreateObject("Scripting.FileSystemObject")
 Set shell = CreateObject("WScript.Shell")
 pasta = fso.GetParentFolderName(WScript.ScriptFullName)
 erroGeral = ""
+okGeral = ""
 
 pedido = ""
 If WScript.Arguments.Count > 0 Then pedido = WScript.Arguments(0)
@@ -77,8 +79,12 @@ EnviarNovos "dmo-fabrico-sap-", ".txt"
 EnviarNovos "dmo-uso-sap-", ".csv"
 If erroGeral = "" Then
     EscreverFicheiro "dmo-sap-estado.txt", "feito " & Agora()
-Else
+ElseIf okGeral = "" Then
     EscreverFicheiro "dmo-sap-estado.txt", "erro " & Trim(erroGeral) & " " & Agora()
+Else
+    ' Uma parte correu bem (Diogo, 02/11/2026: a % uso foi gravada e a app
+    ' dizia «A leitura do SAP falhou»): o estado diz também o que ficou feito.
+    EscreverFicheiro "dmo-sap-estado.txt", "erro " & Trim(erroGeral) & " ok:" & Trim(okGeral) & " " & Agora()
 End If
 Registo "fim, modo " & modo
 
@@ -113,7 +119,11 @@ Sub Correr(ByVal nome, ByVal extra)
         End If
     Loop
     Registo nome & " acabou (código " & processo.ExitCode & ")"
-    If processo.ExitCode <> 0 Then Falhar nome, "codigo" & processo.ExitCode
+    If processo.ExitCode <> 0 Then
+        Falhar nome, "codigo" & processo.ExitCode
+    Else
+        okGeral = okGeral & nome & " "
+    End If
 End Sub
 
 ' O dmo-codigos.txt com todas as ferramentas com nome técnico (/sap/codigos).
