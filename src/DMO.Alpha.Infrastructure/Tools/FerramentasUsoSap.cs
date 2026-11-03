@@ -31,8 +31,11 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
         // O código que o script procurou liga a linha à ferramenta (a tabela
         // dos códigos de procura e o «Código SAP», DMO-585); sem ele, o nome
         // técnico + lote como sempre.
-        var porProcura = (await CodigosPorFerramentaAsync(db.Tools.Where(t => t.ToolId != ToolRegistryConstants.RemovedToolId), cancellationToken))
-            .ToLookup(c => c.Codigo, c => c.ToolId, StringComparer.Ordinal);
+        var codigosProcura = await CodigosPorFerramentaAsync(db.Tools.Where(t => t.ToolId != ToolRegistryConstants.RemovedToolId), cancellationToken);
+        var porProcura = codigosProcura.ToLookup(c => c.Codigo, c => c.ToolId, StringComparer.Ordinal);
+        // A lista de todos os moldes (a procura «*», DMO-717): as BQ têm «*» no
+        // código (AB2032NX*07), por isso o equipamento liga-se pelo padrão.
+        var comAsterisco = codigosProcura.Where(c => c.Codigo.Contains('*', StringComparison.Ordinal)).ToList();
         var agora = DateTime.UtcNow;
         var autor = Autor();
         var nome = ficheiro is { Length: > 0 } f ? f[..Math.Min(f.Length, FerramentaUtilizacao.FicheiroMaxLength)] : null;
@@ -46,6 +49,14 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
             if (daLinha.Count == 0)
             {
                 daLinha = porProcura[linha.Procura ?? linha.CodigoEquipamento].Concat(porProcura[linha.CodigoEquipamento]).Distinct(StringComparer.Ordinal).ToList();
+            }
+
+            if (daLinha.Count == 0)
+            {
+                // O lote 107 não é o 7: fica só o padrão com o fim mais comprido.
+                var cabem = comAsterisco.Where(c => SapProcura.CorrespondeAoPadrao(c.Codigo, linha.CodigoEquipamento)).ToList();
+                var fim = cabem.Count == 0 ? 0 : cabem.Max(c => c.Codigo.Length - c.Codigo.LastIndexOf('*') - 1);
+                daLinha = cabem.Where(c => c.Codigo.Length - c.Codigo.LastIndexOf('*') - 1 == fim).Select(c => c.ToolId).Distinct(StringComparer.Ordinal).ToList();
             }
 
             if (daLinha.Count == 0)
@@ -82,7 +93,6 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
             var retrato = retratos[toolId];
             var ultimaLeitura = ultimas.GetValueOrDefault(toolId);
             decimal? ultima = ultimaLeitura?.Percentagem;
-            var mudou = retrato.SapPercentagem != linha.PercentagemUso;
             var mudouDados = (info.Pecas is not null && retrato.SapPecas != info.Pecas)
                 || (info.Fornecedor is not null && retrato.SapFornecedor != info.Fornecedor)
                 || (info.DataAquisicao is not null && retrato.SapDataAquisicao != info.DataAquisicao);
@@ -91,22 +101,9 @@ public sealed class FerramentasUsoSap(DmoDbContext db, ICurrentAccountContext ac
             if (info.Pecas is { } pecas) retrato.SapPecas = pecas;
             if (info.Fornecedor is { } fornecedor) retrato.SapFornecedor = fornecedor;
             if (info.DataAquisicao is { } compra) retrato.SapDataAquisicao = compra;
-            if (ultimaLeitura?.Origem == FerramentaUtilizacao.OrigemManual)
-            {
-                if ((mudou && ultima != linha.PercentagemUso) || mudouDados)
-                {
-                    retrato.SapAvisosAlteradosEmUtc = agora;
-                    propostas++;
-                }
-                // A origem continua manual até à escolha «Sim»; fecha-se o lembrete
-                // porque o SAP já respondeu, sem fabricar uma leitura aplicada.
-                foreach (var lembrete in lembretes)
-                {
-                    lembrete.FechadoEmUtc = agora;
-                    lembrete.UtilizacaoId = ultimaLeitura.Id;
-                }
-                continue;
-            }
+            // Diogo, 02/11/2026 («sim»): o SAP é a fonte de verdade; a % do SAP
+            // substitui sempre, também a escrita à mão (fica no histórico), sem
+            // aviso nem «Substituir» (DMO-716).
             if (lembretes.Count == 0 && ultima == linha.PercentagemUso)
             {
                 if (mudouDados) propostas++;

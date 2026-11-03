@@ -88,6 +88,40 @@ public static class SapProcura
     /// ganha; senão a regra da primeira Linha dela que tiver regra; senão a
     /// regra geral do tipo; senão o nome técnico + lote.
     /// </summary>
+    /// <summary>
+    /// O equipamento da lista de todos os moldes cabe no código com «*»
+    /// (AB2032NX*07 ↔ AB2032NX346007): começa pelo que está antes do «*» e
+    /// acaba no que está depois, como a procura da ZPPG (DMO-717).
+    /// </summary>
+    public static bool CorrespondeAoPadrao(string padrao, string? equipamento)
+    {
+        var codigo = (equipamento ?? string.Empty).Trim().ToUpperInvariant();
+        var partes = padrao.Trim().ToUpperInvariant().Split('*');
+        if (partes.Length < 2 || codigo.Length == 0) return false;
+        var posicao = 0;
+        for (var i = 0; i < partes.Length; i++)
+        {
+            var parte = partes[i];
+            if (i == 0)
+            {
+                if (!codigo.StartsWith(parte, StringComparison.Ordinal)) return false;
+                posicao = parte.Length;
+            }
+            else if (i == partes.Length - 1)
+            {
+                return codigo.Length - parte.Length >= posicao && codigo.EndsWith(parte, StringComparison.Ordinal);
+            }
+            else
+            {
+                var achado = codigo.IndexOf(parte, posicao, StringComparison.Ordinal);
+                if (achado < 0) return false;
+                posicao = achado + parte.Length;
+            }
+        }
+
+        return false;
+    }
+
     public static string? Codigo(
         IReadOnlyCollection<SapProcuraRegra> regras, ToolType tipo, IEnumerable<string> linhas,
         string? codigoAMao, string? nomeTecnico, string? referencia, string? lote)

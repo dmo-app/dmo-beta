@@ -184,8 +184,16 @@ Sub Enviar(ByVal nome)
     http.setRequestHeader "X-DMO-SAP", CHAVE
     http.setRequestHeader "Content-Type", "application/octet-stream"
     http.send stream.Read
+    ' DMO-723 (QD253-01): só um 200 é enviado; sem rede ou com 403/500 o
+    ' estado diz «erro envio:…», em vez de «feito» (a app dizia «feita e
+    ' gravada» com o envio recusado). O ficheiro fica na pasta.
     If Err.Number <> 0 Then
         Registo "não foi possível enviar " & nome & ": " & Err.Description
+        Err.Clear
+        Falhar "envio", "rede"
+    ElseIf http.status <> 200 Then
+        Registo "envio recusado " & nome & " (" & http.status & ") " & http.responseText
+        Falhar "envio", "http" & http.status
     Else
         Registo "enviado " & nome & " (" & http.status & ") " & http.responseText
     End If

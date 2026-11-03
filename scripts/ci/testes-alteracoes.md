@@ -6358,3 +6358,48 @@ Novos: 0 · mudaram: 11 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.RegisterMetrics_RenderFromTheBackend_NeverFromTheClient`
 
 Selo depois: `f43b0081ac54d423`
+
+## A-0487 · 2026-11-02 · ok-do-diogo
+
+Porquê: DMO-716: a % do SAP substitui sempre a escrita à mão, sem aviso; aviso das peças com frase normal
+Referência: thread cmsg_01K75FTs9bQnbhhH7qttpgra7vYFcJvQUaiLE6LHsbqGZh, Diogo 02/11 14:58 «sim» (cmsg_01K75FTs9bQnbhhH7qttpgraUqU2VL7wVxqkpnPCYWWi4f)
+Novos: 1 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.APercentDoSap_SubstituiAEscritaAMao_SemAviso`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_NaoMantemQuantidadeEUsoManual_NaoRepeteMesmoValorEMostraNovoValor`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_SimUsaOPercentDoServidorEDepoisVoltaAAplicarAutomaticamente`
+
+Selo depois: `3ccd1f33ee7dc26f`
+
+## A-0488 · 2026-11-02 · teste-novo
+
+Porquê: DMO-717: USO procura «*» primeiro e salta as outras; BQ ligadas pelo padrão; passo no dmo-sap-passo.txt
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.AListaDeTodos_LigaPeloCodigo_EAsBqPeloPadrao`
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OUso_ProcuraTodosPrimeiro_ESaltaOsOutros_EDizOPasso`
+
+Selo depois: `38c53a75db31c4ec`
+
+## A-0493 · 2026-11-02 · ok-do-diogo
+
+Porquê: DMO-716: mais um teste do Postgres que esperava o aviso de % com a % manual; agora a % do SAP aplica-se e não há aviso
+Referência: thread cmsg_01K75FTs9bQnbhhH7qttpgra7vYFcJvQUaiLE6LHsbqGZh, Diogo 02/11 14:58 «sim» (cmsg_01K75FTs9bQnbhhH7qttpgraUqU2VL7wVxqkpnPCYWWi4f)
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_UmValorManualIgualAoSapContinuaProtegidoQuandoOSapMuda`
+
+Selo depois: `903ec41b854f252d`
+
+## A-0495 · 2026-11-02 · ok-do-diogo
+
+Porquê: DMO-723 (QD253-01): só um 200 conta como enviado; a app diz que o envio falhou; 2 testes novos no fim do sap-estado-erro.test.cjs
+Referência: Diogo 02/11 23:46 «sim 1 e 2» (cmsg_01K75FTs9bQnbhhH7qttpgra8GuZdgudXRrHYbaBivwoqZ)
+Novos: 3 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.ODiario_SoUm200ContaComoEnviado`
+- novo: `tests/ShellProof/sap-estado-erro.test.cjs :: Leu tudo mas o DMO recusou o envio (403): aviso com o «Instalar»`
+- novo: `tests/ShellProof/sap-estado-erro.test.cjs :: Sem rede ou com erro 500 no envio: diz o motivo`
+- mudou: `tests/ShellProof/sap-estado-erro.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `b93840dff2faec4f`

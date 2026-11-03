@@ -9,7 +9,19 @@
     <div class="ferr-aviso warn ferr-sap-aviso" data-sap-aviso role="status" id="sap-aviso-@campo">
       @* R3 (Diogo, 30/10/2026): o × é um × simples no canto do aviso, não um botão; o «Substituir» é um link com a cor dos botões (na janela e na página). *@
       <button type="button" class="ferr-sap-fechar" data-sap-fechar aria-label="Fechar aviso do SAP">×</button>
-      <span>SAP tem @recebido em vez de @atual@(campo == "pecas" ? " peças" : "")… substituir?</span>
+      @* DMO-716 (Diogo, 02/11/2026: «alertas do canto estão estranhos»): frase normal, com e sem quantidade. *@
+      @if (campo == "pecas" && Model.QuantidadeAtual is null)
+      {
+        <span>SAP tem @recebido peças por lote; aqui está vazio… preencher?</span>
+      }
+      else if (campo == "pecas")
+      {
+        <span>SAP tem @recebido peças por lote em vez de @atual… substituir?</span>
+      }
+      else
+      {
+        <span>SAP tem @recebido em vez de @atual… substituir?</span>
+      }
       <form method="post" asp-page="/Ferramentas/AvisosSap" data-dmo-parcial>
         <input type="hidden" name="tool_id" value="@Model.ToolId" />
         <input type="hidden" name="versao" value="@Model.Versao" />
