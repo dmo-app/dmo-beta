@@ -6324,3 +6324,17 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.SemNomeTecnico_OCodigoVemDaCodificacaoPorLinha`
 
 Selo depois: `e7c488b9eeb06628`
+
+## A-0486 · 2026-11-02 · ok-do-diogo
+
+Porquê: Cartão novo «Avisos do Job On» em A minha conta (DMO-715); testes novos dos avisos por utilizador
+Referência: A-0486 · Diogo cmsg_01K75FTs9bQnbhhH7qttpgraJCPH9szsVbru5WAk4GYHoy
+Novos: 4 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs :: JobOnAvisosPessoaisTests.ArmazemDesligado_SaiSoOAvisoDoArmazem`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs :: JobOnAvisosPessoaisTests.LerEEscrever_IgnoramChavesQueNaoExistem`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs :: JobOnAvisosPessoaisTests.SemNadaDesligado_MostraTodos`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Pessoal_SoTemAContaAPalavraPasseEAAparencia`
+
+Selo depois: `8eb6dc0ee896b7a1`

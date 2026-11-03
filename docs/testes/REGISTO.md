@@ -6058,3 +6058,11 @@ Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; no
 | `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs` › `ComUmaJanelaDoSapAberta_OTecladoNaoEscreve` (novo, 2 casos) | Com qualquer sessão do SAP aberta o teclado não escreve; só há um `shell.SendKeys` em cada script | OK | DMO-712 (A-0483), Diogo 02/11 13:17: «AUSERREQMG», «Função impossível». |
 | `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs` › `OFabrico_ComOSapAbertoNoEcraDeEntrada_EntraPrimeiro` (novo) | Com o SAP já aberto no ecrã de entrada, o FABRICO entra pelo SAP e espera que fique pronto antes de ler | OK | DMO-713 (A-0484), log do Diogo 02/11 13:17:01. |
 | `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs` › `SemNomeTecnico_OCodigoVemDaCodificacaoPorLinha` (novo) | Sem nome técnico, o código de procura vem da Codificação por linha (referência + linha); sem linha fica de fora; nada é gravado | OK | DMO-714 (A-0485), Diogo 02/11 13:38. |
+
+### `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs`
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| JobOnAvisosPessoaisTests.ArmazemDesligado_SaiSoOAvisoDoArmazem | Avisos do Job On desligados em Definições › A minha conta: o desligado sai, os outros ficam | OK | DMO-715 · A-0486 |
+| JobOnAvisosPessoaisTests.SemNadaDesligado_MostraTodos | Sem nada desligado, aparecem todos os avisos | OK | DMO-715 · A-0486 |
+| JobOnAvisosPessoaisTests.LerEEscrever_IgnoramChavesQueNaoExistem | A escolha gravada só guarda avisos que existem | OK | DMO-715 · A-0486 |

@@ -69,6 +69,20 @@ public sealed class IndexModel : PageModel
     /// <summary>Se os avisos do Armazém (sem registo, sem estado) se mostram.</summary>
     public bool MostrarAvisoArmazem { get; }
 
+    /// <summary>Os avisos que esta pessoa desligou nas Definições (lidos antes de cada handler).</summary>
+    public IReadOnlySet<string> AvisosEscondidos { get; private set; } = new HashSet<string>();
+
+    private readonly ICurrentAccountContext _account;
+    private readonly IDefinicoesPessoais _pessoais;
+
+    public override async Task OnPageHandlerExecutionAsync(
+        Microsoft.AspNetCore.Mvc.Filters.PageHandlerExecutingContext context,
+        Microsoft.AspNetCore.Mvc.Filters.PageHandlerExecutionDelegate next)
+    {
+        AvisosEscondidos = await AvisosPessoaisDaConta.LerAsync(_account, _pessoais, HttpContext.RequestAborted);
+        await next();
+    }
+
     private readonly ICreateJobOnHandler _createJobOn;
     private readonly IUpdateJobOnHandler _updateJobOn;
     private readonly IJobOnListQuery _jobOnList;
@@ -101,8 +115,12 @@ public sealed class IndexModel : PageModel
         CurrentUserCapabilities capabilities,
         IJobOnFichaQuery ficha,
         IJobOnFolhaQuery folha,
-        Microsoft.Extensions.Configuration.IConfiguration configuration)
+        Microsoft.Extensions.Configuration.IConfiguration configuration,
+        ICurrentAccountContext account,
+        IDefinicoesPessoais pessoais)
     {
+        _account = account;
+        _pessoais = pessoais;
         MostrarAvisoArmazem = configuration.GetValue(AvisoArmazemChave, AvisoArmazemPorOmissao);
         _createJobOn = createJobOn;
         _updateJobOn = updateJobOn;
@@ -1771,7 +1789,7 @@ public sealed class IndexModel : PageModel
         {
             var node = JsonSerializer.SerializeToNode(fact, ScriptJsonOptions)!.AsObject();
             node["avisos"] = JsonSerializer.SerializeToNode(
-                AvisosDasFerramentas(fact, MostrarAvisoArmazem).Select(aviso => new
+                AvisosDasFerramentas(fact, MostrarAvisoArmazem, AvisosEscondidos).Select(aviso => new
                 {
                     texto = aviso.Texto,
                     links = aviso.Links
@@ -1793,10 +1811,17 @@ public sealed class IndexModel : PageModel
     /// movimentos da ferramenta. Abrem noutro separador: a folha pode estar
     /// por gravar.
     /// </summary>
-    public static IReadOnlyList<JobOnToolAviso> AvisosDasFerramentas(JobOnToolFacts fact, bool comAvisoArmazem)
+    public static IReadOnlyList<JobOnToolAviso> AvisosDasFerramentas(JobOnToolFacts fact, bool comAvisoArmazem) =>
+        AvisosDasFerramentas(fact, comAvisoArmazem, new HashSet<string>());
+
+    /// <summary>
+    /// Os mesmos avisos sem os que a pessoa desligou nas Definições
+    /// (<see cref="AvisosPessoais"/>).
+    /// </summary>
+    public static IReadOnlyList<JobOnToolAviso> AvisosDasFerramentas(JobOnToolFacts fact, bool comAvisoArmazem, IReadOnlySet<string> escondidos)
     {
         var avisos = new List<JobOnToolAviso>();
-        if (fact.AvisoCompatibilidade is { } compatibilidade)
+        if (!escondidos.Contains(AvisosPessoais.Compatibilidade) && fact.AvisoCompatibilidade is { } compatibilidade)
         {
             avisos.Add(new JobOnToolAviso(compatibilidade,
             [
@@ -1804,14 +1829,14 @@ public sealed class IndexModel : PageModel
             ]));
         }
 
-        if (fact.AvisoUsoParalelo is { } paralelo)
+        if (!escondidos.Contains(AvisosPessoais.UsoParalelo) && fact.AvisoUsoParalelo is { } paralelo)
         {
             avisos.Add(new JobOnToolAviso(paralelo, fact.UsosParalelos
                 .Select(uso => Shared.DmoAvisoLink.JobOn(uso.JobOnId, $"Abrir {uso.ProductionNumber} ({uso.Machine})") with { NovoSeparador = true })
                 .ToList()));
         }
 
-        if (fact.AvisoB2 is { } b2)
+        if (!escondidos.Contains(AvisosPessoais.B2) && fact.AvisoB2 is { } b2)
         {
             avisos.Add(new JobOnToolAviso(b2,
             [
@@ -1819,7 +1844,7 @@ public sealed class IndexModel : PageModel
             ]));
         }
 
-        if (comAvisoArmazem && fact.AvisoArmazem is { } armazem)
+        if (comAvisoArmazem && !escondidos.Contains(AvisosPessoais.Armazem) && fact.AvisoArmazem is { } armazem)
         {
             avisos.Add(new JobOnToolAviso(armazem,
             [
