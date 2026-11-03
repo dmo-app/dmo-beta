@@ -1589,7 +1589,7 @@ public class JobOnFichaTests : IClassFixture<CustomWebApplicationFactory>, IDisp
             // «antes» a leitura do início dela (R13, Diogo, 30/10/2026: «o antes está trocado»).
             var cm = html.Substring(html.IndexOf("data-jof-familia=\"CM\"", StringComparison.Ordinal), 3000);
             Assert.Contains("<b>33.50%</b>", cm);
-            var usos = Regex.Matches(html, "<em class=\"was\" title=\"O uso no início desta produção\">antes ([^<]*)</em>");
+            var usos = Regex.Matches(html, "<em class=\"was\" title=\"O uso no início desta produção\">([^<]*)</em>");
             // As outras, sem produção anterior, começam a 0.
             Assert.Equal(["30%", "0%", "0%"], usos.Select(u => u.Groups[1].Value));
             Assert.True(usos[0].Index > html.IndexOf("data-jof-familia=\"CM\"", StringComparison.Ordinal));
