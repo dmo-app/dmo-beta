@@ -45,17 +45,17 @@ html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos){gap:16px}
 html body main.ferr-page .ferr-tech-titulo{height:16px;margin:0 0 8px;font-size:11px;line-height:16px}
 /* Larguras pelo conteúdo: referência de 8 (5447T173), 3 dígitos no lote e na
    quantidade, «sem registo» no % uso, o nome técnico de 12 (M107544MFNNV). */
-html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.dmo-field{flex:0 0 auto !important;width:auto !important;max-width:none}
-html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-type select{width:192px !important}
-html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-ref :is(input,select){width:104px !important;min-width:0;padding-inline:10px}
+html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.dmo-field{flex:0 0 auto !important;width:auto;max-width:none}
+html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-type select{width:192px}
+html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-ref :is(input,select){width:104px;min-width:0;padding-inline:10px}
 html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>:is(.ferr-w-lot,.ferr-w-qty) input{width:56px !important;min-width:0}
-html body :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-b2{flex:0 0 auto !important;width:auto !important}
+html body :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-b2{flex:0 0 auto;width:auto}
 html body :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-b2 select{width:128px !important;min-width:0}
 html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-uso input{width:56px !important;min-width:0}
 html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-uso input.ferr-sem-registo-campo{width:92px !important;padding-inline:8px}
-html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-sap input{width:164px !important;min-width:0;padding-inline:10px}
-html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-fab input{width:56px !important;min-width:0}
-html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-processo select{width:168px !important}
+html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-sap input{width:164px;min-width:0;padding-inline:10px}
+html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-fab input{width:56px;min-width:0}
+html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-processo select{width:168px}
 html body main.ferr-page .ferr-tech-campos>.dmo-field:not(.ferr-w-processo,.ferr-w-ref,.ferr-w-sap,.ferr-w-fab) input{width:88px !important;min-width:0}
 html body main.ferr-page .ferr-tech-campos>.ferr-w-ref input{width:88px !important}
 /* O % uso sem leitura: o «sem registo» cabe, em letra mais pequena. */
@@ -63,7 +63,7 @@ html body main.ferr-page input.ferr-sem-registo-campo::placeholder{font-size:12p
 html body main.ferr-page .ferr-w-sap input::placeholder{font-size:13px}
 /* «Qtd. lote» no ecrã (Diogo, 27/10/2026): o rótulo do HTML continua
    «Quantidade do lote» (leitores de ecrã e o contrato do formulário). */
-html body main.ferr-page .ferr-editar-principal>.ferr-w-qty:not(.ferr-w-an)>label{display:flex;align-items:flex-start;font-size:0 !important;line-height:0 !important}
+html body main.ferr-page .ferr-editar-principal>.ferr-w-qty:not(.ferr-w-an)>label{display:flex;align-items:flex-start;font-size:0;line-height:0}
 html body main.ferr-page .ferr-editar-principal>.ferr-w-qty:not(.ferr-w-an)>label::before{content:"Qtd. lote" / "";font-size:12px;line-height:16px}
 html body main.ferr-page .ferr-editar-principal>.ferr-w-qty:not(.ferr-w-an)>label>.dmo-help{font-size:12px;line-height:16px}
 /* Os exemplos (placeholder) mais claros, para não parecerem valores escritos. */
@@ -209,9 +209,9 @@ html body .beta-bq-layout .bq-latest-card .dmo-table :is(th,td){padding-block:6p
 html body .beta-bq-layout .bq-latest-card :is(.dmo-pagination,.pagination,nav){margin-top:8px}
 
 /* «Associar Job On» (registo sem produção): a referência e a produção lado a lado. */
-html body .beta-bq-layout .register-open>.filter-bar{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 16px;margin:8px 0 0 !important;padding:12px 16px}
+html body .beta-bq-layout .register-open>.filter-bar{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 16px;margin:8px 0 0;padding:12px 16px}
 html body .beta-bq-layout .register-open>.filter-bar>*{margin:0}
-html body .beta-bq-layout .register-open>.filter-bar>.card-head{flex:1 0 100%;margin:0 !important;min-height:32px}
+html body .beta-bq-layout .register-open>.filter-bar>.card-head{flex:1 0 100%;margin:0;min-height:32px}
 html body .beta-bq-layout .register-open>.filter-bar .filter-grid{display:flex;gap:16px}
 html body .beta-bq-layout .register-open>.filter-bar .dmo-field{display:flex;flex-direction:column;gap:4px;margin:0}
 html body .beta-bq-layout .register-open>.filter-bar #jobRef{width:152px}
