@@ -6086,3 +6086,5 @@ Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; no
 
 | `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs` › `RegisterMany_RecordsEachLineOnItsOwnProduction_WithTheSameTime` (novo) | Várias linhas de uma vez: cada cartão grava na sua produção, com a mesma hora | OK | DMO-721 (A-0492), Diogo 02/11. |
 | `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs` › `RegisterMany_ALineWithoutQuantity_DoesNotStopTheOthers` (novo) | Uma linha sem quantidade não impede as outras e o aviso diz qual falhou | OK | DMO-721 (A-0492). |
+
+| Capturas antes/depois de 51 páginas a 1366×768, claro e escuro (fora do CI) | A limpeza do CSS, parte 1 (menos `!important` em `dmo-normalize.css` e `dmo-design.css`), não muda o aspeto. | OK | A-0494 |

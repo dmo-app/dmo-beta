@@ -647,6 +647,7 @@
     { "id": "DMO-689", "module": "Peso", "description": "0.3.0-beta.251 (A-0449): no Peso, as datas e os dias da produção anterior ficam dentro da tabela, e as diferenças dizem «peso médio atual menos a média» ou «menos a moda», com gramas e percentagem com sinal. O PDF não muda." },
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     { "id": "DMO-692", "module": "Job On", "description": "R10 (A-0459): depois de gravar, a folha do Job On no painel deslizante abre com a largura toda e mantém o formato novo (Notas gerais em cima, artigo pequeno ao lado das Pinças)." },
     { "id": "DMO-693", "module": "PU NNPB", "description": "R16 (A-0459): saem os botões Punção visto, Arrefecedor visto e Remover do canto; volta-se a carregar no «Visto» da tabela, com o × de remover na linha. O número da punção e o «+ Adicionar punção» já não saltam." },
     { "id": "DMO-691", "module": "Boquilhas", "description": "Nos Movimentos das Boquilhas: os cards das máquinas já não ficam esmagados ao abrir a partir do Registo (Opções › Movimentos); o Registo do dia mostra o que saiu e entrou em cada máquina (S/E/SR); o Resumo diário deixa de ter a linha «Total»." },
@@ -690,6 +691,13 @@
 =======
     { "id": "DMO-721", "module": "Boquilhas", "description": "(A-0492): no Registo, «Várias linhas» deixa escolher vários cartões das linhas e registar tudo de uma vez: cada linha com Saída ou Entrada e a quantidade, a mesma data e hora para todas, cada uma gravada na produção que está nessa linha." }
 >>>>>>> q388
+=======
+    {
+      "id": "DMO-722",
+      "module": "Geral",
+      "description": "0.3.0-beta.253 (A-0494): limpeza do CSS, parte 1. Tirámos regras forçadas que não faziam falta na base. O aspeto da app não muda."
+    }
+>>>>>>> q390
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

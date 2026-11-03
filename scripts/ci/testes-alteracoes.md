@@ -6425,3 +6425,4 @@ Novos: 0 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: BoquilhasRegistoPageTests.RegisterMany_RecordsEachLineOnItsOwnProduction_WithTheSameTime`
 
 Selo depois: `63e4ca06a40aacb2`
+
