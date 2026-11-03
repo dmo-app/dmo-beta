@@ -103,10 +103,17 @@ public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContex
             var desde = unicas.Min(l => l.InicioEm);
             var ate = unicas.Max(l => l.FimEm);
             var chaves = unicas.Select(l => (l.Material, l.Linha, l.InicioEm, l.FimEm)).ToHashSet();
+            // DMO-724 (QD253-02): só se retira uma ordem de um material e
+            // linha que o relatório traz; um relatório que não fala desse
+            // material/linha (grelha parcial, outro filtro) não lhe toca.
+            var cobertos = unicas.Select(l => (l.Material, l.Linha)).ToHashSet();
             var naJanela = await db.SapFabricos
                 .Where(s => s.InicioEm >= desde && s.FimEm <= ate)
                 .ToListAsync(cancellationToken);
-            var fora = naJanela.Where(s => !chaves.Contains((s.Material, s.Linha, s.InicioEm, s.FimEm))).ToList();
+            var fora = naJanela
+                .Where(s => cobertos.Contains((s.Material, s.Linha)))
+                .Where(s => !chaves.Contains((s.Material, s.Linha, s.InicioEm, s.FimEm)))
+                .ToList();
             if (fora.Count > 0)
             {
                 logger.LogWarning(

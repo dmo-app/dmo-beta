@@ -6426,3 +6426,13 @@ Novos: 0 · mudaram: 2 · saíram: 0
 
 Selo depois: `63e4ca06a40aacb2`
 
+## A-0496 · 2026-11-02 · teste-novo
+
+Porquê: DMO-724 (A-0496): QD253-02, fabrico só retira produções do material/linha que traz e diz quantas
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.UmRelatorioSemOMaterial_NaoApagaAsOrdensDesseMaterial`
+- novo: `tests/DMO.Alpha.Web.Tests/MensagemFabricoSapTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/MensagemFabricoSapTests.cs :: MensagemFabricoSapTests.AsRetiradas_AparecemNaMensagem`
+
+Selo depois: `5a72e7f143c61de1`

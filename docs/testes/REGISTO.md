@@ -6088,3 +6088,6 @@ Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; no
 | `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs` › `RegisterMany_ALineWithoutQuantity_DoesNotStopTheOthers` (novo) | Uma linha sem quantidade não impede as outras e o aviso diz qual falhou | OK | DMO-721 (A-0492). |
 
 | Capturas antes/depois de 51 páginas a 1366×768, claro e escuro (fora do CI) | A limpeza do CSS, parte 1 (menos `!important` em `dmo-normalize.css` e `dmo-design.css`), não muda o aspeto. | OK | A-0494 |
+
+| `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs` › `UmRelatorioSemOMaterial_NaoApagaAsOrdensDesseMaterial` (novo) | Um relatório de fabrico que não traz um material/linha não apaga as produções desse material/linha | por correr (CI) | DMO-724 (A-0496), QD253-02, Diogo 02/11 23:46. |
+| `tests/DMO.Alpha.Web.Tests/MensagemFabricoSapTests.cs` › `MensagemFabricoSapTests.AsRetiradas_AparecemNaMensagem` (novo) | A mensagem da leitura do fabrico diz quantas produções foram retiradas | por correr (CI) | DMO-724 (A-0496). |
