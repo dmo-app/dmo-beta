@@ -646,6 +646,7 @@
     { "id": "DMO-687", "module": "Job On", "description": "0.3.0-beta.250 (A-0444): no Editar do Job On os Dias mudam logo ao mudar o Início ou o Fim, sem ser preciso gravar." },
     { "id": "DMO-689", "module": "Peso", "description": "0.3.0-beta.251 (A-0449): no Peso, as datas e os dias da produção anterior ficam dentro da tabela, e as diferenças dizem «peso médio atual menos a média» ou «menos a moda», com gramas e percentagem com sinal. O PDF não muda." },
 <<<<<<< HEAD
+<<<<<<< HEAD
     { "id": "DMO-692", "module": "Job On", "description": "R10 (A-0459): depois de gravar, a folha do Job On no painel deslizante abre com a largura toda e mantém o formato novo (Notas gerais em cima, artigo pequeno ao lado das Pinças)." },
     { "id": "DMO-693", "module": "PU NNPB", "description": "R16 (A-0459): saem os botões Punção visto, Arrefecedor visto e Remover do canto; volta-se a carregar no «Visto» da tabela, com o × de remover na linha. O número da punção e o «+ Adicionar punção» já não saltam." },
     { "id": "DMO-691", "module": "Boquilhas", "description": "Nos Movimentos das Boquilhas: os cards das máquinas já não ficam esmagados ao abrir a partir do Registo (Opções › Movimentos); o Registo do dia mostra o que saiu e entrou em cada máquina (S/E/SR); o Resumo diário deixa de ter a linha «Total»." },
@@ -678,6 +679,9 @@
     { "id": "DMO-717", "module": "SAP", "description": "(A-0488): a % de uso lê-se com uma só procura «*» na ZPPG (antes uma por ferramenta, 17 minutos); se falhar, segue como antes. A app mostra o passo em que o SAP está." },
     { "id": "DMO-723", "module": "SAP", "description": "(A-0495): o envio para o DMO recusado (403) ou sem rede já não diz «Leitura do SAP feita e gravada»: o aviso diz que o envio falhou e porquê (com 403, carregar outra vez em «Instalar»)." }
 >>>>>>> q385
+=======
+    {"id": "DMO-719", "module": "Boquilhas", "description": "Boquilhas › Registar sem Job On: pode escrever a referência ou a produção de um Job On já feito e a BQ·lote que ele usou, a referência, a produção e a linha ficam logo preenchidas (para as BQ que voltam tarde)."}
+>>>>>>> q386
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

@@ -2146,6 +2146,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | BoquilhasRegistoPageTests.RegistarSemJobOn_ALinhaSoTemAsDaFichaDaBq_EVemJaEscolhida | Linha limitada às da ficha da BQ e já escolhida | OK |  |
 | BoquilhasRegistoPageTests.RegistarSemJobOn_NaPaginaBoquilhas_GravaEMostraOMovimento | Registar sem Job On grava BQ, linha e quantidade e mostra-o | OK |  |
 | BoquilhasRegistoPageTests.RegistarSemJobOn_NumJobOnAnterior_FicaNoRegistoDesseJobOn_EODaEntradaDizQuemRegistou | Registar em Job On anterior; Job On de outra BQ recusado | OK | Recusa JobOnErrado sem verificar explicitamente que nada grava antes do segundo envio |
+| BoquilhasRegistoPageTests.RegistarSemJobOn_PeloJobOnJaFeito_OferecePorReferenciaEProducao_ComABqELoteQueUsou | Registar sem Job On oferece escolher o Job On já feito (referência · produção · BQ · lote) | OK | A-0490 (DMO-719) |
 | BoquilhasRegistoPageTests.RegistarSemJobOn_SemQuantidade_ReabreAJanelaComAFrase | Sem Job On: quantidade 0 recusada, janela reaberta, nada grava | OK |  |
 | BoquilhasRegistoPageTests.SemJobOnTool_Label_MostraOQueIdentificaABq_PelaReferencia | Etiqueta da BQ com referência, lote, quantidade, máquinas e MF | OK |  |
 
@@ -6074,3 +6075,9 @@ Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; no
 | `tests/ShellProof/sap-estado-erro.test.cjs` › 2 testes do envio (novos) e `SapScriptsVbsTests.ODiario_SoUm200ContaComoEnviado` (novo) | Só um 200 conta como enviado; 403/500/sem rede dão «erro envio:…» e a app diz que o envio falhou e porquê | OK | DMO-723 (A-0495), QD253-01 do deep-sweep .253; Diogo 02/11 23:46 «sim 1 e 2». |
 | `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs` › `AListaDeTodos_LigaPeloCodigo_EAsBqPeloPadrao` (novo) | A lista «*» liga CM pelo código da Codificação e BQ pelo padrão; lote 107 não vai para o 7 | OK | DMO-717 (A-0488), Diogo 02/11 14:58 «sim». |
 | `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs` › `OUso_ProcuraTodosPrimeiro_ESaltaOsOutros_EDizOPasso` (novo) | USO procura «*» primeiro e salta as outras; USO e FABRICO escrevem o dmo-sap-passo.txt | OK | DMO-717 (A-0488). Falta ver no PC do SAP quanto demora a lista «*». |
+
+### `tests/ShellProof/bq-sem-jobon-pelo-jobon.test.cjs`
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| Escolher um Job On já feito preenche a BQ, a referência, a produção e a linha | Pelo Job On já feito: BQ·lote, referência, produção e linha ficam preenchidas | OK | A-0490 (DMO-719) |

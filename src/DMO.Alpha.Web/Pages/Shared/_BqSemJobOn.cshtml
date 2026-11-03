@@ -79,6 +79,29 @@
               .ToList();
           var temReferencias = referencias.Any(k => k.ToolId == escolhida);
         }
+        @* PELO JOB ON (Diogo, 02/11/2026: «escrever a referência e a produção e
+           associar logo a BQ usada»): escreve-se a referência ou a produção de um
+           Job On já feito; ao escolher, a BQ·lote que ele usou, a referência, a
+           produção e a linha ficam preenchidas. Sem JavaScript não faz nada. *@
+        @if (Model.SemJobOnJobOns.Count > 0)
+        {
+          var porJobOn = Model.SemJobOnJobOns
+              .Select(j => (J: j, T: Model.SemJobOnTools.FirstOrDefault(t => t.ToolId == j.ToolId)))
+              .Where(x => x.T is not null)
+              .ToList();
+          <div class="bq-sem-jobon-campos">
+            <div class="dmo-field bq-sem-jobon-ref">
+              <label for="bqSemJobOnPorJobOn" title="Escreva a referência ou a produção de um Job On já feito; a BQ e o lote que usou ficam preenchidos.">Job On já feito · referência ou produção</label>
+              <input type="search" id="bqSemJobOnPorJobOn" list="bqSemJobOnPorJobOnLista" autocomplete="off" placeholder="Referência ou produção" data-bq-por-jobon />
+              <datalist id="bqSemJobOnPorJobOnLista">
+                @foreach (var (j, t) in porJobOn)
+                {
+                  <option value="@j.Reference.Trim().ToUpperInvariant() · @j.ProductionNumber · BQ @t!.Reference · Lote @t.Lot" data-bq="@j.ToolId" data-bq-id="@j.BqId"></option>
+                }
+              </datalist>
+            </div>
+          </div>
+        }
         <div class="bq-sem-jobon-campos bq-sem-jobon-jobon" data-bq-jobon-da="bqSemJobOnBq">
           <div class="dmo-field bq-sem-jobon-ref">
             <label for="bqSemJobOnReferencia" title="As referências em que esta BQ trabalhou. Escolha uma para registar num Job On anterior.">Job On anterior · referência</label>

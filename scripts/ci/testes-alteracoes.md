@@ -6403,3 +6403,14 @@ Novos: 3 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/sap-estado-erro.test.cjs :: (resto do ficheiro)`
 
 Selo depois: `b93840dff2faec4f`
+
+## A-0490 · 2026-11-02 · teste-novo
+
+Porquê: DMO-719/A-0490: Registar sem Job On pelo Job On já feito (referência/produção preenche a BQ·lote). 2 testes novos; nenhum antigo mudou.
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_PeloJobOnJaFeito_OferecePorReferenciaEProducao_ComABqELoteQueUsou`
+- novo: `tests/ShellProof/bq-sem-jobon-pelo-jobon.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/bq-sem-jobon-pelo-jobon.test.cjs :: Escolher um Job On já feito preenche a BQ, a referência, a produção e a linha`
+
+Selo depois: `d39b95a8407be96b`
