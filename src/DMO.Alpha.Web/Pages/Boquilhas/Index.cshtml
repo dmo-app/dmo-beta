@@ -63,9 +63,66 @@
             <h2>Boquilhas · Registo de reparação</h2>
             <p>Abra uma boquilha no painel lateral para registar movimentos.</p>
           </div>
+          @* VÁRIAS LINHAS DE UMA VEZ (Diogo, 02/11/2026, DMO-721): é uma opção que liga e desliga. *@
+          <button type="button" class="btn" id="bqVariasLigar" aria-pressed="false" title="Escolher vários cartões das linhas e registar tudo de uma vez">Várias linhas</button>
         </div>
         @* As linhas por baixo do título, como nos mockups (Owner, 26/10/2026): o mesmo painel, com os mesmos ids e zonas. *@
         <div class="dmo-zona" data-dmo-parcial><partial name="_DmoSidepanelBoquilhas" model="Model.Currents" /></div>
+        @if (Model.VariasOk is { } variasOk)
+        {
+          <div data-dmo-toast="ok" role="status">Registado em @variasOk.</div>
+        }
+        @if (Model.VariasFalhou is { } variasFalhou)
+        {
+          <div data-dmo-toast="erro" role="alert">Não ficou registado em @variasFalhou. Confirme a quantidade e registe essa linha outra vez.</div>
+        }
+        @* Com «Várias linhas» ligado, um clique no cartão escolhe-o (não abre) e
+           acrescenta aqui a linha dele; a data e a hora são as mesmas para todas. *@
+        <form method="post" asp-page="/Boquilhas/Index" asp-page-handler="RegisterMany" id="bqVarias" class="card bq-varias" hidden aria-label="Registar várias linhas">
+          <div class="bq-movement-line">
+            <button type="submit" class="btn primary" disabled>Registar</button>
+          @* Um tipo de movimento por registo (Diogo, 02/11/2026): escolhe-se uma vez, em cima. *@
+            <fieldset class="bq-movement-types">
+              <legend class="visually-hidden">Movimento</legend>
+              <label><input type="radio" name="movement_type" value="saida" checked /><span>Saída</span></label>
+              <label><input type="radio" name="movement_type" value="entrada" /><span>Entrada</span></label>
+            </fieldset>
+            <div class="field dmo-field bq-line-date">
+              <label for="variasDia">Data</label>
+              <input id="variasDia" type="date" data-bq-dia="variasOccurredAt" value="@((Model.MovementFormOccurredAt).Split('T')[0])" required />
+            </div>
+            <div class="field dmo-field bq-line-hora">
+              <label for="variasHora">Hora</label>
+              <input id="variasHora" type="time" data-bq-hora="variasOccurredAt" value="@((Model.MovementFormOccurredAt).Split('T').ElementAtOrDefault(1))" required />
+            </div>
+            <input id="variasOccurredAt" name="occurred_at" type="hidden" value="@Model.MovementFormOccurredAt" />
+          </div>
+          <p class="muted bq-varias-vazio">Carregue nos cartões das linhas acima para as escolher.</p>
+          <div class="bq-varias-linhas"></div>
+          @if (Model.UltimosRegistos.Count > 0)
+          {
+            <h3 class="bq-varias-ultimos-titulo">Últimos registos</h3>
+            <div class="dmo-table-wrap">
+              <table class="dmo-table" id="bqVariasUltimos">
+                <thead><tr><th>Data/hora</th><th>Linha</th><th>BQ · lote</th><th>Movimento</th><th>Qtd. BQ</th><th>Qtd. AN</th><th>Produção</th></tr></thead>
+                <tbody>
+                  @foreach (var m in Model.UltimosRegistos)
+                  {
+                    <tr>
+                      <td>@fmtDate(m.OccurredAtUtc)</td>
+                      <td>@(m.MachineCode ?? "—")</td>
+                      <td>@m.ToolReference@(m.ToolLot is null ? null : $" · Lote {m.ToolLot}")</td>
+                      <td>@movementLabel(m.MovementType)</td>
+                      <td>@m.Quantity</td>
+                      <td>@(m.AnQuantity is int an ? an.ToString() : "—")</td>
+                      <td>@(m.Reference ?? "—") · @(m.ProductionNumber ?? "—")</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </form>
 
         @* AS ZONAS DO REGISTO (cada uma existe sempre, mesmo vazia): o
            cabeçalho, o formulário do movimento, os números e os últimos
@@ -1047,6 +1104,7 @@
 @if (activeTab is "registo" or "boquilhas")
 {
   <script src="~/js/bq-registo.js" asp-append-version="true"></script>
+  <script src="~/js/bq-varias.js" asp-append-version="true"></script>
 }
 @if (activeTab == "boquilhas")
 {

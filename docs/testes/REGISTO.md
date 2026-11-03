@@ -6083,3 +6083,6 @@ Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; no
 | Escolher um Job On já feito preenche a BQ, a referência, a produção e a linha | Pelo Job On já feito: BQ·lote, referência, produção e linha ficam preenchidas | OK | A-0490 (DMO-719) |
 
 | `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs` › `RegisterMetrics_RenderFromTheBackend_NeverFromTheClient` | Sem o título «Quantidades»; a dica continua no cartão; tom ligeiro no tema claro | OK | DMO-718 (A-0489), Diogo 02/11: «está bom». Nenhum teste mudado. |
+
+| `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs` › `RegisterMany_RecordsEachLineOnItsOwnProduction_WithTheSameTime` (novo) | Várias linhas de uma vez: cada cartão grava na sua produção, com a mesma hora | OK | DMO-721 (A-0492), Diogo 02/11. |
+| `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs` › `RegisterMany_ALineWithoutQuantity_DoesNotStopTheOthers` (novo) | Uma linha sem quantidade não impede as outras e o aviso diz qual falhou | OK | DMO-721 (A-0492). |

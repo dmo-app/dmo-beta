@@ -6415,3 +6415,13 @@ Novos: 3 · mudaram: 0 · saíram: 0
 
 Selo depois: `d39b95a8407be96b`
 
+## A-0492 · 2026-11-02 · ok-do-diogo
+
+Porquê: DMO-721: tipo escolhido uma vez em cima; Entrada com Reparadas e Sem reparação na mesma linha (Diogo 02/11 22:09)
+Referência: thread cmsg_01K75FTs9bQnbhhH7qttpgraU4m6GEoFMTYQyC8povNVn8
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: BoquilhasRegistoPageTests.RegisterMany_ALineWithoutQuantity_DoesNotStopTheOthers`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: BoquilhasRegistoPageTests.RegisterMany_RecordsEachLineOnItsOwnProduction_WithTheSameTime`
+
+Selo depois: `63e4ca06a40aacb2`
