@@ -6058,3 +6058,13 @@ Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; no
 | `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs` › `ComUmaJanelaDoSapAberta_OTecladoNaoEscreve` (novo, 2 casos) | Com qualquer sessão do SAP aberta o teclado não escreve; só há um `shell.SendKeys` em cada script | OK | DMO-712 (A-0483), Diogo 02/11 13:17: «AUSERREQMG», «Função impossível». |
 | `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs` › `OFabrico_ComOSapAbertoNoEcraDeEntrada_EntraPrimeiro` (novo) | Com o SAP já aberto no ecrã de entrada, o FABRICO entra pelo SAP e espera que fique pronto antes de ler | OK | DMO-713 (A-0484), log do Diogo 02/11 13:17:01. |
 | `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs` › `SemNomeTecnico_OCodigoVemDaCodificacaoPorLinha` (novo) | Sem nome técnico, o código de procura vem da Codificação por linha (referência + linha); sem linha fica de fora; nada é gravado | OK | DMO-714 (A-0485), Diogo 02/11 13:38. |
+
+## DMO-730 · A-0503 · 03/11/2026
+
+| Teste | O que garante | Estado | Registo |
+|---|---|---|---|
+| `ControloCapabilitiesCutHPageTests.Estrutura_Folha_SoOCorpoDesliza` (alterado) | A estrutura das páginas ocupa pelo menos a janela e desliza quando não cabe. | OK | A-0503 |
+| `tests/visual/cabecalho_nome_comprido_browser.py` (alterado) | O nome comprido não muda o cabeçalho nem acrescenta scroll; a folha pode deslizar na vertical. | OK | A-0503 |
+| `tests/visual/cobertura_a1_browser.py` (alterado) | A folha do Job On não desliza para o lado; na vertical a página desliza. | OK | A-0503 |
+| `tests/visual/cobertura_a2_browser.py` (alterado) | Ficha, Utilizadores e Revisão sem deslizar para o lado; na vertical deslizam. | OK | A-0503 |
+| `tests/visual/cobertura_b_browser.py` (alterado) | Punções, Pegamentos, Armazém e outras sem deslizar para o lado; na vertical deslizam e a folha dos Pegamentos aparece inteira. | OK | A-0503 |

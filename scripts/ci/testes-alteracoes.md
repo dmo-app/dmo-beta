@@ -6324,3 +6324,17 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.SemNomeTecnico_OCodigoVemDaCodificacaoPorLinha`
 
 Selo depois: `e7c488b9eeb06628`
+
+## A-0503 · 2026-11-03 · ok-do-diogo
+
+Porquê: Diogo 03/11 08:00 «janela continua locked» e 08:01 «quero as janelas todas como estavam antes»: as páginas deixam de estar presas à altura da janela; os testes deixam de exigir a página sem deslizar na vertical (o deslizar para o lado continua proibido).
+Referência: DMO-730, cmsg_01K75FTs9bQnbhhH7qttpgraPQCmHAhD4UACzUtBmENHNn, cmsg_01K75FTs9bQnbhhH7qttpgraN4YLCQkoTF23zYDq59xW6A
+Novos: 0 · mudaram: 5 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/ControloCapabilitiesCutHPageTests.Estrutura.cs :: ControloCapabilitiesCutHPageTests.Estrutura_Folha_SoOCorpoDesliza`
+- mudou: `tests/visual/cabecalho_nome_comprido_browser.py`
+- mudou: `tests/visual/cobertura_a1_browser.py`
+- mudou: `tests/visual/cobertura_a2_browser.py`
+- mudou: `tests/visual/cobertura_b_browser.py`
+
+Selo depois: `f00eb29ce495fa05`
