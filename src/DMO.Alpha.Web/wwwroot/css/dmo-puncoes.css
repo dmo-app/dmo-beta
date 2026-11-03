@@ -89,9 +89,9 @@ html body .pu-topo .pu-add-form>.dmo-button{margin:0}
 /* R16 (Diogo, 30/10/2026): o «Visto» / «Por verificar» da tabela volta a ser o botão que troca o estado; × de remover na última coluna. */
 .pu-check-form{margin:0}
 .pu-check{all:unset;cursor:pointer;color:inherit;font-weight:inherit;text-decoration:underline dotted;text-underline-offset:3px}
-.pu-check:focus-visible,.pu-remove:focus-visible{outline:2px solid var(--dmo-brand-500);outline-offset:2px}
+.pu-check:focus-visible,.pu-remove:focus-visible,.pu-editar:focus-visible{outline:2px solid var(--dmo-brand-500);outline-offset:2px}
 .pu-table-fixa .pu-col-acoes{width:84px}
-.pu-remove{all:unset;cursor:pointer;padding:0 8px;font-size:18px;line-height:1;color:var(--dmo-muted)}
+.pu-remove,.pu-editar{all:unset;cursor:pointer;padding:0 8px;font-size:18px;line-height:1;color:var(--dmo-muted)}
 .pu-remove:hover{color:var(--dmo-danger)}
 .pu-editar:hover{color:var(--dmo-brand-500)}
 .pu-editar-form .dmo-field{margin-bottom:10px}
