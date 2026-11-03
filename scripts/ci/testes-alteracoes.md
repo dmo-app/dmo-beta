@@ -6436,3 +6436,37 @@ Novos: 3 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/MensagemFabricoSapTests.cs :: MensagemFabricoSapTests.AsRetiradas_AparecemNaMensagem`
 
 Selo depois: `5a72e7f143c61de1`
+
+## A-0497 · 2026-11-03 · ok-do-diogo
+
+Porquê: Ramo do ensaio beta.254: junta #383, #384, #385, #386, #387, #388, #390 e #391 sobre a main .253; impressão refeita; os testes mudados estão explicados nas entradas de cada PR
+Referência: Coordenador 03/11 (ensaio com os PR verdes); só ensaio, sem main
+Novos: 13 · mudaram: 12 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.UmRelatorioSemOMaterial_NaoApagaAsOrdensDesseMaterial`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: BoquilhasRegistoPageTests.RegisterMany_ALineWithoutQuantity_DoesNotStopTheOthers`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: BoquilhasRegistoPageTests.RegisterMany_RecordsEachLineOnItsOwnProduction_WithTheSameTime`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_PeloJobOnJaFeito_OferecePorReferenciaEProducao_ComABqELoteQueUsou`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs :: JobOnAvisosPessoaisTests.ArmazemDesligado_SaiSoOAvisoDoArmazem`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs :: JobOnAvisosPessoaisTests.LerEEscrever_IgnoramChavesQueNaoExistem`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs :: JobOnAvisosPessoaisTests.SemNadaDesligado_MostraTodos`
+- novo: `tests/DMO.Alpha.Web.Tests/MensagemFabricoSapTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/MensagemFabricoSapTests.cs :: MensagemFabricoSapTests.AsRetiradas_AparecemNaMensagem`
+- novo: `tests/ShellProof/bq-sem-jobon-pelo-jobon.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/bq-sem-jobon-pelo-jobon.test.cjs :: Escolher um Job On já feito preenche a BQ, a referência, a produção e a linha`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasDiscrepancyResetTests.cs :: BoquilhasRegistoPageTests.DiscrepancyReset_ClickOpensTheWindow_AndPuttingToZeroKeepsTheMovements`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasDiscrepancyResetTests.cs :: BoquilhasRegistoPageTests.DiscrepancyReset_WithoutDiscrepancy_ShowsNoLink`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasOrdemTests.cs :: BoquilhasRegistoPageTests.GuiasOutOfOrder_TableFollowsTheRealTime_AndTheSaidaCountsFirstAtTheSameTime`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.CanonicalTraceId_LoadsPersistedTrace`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachinesCard_ShowsTheThreeLiveValues_WhenTheCurrentBqExists`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachinesPanel_DirectLinkOpensProductionRegisterAndKeepsSearchCollapsed`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.NativePath_ServerDataIsSourceOfTruth`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.PostEntradaSemReparacao_PersistsWithClosedSemantics`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.PostEntrada_ServerComputedDiscrepancyReflected`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.PostSaida_PersistsThroughHandler`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.RegisterMetrics_RenderFromTheBackend_NeverFromTheClient`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Pessoal_SoTemAContaAPalavraPasseEAAparencia`
+
+Selo depois: `760a4c98bffd8aa4`

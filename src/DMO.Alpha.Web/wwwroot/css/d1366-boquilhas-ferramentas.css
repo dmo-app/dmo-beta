@@ -551,12 +551,10 @@ html body .beta-bq-layout form#bqHistoryFilters .bq-history-filter-grid>.dmo-fie
 html body .beta-bq-layout form#bqHistoryFilters .bq-history-filter-grid>.dmo-field:has(#vista){order:0}
 html body .beta-bq-layout form#bqHistoryFilters>.bq-history-filters-head{order:1;flex:1 1 auto;margin:0;align-self:flex-end}
 html body .beta-bq-layout form#bqHistoryFilters::after{content:"";order:1;flex:0 0 100%;height:0}
-<<<<<<< HEAD
 /* DMO-718 (Diogo 02/11): Boquilhas › Registo «muito branco» no tema claro → fundo e cartões com tom ligeiro. */
 :root:not([data-theme="dark"]) body .beta-bq-layout>.main{background:color-mix(in srgb,var(--dmo-brand-500) 11%,var(--dmo-bg,#fff))}
 :root:not([data-theme="dark"]) body .beta-bq-layout>.main>section.view .card{background:color-mix(in srgb,var(--dmo-brand-500) 4%,var(--dmo-card,#fff))}
 html body .beta-bq-layout #bqMetrics{display:flex;flex-direction:column;justify-content:center}
-=======
 
 /* VÁRIAS LINHAS DE UMA VEZ (Diogo, 02/11/2026, DMO-721): o cartão escolhido
    fica com um contorno forte; o botão «Várias linhas» é uma opção que liga
@@ -568,4 +566,3 @@ html body #bqVariasLigar[aria-pressed="true"]{background:var(--dmo-card);border:
 .bq-varias-codigo{min-width:200px;font-size:13px;white-space:nowrap;border:0;padding:6px 10px;align-self:flex-end;height:var(--dmo-control-height,34px);display:inline-flex;align-items:center;box-sizing:border-box}
 .bq-varias-ultimos-titulo{margin:6px 0 0;font-size:14px}
 .bq-varias-vazio{margin:0}
->>>>>>> q388
