@@ -8,7 +8,7 @@
 .jof2,.jof2-gaveta{--r-control:8px;--r-card:12px;--fast:150ms ease;--rail-bg:var(--dmo-brand-900);--rail-item:var(--dmo-brand-800);--rail-line:var(--dmo-brand-700);--rail-text:#fff;--rail-muted:var(--dmo-brand-200);--bottle-fill:#e9f1f8;--bottle-stroke:var(--dmo-brand-600);--dmo-shadow-menu:0 10px 24px rgba(27,40,50,.22);--dmo-backdrop:rgba(27,40,50,.68)}
 @media screen{:root[data-theme="dark"] :is(.jof2,.jof2-gaveta){--rail-muted:var(--design-pale);--rail-bg:var(--dmo-page);--rail-item:var(--dmo-subtle);--rail-line:var(--dmo-border);--bottle-fill:var(--dmo-brand-100);--bottle-stroke:var(--dmo-brand-500);--dmo-shadow-menu:0 10px 24px rgba(0,0,0,.45);--dmo-backdrop:rgba(0,0,0,.6)}}
 .jof2-form{display:contents}
-.jof2 [hidden],.jof2-gaveta [hidden]{display:none!important}
+.jof2 [hidden],.jof2-gaveta [hidden]{display:none}
 .jof2 button,.jof2 input,.jof2 select,.jof2 textarea{font:inherit;color:inherit}
 .jof2{display:block;color:var(--dmo-text);font-size:15px;line-height:1.45}
 
@@ -48,7 +48,7 @@
 .jof2 .page-head h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.015em;text-wrap:balance}
 .jof2 .head-right{display:flex;align-items:flex-end;gap:8px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end}
 .jof2 .head-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.jof2 .sr-only{position:absolute!important;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.jof2 .sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .jof2 .pick-row{display:flex;align-items:center;gap:8px}
 .jof2 .ref-search{position:relative;margin:0}
 .jof2 .ref-search svg{position:absolute;left:10px;top:50%;width:16px;height:16px;transform:translateY(-50%);color:var(--dmo-muted);pointer-events:none}
@@ -395,11 +395,11 @@ html body .jof2 .rail-toggle .count{background:var(--dmo-card)!important;color:v
 html body .jof2 .ref-search svg{z-index:1}
 html body .jof2 .ref-search input{text-align:left}
 html body .jof2 .jof-furos select.f{width:118px!important;min-width:118px}
-html body .jof2 .calv tbody th input.f{text-align:left!important}
+html body .jof2 .calv tbody th input.f{text-align:left}
 html body .jof2 .pick-block{gap:12px}
 /* Triângulos à esquerda, junto ao texto — SÓ na folha do Job On (a regra da app é do Especialista). */
 html body .jof2 .jof-furos-campo{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--dmo-muted)}
-html body .jof2 .jof-furos-campo input.f{width:38px!important;text-align:center}
+html body .jof2 .jof-furos-campo input.f{width:38px;text-align:center}
 
 /* Onde está no Armazém, por baixo da cabeça da ferramenta (FER-E-03). */
 .jof-onde{font-size:11px;color:var(--dmo-muted,#66809a);margin:4px 0 0}
@@ -1055,7 +1055,7 @@ html:root body .jof2:not(.editing) .folga{min-width:48px;text-align:center}
 html:root body .jof2.editing .folgas{gap:8px}
 /* A imagem do artigo encaixa no espaço sem cortar nem deformar, alta ou larga. */
 html:root body .jof2 .jof-artigo{overflow:hidden}
-html:root body .jof2 .jof-artigo img{width:100% !important;height:100% !important;max-width:100% !important;max-height:100% !important;object-fit:contain}
+html:root body .jof2 .jof-artigo img{width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain}
 /* A CS como o PU: a referência com o rótulo, por baixo do nome, dentro do cartão. */
 html:root body .jof2 [data-jof-familia="CS"] .sec-head{flex-wrap:wrap!important;row-gap:2px}
 html:root body .jof2 [data-jof-familia="CS"] .sec-head .hv>small{position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto}
@@ -1066,15 +1066,15 @@ html:root body .jof2.editing .note-box.note-edit>textarea.dmo-valor{flex:0 0 aut
 /* Artigo numa coluna estreita à direita (Diogo, 27/10/2026, opção B): os
    cartões dos componentes ganham largura; a imagem fica alta e inteira. */
 @media (min-width:1181px){
-html:root body .jof2 .sheet,html:root body .jof2.editing .sheet{grid-template-columns:minmax(0,1fr) 200px!important;gap:10px}
-html:root body .jof2 .side .jof-artigo{height:200px!important}
+html:root body .jof2 .sheet,html:root body .jof2.editing .sheet{grid-template-columns:minmax(0,1fr) 200px;gap:10px}
+html:root body .jof2 .side .jof-artigo{height:200px}
 }
 
 /* Notas com espaço (Diogo, 27/10/2026: «continua sem espaço para notes»):
    no TP, na CS e no PI a caixa vai por baixo do rótulo, com a mesma altura
    dos outros cartões; as Notas gerais ocupam o resto da coluna. */
-html:root body .jof2:not(.editing) :is([data-jof-familia="TP"],[data-jof-familia="CS"],[data-jof-familia="PI"]) .note-box.note-view{flex-direction:column!important;align-items:stretch!important;gap:2px!important;height:auto!important;min-height:0!important}
-html:root body .jof2:not(.editing) :is([data-jof-familia="TP"],[data-jof-familia="CS"],[data-jof-familia="PI"]) .note-box.note-view>p{min-height:56px!important;max-height:56px;flex:0 0 auto!important}
+html:root body .jof2:not(.editing) :is([data-jof-familia="TP"],[data-jof-familia="CS"],[data-jof-familia="PI"]) .note-box.note-view{flex-direction:column;align-items:stretch;gap:2px!important;height:auto;min-height:0}
+html:root body .jof2:not(.editing) :is([data-jof-familia="TP"],[data-jof-familia="CS"],[data-jof-familia="PI"]) .note-box.note-view>p{min-height:56px;max-height:56px;flex:0 0 auto}
 html:root body .jof2 .side>.notes{flex:1 1 auto;min-height:130px}
 html:root body .jof2 .side>.notes>:is(ul,textarea,.note-box){flex:1 1 auto;min-height:76px}
 /* As quatro colunas alinhadas (Diogo, 26/10/2026): a CS começa onde começa a
@@ -1087,7 +1087,7 @@ html:root body .jof2.jof2 .zones [data-jof-familia="CS"]{margin-left:2px;margin-
 html:root body .jof2.jof2 .zones .g-cal{margin-left:2px}
 }
 /* A linha na cor da máquina, só na letra, sem caixa à volta. */
-html:root body .jof2 .fv .mch[data-jof-linha]{background:none!important;color:var(--dmo-machine-color,var(--dmo-text))!important;padding:0 4px;min-width:0;font-size:18px;font-weight:800;border:0;box-shadow:none}
+html:root body .jof2 .fv .mch[data-jof-linha]{background:none;color:var(--dmo-machine-color,var(--dmo-text));padding:0 4px;min-width:0;font-size:18px;font-weight:800;border:0;box-shadow:none}
 /* O IMPRIMIR A PRETO E BRANCO (Diogo, 27/10/2026, PDF «Job-On 9395T194 Redesign
    Preto Branco»): faixa preta nas barras e na Linha, cinzento claro nos factos e
    nas Notas gerais, linhas finas cinzentas; o que falta fica com traço para
@@ -1133,7 +1133,7 @@ html body .jfn-folha table.jfb-dados th,html body .jfn-folha table.jfb-dados td{
 html body .jfn-folha table.jfb-dados th{font-weight:400;color:#555;min-width:20mm;text-align:left}
 html body .jfn-folha table.jfb-dados td{font-weight:600}
 html body .jfn-folha table.jfn-dim{width:100%}
-html body .jfn-folha table.jfn-dim tr:first-child th{font-size:5.5pt;text-transform:uppercase;letter-spacing:.04em;background:transparent!important;color:#555}
+html body .jfn-folha table.jfn-dim tr:first-child th{font-size:5.5pt;text-transform:uppercase;letter-spacing:.04em;background:transparent;color:#555}
 html body .jfn-folha table.jfn-dim td:first-child{font-weight:400;color:#333}
 html body .jfn-folha table.jfn-dim td:last-child{width:14mm}
 html body .jfn-folha table.jfn-dim i{font-style:normal}
@@ -1174,7 +1174,7 @@ html body .jfn-folha .jfc-obs{font-size:7.5pt;margin-top:.5mm}
 html body .jfn-folha .jfn-rodape{border-top:1px solid #bbb;color:#333;font-size:6.5pt;white-space:pre}
 html body .jfn-folha table.jfb-dados.dmo-table{display:table;width:auto;min-width:0;height:auto;align-self:start;table-layout:auto;margin:0}
 html body .jfn-folha table.jfb-dados.dmo-table tr{height:auto;background:transparent}
-html body .jfn-folha table.jfb-dados.dmo-table :is(th,td){background:transparent!important;border:0;height:auto;padding:0 2mm .4mm 0;font-size:7.5pt;line-height:1.35;white-space:normal;vertical-align:top;color:#111}
+html body .jfn-folha table.jfb-dados.dmo-table :is(th,td){background:transparent;border:0;height:auto;padding:0 2mm .4mm 0;font-size:7.5pt;line-height:1.35;white-space:normal;vertical-align:top;color:#111}
 html body .jfn-folha table.jfb-dados.dmo-table th{width:24mm;font-weight:400;color:#555;text-align:left}
 html body .jfn-folha table.jfb-dados.dmo-table td{font-weight:600}
 html body .jfn-folha table.jfn-dim.dmo-table{width:100%}
@@ -1194,14 +1194,14 @@ html body .jfn-folha[data-jof-folha="ficha"] .jfn-tabela>.jfb{min-height:11mm}
    nota abre-a inteira, a ver e a editar (as regras de altura fixa apanhavam
    também a nota aberta e deixavam-na com 2 linhas). */
 html:root body .jof2:not(.editing) .sec{position:relative}
-html:root body .jof2:not(.editing) .sec>.note-box.note-view:not(.is-ampliada),html:root body .jof2:not(.editing) .board:has(details.more[open]) .sec>.note-box.note-view:not(.is-ampliada){flex:1 1 auto!important;min-height:0!important;display:flex;flex-direction:column}
-html:root body .jof2:not(.editing) .sec>.note-box.note-view:not(.is-ampliada)>p{flex:1 1 auto!important;min-height:56px!important;max-height:none!important;overflow:auto;scrollbar-width:thin}
+html:root body .jof2:not(.editing) .sec>.note-box.note-view:not(.is-ampliada),html:root body .jof2:not(.editing) .board:has(details.more[open]) .sec>.note-box.note-view:not(.is-ampliada){flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+html:root body .jof2:not(.editing) .sec>.note-box.note-view:not(.is-ampliada)>p{flex:1 1 auto;min-height:56px;max-height:none;overflow:auto;scrollbar-width:thin}
 html:root body .jof2:not(.editing) .sec>details.more{position:relative;margin-top:auto}
 html:root body .jof2:not(.editing) .sec>details.more[open]>.more-body{position:absolute;z-index:30;left:-6px;right:-6px;bottom:calc(100% - 4px);margin:0;max-height:min(440px,calc(100vh - 140px));overflow:auto;padding:10px 12px;border:1px solid var(--dmo-border);border-radius:var(--r-card);background:var(--dmo-card);box-shadow:0 14px 36px rgba(0,0,0,.25)}
 html:root body .jof2 .note-box.is-ampliada>p,html:root body .jof2.editing .note-box.is-ampliada>textarea.dmo-valor,html:root body .jof2 .note-box.is-ampliada>textarea.dmo-valor{display:block;min-height:240px!important;height:auto!important;max-height:60vh!important;overflow:auto!important;flex:0 0 auto!important}
 /* PI: «Pinças» e «Diâmetro» cada um na sua linha; lado a lado não cabiam e o
    «Grafite» ficava colado ao «Diâmetro». */
-html:root body .jof2:not(.editing) [data-jof-familia="PI"]>.kv{grid-template-columns:max-content minmax(0,1fr)!important}
+html:root body .jof2:not(.editing) [data-jof-familia="PI"]>.kv{grid-template-columns:max-content minmax(0,1fr)}
 html:root body .jof2 .side>.notes{min-height:108px}
 html:root body .jof2 .side>.notes>:is(ul,textarea,.note-box){min-height:58px}
 
