@@ -67,8 +67,8 @@ html:root body .jof2.editing.editing.editing :is(input:not([type=radio]):not([ty
   box-sizing:border-box !important;height:30px !important;min-height:0 !important;margin:0 !important;
   padding-block:0 !important;line-height:normal !important;font-size:13px !important;text-overflow:ellipsis}
 html:root body .jof2.editing.editing.editing input:not([type=radio]):not([type=checkbox]):not([type=hidden]):not(.pick-row *){padding-inline:8px !important}
-html:root body .jof2.editing.editing.editing select:not(.pick-row *){padding-left:8px !important;padding-right:26px !important;background-position:right 8px center !important;line-height:28px !important;align-items:center}
-html:root body .jof2.editing.editing.editing .page-head .fv select[name="machine_id"]{font-size:15px !important;font-weight:700}
+html:root body .jof2.editing.editing.editing select:not(.pick-row *){padding-left:8px;padding-right:26px;background-position:right 8px center !important;line-height:28px;align-items:center}
+html:root body .jof2.editing.editing.editing .page-head .fv select[name="machine_id"]{font-size:15px;font-weight:700}
 html:root body .jof2.editing.editing.editing input[type=date]{padding-inline:8px 6px !important;font-variant-numeric:tabular-nums}
 
 /* A faixa dos dados: Início/Fim · Dias · Processo/Peso · Secções/Gota, em
@@ -80,10 +80,10 @@ html body .jof2.editing .page-head .facts-dados>.fact-col:first-child{border-lef
 html body .jof2.editing .page-head .facts-dados .fl{white-space:nowrap}
 html body .jof2.editing .page-head .facts-dados .fl+.fv+.fl,html body .jof2.editing .page-head .facts-dados .fv+.fl{margin-left:8px}
 html:root body .jof2.editing.editing.editing .page-head .fv input[type=date]{width:136px !important}
-html:root body .jof2.editing.editing.editing .page-head .fv select#jobon-cab-processo{width:auto !important;min-width:88px}
+html:root body .jof2.editing.editing.editing .page-head .fv select#jobon-cab-processo{width:auto;min-width:88px}
 html:root body .jof2.editing.editing.editing .page-head .fv input#jobon-cab-peso{width:80px !important}
-html:root body .jof2.editing.editing.editing .page-head .fv input#jobon-cab-seccoes{width:56px !important}
-html:root body .jof2.editing.editing.editing .page-head .fv input#jobon-cab-gota{width:72px !important}
+html:root body .jof2.editing.editing.editing .page-head .fv input#jobon-cab-seccoes{width:56px}
+html:root body .jof2.editing.editing.editing .page-head .fv input#jobon-cab-gota{width:72px}
 /* No telemóvel (390 px) a faixa não cabe numa linha: cada par rótulo e
    campo numa linha («Início» e «Fim» um por baixo do outro), sem linhas finas,
    e nada sai do ecrã (havia scroll lateral no Editar). */
@@ -95,40 +95,40 @@ html:root body .jof2.editing.editing.editing .page-head .fv input#jobon-cab-gota
 }
 
 /* As cabeças com referência e lote (PU, AN, ARR, TP…): o campo com a largura de 4–8 caracteres. */
-html:root body .jof2.editing.editing.editing .sec-head .hv input.f{width:88px !important}
+html:root body .jof2.editing.editing.editing .sec-head .hv input.f{width:88px}
 
 /* Utilização: rótulo, campo de 3 dígitos e «%» na mesma linha. */
 html body .jof2.editing .use-top{display:flex;align-items:center;gap:8px}
 html body .jof2.editing .use-top>span{flex:1 1 auto}
-html:root body .jof2.editing.editing.editing .use-top>input{width:64px !important}
+html:root body .jof2.editing.editing.editing .use-top>input{width:64px}
 
 /* Medidas: a coluna da medida com o nome inteiro; valor e tolerância à medida dos números. */
 html body .jof2.editing .dims{table-layout:fixed;width:100%}
 html body .jof2.editing .dims :is(th,td):nth-child(2){width:72px}
 html body .jof2.editing .dims :is(th,td):nth-child(3){width:52px}
-html body .jof2.editing .dims tbody td{padding:1px 0 1px 4px !important;vertical-align:middle}
-html body .jof2.editing .dims tbody td:first-child{padding-left:8px !important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-html body .jof2.editing .dims td input{width:100% !important}
-html:root body .jof2.editing.editing.editing .dims td:nth-child(3) input{padding-inline:6px !important}
+html body .jof2.editing .dims tbody td{padding:1px 0 1px 4px;vertical-align:middle}
+html body .jof2.editing .dims tbody td:first-child{padding-left:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body .jof2.editing .dims td input{width:100%}
+html:root body .jof2.editing.editing.editing .dims td:nth-child(3) input{padding-inline:6px}
 /* Calibres: linhas de 32 px, como as outras listas. */
-html body .jof2.editing .g-cal tbody :is(td,th){padding:1px 4px !important;vertical-align:middle;height:auto !important}
+html body .jof2.editing .g-cal tbody :is(td,th){padding:1px 4px !important;vertical-align:middle;height:auto}
 html body .jof2.editing :is(.g-cal,.dims) :is(td,th)>input:not([type=hidden]){display:block}
 /* Folgas: o rótulo e três campos iguais. */
-html body .jof2.editing .folgas{display:grid !important;grid-template-columns:auto repeat(3,minmax(0,1fr));align-items:center;gap:4px;padding:4px 0}
+html body .jof2.editing .folgas{display:grid;grid-template-columns:auto repeat(3,minmax(0,1fr));align-items:center;gap:4px;padding:4px 0}
 html body .jof2.editing .folgas>span{margin-right:4px}
-html body .jof2.editing .folgas>input{width:100% !important;min-width:0}
+html body .jof2.editing .folgas>input{width:100%;min-width:0}
 
 /* Listas de campos (Tipo, Reparador, Stock…): rótulo à esquerda, campo à direita, linhas de 32 px. */
 html body .jof2.editing .kv{grid-template-columns:minmax(0,1fr) 96px;align-items:stretch}
-html body .jof2.editing .kv :is(dt,dd){padding-block:1px !important;min-height:0;display:flex;align-items:center}
-html body .jof2.editing .kv dd>input.f{width:100% !important}
+html body .jof2.editing .kv :is(dt,dd){padding-block:1px;min-height:0;display:flex;align-items:center}
+html body .jof2.editing .kv dd>input.f{width:100%}
 /* CS › Furos: «Aberto [ ]  Fechado [ ]» numa só linha, à direita como os outros campos. */
 html body .jof2.editing [data-jof-familia="CS"]>.kv{grid-template-columns:auto minmax(0,1fr)}
 html body .jof2.editing [data-jof-familia="CS"]>.kv>dd{justify-content:flex-end}
-html:root body .jof2.editing.editing.editing [data-jof-familia="CS"]>.kv>dd>input.f{width:96px !important}
+html:root body .jof2.editing.editing.editing [data-jof-familia="CS"]>.kv>dd>input.f{width:96px}
 html body .jof2.editing .jof-furos{display:flex;flex-wrap:nowrap;justify-content:flex-end;gap:8px}
 html body .jof2.editing .jof-furos-campo{display:inline-flex;align-items:center;gap:4px}
-html:root body .jof2.editing.editing.editing .jof-furos-campo>input{width:32px !important;text-align:center}
+html:root body .jof2.editing.editing.editing .jof-furos-campo>input{width:32px;text-align:center}
 
 /* Notas: a caixa cresce com o texto escrito (nunca corta a última linha). */
 html body .jof2.editing .note-edit>textarea{field-sizing:content;min-height:48px;max-height:240px;overflow:auto;line-height:1.45}
@@ -140,12 +140,12 @@ html body .jof2.editing .note-edit>textarea{field-sizing:content;min-height:48px
    mesma largura (Diogo, 27/10/2026: «tudo mesmo tamanho»).              */
 /* ------------------------------------------------------------------ */
 html body .jof2 .page-head .pick-block{align-items:center}
-html body .jof2 .page-head .pick-row{align-items:center !important;gap:16px}
+html body .jof2 .page-head .pick-row{align-items:center;gap:16px}
 html body .jof2 .page-head .pick-row>.pick-campo{display:flex;flex-direction:row;align-items:center;gap:8px;flex:0 0 auto}
 html body .jof2 .page-head .pick-row .pick-rotulo{margin:0;white-space:nowrap}
-html:root body .jof2.jof2 .page-head .pick-row :is(.ref-search,.ref-search input,input.prod-select,select.prod-select,.prod-drop,.prod-trigger){box-sizing:border-box !important;height:var(--dmo-control-height) !important;min-height:0 !important;width:144px !important;min-width:0 !important;margin:0 !important;font-size:13px !important;font-weight:600}
-html:root body .jof2.jof2 .page-head .pick-row :is(.ref-search input,input.prod-select){padding:0 10px !important;line-height:normal !important}
-html:root body .jof2.jof2 .page-head .pick-row .prod-trigger{padding:0 10px !important}
+html:root body .jof2.jof2 .page-head .pick-row :is(.ref-search,.ref-search input,input.prod-select,select.prod-select,.prod-drop,.prod-trigger){box-sizing:border-box;height:var(--dmo-control-height);min-height:0 !important;width:144px;min-width:0;margin:0;font-size:13px;font-weight:600}
+html:root body .jof2.jof2 .page-head .pick-row :is(.ref-search input,input.prod-select){padding:0 10px;line-height:normal}
+html:root body .jof2.jof2 .page-head .pick-row .prod-trigger{padding:0 10px}
 html body .jof2 .page-head .pick-row .jof-tipo{box-sizing:border-box;height:var(--dmo-control-height);align-items:stretch}
 html body .jof2 .page-head .pick-row .jof-tipo label{flex:1 1 0}
 html body .jof2 .page-head .pick-row .jof-tipo label>span{box-sizing:border-box;height:100%;min-width:104px;display:flex;align-items:center;justify-content:center;font-size:13px}
@@ -272,7 +272,7 @@ html:not([data-theme="dark"]) body .jof2-gaveta .rail-item.selected:not(:hover):
   html body .dmo-shell-header .dmo-shell-conta .dmo-shell-user strong{line-height:1.15}
   html body .dmo-shell-header .dmo-shell-conta .dmo-shell-logout{line-height:1.15}
   /* As notas dos cartões: duas linhas à vista. */
-  html:root body .jof2.jof2:not(.editing) .note-box.note-view:not(.is-ampliada)>p{min-height:42px!important;max-height:42px!important}
+  html:root body .jof2.jof2:not(.editing) .note-box.note-view:not(.is-ampliada)>p{min-height:42px;max-height:42px}
   html body .jof2:not(.editing) .note-box.note-view>span{margin-bottom:0}
   /* Menos espaço entre a faixa de cima, os cartões e o «O que mudou». */
   html body .jof2:not(.editing){padding-top:6px;padding-bottom:4px}
@@ -286,7 +286,7 @@ html:not([data-theme="dark"]) body .jof2-gaveta .rail-item.selected:not(:hover):
   html body .jof2:not(.editing) .jobon-mudancas>.jobon-resumo>li{padding-block:4px}
   html body .jof2:not(.editing) .jobon-mudancas{margin-top:2px;margin-bottom:0}
   /* O artigo um pouco mais baixo: a imagem continua inteira (encaixa no espaço). */
-  html:root body .jof2:not(.editing) .side .jof-artigo{height:170px!important}
+  html:root body .jof2:not(.editing) .side .jof-artigo{height:170px}
 }
 
 /* ------------------------------------------------------------------ */
@@ -344,7 +344,7 @@ html:root body .dmo-calendar .dmo-calendar-days>:is(button,.day,.dmo-calendar-da
 @media screen and (min-width:1181px){
   /* Num ecrã mais largo (06:56 «já disse para reduzir largura»): os quatro cartões param em ~300 px  */
   /* e todo o espaço que sobra vai para o Artigo, as Notas gerais e o PI.                              */
-  html:root body .jof2.jof2 .sheet,html:root body .jof2.jof2.editing .sheet{grid-template-columns:minmax(0,1fr) max(300px,calc(100% - 1240px))!important}
+  html:root body .jof2.jof2 .sheet,html:root body .jof2.jof2.editing .sheet{grid-template-columns:minmax(0,1fr) max(300px,calc(100% - 1240px))}
 }
 
 /* Job On › Folha: o reparador (e no MF o FF com o lote) fora da «Informação técnica», numa linha,  */
@@ -524,7 +524,7 @@ html:root body .jof2-gaveta .rail-item.dmo-linha-cor:not(.selected):not(:hover):
 html:root body .jof2-gaveta .rail-item.dmo-linha-cor:is(.selected,:hover,:focus-visible,:active):not(#_){background:var(--dmo-linha-cheia,var(--dmo-machine-color));color:var(--dmo-text-on-color,#fff);border:1px solid transparent;outline:0}
 html:root body .jof2-gaveta .rail-item.dmo-linha-cor:is(.selected,:hover,:focus-visible,:active):not(#_) :is(b,small,.mch.mch){color:var(--dmo-text-on-color,#fff)!important;opacity:1}
 /* O título do Planeamento só para os leitores de ecrã (Diogo, 29/10/2026). */
-html body main.beta-light-main h1.sr-only{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+html body main.beta-light-main h1.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 /* A 1290×646 as seis linhas do dia cabem sem deslizar (Diogo, 29/10/2026): as zonas vazias dos avisos não ocupam
    espaço, e as linhas ficam um pouco mais baixas e mais juntas. */
 html body main.beta-light-main:has(#jobonProducoes) .beta-light-view.active>div:empty:not(#_){display:none}
