@@ -93,16 +93,16 @@ html:root body .jof2.jof2.jof2.editing{padding-top:6px;padding-bottom:4px}
 html:root body .jof2.editing.editing.editing.editing :is(input:not([type=radio]):not([type=checkbox]):not([type=hidden]):not([type=file]),select):not(.pick-row *){
   box-sizing:border-box !important;height:var(--dmo-control-height) !important;min-height:var(--dmo-control-height) !important;margin:0 !important;
   padding-block:0 !important;padding-inline:8px !important;line-height:normal !important;font-size:13px !important;font-weight:600;text-align:left !important;text-overflow:ellipsis}
-html:root body .jof2.editing.editing.editing.editing select:not(.pick-row *){padding-right:26px !important}
+html:root body .jof2.editing.editing.editing.editing select:not(.pick-row *){padding-right:26px}
 html:root body .jof2.editing.editing.editing input[type=date]{padding-inline:8px 6px !important}
 
 /* ---- o cabeçalho (título, aviso «Modo Editar», faixa dos dados) ---- */
 html:root body .jof2.editing.editing.editing .page-head{gap:6px;margin-bottom:6px}
 html:root body .jof2.editing.editing.editing .page-head .facts{padding:6px 16px}
-html:root body .jof2.editing.editing.editing .page-head .fact-col.mach select.f{min-width:76px;width:auto !important;font-size:15px !important;font-weight:700;border-radius:var(--r-control)}
+html:root body .jof2.editing.editing.editing .page-head .fact-col.mach select.f{min-width:76px;width:auto;font-size:15px;font-weight:700;border-radius:var(--r-control)}
 html:root body .jof2.editing.editing.editing .page-head .facts-dados .fv{gap:0}
 html:root body .jof2.editing.editing.editing .page-head .fv input[type=date]{width:140px !important}
-html:root body .jof2.editing.editing.editing .page-head .fv select#jobon-cab-processo{width:auto !important;min-width:96px}
+html:root body .jof2.editing.editing.editing .page-head .fv select#jobon-cab-processo{width:auto;min-width:96px}
 html:root body .jof2.editing.editing.editing .page-head .fv :is(input#jobon-cab-peso,input#jobon-cab-seccoes,input#jobon-cab-gota){width:72px !important}
 html:root body .jof2.editing.editing.editing .jof-modo-editar{height:var(--dmo-control-height);min-height:var(--dmo-control-height);padding:0 14px;font-size:15px}
 html:root body .jof2.editing.editing.editing .sheet{margin-top:0;gap:8px}
@@ -143,7 +143,7 @@ html:root body .jof2.editing.editing.editing .sec-head .hv+.hv{flex:0 0 auto;mar
 html:root body .jof2.editing.editing.editing .sec-head .hv small{flex:none}
 html:root body .jof2.editing.editing.editing .sec-head .hv>b{display:block;flex:1 1 auto;min-width:0;height:auto}
 html:root body .jof2.editing.editing.editing .sec-head .hv input.f{width:100% !important;max-width:none}
-html:root body .jof2.editing.editing.editing .sec-head .hv+.hv input.f{width:56px !important}
+html:root body .jof2.editing.editing.editing .sec-head .hv+.hv input.f{width:56px}
 html:root body .jof2.editing.editing.editing .sec-head .hv>b:not(:has(input)){height:var(--dmo-control-height)}
 
 /* ---- Utilização: «Utilização [42] %» e a barra na mesma linha ---- */
@@ -158,17 +158,17 @@ html:root body .jof2.editing.editing.editing .jof-fora{display:grid;grid-templat
 html:root body .jof2.editing.editing.editing .jof-fora .hv{display:contents}
 html:root body .jof2.editing.editing.editing .jof-fora .hv>b{display:block;min-width:0;font-size:inherit;line-height:normal}
 html:root body .jof2.editing.editing.editing .jof-fora .hv:first-child>b{grid-column:2/-1}
-html:root body .jof2.editing.editing.editing .jof-fora .hv input.f{width:100% !important}
+html:root body .jof2.editing.editing.editing .jof-fora .hv input.f{width:100%}
 
 /* ---- listas rótulo / campo (TP, CS, PI, e dentro da Informação técnica) ---- */
 html:root body .jof2.editing.editing.editing .kv{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 10px;align-items:center;margin:0}
-html:root body .jof2.editing.editing.editing .kv :is(dt,dd){display:flex;align-items:center;margin:0;padding:0 !important;border:0;min-height:var(--dmo-control-height) !important}
+html:root body .jof2.editing.editing.editing .kv :is(dt,dd){display:flex;align-items:center;margin:0;padding:0 !important;border:0;min-height:var(--dmo-control-height)}
 html:root body .jof2.editing.editing.editing .kv dd{justify-content:flex-start}
-html:root body .jof2.editing.editing.editing .kv dd>input.f{width:100% !important}
+html:root body .jof2.editing.editing.editing .kv dd>input.f{width:100%}
 html:root body .jof2.editing.editing.editing [data-jof-familia="CS"]>.kv>dd{justify-content:flex-start}
 html:root body .jof2.editing.editing.editing .jof-furos{display:flex;flex-wrap:nowrap;align-items:center;justify-content:flex-start;gap:6px;min-width:0}
 html:root body .jof2.editing.editing.editing .jof-furos-campo{display:inline-flex;align-items:center;gap:4px}
-html:root body .jof2.editing.editing.editing .jof-furos-campo>input{width:38px !important;padding-inline:8px 4px !important}
+html:root body .jof2.editing.editing.editing .jof-furos-campo>input{width:38px;padding-inline:8px 4px}
 
 /* ---- Notas (Editar): a caixa cresce até ocupar o espaço livre do cartão (no mínimo duas linhas com texto, uma vazia);
    só quando o texto não cabe desliza por dentro, e o jobon-folha.js corta a altura numa linha inteira (18px). ---- */
@@ -198,8 +198,8 @@ html:root body .jof2.editing.editing.editing [data-jof-familia="AN"] .sec-head .
 @media (min-width:1181px){
   html:root body .jof2.jof2.jof2 .sheet>.side{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:minmax(0,1fr) auto;grid-template-areas:"notas notas" "pi artigo";gap:8px;align-self:stretch;contain:size;overflow:hidden;position:static;max-height:none}
   html:root body .jof2.jof2.jof2 .side>.article{grid-area:artigo;position:relative;display:flex;align-items:center;justify-content:center;padding:8px}
-  html:root body .jof2.jof2.jof2 .side.side .jof-artigo{width:auto !important;height:156px !important;min-height:0;aspect-ratio:3/4;border-radius:6px;background:var(--dmo-subtle)}
-  html:root body .jof2.jof2.jof2 .side .jof-artigo :is(svg,img){height:100% !important;max-height:100% !important;width:auto}
+  html:root body .jof2.jof2.jof2 .side.side .jof-artigo{width:auto;height:156px !important;min-height:0;aspect-ratio:3/4;border-radius:6px;background:var(--dmo-subtle)}
+  html:root body .jof2.jof2.jof2 .side .jof-artigo :is(svg,img){height:100%;max-height:100%;width:auto}
   html:root body .jof2.jof2.jof2 .side .jof-artigo>img[data-jof-artigo-img]{width:100%}
   html:root body .jof2.jof2.jof2 .side .jof-artigo-retirar{position:absolute;top:4px;right:2px;z-index:1;margin:0}
   html:root body .jof2.jof2.jof2 .side>.notes{grid-area:notas;min-height:0}
@@ -210,7 +210,7 @@ html:root body .jof2.editing.editing.editing [data-jof-familia="AN"] .sec-head .
   html:root body .jof2.jof2.jof2 .side>.notes>h2{flex:none;margin:0 0 4px;font-size:16px}
   html:root body .jof2.jof2.jof2 .side>.notes>ul{position:relative;flex:1 1 0;min-height:0;display:block;overflow-y:auto;scrollbar-width:thin;margin:0;padding:0}
   html:root body .jof2.jof2.jof2 .side>.notes>ul>li.view{display:block;padding:2px 8px;font-size:13.5px;line-height:1.4;overflow-wrap:normal;word-break:normal}
-  html:root body .jof2.jof2.jof2 .side>.notes>textarea.dmo-valor{flex:1 1 0;min-height:48px !important;height:auto;max-height:none;resize:none;overflow-y:auto;scrollbar-width:thin;font-size:13px;line-height:18px;padding:5px 8px 0}
+  html:root body .jof2.jof2.jof2 .side>.notes>textarea.dmo-valor{flex:1 1 0;min-height:48px;height:auto;max-height:none;resize:none;overflow-y:auto;scrollbar-width:thin;font-size:13px;line-height:18px;padding:5px 8px 0}
   html:root body .jof2.jof2.jof2 .side>.g-pinfo{flex:0 0 auto}
   html:root body .jof2.jof2.jof2 .side>.g-pinfo article.card.sec{gap:4px;padding:8px 12px}
 }
@@ -236,12 +236,12 @@ html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-campo:nth-of-
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .fact-col.mach{order:5;display:flex;align-items:center;margin:0;padding:0 0 0 18px;border:0;border-left:1px solid var(--dmo-border);height:34px}
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-rotulo{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .ref-search>svg{display:none}
-html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row :is(.ref-search,.ref-search input#jofReferencia){box-sizing:border-box !important;height:34px !important;min-height:0 !important;width:calc(9ch + 22px) !important;min-width:calc(9ch + 22px) !important;padding:0 8px !important;border-color:transparent !important;background:transparent !important;box-shadow:none !important;font-size:22px !important;font-weight:800 !important;letter-spacing:0;color:var(--dmo-text);text-transform:uppercase}
-html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row .ref-search{border:0 !important;width:auto !important;min-width:0 !important}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row :is(.ref-search,.ref-search input#jofReferencia){box-sizing:border-box;height:34px;min-height:0;width:calc(9ch + 22px) !important;min-width:calc(9ch + 22px) !important;padding:0 8px !important;border-color:transparent !important;background:transparent;box-shadow:none;font-size:22px !important;font-weight:800;letter-spacing:0;color:var(--dmo-text);text-transform:uppercase}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row .ref-search{border:0;width:auto;min-width:0}
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row .ref-search input#jofReferencia:focus{border-color:var(--dmo-border) !important;background:var(--dmo-card) !important}
-html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row :is(.prod-drop,.prod-trigger){box-sizing:border-box !important;height:34px !important;min-height:0 !important;width:auto !important;min-width:0 !important;border-color:transparent !important;background:transparent !important;box-shadow:none !important;font-size:17px !important;font-weight:500 !important;color:var(--dmo-text)}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row :is(.prod-drop,.prod-trigger){box-sizing:border-box;height:34px;min-height:0;width:auto !important;min-width:0;border-color:transparent !important;background:transparent;box-shadow:none;font-size:17px !important;font-weight:500;color:var(--dmo-text)}
 /* A produção na mesma linha de base da referência (Diogo, 28/10/2026: «temos a referência desalinhada com a produção»): a referência tem 22 px e a produção 17 px, centradas na caixa de 34 px; o pé das letras ficava 3 px acima. */
-html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row .prod-trigger{padding-top:6px !important;padding-bottom:0 !important}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row .prod-trigger{padding-top:6px !important;padding-bottom:0}
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row .prod-drop{border:0 !important}
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row .prod-trigger:is(:focus-visible,[aria-expanded="true"]){border-color:var(--dmo-border) !important;background:var(--dmo-card) !important}
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .fact-col.mach .mch[data-jof-linha]{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;height:30px;min-width:44px;padding:0 12px;border-radius:var(--r-control);background:var(--dmo-machine-color,var(--dmo-brand-600)) !important;color:#fff !important;font-size:16px;font-weight:800;line-height:1}
@@ -311,10 +311,10 @@ html:root body .jof2.jof2.jof2:not(.editing) .folgas>.folga>small{white-space:no
 
 /* ---- as Notas no ver: a caixa cresce até ocupar o espaço livre do cartão (mínimo três linhas inteiras de 18px com texto, uma vazia);
    só quando o texto não cabe desliza por dentro, e o jobon-folha.js corta a altura numa linha inteira. ---- */
-html:root body .jof2.jof2.jof2.jof2:not(.editing) .sec>.note-box.note-view:not(.is-ampliada){flex:1 1 auto !important;min-height:0 !important;padding:4px 8px 5px;gap:1px}
-html:root body .jof2.jof2.jof2.jof2:not(.editing) .sec>.note-box.note-view:not(.is-ampliada)>p{box-sizing:border-box;flex:1 1 0 !important;min-height:54px !important;max-height:none !important;padding:0 !important;background:none !important;font-size:13px;line-height:18px;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--dmo-muted) transparent;overflow-wrap:normal;word-break:normal;hyphens:manual}
-html:root body .jof2.jof2.jof2.jof2:not(.editing) .sec>.note-box.note-view.is-empty:not(.is-ampliada){min-height:0 !important;padding:0 !important;background:none !important;gap:1px}
-html:root body .jof2.jof2.jof2.jof2:not(.editing) .sec>.note-box.note-view.is-empty:not(.is-ampliada)>p{min-height:18px !important;padding:0 8px !important;background:none !important}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .sec>.note-box.note-view:not(.is-ampliada){flex:1 1 auto;min-height:0;padding:4px 8px 5px;gap:1px}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .sec>.note-box.note-view:not(.is-ampliada)>p{box-sizing:border-box;flex:1 1 0 !important;min-height:54px !important;max-height:none !important;padding:0;background:none;font-size:13px;line-height:18px;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--dmo-muted) transparent;overflow-wrap:normal;word-break:normal;hyphens:manual}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .sec>.note-box.note-view.is-empty:not(.is-ampliada){min-height:0;padding:0;background:none;gap:1px}
+html:root body .jof2.jof2.jof2.jof2:not(.editing) .sec>.note-box.note-view.is-empty:not(.is-ampliada)>p{min-height:18px !important;padding:0 8px !important;background:none}
 html:root body .jof2.jof2.jof2:not(.editing) [data-jof-familia="CS"] .sec-head .hv b,html:root body .jof2.jof2.jof2:not(.editing) [data-jof-familia="PU"] .sec-head .hv b{font-size:15px}
 
 /* ---- «O que mudou» fechado: uma linha discreta em baixo à esquerda, sem cartão; aberto, o cartão por cima ---- */
@@ -334,7 +334,7 @@ html:root body .jof2.jof2.jof2.jof2:not(.editing) .jof-fora .hv.jof-fora-reparad
 html:root body .jof2.editing.editing.editing .sec .tool-head .tool-hint{position:absolute;top:12px;right:10px;margin:0}
 html:root body .jof2.editing.editing.editing [data-jof-familia="CS"]>.kv>dt:first-child{grid-column:1/-1;min-height:14px !important;align-items:flex-end}
 html:root body .jof2.editing.editing.editing [data-jof-familia="CS"]>.kv>dt:first-child+dd{grid-column:1/-1}
-html:root body .jof2.editing.editing.editing .jof-furos-campo>input{width:36px !important}
+html:root body .jof2.editing.editing.editing .jof-furos-campo>input{width:36px}
 html:root body .jof2.jof2.jof2.editing{padding-bottom:0}
 html:root body .jof2.editing.editing.editing .page-head{margin-bottom:4px}
 html:root body .jof2.editing.editing.editing [data-jof-familia="CS"]>.kv{gap:2px 10px}
@@ -345,18 +345,18 @@ html:root body .jof2.jof2.jof2.jof2 .page-head .fact-col.mach:has(.mch:empty){di
 /* ---- Editar › Informação técnica › Medidas: sempre uma tabela com as colunas Medida | Valor | Tol. alinhadas
    (o valor comprido, «54.02/52.02/…», fica na coluna Valor, que encolhe com reticências; o valor inteiro
    continua no campo). Anula a regra do Planeamento que o mandava para uma linha à parte. ---- */
-html:root body .jof2.editing.editing.editing .more-body table.dims{display:table !important;width:100%;table-layout:fixed}
-html:root body .jof2.editing.editing.editing .more-body table.dims thead{display:table-header-group !important}
-html:root body .jof2.editing.editing.editing .more-body table.dims tbody{display:table-row-group !important}
-html:root body .jof2.editing.editing.editing .more-body table.dims tr{display:table-row !important}
-html:root body .jof2.editing.editing.editing .more-body table.dims :is(th,td){display:table-cell !important;grid-column:auto !important;width:auto;vertical-align:middle;padding:2px 3px !important;white-space:nowrap}
+html:root body .jof2.editing.editing.editing .more-body table.dims{display:table;width:100%;table-layout:fixed}
+html:root body .jof2.editing.editing.editing .more-body table.dims thead{display:table-header-group}
+html:root body .jof2.editing.editing.editing .more-body table.dims tbody{display:table-row-group}
+html:root body .jof2.editing.editing.editing .more-body table.dims tr{display:table-row}
+html:root body .jof2.editing.editing.editing .more-body table.dims :is(th,td){display:table-cell;grid-column:auto;width:auto;vertical-align:middle;padding:2px 3px !important;white-space:nowrap}
 html:root body .jof2.editing.editing.editing .more-body table.dims :is(th,td):first-child{width:92px;padding-left:6px !important;overflow:hidden;text-overflow:ellipsis}
 html:root body .jof2.editing.editing.editing .more-body table.dims :is(th,td):nth-child(3){width:64px}
-html:root body .jof2.editing.editing.editing .more-body table.dims td input{width:100% !important;text-overflow:ellipsis}
+html:root body .jof2.editing.editing.editing .more-body table.dims td input{width:100%;text-overflow:ellipsis}
 html:root body .jof2.editing.editing.editing .more-body table.dims th{font-size:12px;text-align:left}
 html:root body .jof2.editing.editing.editing .more-body .table-wrap{overflow:visible}
-html:root body .jof2.editing.editing.editing .more-body .folgas{display:grid !important;grid-template-columns:auto repeat(3,minmax(0,1fr));gap:6px;align-items:center;padding:0}
-html:root body .jof2.editing.editing.editing .more-body .folgas>input{width:100% !important;min-width:0}
+html:root body .jof2.editing.editing.editing .more-body .folgas{display:grid;grid-template-columns:auto repeat(3,minmax(0,1fr));gap:6px;align-items:center;padding:0}
+html:root body .jof2.editing.editing.editing .more-body .folgas>input{width:100%;min-width:0}
 
 /* Referência e produção no cabeçalho: no hover só muda a cor da letra; a caixa só aparece com o foco. */
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .page-head .pick-block:not(.is-novo) .pick-row :is(.prod-trigger,input#jofReferencia):hover{color:var(--dmo-brand-700) !important}
@@ -383,7 +383,7 @@ html:root body .jof2.editing.editing.editing [data-jof-familia="TP"]>.kv>dd:nth-
 html:root body .jof2.editing.editing.editing [data-jof-familia="TP"]>.kv>dt:nth-of-type(2){grid-column:2;grid-row:1}
 html:root body .jof2.editing.editing.editing [data-jof-familia="TP"]>.kv>dd:nth-of-type(2){grid-column:2;grid-row:2}
 /* Calibres: linhas da tabela sem folga a mais */
-html:root body .jof2.editing.editing.editing table.calv :is(td,th){padding-block:1px !important}
+html:root body .jof2.editing.editing.editing table.calv :is(td,th){padding-block:1px}
 
 /* ---- ver: as notas não esticam (cinzento só do tamanho do texto); dimensões/folgas e a técnica ficam encostadas ao fundo do cartão ---- */
 html:root body .jof2.jof2.jof2.jof2:not(.editing) .sec>.jof-dims{margin-top:auto}
@@ -556,10 +556,10 @@ html body .jof2 .jof-tool-slot>.tool-head>.hv{white-space:nowrap}
    crescem) e a coluna dos títulos (Medida, Componentes, QTD máq.) fica ao centro. */
 @media (min-width:1100px){
   html:root body .jof2.jof2.jof2:not(.editing) .cal-card>.table-wrap{display:flex;flex-direction:column}
-  html:root body .jof2.jof2.jof2:not(.editing) .cal-card table.calv{flex:1 1 auto;height:100%;grid-template-rows:auto 1fr 1fr !important;align-content:stretch}
+  html:root body .jof2.jof2.jof2:not(.editing) .cal-card table.calv{flex:1 1 auto;height:100%;grid-template-rows:auto 1fr 1fr;align-content:stretch}
   html:root body .jof2.jof2.jof2:not(.editing) .cal-card table.calv :is(thead,tbody,tr){display:contents}
   html:root body .jof2.jof2.jof2:not(.editing) .cal-card table.calv :is(th,td){align-items:center}
-  html:root body .jof2.jof2.jof2:not(.editing) .cal-card table.calv :is(th,td):first-child{justify-content:center !important;text-align:center !important}
+  html:root body .jof2.jof2.jof2:not(.editing) .cal-card table.calv :is(th,td):first-child{justify-content:center;text-align:center}
 }
 /* Armazém no cartão: a posição e o estado a negrito; a posição abre o Armazém (Diogo, 28/10/2026) */
 html:root body .jof2 .jof-onde b{font-weight:700;color:var(--dmo-text)}
