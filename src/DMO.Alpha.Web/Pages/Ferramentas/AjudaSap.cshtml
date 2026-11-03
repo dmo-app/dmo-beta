@@ -4,28 +4,7 @@
     Layout = "_DmoShellLayout";
 }
 @section Head {
-<style>
-/* A ajuda cabe em 1366×768: o título como nas outras páginas, o quadro em cima e as secções em 3 colunas
-   a usar a largura toda; se mesmo assim não couber, desliza só o corpo do cartão. */
-html body main.ajuda-page{max-width:none;margin:0;padding:16px 24px 8px;display:grid;gap:16px;align-content:start}
-html body main.ajuda-page>.page-head{min-height:0;margin:0;padding:0}
-html body main.ajuda-page>.page-head h1{margin:0;font-size:22px !important;line-height:28px;font-weight:650 !important;letter-spacing:-.02em;color:var(--dmo-text)}
-html body main.ajuda-page .ajuda-card{padding:12px 16px;display:flex;flex-direction:column;min-height:0;max-height:calc(100vh - 168px)}
-.ajuda-card h2{margin:0 0 8px;font-size:16px;line-height:24px}
-.ajuda-card dl{display:grid;grid-template-columns:max-content 1fr max-content 1fr;gap:4px 16px;margin:0 0 8px}
-.ajuda-card dl dd:last-child{grid-column:span 3}
-.ajuda-card dt{font-weight:600}
-.ajuda-card dd{margin:0}
-.ajuda-corpo{flex:1 1 auto;min-height:0;overflow-y:auto;padding-top:4px;border-top:1px solid var(--dmo-border)}
-.ajuda-colunas{column-count:3;column-gap:32px}
-.ajuda-secao{break-inside:auto}
-.ajuda-card h4{margin:12px 0 4px;font-size:14px;break-after:avoid}
-.ajuda-secao:first-child h4{margin-top:8px}
-.ajuda-card ol,.ajuda-card ul{margin:0;padding-left:20px;display:grid;gap:4px}
-.ajuda-card p{margin:0 0 6px;font-size:13px;color:inherit}
-.ajuda-card li{font-size:13px}
-.ajuda-card code{font-size:12px;overflow-wrap:anywhere}
-</style>
+<link rel="stylesheet" href="~/css/paginas/ferramentas-ajudasap.css" asp-append-version="true">
 }
 
 @* Ajuda do SAP (Diogo, 22/10/2026 06:57): «isso tem de ficar numa página

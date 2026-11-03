@@ -1,0 +1,28 @@
+.ctl-def-page{display:flex;flex-direction:column;gap:14px}
+.ctl-def-page .page-head{margin:0 0 2px}
+.ctl-def-card{padding:16px 18px;min-width:0;margin:0}
+.ctl-def-grade{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start;width:100%}
+html body .ctl-def-grade[hidden]{display:none}
+@media(max-width:900px){.ctl-def-grade{grid-template-columns:minmax(0,1fr)}}
+.ctl-def-card .dmo-card-topo h3{margin:0}
+.ctl-def-card h3{margin:0 0 10px;font-size:16px}
+.ctl-def-card .dmo-card-topo{margin-bottom:10px}
+.ctl-def-acoes{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+.ctl-def-acoes .dmo-field{margin:0}
+.ctl-def-nota{margin:6px 0 0;color:var(--dmo-muted);font-size:12px}
+.ctl-def-card .dmo-table td{padding:4px 8px;vertical-align:middle}
+.ctl-def-emails{min-width:min(360px,100%)}
+.ctl-def-x{padding:2px 6px;border:0;border-radius:6px;background:none;color:var(--dmo-muted);font-size:16px;line-height:1;cursor:pointer}
+.ctl-def-x:hover{color:var(--dmo-danger);background:var(--dmo-danger-soft)}
+/* As listas do email: o espaço normal entre os campos e as listas; cada lista abre pelo triângulo à esquerda do nome. */
+.ctl-def-listas{display:grid;gap:var(--dmo-space-2);margin-top:var(--dmo-space-4)}
+.ctl-def-lista{border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background:var(--dmo-card)}
+.ctl-def-lista>summary{display:flex;align-items:center;gap:var(--dmo-space-2);padding:10px 12px;cursor:pointer;list-style:none;font-weight:700}
+.ctl-def-lista>summary::-webkit-details-marker{display:none}
+.ctl-def-lista-conta{margin-left:auto;color:var(--dmo-muted);font-size:12px;font-weight:400}
+.ctl-def-lista-corpo{padding:0 12px 12px}
+.ctl-def-lista-topo{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--dmo-space-3);margin-bottom:var(--dmo-space-3)}
+.ctl-def-lista-topo .dmo-field{margin:0}
+.ctl-def-modelo{display:grid;gap:10px;min-width:min(480px,100%)}
+.ctl-def-modelo .dmo-field{margin:0}
+.ctl-def-modelo textarea{min-height:140px}

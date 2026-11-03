@@ -127,7 +127,8 @@ public sealed partial class ReparacaoProgramadaPaginaTests : IClassFixture<Custo
         var escolha = Regex.Match(html, "<select id=\"rpListaEscolha\"[\\s\\S]*?</select>").Value;
         Assert.Contains("<button type=\"button\"><selectedcontent></selectedcontent></button>", escolha);
         Assert.Contains($"<option value=\"{listaId}\" selected=\"selected\"><span>Talamolde</span><span class=\"rp-dia\"> · 29/10/2026</span></option>", escolha);
-        Assert.Contains("#rpListaEscolha selectedcontent .rp-dia{display:none}", html);
+        Assert.Contains("/css/paginas/ferramentas-reparacaoprogramada.css", html);
+        Assert.Contains("#rpListaEscolha selectedcontent .rp-dia{display:none}", EstilosDasPaginas.Juntar(html));
         var filtros = Regex.Match(html, "<form id=\"rpFiltros\"[^>]*>").Value;
         Assert.Contains("data-dmo-ao-escrever=\"rpResultados\"", filtros);
         Assert.Contains("data-dmo-handler=\"Resultados\"", filtros);
@@ -250,7 +251,7 @@ public sealed partial class ReparacaoProgramadaPaginaTests : IClassFixture<Custo
 
         var impressao = await chefia.GetStringAsync($"/Ferramentas/ReparacaoProgramada/Imprimir?lista={listaId}");
         Assert.Contains("window.print()", impressao);
-        Assert.Contains("@media print", impressao);
+        Assert.Contains("@media print", EstilosDasPaginas.Juntar(impressao));
         Assert.Contains("Reparação Programada · Moldin", WebUtility.HtmlDecode(impressao));
     }
 }

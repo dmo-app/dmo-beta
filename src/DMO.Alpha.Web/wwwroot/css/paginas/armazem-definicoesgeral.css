@@ -1,0 +1,13 @@
+.arm-page{display:flex;flex-direction:column;gap:14px}
+.arm-card{padding:18px;width:fit-content;min-width:min(420px,100%);max-width:100%}
+.arm-card h3{margin:0 0 12px;font-size:16px}
+.arm-card .dmo-card-topo{margin-bottom:10px}
+.arm-card .dmo-card-topo h3{margin:0}
+.arm-linha{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:0 0 14px}
+.arm-linha .dmo-field{margin:0}
+html body .arm-linha .dmo-field input{width:min(260px,100%)}
+.arm-card .dmo-table{width:auto;min-width:100%}
+.arm-card .dmo-table td{padding:4px 8px;vertical-align:middle}
+.arm-card .dmo-valor{min-width:16ch}
+.arm-arquivado .dmo-valor{color:var(--dmo-muted)}
+html body .arm-linha .dmo-field input.arm-fab-sigla{width:56px}

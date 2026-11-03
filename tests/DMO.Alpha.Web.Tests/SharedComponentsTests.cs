@@ -500,7 +500,7 @@ public sealed class SharedComponentsTests
     [Fact]
     public void AdminUsersToasts_StayClearOfTheCreateButton()
     {
-        var page = File.ReadAllText(Path.Combine(WebRoot(), "Pages", "Admin", "Users", "Index.cshtml"));
+        var page = EstilosDasPaginas.Juntar(File.ReadAllText(Path.Combine(WebRoot(), "Pages", "Admin", "Users", "Index.cshtml")));
         Assert.Contains("html body:has(.dmu-page) .dmo-toast-pilha,html body #dmuAvisos [data-dmo-toast]{top:auto!important;bottom:16px}", page, StringComparison.Ordinal);
         Assert.Contains("<button type=\"submit\" class=\"dmo-button\" id=\"dmuCriarBotao\" form=\"dmuCriarForm\">Criar utilizador</button>", page, StringComparison.Ordinal);
     }

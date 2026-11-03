@@ -1,0 +1,10 @@
+main.ferr-uso-page .ferr-uso-cartao{display:grid;gap:10px;padding:16px 18px}
+main.ferr-uso-page .ferr-uso-cartao .ferr-nota{margin:0;color:var(--dmo-muted)}
+main.ferr-uso-page .ferr-uso-cartao .ferr-nota strong{color:var(--dmo-text)}
+main.ferr-uso-page .ferr-armazem-link{color:var(--dmo-brand-900);font-weight:600;text-decoration:none}
+main.ferr-uso-page .ferr-armazem-link:hover{color:var(--dmo-text)}
+main.ferr-uso-page .ferr-producoes-lista{margin:0}
+/* No painel de apoio, sem a margem a mais do dmo-design.css (como na ficha). */
+html[data-dmo-embedded="true"] body main.ferr-uso-page:has(>.dmo-pagina-topo){padding:0}
+main.ferr-uso-page .ferr-producoes-lista .dmo-table td:nth-child(n+3),main.ferr-uso-page .ferr-producoes-lista .dmo-table th:nth-child(n+3){text-align:right;white-space:nowrap}
+main.ferr-uso-page .ferr-producao-maquina{color:var(--dmo-muted)}

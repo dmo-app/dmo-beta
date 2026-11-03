@@ -1,0 +1,23 @@
+.bq-def-page{display:flex;flex-direction:column;gap:14px}
+.bq-def-card{padding:18px;width:fit-content;min-width:min(420px,100%);max-width:100%}
+.bq-def-card h3{margin:0 0 12px;font-size:16px}
+.bq-def-card .dmo-card-topo{margin-bottom:10px}
+.bq-def-card .dmo-card-topo h3{margin:0}
+.bq-def-criar{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:0 0 14px}
+.bq-def-criar .dmo-field{margin:0;min-width:220px}
+.bq-def-lado{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+@* Só cinco reparadores à vista; os outros com scroll (Diogo, 21/10/2026). *@
+html body .bq-def-card .dmo-table-wrap{max-width:420px;max-height:calc(5 * 34px + 32px);overflow:auto}
+.bq-def-card .dmo-table td{padding:6px 10px;height:34px;box-sizing:border-box}
+.bq-def-card tr[data-dmo-ficha]{cursor:pointer}
+.bq-def-card tr[data-dmo-ficha]:hover td,.bq-def-card tr[data-dmo-ficha]:focus-visible td{background:var(--dmo-brand-50,#eef4fa)}
+.bq-def-ficha .dmo-field{margin:0 0 4px}
+.bq-def-ficha .dmo-dialog-actions{justify-content:space-between}
+.bq-def-remover{background:var(--dmo-danger)}
+.bq-def-excel-topo{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.bq-def-excel-topo h3{margin:0}
+#bqDefExcel .card-note{margin:10px 0 0}
+html body #bqDefExcel [hidden]{display:none}
+/* As linhas B numa coluna e as C noutra (Diogo, 26/10/2026: «linha B de um lado e C do outro»). */
+.bq-def-rotas{display:grid;grid-template-columns:repeat(2,minmax(0,160px));grid-template-rows:repeat(3,auto);grid-auto-flow:column;gap:10px 14px}
+@media(max-width:720px){.bq-def-rotas{grid-template-columns:repeat(2,minmax(0,1fr))}}

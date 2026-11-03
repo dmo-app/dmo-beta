@@ -1,0 +1,94 @@
+.ri-page{display:flex;flex-direction:column;gap:14px;min-width:0}
+/* O painel das linhas: o rail único da casa (o das Boquilhas), com uma
+   segunda linha de detalhe (a CM e o MF com o lote). */
+#riLinhasRail .beta-production-lines button{height:auto;min-height:72px}
+.ri-card{padding:16px;min-width:0}
+.ri-card h3{margin:0;font-size:17px}
+.ri-card h4{margin:14px 0 6px;font-size:14px}
+.ri-card .dmo-card-topo{margin:0 0 10px}
+.ri-linha{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:0 0 10px}
+.ri-linha .dmo-field{margin:0}
+.ri-card form{margin:0}
+html body .ri-linha .dmo-field select.ri-producao{width:auto;max-width:100%}
+html body .ri-linha .dmo-field input.ri-numero{width:var(--dmo-campo-curto,72px)}
+html body .ri-linha .dmo-field input.ri-referencia{width:14ch}
+html body .ri-linha .dmo-field input.ri-lote{width:7ch}
+html body .ri-linha .dmo-field input.ri-dia{width:var(--dmo-campo-data,148px)}
+html body .ri-linha .dmo-field input.ri-hora{width:var(--dmo-campo-hora,120px)}
+/* O botão CM/MF: o mesmo mecanismo do tipo de movimento das Boquilhas
+   (rádios com o rótulo como botão); o aspeto está no dmo-botoes.css. */
+/* CM e MF: dois botões separados (Diogo, 23/10/2026), não um interruptor colado. */
+.ri-tipos{display:flex;gap:8px;margin:0;padding:0;border:0}
+.ri-tipos label{position:relative;cursor:pointer}
+.ri-tipos input{position:absolute;opacity:0;width:1px;height:1px}
+/* «É outra CM/MF» (Diogo, 27/10/2026: um botão no canto do cartão, sem caixas de marcar): o
+   botão é o rótulo da caixa escondida, que continua a levar outra=1; ligado, fica escuro como
+   o CM/MF escolhido e desliza o painel da referência e do lote por cima da página. Sem
+   produção não há botão: a referência e o lote ficam na linha, obrigatórios. */
+.ri-registar .ri-outra-check{position:absolute;width:1px;height:1px;margin:0;opacity:0;pointer-events:none}
+.ri-outra-botao{cursor:pointer;user-select:none}
+html body .ri-card:has(.ri-outra-check:checked) .ri-outra-botao{background:var(--dmo-palette-slate);border-color:var(--dmo-palette-slate);color:#fff}
+html[data-theme="dark"] body .ri-card:has(.ri-outra-check:checked) .ri-outra-botao{background:var(--dmo-palette-ocean);border-color:var(--dmo-palette-ocean);color:#fff}
+.ri-card:has(.ri-outra-check:focus-visible) .ri-outra-botao{outline:2px solid var(--dmo-palette-ocean);outline-offset:2px}
+.ri-registar:has(.ri-outra-check) .ri-outra-campos{position:fixed;top:0;right:0;bottom:0;z-index:950;width:min(360px,100vw);box-sizing:border-box;margin:0;padding:18px 20px;display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:12px;background:var(--dmo-card);border-left:1px solid var(--dmo-border);box-shadow:-12px 0 28px rgba(11,19,32,.22);overflow:auto;transform:translateX(100%);visibility:hidden;transition:transform .22s ease,visibility 0s linear .22s}
+.ri-registar:has(.ri-outra-check:checked) .ri-outra-campos{transform:none;visibility:visible;transition:transform .22s ease,visibility 0s}
+@media (prefers-reduced-motion:reduce){.ri-registar:has(.ri-outra-check) .ri-outra-campos{transition:none}}
+html body .ri-registar:has(.ri-outra-check) .ri-outra-campos .dmo-field input:is(.ri-referencia,.ri-lote){width:100%}
+.ri-outra-topo{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ri-card .ri-outra-topo h4{margin:0;font-size:16px}
+.ri-outra-fechar{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:6px;font-size:22px;line-height:1;color:var(--dmo-muted);cursor:pointer}
+.ri-outra-fechar:hover{background:var(--dmo-subtle,#f1f6fa);color:var(--dmo-text)}
+.ri-outra-dica{margin:0;font-size:13px;color:var(--dmo-muted)}
+html body .ri-outra-campos .ri-outra-ok{align-self:flex-start}
+.ri-ficha{color:var(--dmo-brand-900);font-weight:600}
+.ri-escrita{display:inline-block;margin-left:6px;font-size:12.5px;color:var(--dmo-muted)}
+/* A produção, a CM e o MF em três cartões pequenos, como os do resumo do Peso
+   (Diogo, 23/10/2026: «aumentar esta informação, pode ficar dentro de cartões separados»). */
+.ri-onde{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:0 0 12px}
+.ri-onde div{display:flex;flex-direction:column;gap:3px;padding:10px 14px;background:var(--dmo-subtle,#f1f6fa);border-radius:8px;min-width:0}
+.ri-onde dt{font-size:10.5px;font-weight:750;text-transform:uppercase;letter-spacing:.03em;color:var(--dmo-muted)}
+.ri-onde dd{margin:0;font-size:16px;font-weight:750;overflow-wrap:anywhere}
+@media(max-width:600px){.ri-onde{grid-template-columns:1fr}}
+/* Numa só linha (Diogo, 23/10/2026), por esta ordem (Diogo, 27/10/2026: «primeiro escolher
+   CM MF, trabalho e número; dia e hora vem depois»): CM/MF, Trabalho, Número, Dia e Hora, OK.
+   Os dois formulários continuam separados; o do dia fica inteiro (o Dia e a Hora juntos). */
+.ri-registo-linha{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin:0 0 10px}
+.ri-registo-linha>.ri-registar,.ri-registo-linha>.ri-registar>.ri-linha:not(.ri-outra-campos){display:contents}
+.ri-registo-linha .ri-linha{margin:0}
+.ri-registo-linha .ri-tipos{order:1}
+.ri-registo-linha .ri-campo-trabalho{order:2}
+.ri-registo-linha .ri-campo-numero{order:3}
+.ri-registo-linha>.ri-dia-form{order:4}
+.ri-registo-linha .ri-ok{order:5}
+.ri-registo-linha>.ri-registar>.ri-outra-campos{order:6;flex-basis:100%}
+.ri-card .dmo-aviso{margin:0 0 12px}
+.ri-card .dmo-table td{padding:5px 8px;vertical-align:middle}
+.ri-card .dmo-table td:not(:last-child){white-space:nowrap}
+.ri-card .dmo-table tr[data-dmo-row]{cursor:pointer}
+.ri-vazia{margin:0;color:var(--dmo-muted)}
+.ri-pager{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:10px}
+/* Os filtros do Histórico numa linha, o «Limpar filtros» à direita. */
+.ri-filtros-card{padding:12px 16px;display:flex;flex-wrap:wrap;gap:10px 12px;align-items:flex-end}
+.ri-filtros-card .dmo-filter-bar{column-gap:10px}
+.ri-filtros-card>.dmo-zona>.dmo-filter-bar{flex:1 1 auto;min-width:0}
+html body .ri-filtros-card .dmo-filter-bar>.dmo-field{flex:0 0 auto;margin:0}
+html body .ri-filtros-card .dmo-filter-bar>.dmo-field>:is(input,select){width:100%}
+.ri-w-maquina{width:96px}
+.ri-w-data{width:132px}
+.ri-w-referencia{width:124px}
+html body .ri-filtros-card .dmo-filter-bar>.ri-w-producao{min-width:220px;max-width:100%}
+html body .ri-filtros-card .dmo-filter-bar>.ri-w-producao>select{width:auto;min-width:100%}
+.ri-filtros-acoes{display:flex;gap:8px;align-items:center;margin-left:auto}
+html body .dmo-dialog.ri-janela h3{margin:0 0 10px}
+.ri-janela .dmo-field{margin:0}
+.ri-janela .dmo-field input{width:100%}
+.ri-janela p{margin:0}
+@media (max-width:640px){
+  html body .ri-registar .ri-linha .dmo-button{width:auto;flex:0 0 auto}
+  html body .ri-linha .dmo-field input.ri-numero{width:11ch}
+  .ri-card{padding:14px}
+  .ri-card .dmo-table :is(td,th){padding:4px 6px}
+  .ri-escrita{display:block;margin-left:0;white-space:normal}
+  html body .ri-filtros-card .dmo-filter-bar>.dmo-field{flex:1 1 140px;width:auto}
+  .ri-filtros-acoes{margin-left:0}
+}

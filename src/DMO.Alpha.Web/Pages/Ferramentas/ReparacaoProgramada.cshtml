@@ -7,52 +7,7 @@
     var lista = Model.Lista;
 }
 @section Head {
-<style>
-.dmo-ferr-ref{font-size:12px;font-weight:500;color:var(--dmo-muted);margin-left:4px}
-.rp-page{display:flex;flex-direction:column;gap:14px;min-width:0}
-.rp-card{padding:18px;min-width:0}
-.rp-card .dmo-card-topo{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 12px}
-.rp-card .dmo-card-topo h3{margin:0;font-size:16px}
-.rp-acoes{display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin-left:auto}
-.rp-acoes .dmo-field{margin:0}
-.rp-filtros{display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin:0 0 12px}
-.rp-filtros .dmo-field{margin:0;min-width:0}
-html body .rp-filtros .dmo-field input.rp-curto{width:10ch}
-html body .rp-filtros .dmo-field input.rp-lote{width:6ch}
-html body .rp-page .dmo-field select{width:auto;max-width:22ch}
-/* O Reparador mostra «Escolha…» inteiro e cabe o nome mais comprido (cerca de 22 letras). */
-html body .rp-page #rpReparador{width:200px;max-width:none}
-html body #rpListaEscolha,html body #rpListaEscolha option{white-space:nowrap}
-html body #rpListaEscolha option{gap:0}
-html body #rpListaEscolha selectedcontent .rp-dia{display:none}
-.rp-card .dmo-table td{padding:6px 8px;vertical-align:middle}
-html body #rpCandidatas .rp-marca{display:none}
-/* A referência completa da última produção, a seguir ao nome (Diogo, 29/10/2026). */
-html body .rp-artigo{font-weight:400;color:var(--dmo-muted)}
-/* A linha marcada fica escura, como a escolhida nas outras tabelas (R16, Diogo 27/10/2026). */
-html body #rpCandidatas tbody tr:has(>td>input[data-rp-marca]:checked)>td{background:var(--dmo-brand-600);color:var(--dmo-text-on-color);border-top-color:transparent}
-html body #rpCandidatas tbody tr:has(>td>input[data-rp-marca]:checked) :is(td,strong,span){color:var(--dmo-text-on-color)}
-html body #rpCandidatas tbody tr:has(>td>input[data-rp-marca]:checked)>td:nth-child(2){border-radius:7px 0 0 7px}
-html body #rpCandidatas tbody tr:has(>td>input[data-rp-marca]:checked)>td:last-child{border-radius:0 7px 7px 0}
-.rp-pos{font-variant-numeric:tabular-nums;font-weight:700}
-.rp-contents{display:contents}
-.rp-oculto{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-#rpHistLinhas{margin:0}
-#rpLista .dmo-table-wrap+.rp-cabecalho{margin-top:12px}
-.rp-modo-direita{margin-left:auto;align-self:end}
-.rp-modo{display:flex;gap:8px;align-items:center}
-html body .rp-card .dmo-table tbody tr.rp-hist-aberta td{background:var(--dmo-neutral-soft)}
-.rp-procura-topo{margin-top:14px!important;padding-top:12px;border-top:1px solid var(--dmo-border)}
-.rp-procura-topo h4{margin:0;font-size:14px}
-.rp-cabecalho{display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin:0 0 12px;color:var(--dmo-muted);font-size:13px}
-#rpListaAtiva{display:inline-flex;align-items:center}
-#rpListaAtiva .dmo-pill{margin:0;line-height:1.2;vertical-align:middle}
-.rp-cabecalho strong{color:var(--dmo-text)}
-html body .rp-card .dmo-table tbody tr.rp-entrou td{color:var(--dmo-muted);background:var(--dmo-neutral-soft)}
-html body .rp-card .dmo-table tbody tr.rp-entrou td strong{color:var(--dmo-muted);font-weight:600}
-.rp-saiu{font-weight:700;color:var(--dmo-amber)}
-@@media (max-width:720px){.rp-acoes{margin-left:0}}
-</style>
+<link rel="stylesheet" href="~/css/paginas/ferramentas-reparacaoprogramada.css" asp-append-version="true">
 }
 
 @* A Reparação Programada (Diogo, 22/10/2026). Em cima a procura (abre

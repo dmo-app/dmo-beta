@@ -111,7 +111,7 @@ public sealed partial class DefinicoesPorModuloPageTests
     public async Task AJanelaDoSap_EscondeAsPartesQueNaoEstaoEscolhidas()
     {
         using var admin = await LoginAdminAsync();
-        var html = await (await admin.GetAsync("/Definicoes?secao=admin&sub=sap")).Content.ReadAsStringAsync();
+        var html = EstilosDasPaginas.Juntar(await (await admin.GetAsync("/Definicoes?secao=admin&sub=sap")).Content.ReadAsStringAsync());
 
         Assert.Contains("#ferrSapJanela [data-ferr-sap-parte][hidden]", html);
         Assert.Contains("data-ferr-sap-parte=\"data\" hidden", html);

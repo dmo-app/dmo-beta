@@ -32,7 +32,7 @@ public sealed partial class AdminUsersAndTemplatesPagesTests
     {
         SeedConfiguredAdmin("tpl-caixas@example.test", "tpl-caixas-provider", "TplCaixas123!");
         using var admin = await LoginAdminAsync(_factory, "tpl-caixas@example.test", "TplCaixas123!");
-        var html = await (await admin.GetAsync("/Admin/Templates")).Content.ReadAsStringAsync();
+        var html = EstilosDasPaginas.Juntar(await (await admin.GetAsync("/Admin/Templates")).Content.ReadAsStringAsync());
         Assert.Matches($"<input type=\"checkbox\" id=\"dmt-new-{Regex.Escape(DmoCapabilities.JobOnCreate)}\" name=\"capabilities\" value=\"{Regex.Escape(DmoCapabilities.JobOnCreate)}\"", html);
         Assert.Contains($"<label for=\"dmt-new-{DmoCapabilities.JobOnCreate}\">", html);
         Assert.Contains(".dmt-check input{position:absolute;width:1px;height:1px;margin:0;opacity:0;pointer-events:none}", html);

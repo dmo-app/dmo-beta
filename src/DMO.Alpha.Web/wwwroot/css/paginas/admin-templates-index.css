@@ -1,0 +1,65 @@
+.dmt-page{max-width:1240px;margin:0 auto;padding:24px 22px 40px;display:grid;gap:16px}
+.dmt-page .page-head{display:flex;align-items:end;justify-content:space-between;gap:14px;margin:0}
+.dmt-card{padding:18px}
+.dmt-card h3{margin:0 0 4px;font-size:16px}
+.dmt-card .card-note{margin:3px 0 14px;color:var(--dmo-muted);font-size:12.5px}
+.dmt-aviso{padding:11px 13px;border-left:4px solid var(--dmo-danger,#9a625d);background:var(--dmo-danger-soft);border-radius:8px}
+.dmt-nota{padding:11px 13px;border-left:4px solid var(--dmo-ok);background:var(--dmo-ok-soft);border-radius:8px}
+.dmt-grid{display:grid;grid-template-columns:320px minmax(0,1fr);gap:14px}
+.dmt-list{padding:10px;display:grid;gap:6px;align-content:start}
+.dmt-choice{position:relative;width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px;border:1px solid transparent;border-radius:8px;background:var(--dmo-card);text-align:left}
+.dmt-choice-link{min-width:0;text-decoration:none;color:inherit}
+.dmt-choice-link::after{content:"";position:absolute;inset:0;border-radius:8px}
+.dmt-choice .dmt-users-link{position:relative;z-index:1;text-decoration:none;cursor:pointer}
+.dmt-choice .dmt-users-link:hover,.dmt-choice .dmt-users-link:focus-visible{background:var(--dmo-brand-600,#3c73a8);color:var(--dmo-text-on-color)}
+.dmt-users{margin-top:18px;padding-top:14px;border-top:1px solid var(--dmo-border,#d9e6f2)}
+.dmt-users h4{margin:0}
+.dmt-choice:hover,.dmt-choice.active{border-color:var(--dmo-brand-600,#3c73a8);background:var(--dmo-brand-050,#f0f6fc)}
+.dmt-choice strong,.dmt-choice span{display:block}
+.dmt-choice span{color:var(--dmo-muted);font-size:10.5px}
+.dmt-choice .dmo-pill{white-space:nowrap}
+      .dmt-choice{text-decoration:none;color:inherit}
+      .dmt-choice.active{background:var(--dmo-card);color:var(--dmo-brand-600,#3c73a8);outline:2px solid var(--dmo-brand-600,#3c73a8);outline-offset:-2px;font-weight:750}
+      .dmt-choice.active span{color:var(--dmo-brand-600,#3c73a8)}
+.dmt-detail{padding:16px}
+.dmt-detail .detail-key{color:var(--dmo-muted);font-size:12.5px;margin:2px 0 12px}
+.dmt-detail .detail-key code{background:var(--dmo-card);border:1px solid var(--dmo-border,#d9e6f2);border-radius:6px;padding:2px 7px;font-size:12.5px}
+.dmt-checks{display:grid;gap:8px;margin-top:8px}
+.dmt-check{display:flex;gap:9px;align-items:start;padding:10px;border:1px solid var(--dmo-border,#d9e6f2);border-radius:8px}
+/* Cartões dos módulos com cor da paleta (Diogo 17/10: «a página está muito
+   branca»); o módulo escolhido fica mais marcado. */
+/* SEM CAIXAS (Diogo, 26/10/2026: «deixar em branco ou mais leve o que não
+   está selecionado e mais escuro com font branco o que está e remover as
+   boxes»): a caixa fica escondida, mas é ela que vai no formulário; clicar
+   no cartão liga e desliga. Escolhido: escuro com letra branca. */
+.dmt-check{position:relative;padding:0;background:var(--dmo-card);border-color:var(--dmo-border,#d9e6f2)}
+.dmt-check:has(input:checked){background:var(--dmo-palette-slate);border-color:var(--dmo-palette-slate)}
+.dmt-check input{position:absolute;width:1px;height:1px;margin:0;opacity:0;pointer-events:none}
+.dmt-check label{display:grid;flex:1;gap:1px;padding:10px 12px;font-weight:700;cursor:pointer;user-select:none}
+.dmt-check label span{font-weight:400;color:var(--dmo-muted);font-size:11.5px}
+.dmt-check:has(input:checked) label,.dmt-check:has(input:checked) label span{color:#fff}
+.dmt-check:not(:has(input:checked)):hover{background:var(--dmo-brand-050)}
+.dmt-check:has(input:focus-visible){outline:2px solid var(--dmo-palette-ocean);outline-offset:1px}
+[data-theme="dark"] .dmt-check:has(input:checked){background:var(--dmo-palette-ocean);border-color:var(--dmo-palette-ocean)}
+[data-theme="dark"] .dmt-check:not(:has(input:checked)):hover{background:color-mix(in srgb,var(--dmo-palette-ocean) 18%,transparent)}
+.dmt-detail .dmo-card-topo{margin:0 0 12px}
+.dmt-detail .dmo-card-topo h3{margin:0}
+.dmt-hint{color:var(--dmo-muted);font-size:11.5px;margin:10px 0 0}
+.dmt-caps-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+html body .dmt-detail .dmo-options-list{left:auto;right:0}
+/* Utilizadores compactos, o nº em destaque (Diogo, 27/10/2026: «não precisa
+   desse espaço todo e o número pode ficar mais saliente»). */
+.dmt-users-grid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:6px}
+.dmt-users-grid .dmt-check label{display:flex;align-items:baseline;gap:8px;padding:6px 10px;min-width:0}
+.dmt-users-grid .dmt-user-num{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.dmt-users-grid .dmt-check label .dmt-user-nome{font-size:12.5px;font-weight:600;color:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dmt-users-grid .dmt-module-head{margin:6px 0 0 !important}
+.dmt-users-grid .dmt-module-head,.dmt-users-grid .dmt-users-vazio{grid-column:1/-1}
+.dmt-users-vazio{margin:0}
+/* «Página» é só a palavra com o link, não um botão (Diogo, 27/10/2026: exceção à regra
+   «link de ação = botão»): branca no escuro e no utilizador escolhido, cor do texto no claro. */
+.dmt-check .dmt-ficha{align-self:center;margin:0 12px 0 0;flex:none;font-size:13px;font-weight:600;color:var(--dmo-text);text-decoration:none}
+.dmt-check .dmt-ficha:is(:hover,:focus-visible){color:var(--dmo-brand-600)}
+.dmt-check:has(input:checked) .dmt-ficha,[data-theme="dark"] .dmt-check .dmt-ficha{color:#fff}
+.dmt-module-head{font-size:10.5px;font-weight:800;color:var(--dmo-brand-600,#3c73a8);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--dmo-border,#d9e6f2);padding-bottom:4px}
+@media(max-width:900px){.dmt-grid,.dmt-users-grid{grid-template-columns:1fr}}
