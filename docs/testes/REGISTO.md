@@ -1919,6 +1919,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | Sidepanel_SurvivesTheHistoryViews | Painel das produções correntes mantém-se nas vistas do histórico | OK |  |
 | ViewDropdown_AndContextualPdfButton_AreWiredToTheGenerators | Dropdown de vistas e um só botão «Imprimir / PDF» ligado aos filtros | OK |  |
 | ReferenciaExistente_ComLoteInexistente_MostraMensagemClara_NaListaENoPdf | Referência com lote que não existe mostra mensagem clara, na lista e no PDF, sem erro | OK | A-0387 (DMO-648) |
+| (11 testes do cartão «Quantidades» em BoquilhasRegistoPageTests, BoquilhasDiscrepancyResetTests e BoquilhasOrdemTests) | O cartão «Quantidades» é igual para todas as BQ: mostra sempre BQ e AN, com «—» onde não há AN | OK | A-0491 (DMO-720) |
 
 ### `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasRegistoConsultasTests.cs`
 

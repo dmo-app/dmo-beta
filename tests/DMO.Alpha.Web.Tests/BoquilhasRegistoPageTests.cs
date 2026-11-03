@@ -276,7 +276,7 @@ public partial class BoquilhasRegistoPageTests : IClassFixture<CustomWebApplicat
         Assert.Contains("RGT997 · Lote 77", html);
         // O PAINEL DAS QUANTIDADES CALCULADAS (o html): «Em reparação» é o
         // legitimamente fora; sem lote contabilístico, «—» truthful.
-        Assert.Contains("Em reparação</span><strong>0</strong>", html);
+        Assert.Contains("Em reparação</span><strong>0<small class=\"bq-peca\">BQ</small>", html);
         Assert.Contains("Ainda sem movimentos neste registo.", html);
 
         // The three module views use the single shared shell navigation,
@@ -371,7 +371,7 @@ public partial class BoquilhasRegistoPageTests : IClassFixture<CustomWebApplicat
         Assert.DoesNotContain("location.href", semRow, StringComparison.Ordinal);
 
         var registerHtml = await GetPageHtmlAsync(client, $"/Boquilhas?bq_id={bq.Id}");
-        Assert.Contains("<span>Quantidade do lote</span><strong>120</strong>", registerHtml);
+        Assert.Contains("<span>Quantidade do lote</span><strong>120<small class=\"bq-peca\">BQ</small>", registerHtml);
         // A máquina vem da linha do painel lateral, escondida: sem o campo
         // «Máquina em uso» (Diogo, 22/10/2026); tipo, campos e Registar numa linha.
         Assert.Matches("<input type=\"hidden\" id=\"movementMachine\" name=\"movement_machine_id\" value=\"\\d+\" />", registerHtml);
@@ -435,7 +435,7 @@ public partial class BoquilhasRegistoPageTests : IClassFixture<CustomWebApplicat
         // lot-data do card do registo): o lote 120 com 2 legitimamente
         // fora; sem discrepância anotada → «—» (em branco, nunca zero).
         var registoHtml = await GetPageHtmlAsync(client, $"/Boquilhas?bq_id={bq.Id}");
-        Assert.Contains("<span>Em reparação</span><strong>2</strong>", registoHtml);
+        Assert.Contains("<span>Em reparação</span><strong>2<small class=\"bq-peca\">BQ</small>", registoHtml);
         Assert.Contains("Discrepância acumulada", registoHtml);
     }
 
@@ -510,7 +510,7 @@ public partial class BoquilhasRegistoPageTests : IClassFixture<CustomWebApplicat
         // quantidades calculadas do backend.
         var html = await GetPageHtmlAsync(client, location);
         Assert.Contains("<td>Saída</td>", html);
-        Assert.Contains("<span>Em reparação</span><strong>5</strong>", html);
+        Assert.Contains("<span>Em reparação</span><strong>5<small class=\"bq-peca\">BQ</small>", html);
     }
 
     [Fact]
@@ -537,8 +537,8 @@ public partial class BoquilhasRegistoPageTests : IClassFixture<CustomWebApplicat
         Assert.Contains("<td>Entrada</td>", html);
         // A discrepância é o link que abre a janela de pôr a zero (17/10/2026).
         Assert.Contains("<span>Discrepância acumulada</span><strong><a class=\"bq-reset-link\"", html);
-        Assert.Contains(">-2</a></strong>", html);
-        Assert.Contains("<span>Em reparação</span><strong>0</strong>", html);
+        Assert.Contains(">-2</a><small class=\"bq-peca\">BQ</small>", html);
+        Assert.Contains("<span>Em reparação</span><strong>0<small class=\"bq-peca\">BQ</small>", html);
     }
 
     [Fact]
@@ -567,7 +567,7 @@ public partial class BoquilhasRegistoPageTests : IClassFixture<CustomWebApplicat
         Assert.Contains(
             "<td>Entrada sem reparação</td>",
             html);
-        Assert.Contains("<span>Em reparação</span><strong>2</strong>", html);
+        Assert.Contains("<span>Em reparação</span><strong>2<small class=\"bq-peca\">BQ</small>", html);
     }
 
     [Fact]
@@ -753,7 +753,7 @@ public partial class BoquilhasRegistoPageTests : IClassFixture<CustomWebApplicat
         // dados persistidos, sem qualquer execução de JavaScript.
         var reloaded = await GetPageHtmlAsync(client, response.Headers.Location!.OriginalString);
         Assert.Contains("<td>Saída</td>", reloaded);
-        Assert.Contains("<span>Em reparação</span><strong>9</strong>", reloaded);
+        Assert.Contains("<span>Em reparação</span><strong>9<small class=\"bq-peca\">BQ</small>", reloaded);
     }
 
     // ------------------------------------------------------------------
@@ -1135,10 +1135,10 @@ public partial class BoquilhasRegistoPageTests : IClassFixture<CustomWebApplicat
 
         var html = await GetPageHtmlAsync(client, TraceUrl(trace.Id));
 
-        Assert.Contains("<span>Quantidade do lote</span><strong>120</strong>", html);
-        Assert.Contains("<span>Fabricação</span><strong>117</strong>", html);
-        Assert.Contains("<span>Em reparação</span><strong>3</strong>", html);
-        Assert.Contains("<span>Discrepância acumulada</span><strong>—</strong>", html);
+        Assert.Contains("<span>Quantidade do lote</span><strong>120<small class=\"bq-peca\">BQ</small>", html);
+        Assert.Contains("<span>Fabricação</span><strong>117<small class=\"bq-peca\">BQ</small>", html);
+        Assert.Contains("<span>Em reparação</span><strong>3<small class=\"bq-peca\">BQ</small>", html);
+        Assert.Contains("<span>Discrepância acumulada</span><strong>—<small class=\"bq-peca\">BQ</small>", html);
         Assert.Contains("Quantidades calculadas para este lote e contexto, com base na sequência de movimentos; não são stock editável.", html);
 
         // Sem quantidade contabilística: «—» em tudo o que depende dela —
@@ -1152,8 +1152,8 @@ public partial class BoquilhasRegistoPageTests : IClassFixture<CustomWebApplicat
         }
         var trace2 = await SeedTraceAsync("BQ-A3-SEMLOTE");
         var semLote = await GetPageHtmlAsync(client, TraceUrl(trace2.Id));
-        Assert.Contains("<span>Quantidade do lote</span><strong>—</strong>", semLote);
-        Assert.Contains("<span>Fabricação</span><strong>—</strong>", semLote);
+        Assert.Contains("<span>Quantidade do lote</span><strong>—<small class=\"bq-peca\">BQ</small>", semLote);
+        Assert.Contains("<span>Fabricação</span><strong>—<small class=\"bq-peca\">BQ</small>", semLote);
 
         // Sem a quantidade total do lote aparece o aviso âmbar com o caminho
         // para a ficha (Diogo, 18/10/2026); com ela, não.

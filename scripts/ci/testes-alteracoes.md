@@ -6338,3 +6338,23 @@ Novos: 4 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Pessoal_SoTemAContaAPalavraPasseEAAparencia`
 
 Selo depois: `8eb6dc0ee896b7a1`
+
+## A-0491 · 2026-11-02 · ok-do-diogo
+
+Porquê: DMO-720/A-0491: o cartão Quantidades das Boquilhas é igual para todas as BQ (sempre BQ e AN); 11 testes só acertaram o texto do cartão.
+Referência: Diogo 02/11: «sim» (cmsg_01K75FTs9bQnbhhH7qttpgraQvgwprJtxD2uDgcpP4YPTZ) e autorização geral (cmsg_01K75FTs9bQnbhhH7qttpgraWvPhikoYog8MVTZbgYZtbr)
+Novos: 0 · mudaram: 11 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasDiscrepancyResetTests.cs :: BoquilhasRegistoPageTests.DiscrepancyReset_ClickOpensTheWindow_AndPuttingToZeroKeepsTheMovements`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasDiscrepancyResetTests.cs :: BoquilhasRegistoPageTests.DiscrepancyReset_WithoutDiscrepancy_ShowsNoLink`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasOrdemTests.cs :: BoquilhasRegistoPageTests.GuiasOutOfOrder_TableFollowsTheRealTime_AndTheSaidaCountsFirstAtTheSameTime`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.CanonicalTraceId_LoadsPersistedTrace`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachinesCard_ShowsTheThreeLiveValues_WhenTheCurrentBqExists`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachinesPanel_DirectLinkOpensProductionRegisterAndKeepsSearchCollapsed`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.NativePath_ServerDataIsSourceOfTruth`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.PostEntradaSemReparacao_PersistsWithClosedSemantics`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.PostEntrada_ServerComputedDiscrepancyReflected`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.PostSaida_PersistsThroughHandler`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.RegisterMetrics_RenderFromTheBackend_NeverFromTheClient`
+
+Selo depois: `f43b0081ac54d423`
