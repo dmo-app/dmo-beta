@@ -161,7 +161,7 @@ html body .beta-bq-layout section.view>.page-head p{margin:0}
 html body .beta-bq-layout section.view .beta-production-rail{margin:0;padding:8px 16px}
 /* A 1366×768 e abaixo, o painel das linhas de produção não cresce à vontade: a lista de movimentos (auditoria do Codex de 28/10/2026, C03) ficava sem altura quando havia várias linhas ou filtros que ocupavam mais espaço. */
 @media (min-width:1100px){
-  html body .beta-bq-layout section#historico .beta-production-rail{max-height:132px;overflow:auto}
+  html body .beta-bq-layout section#historico .beta-production-rail{max-height:none}
   /* Nunca encolhe abaixo dos cards (Diogo, 30/10/2026): com os filtros em duas linhas (Movimentos aberto do Registo, com BQ e lote) a página não cabia e a faixa ficava esmagada; fica pelo menos com uma fila de cards e a página desliza. */
   html body .beta-bq-layout section#historico .beta-production-rail{box-sizing:border-box;min-height:76px}
 }
@@ -336,8 +336,8 @@ html.dmo-bloqueado body form[method="post"] :is(.ferr-checks,.bq-movement-types,
 html body .beta-bq-layout{--bq-topo:95px}
 @media (min-width:1100px){
   html body .beta-bq-layout{min-height:0}
-  html body .beta-bq-layout>.main{box-sizing:border-box;height:calc(100vh - var(--bq-topo));min-height:520px}
-  html body .beta-bq-layout>.main>section.view{height:100%;min-height:0}
+  html body .beta-bq-layout>.main{box-sizing:border-box;min-height:calc(100vh - var(--bq-topo))}
+  html body .beta-bq-layout>.main>section.view{min-height:0}
 
   /* Cartões de lista: cabeçalho e paginação fixos, a tabela desliza. */
   html body .beta-bq-layout :is(.movement-card,.bq-latest-card,#bq-tool-results:not([hidden])){display:flex;flex-direction:column;min-height:0;overflow:hidden}
@@ -380,7 +380,7 @@ html body .beta-bq-layout{--bq-topo:95px}
   html body .beta-bq-layout section#historico>.page-head{grid-column:1;grid-row:1;align-self:center}
   html body .beta-bq-layout section#historico>.dmo-zona>.bq-history-day{display:contents}
   html body .beta-bq-layout section#historico .bq-history-day-grid{display:contents}
-  html body .beta-bq-layout section#historico #bqHistDia{grid-column:1;grid-row:4;max-height:152px;overflow:auto;scrollbar-gutter:stable;padding:8px 16px;background:var(--dmo-card)}
+  html body .beta-bq-layout section#historico #bqHistDia{grid-column:1;grid-row:4;max-height:none;padding:8px 16px;background:var(--dmo-card)}
   html body .beta-bq-layout section#historico #bqHistDia h3{font-size:16px;line-height:24px;margin:0}
   html body .beta-bq-layout section#historico #bqHistDia p{margin:4px 0 0}
   html body .beta-bq-layout section#historico #bqHistDia .beta-light-list{margin-top:8px}
@@ -450,7 +450,7 @@ html body .beta-bq-layout button.bq-sem-jobon-link:focus-visible{outline:0;box-s
   /* Movimentos › Registo do dia: vazio, é uma só linha; com dia, as linhas são baixas e a caixa desliza por dentro. */
   html body .beta-bq-layout section#historico #bqHistDia:not(:has(.beta-light-list)){display:flex;align-items:baseline;gap:4px 16px;flex-wrap:wrap;max-height:none;padding:8px 16px}
   html body .beta-bq-layout section#historico #bqHistDia:not(:has(.beta-light-list)) p{margin:0}
-  html body .beta-bq-layout section#historico #bqHistDia:has(.beta-light-list){max-height:148px}
+  html body .beta-bq-layout section#historico #bqHistDia:has(.beta-light-list){max-height:none}
   html body .beta-bq-layout section#historico #bqHistDia .beta-light-list{gap:4px;margin-top:4px}
   html body .beta-bq-layout section#historico #bqHistDia :is(.beta-light-machine-row,.beta-light-production){height:32px;min-height:32px}
   html body .beta-bq-layout section#historico #bqHistDia .beta-light-production{padding-block:0}
@@ -536,7 +536,7 @@ html body main.ferr-page #ferr-create-form>.ferr-create-tech>summary:is(:hover,:
 
 /* O Registo do dia com a mesma altura com e sem dia escolhido (DMO-596, Diogo 29/10/2026: «as linhas mexem quando mudo o dia»). */
 @media (min-width:1100px){
-  html:root body .beta-bq-layout section#historico #bqHistDia:not(#_){height:108px;max-height:108px;box-sizing:border-box;align-content:start}
+  html:root body .beta-bq-layout section#historico #bqHistDia:not(#_){height:auto;max-height:none;box-sizing:border-box;align-content:start}
 }
 /* O «Voltar» da Utilização por produção: link no canto superior esquerdo, por cima do título (Diogo, 29/10/2026). */
 html body .ferr-producoes-janela>.ferr-producoes-voltar:not(#_){display:block;margin:0 0 4px;padding:0;color:var(--dmo-muted);font-size:13px;font-weight:500}
