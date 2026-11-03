@@ -326,14 +326,14 @@
   flex-wrap: wrap;
   align-items: baseline;
   gap: 10px;
-  font-size: 20px !important;
+  font-size: 20px;
 }
 .resumo-sheet-identity i { color: var(--dmo-muted); font-style: normal; }
 .resumo-section-title {
-  margin: 0 0 10px !important;
+  margin: 0 0 10px;
   padding-left: 9px;
   border-left: 3px solid var(--dmo-brand-500);
-  font-size: 16px !important;
+  font-size: 16px;
   line-height: 1.25;
 }
 .resumo-window-grid,
@@ -465,8 +465,8 @@
  * mesma linha, para caber tudo a 1366×768 com pouco scroll. */
 .resumo-page .resumo-sheet { gap: 10px; padding-bottom: 14px; }
 .resumo-sheet-intro { padding: 10px 20px; }
-.resumo-sheet-identity { font-size: 18px !important; }
-.resumo-section-title { margin: 0 0 6px !important; font-size: 14px !important; }
+.resumo-sheet-identity { font-size: 18px; }
+.resumo-section-title { margin: 0 0 6px; font-size: 14px; }
 .resumo-window-grid, .resumo-page .resumo-tools-grid { gap: 6px; }
 .resumo-mini-card {
   flex-direction: row;
@@ -774,7 +774,7 @@ html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo
   background: var(--dmo-card);
   box-shadow: none;
 }
-html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-linked-card-head > span:first-child { color: var(--dmo-text) !important; font-size: 15px !important; font-weight: 700 !important; }
+html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-linked-card-head > span:first-child { color: var(--dmo-text); font-size: 15px !important; font-weight: 700 !important; }
 /* O estado como palavra de cor, com um ponto: cheio = registado. */
 html body main.resumo-page.dmo-workspace[aria-labelledby="resumo-title"] .resumo-linked-card .resumo-status {
   display: inline-flex;
