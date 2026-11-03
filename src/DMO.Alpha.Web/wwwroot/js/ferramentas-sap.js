@@ -26,7 +26,9 @@
   const cartaoBase = document.querySelector("[data-ferr-sap]");
   const doAdmin = !!(cartaoBase && cartaoBase.hasAttribute("data-ferr-sap-admin"));
   const PAGINA = (cartaoBase && cartaoBase.getAttribute("data-ferr-sap-base")) || "/Ferramentas/Definicoes";
-  const URL_SAP = "/Ferramentas/Definicoes?handler=UsoSap";
+  // O ADMIN pede os códigos à página dele: o /Ferramentas/Definicoes manda-o
+  // para /Admin/Users e vinha HTML (Diogo, 02/11/2026, DMO-708).
+  const URL_SAP = (doAdmin ? PAGINA : "/Ferramentas/Definicoes") + "?handler=UsoSap";
   const URL_IMPORTAR = "/Ferramentas/Definicoes?handler=ImportarUsoSap";
   const URL_SCRIPTS = PAGINA + "?handler=ScriptsSap";
   const URL_CODIGOS_REF = PAGINA + "?handler=CodigosSap";
@@ -38,6 +40,37 @@
   const EXTENSOES = /\.(html?|txt|csv|xls|mhtml?)$/i;
   const BASE = "dmo-sap";
   const LOJA = "pasta";
+
+  // O «erro …» do dmo-sap-estado.txt em palavras (Diogo, 02/11/2026: a % uso
+  // foi gravada e a app dizia «A leitura do SAP falhou»). O script escreve
+  // «erro <script>:<motivo> … ok:<scripts> <hora>»: diz-se o passo que falhou,
+  // porquê, e o que correu bem. «parcial» quando alguma parte ficou gravada.
+  const PASSOS = {
+    "DMO_FABRICO_SAP.vbs": { nome: "as produções", feito: "As produções foram lidas do SAP" },
+    "DMO_USO_SAP.vbs": { nome: "a % de uso", feito: "A % de uso foi lida do SAP" }
+  };
+  function motivoSap(motivo) {
+    if (motivo === "falta") return "o script não está na pasta";
+    if (motivo === "tempo") return "passou de 30 minutos";
+    const codigo = /^codigo(-?\d+)$/.exec(motivo);
+    if (codigo) return "o script parou com erro, código " + codigo[1];
+    return motivo;
+  }
+  function erroSap(texto) {
+    const okParte = /\sok:(DMO_\S+(?:\s+DMO_\S+)*)/.exec(texto);
+    const certos = okParte ? okParte[1].split(/\s+/).filter((nome) => PASSOS[nome]).map((nome) => PASSOS[nome].feito) : [];
+    const semOk = okParte ? texto.replace(okParte[0], "") : texto;
+    const falhas = [];
+    const re = /(DMO_\w+\.vbs):(\S+)/g;
+    let m;
+    while ((m = re.exec(semOk))) falhas.push((PASSOS[m[1]] ? PASSOS[m[1]].nome : m[1]) + " (" + motivoSap(m[2]) + ")");
+    const naoLido = falhas.length ? "não foi possível ler " + falhas.join(" nem ") : "o motivo não ficou escrito";
+    if (certos.length) {
+      return { parcial: true, texto: certos.join(". ") + ". Mas " + naoLido + ". Veja o dmo-sap.log na pasta." };
+    }
+    return { parcial: false, texto: "A leitura do SAP falhou: " + naoLido + ". Veja o dmo-sap.log na pasta." };
+  }
+  window.DMOSapErro = erroSap;
 
   const cartao = document.querySelector("[data-ferr-sap]");
   const automatico = document.querySelector("[data-ferr-sap-auto]");
@@ -147,6 +180,12 @@
   function mostrarTodas(todas) {
     const botao = cartao ? cartao.querySelector("[data-ferr-sap-todas]") : null;
     if (botao) botao.textContent = todas ? "Atualizar" : "Pedir todas";
+    // O seletor «Tudo | Desatualizadas» do Admin › SAP (Diogo, 30/10/2026: «criar no cartão um selecionador»).
+    if (cartao) cartao.querySelectorAll("[data-ferr-sap-escolha]").forEach((b) => {
+      const ativo = (b.getAttribute("data-ferr-sap-escolha") === "todas") === todas;
+      b.classList.toggle("rp-modo-ativo", ativo);
+      b.setAttribute("aria-pressed", ativo ? "true" : "false");
+    });
   }
 
   async function esquecerPasta() {
@@ -370,8 +409,10 @@
           return;
         }
         if (estadoSap.texto.startsWith("erro")) {
-          mensagem("erro", "A leitura do SAP falhou: veja o dmo-sap.log na pasta.");
-          mostrarEstado("«" + pasta.name + "» · a leitura do SAP falhou");
+          const erro = erroSap(estadoSap.texto);
+          if (erro.parcial && !doAdmin) await sincronizar(pasta, false);
+          mensagem(erro.parcial ? "aviso" : "erro", erro.texto);
+          mostrarEstado("«" + pasta.name + "» · " + (erro.parcial ? "a leitura do SAP ficou a meio" : "a leitura do SAP falhou"));
           return;
         }
       }
@@ -430,8 +471,8 @@
   }
 
   // Ligar ou desligar o «Pedir todas» e escrever logo o dmo-codigos.txt.
-  async function alternarTodas() {
-    const todas = !(await pedirTodas());
+  async function alternarTodas(escolha) {
+    const todas = typeof escolha === "boolean" ? escolha : !(await pedirTodas());
     await guardarTodas(todas);
     mostrarTodas(todas);
     const pasta = await pastaGuardada();
@@ -501,6 +542,10 @@
     const copiar = cartao.querySelector("[data-ferr-sap-codigos]");
     const apagar = cartao.querySelector("[data-ferr-sap-apagar]");
     const todas = cartao.querySelector("[data-ferr-sap-todas]");
+    cartao.querySelectorAll("[data-ferr-sap-escolha]").forEach((b) => {
+      if (!suportado) b.disabled = true;
+      b.addEventListener("click", () => alternarTodas(b.getAttribute("data-ferr-sap-escolha") === "todas").catch(falhou));
+    });
     const remover = cartao.querySelector("[data-ferr-sap-remover]");
     if (copiar) copiar.addEventListener("click", () => copiarCodigos().catch(falhou));
     if (!suportado) {

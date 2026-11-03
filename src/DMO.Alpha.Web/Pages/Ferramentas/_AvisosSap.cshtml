@@ -7,14 +7,15 @@
     var atual = campo == "pecas" ? Model.QuantidadeAtual?.ToString() ?? "sem quantidade" : Model.UsoAtual is { } valor ? DmoNumberFormat.Decimal2SemPerda(valor) + " %" : "sem utilização";
     if (recebido is null) { continue; }
     <div class="ferr-aviso warn ferr-sap-aviso" data-sap-aviso role="status" id="sap-aviso-@campo">
-      <button type="button" class="ferr-cancel ferr-sap-fechar" data-sap-fechar aria-label="Fechar aviso do SAP">×</button>
+      @* R3 (Diogo, 30/10/2026): o × é um × simples no canto do aviso, não um botão; o «Substituir» é um link com a cor dos botões (na janela e na página). *@
+      <button type="button" class="ferr-sap-fechar" data-sap-fechar aria-label="Fechar aviso do SAP">×</button>
       <span>SAP tem @recebido em vez de @atual@(campo == "pecas" ? " peças" : "")… substituir?</span>
       <form method="post" asp-page="/Ferramentas/AvisosSap" data-dmo-parcial>
         <input type="hidden" name="tool_id" value="@Model.ToolId" />
         <input type="hidden" name="versao" value="@Model.Versao" />
         <input type="hidden" name="campo" value="@campo" />
-        <button type="submit" class="dmo-button" name="decisao" value="sim" id="sap-@campo-sim">Sim</button>
-        <button type="submit" class="dmo-button" name="decisao" value="nao" id="sap-@campo-nao">Não</button>
+        <button type="submit" class="ferr-sap-link" name="decisao" value="sim" id="sap-@campo-sim">Substituir</button>
+        <button type="submit" class="ferr-sap-link ferr-sap-link-discreto" name="decisao" value="nao" id="sap-@campo-nao">Manter</button>
       </form>
     </div>
 }
