@@ -231,4 +231,45 @@ public sealed class SapScriptsVbsTests
         Assert.Contains("If Not EntrarPeloSap() Then Falhar", vbs);
         Assert.Contains("If ElapsedSeconds(startedAt) >= 60 Then Falhar \"O SAP ficou no ecrã de entrada", vbs);
     }
+
+    // Diogo, 02/11/2026 14:58 («sim», DMO-717): uma procura por ferramenta demorava 17 minutos.
+    // O USO procura «*» primeiro e, lida a lista, salta as outras; se falhar, segue código a código.
+    // Os dois scripts escrevem o passo no dmo-sap-passo.txt para a app mostrar.
+    [Fact]
+    public void OUso_ProcuraTodosPrimeiro_ESaltaOsOutros_EDizOPasso()
+    {
+        string Ler(string nome)
+        {
+            using var stream = typeof(SapScripts).Assembly.GetManifestResourceStream(nome)!;
+            return new StreamReader(stream).ReadToEnd();
+        }
+
+        var uso = Ler("Sap.DMO_USO_SAP.vbs");
+        Assert.Contains("Const PEDIR_TODAS = True", uso);
+        Assert.Contains("codigos(0) = \"*\"", uso);
+        Assert.Contains("If PEDIR_TODAS And total > 0 Then", uso);
+        var ciclo = uso.IndexOf("For i = 0 To total - 1", StringComparison.Ordinal);
+        Assert.True(uso.IndexOf("If todasLidas Then Exit For", ciclo, StringComparison.Ordinal) > ciclo);
+        Assert.True(uso.IndexOf("todasLidas = True", ciclo, StringComparison.Ordinal) > ciclo);
+        Assert.Contains("Passo \"% de uso: \"", uso);
+        Assert.Contains("\"dmo-sap-passo.txt\"", uso);
+        var fabrico = Ler("Sap.DMO_FABRICO_SAP.vbs");
+        Assert.Contains("Passo \"a ler as produções (ZFMD)\"", fabrico);
+        Assert.Contains("\"dmo-sap-passo.txt\"", fabrico);
+    }
+
+    // DMO-723 (QD253-01, Diogo 02/11 23:46 «sim»): o diário não testava o http.status, por isso
+    // um 403/500 contava como enviado e o estado dizia «feito». Só um 200 conta.
+    [Fact]
+    public void ODiario_SoUm200ContaComoEnviado()
+    {
+        using var stream = typeof(SapScripts).Assembly.GetManifestResourceStream("Sap.DMO_SAP_DIARIO.vbs")!;
+        var vbs = new StreamReader(stream).ReadToEnd();
+        var enviar = vbs[vbs.IndexOf("Sub Enviar(ByVal nome)", StringComparison.Ordinal)..];
+        enviar = enviar[..enviar.IndexOf("End Sub", StringComparison.Ordinal)];
+        Assert.Contains("ElseIf http.status <> 200 Then", enviar);
+        Assert.Contains("Falhar \"envio\", \"http\" & http.status", enviar);
+        Assert.Contains("Falhar \"envio\", \"rede\"", enviar);
+        Assert.True(vbs.IndexOf("EnviarNovos \"dmo-uso-sap-\"", StringComparison.Ordinal) < vbs.IndexOf("If erroGeral = \"\" Then", StringComparison.Ordinal));
+    }
 }

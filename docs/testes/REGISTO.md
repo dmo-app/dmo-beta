@@ -1919,6 +1919,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | Sidepanel_SurvivesTheHistoryViews | Painel das produções correntes mantém-se nas vistas do histórico | OK |  |
 | ViewDropdown_AndContextualPdfButton_AreWiredToTheGenerators | Dropdown de vistas e um só botão «Imprimir / PDF» ligado aos filtros | OK |  |
 | ReferenciaExistente_ComLoteInexistente_MostraMensagemClara_NaListaENoPdf | Referência com lote que não existe mostra mensagem clara, na lista e no PDF, sem erro | OK | A-0387 (DMO-648) |
+| (11 testes do cartão «Quantidades» em BoquilhasRegistoPageTests, BoquilhasDiscrepancyResetTests e BoquilhasOrdemTests) | O cartão «Quantidades» é igual para todas as BQ: mostra sempre BQ e AN, com «—» onde não há AN | OK | A-0491 (DMO-720) |
 
 ### `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasRegistoConsultasTests.cs`
 
@@ -2145,6 +2146,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | BoquilhasRegistoPageTests.RegistarSemJobOn_ALinhaSoTemAsDaFichaDaBq_EVemJaEscolhida | Linha limitada às da ficha da BQ e já escolhida | OK |  |
 | BoquilhasRegistoPageTests.RegistarSemJobOn_NaPaginaBoquilhas_GravaEMostraOMovimento | Registar sem Job On grava BQ, linha e quantidade e mostra-o | OK |  |
 | BoquilhasRegistoPageTests.RegistarSemJobOn_NumJobOnAnterior_FicaNoRegistoDesseJobOn_EODaEntradaDizQuemRegistou | Registar em Job On anterior; Job On de outra BQ recusado | OK | Recusa JobOnErrado sem verificar explicitamente que nada grava antes do segundo envio |
+| BoquilhasRegistoPageTests.RegistarSemJobOn_PeloJobOnJaFeito_OferecePorReferenciaEProducao_ComABqELoteQueUsou | Registar sem Job On oferece escolher o Job On já feito (referência · produção · BQ · lote) | OK | A-0490 (DMO-719) |
 | BoquilhasRegistoPageTests.RegistarSemJobOn_SemQuantidade_ReabreAJanelaComAFrase | Sem Job On: quantidade 0 recusada, janela reaberta, nada grava | OK |  |
 | BoquilhasRegistoPageTests.SemJobOnTool_Label_MostraOQueIdentificaABq_PelaReferencia | Etiqueta da BQ com referência, lote, quantidade, máquinas e MF | OK |  |
 
@@ -6068,3 +6070,33 @@ Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; no
 | `tests/visual/cobertura_a1_browser.py` (alterado) | A folha do Job On não desliza para o lado; na vertical a página desliza. | OK | A-0503 |
 | `tests/visual/cobertura_a2_browser.py` (alterado) | Ficha, Utilizadores e Revisão sem deslizar para o lado; na vertical deslizam. | OK | A-0503 |
 | `tests/visual/cobertura_b_browser.py` (alterado) | Punções, Pegamentos, Armazém e outras sem deslizar para o lado; na vertical deslizam e a folha dos Pegamentos aparece inteira. | OK | A-0503 |
+### `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs`
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| JobOnAvisosPessoaisTests.ArmazemDesligado_SaiSoOAvisoDoArmazem | Avisos do Job On desligados em Definições › A minha conta: o desligado sai, os outros ficam | OK | DMO-715 · A-0486 |
+| JobOnAvisosPessoaisTests.SemNadaDesligado_MostraTodos | Sem nada desligado, aparecem todos os avisos | OK | DMO-715 · A-0486 |
+| JobOnAvisosPessoaisTests.LerEEscrever_IgnoramChavesQueNaoExistem | A escolha gravada só guarda avisos que existem | OK | DMO-715 · A-0486 |
+
+| `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs` › `APercentDoSap_SubstituiAEscritaAMao_SemAviso` (novo) | A % do SAP substitui a escrita à mão (fica no histórico) e não há aviso de % | OK | DMO-716 (A-0487), Diogo 02/11 14:58 «sim». |
+| `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs` › `Sap_NaoMantemQuantidadeEUsoManual_…` e `Sap_SimUsaOPercentDoServidor…` (mudaram) | Com a % escrita à mão, a importação do SAP aplica a % e o aviso de % fica vazio; as peças continuam com aviso | OK (PostgreSQL 16 local) | DMO-716 (A-0487), ok do Diogo 02/11 14:58. |
+| `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs` › `Sap_UmValorManualIgualAoSapContinuaProtegidoQuandoOSapMuda` (mudou) | Com a % manual, uma % do SAP diferente aplica-se e não há aviso de %; um manual novo depois fica | OK (PostgreSQL 16 local, 214 testes) | DMO-716 (A-0493), ok do Diogo 02/11 14:58; faltou no A-0487 e o CI apanhou. |
+| `tests/ShellProof/sap-estado-erro.test.cjs` › 2 testes do envio (novos) e `SapScriptsVbsTests.ODiario_SoUm200ContaComoEnviado` (novo) | Só um 200 conta como enviado; 403/500/sem rede dão «erro envio:…» e a app diz que o envio falhou e porquê | OK | DMO-723 (A-0495), QD253-01 do deep-sweep .253; Diogo 02/11 23:46 «sim 1 e 2». |
+| `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs` › `AListaDeTodos_LigaPeloCodigo_EAsBqPeloPadrao` (novo) | A lista «*» liga CM pelo código da Codificação e BQ pelo padrão; lote 107 não vai para o 7 | OK | DMO-717 (A-0488), Diogo 02/11 14:58 «sim». |
+| `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs` › `OUso_ProcuraTodosPrimeiro_ESaltaOsOutros_EDizOPasso` (novo) | USO procura «*» primeiro e salta as outras; USO e FABRICO escrevem o dmo-sap-passo.txt | OK | DMO-717 (A-0488). Falta ver no PC do SAP quanto demora a lista «*». |
+
+### `tests/ShellProof/bq-sem-jobon-pelo-jobon.test.cjs`
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| Escolher um Job On já feito preenche a BQ, a referência, a produção e a linha | Pelo Job On já feito: BQ·lote, referência, produção e linha ficam preenchidas | OK | A-0490 (DMO-719) |
+
+| `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs` › `RegisterMetrics_RenderFromTheBackend_NeverFromTheClient` | Sem o título «Quantidades»; a dica continua no cartão; tom ligeiro no tema claro | OK | DMO-718 (A-0489), Diogo 02/11: «está bom». Nenhum teste mudado. |
+
+| `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs` › `RegisterMany_RecordsEachLineOnItsOwnProduction_WithTheSameTime` (novo) | Várias linhas de uma vez: cada cartão grava na sua produção, com a mesma hora | OK | DMO-721 (A-0492), Diogo 02/11. |
+| `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs` › `RegisterMany_ALineWithoutQuantity_DoesNotStopTheOthers` (novo) | Uma linha sem quantidade não impede as outras e o aviso diz qual falhou | OK | DMO-721 (A-0492). |
+
+| Capturas antes/depois de 51 páginas a 1366×768, claro e escuro (fora do CI) | A limpeza do CSS, parte 1 (menos `!important` em `dmo-normalize.css` e `dmo-design.css`), não muda o aspeto. | OK | A-0494 |
+
+| `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs` › `UmRelatorioSemOMaterial_NaoApagaAsOrdensDesseMaterial` (novo) | Um relatório de fabrico que não traz um material/linha não apaga as produções desse material/linha | por correr (CI) | DMO-724 (A-0496), QD253-02, Diogo 02/11 23:46. |
+| `tests/DMO.Alpha.Web.Tests/MensagemFabricoSapTests.cs` › `MensagemFabricoSapTests.AsRetiradas_AparecemNaMensagem` (novo) | A mensagem da leitura do fabrico diz quantas produções foram retiradas | por correr (CI) | DMO-724 (A-0496). |

@@ -67,6 +67,7 @@ saida = fso.BuildPath(pasta, "dmo-fabrico-sap-" & Carimbo() & ".txt")
 temporario = fso.BuildPath(pasta, "dmo-fabrico-sap.a-gravar")
 
 ' Uma sessão do SAP: a que já está aberta ou a que o atalho abre.
+Passo "a ler as produções (ZFMD)"
 Set session = PrimeiraSessao()
 ' A sessão já aberta pode estar no ecrã de entrada (Diogo, 02/11/2026 13:17:
 ' «SAP pronto (SAP)» e falhou): entra-se pelo SAP e espera-se que fique pronta.
@@ -335,6 +336,17 @@ End Function
 
 ' Um registo do que o script fez, para se perceber onde parou
 ' (dmo-sap.log, na mesma pasta; o DMO não lê .log).
+' O passo em que está, para a app mostrar (dmo-sap-passo.txt, DMO-717).
+Sub Passo(ByVal texto)
+    On Error Resume Next
+    With fso.CreateTextFile(fso.BuildPath(pasta, "dmo-sap-passo.txt"), True)
+        .WriteLine texto
+        .Close
+    End With
+    Err.Clear
+    On Error GoTo 0
+End Sub
+
 Sub Registo(ByVal texto)
     Dim f
     On Error Resume Next

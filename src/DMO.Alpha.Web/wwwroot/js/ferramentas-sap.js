@@ -34,6 +34,7 @@
   const URL_CODIGOS_REF = PAGINA + "?handler=CodigosSap";
   const PEDIDO = "dmo-codigos-pedido.txt";
   const ESTADO_SAP = "dmo-sap-estado.txt";
+  const PASSO_SAP = "dmo-sap-passo.txt";
   // Os ficheiros que o DMO e os scripts escrevem na pasta: nunca vão para o servidor.
   const DO_DMO = /^(dmo-sap[-.]|dmo-codigos)/i;
   const CODIGOS = "dmo-codigos.txt";
@@ -64,6 +65,17 @@
     const re = /(DMO_\w+\.vbs):(\S+)/g;
     let m;
     while ((m = re.exec(semOk))) falhas.push((PASSOS[m[1]] ? PASSOS[m[1]].nome : m[1]) + " (" + motivoSap(m[2]) + ")");
+    // DMO-723 (QD253-01): leu-se do SAP mas o DMO não recebeu (403 = chave
+    // errada, «Instalar» outra vez; outro código ou sem rede).
+    const envio = /(?:^|\s)envio:(\S+)/.exec(semOk);
+    if (envio) {
+      const porque = envio[1] === "http403"
+        ? "o DMO recusou a chave deste PC; carregue outra vez em «Instalar»"
+        : envio[1] === "rede" ? "sem ligação ao DMO" : "o DMO respondeu com erro " + envio[1].replace(/^http/, "");
+      const lido = certos.length ? certos.join(". ") + ". Mas o" : "O";
+      const tambem = falhas.length ? " Também não foi possível ler " + falhas.join(" nem ") + "." : "";
+      return { parcial: true, texto: lido + " envio para o DMO falhou (" + porque + ")." + tambem + " Os ficheiros ficaram na pasta. Veja o dmo-sap.log." };
+    }
     const naoLido = falhas.length ? "não foi possível ler " + falhas.join(" nem ") : "o motivo não ficou escrito";
     if (certos.length) {
       return { parcial: true, texto: certos.join(". ") + ". Mas " + naoLido + ". Veja o dmo-sap.log na pasta." };
@@ -83,6 +95,9 @@
 
   function mostrarEstado(texto) {
     if (estado) estado.textContent = texto;
+    // No Admin › SAP não há cartão: o passo vai para o estado da pasta.
+    const doAdminEstado = !estado ? document.querySelector("[data-sap-admin-estado]") : null;
+    if (doAdminEstado) doAdminEstado.textContent = texto;
   }
 
   // As mensagens vão para a pilha do canto, como as do servidor.
@@ -267,9 +282,9 @@
     }
   }
 
-  async function lerEstado(pasta) {
+  async function lerEstado(pasta, nome) {
     try {
-      const ficheiro = await (await pasta.getFileHandle(ESTADO_SAP)).getFile();
+      const ficheiro = await (await pasta.getFileHandle(nome || ESTADO_SAP)).getFile();
       return { texto: (await ficheiro.text()).trim(), quando: ficheiro.lastModified };
     } catch (erro) {
       return null;
@@ -403,6 +418,15 @@
           continue;
         }
         arrancou = true;
+        // O passo em que o SAP está (Diogo, 02/11/2026: «diz SAP a correr mas
+        // não está a fazer nada»): o dmo-sap-passo.txt que os scripts escrevem.
+        if (estadoSap.texto.startsWith("a correr")) {
+          const passo = await lerEstado(pasta, PASSO_SAP);
+          if (passo && passo.texto && passo.quando >= comeco - 2000) {
+            mostrarEstado("«" + pasta.name + "» · SAP: " + passo.texto);
+          }
+          continue;
+        }
         if (estadoSap.texto.startsWith("feito")) {
           if (!doAdmin) await sincronizar(pasta, false);
           mensagem("ok", "Leitura do SAP feita e gravada.");

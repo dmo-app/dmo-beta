@@ -6338,3 +6338,192 @@ Novos: 0 · mudaram: 5 · saíram: 0
 - mudou: `tests/visual/cobertura_b_browser.py`
 
 Selo depois: `f00eb29ce495fa05`
+## A-0486 · 2026-11-02 · ok-do-diogo
+
+Porquê: Cartão novo «Avisos do Job On» em A minha conta (DMO-715); testes novos dos avisos por utilizador
+Referência: A-0486 · Diogo cmsg_01K75FTs9bQnbhhH7qttpgraJCPH9szsVbru5WAk4GYHoy
+Novos: 4 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs :: JobOnAvisosPessoaisTests.ArmazemDesligado_SaiSoOAvisoDoArmazem`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs :: JobOnAvisosPessoaisTests.LerEEscrever_IgnoramChavesQueNaoExistem`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs :: JobOnAvisosPessoaisTests.SemNadaDesligado_MostraTodos`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Pessoal_SoTemAContaAPalavraPasseEAAparencia`
+
+Selo depois: `8eb6dc0ee896b7a1`
+
+## A-0491 · 2026-11-02 · ok-do-diogo
+
+Porquê: DMO-720/A-0491: o cartão Quantidades das Boquilhas é igual para todas as BQ (sempre BQ e AN); 11 testes só acertaram o texto do cartão.
+Referência: Diogo 02/11: «sim» (cmsg_01K75FTs9bQnbhhH7qttpgraQvgwprJtxD2uDgcpP4YPTZ) e autorização geral (cmsg_01K75FTs9bQnbhhH7qttpgraWvPhikoYog8MVTZbgYZtbr)
+Novos: 0 · mudaram: 11 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasDiscrepancyResetTests.cs :: BoquilhasRegistoPageTests.DiscrepancyReset_ClickOpensTheWindow_AndPuttingToZeroKeepsTheMovements`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasDiscrepancyResetTests.cs :: BoquilhasRegistoPageTests.DiscrepancyReset_WithoutDiscrepancy_ShowsNoLink`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasOrdemTests.cs :: BoquilhasRegistoPageTests.GuiasOutOfOrder_TableFollowsTheRealTime_AndTheSaidaCountsFirstAtTheSameTime`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.CanonicalTraceId_LoadsPersistedTrace`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachinesCard_ShowsTheThreeLiveValues_WhenTheCurrentBqExists`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachinesPanel_DirectLinkOpensProductionRegisterAndKeepsSearchCollapsed`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.NativePath_ServerDataIsSourceOfTruth`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.PostEntradaSemReparacao_PersistsWithClosedSemantics`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.PostEntrada_ServerComputedDiscrepancyReflected`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.PostSaida_PersistsThroughHandler`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.RegisterMetrics_RenderFromTheBackend_NeverFromTheClient`
+
+Selo depois: `f43b0081ac54d423`
+
+## A-0487 · 2026-11-02 · ok-do-diogo
+
+Porquê: DMO-716: a % do SAP substitui sempre a escrita à mão, sem aviso; aviso das peças com frase normal
+Referência: thread cmsg_01K75FTs9bQnbhhH7qttpgra7vYFcJvQUaiLE6LHsbqGZh, Diogo 02/11 14:58 «sim» (cmsg_01K75FTs9bQnbhhH7qttpgraUqU2VL7wVxqkpnPCYWWi4f)
+Novos: 1 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.APercentDoSap_SubstituiAEscritaAMao_SemAviso`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_NaoMantemQuantidadeEUsoManual_NaoRepeteMesmoValorEMostraNovoValor`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_SimUsaOPercentDoServidorEDepoisVoltaAAplicarAutomaticamente`
+
+Selo depois: `3ccd1f33ee7dc26f`
+
+## A-0488 · 2026-11-02 · teste-novo
+
+Porquê: DMO-717: USO procura «*» primeiro e salta as outras; BQ ligadas pelo padrão; passo no dmo-sap-passo.txt
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.AListaDeTodos_LigaPeloCodigo_EAsBqPeloPadrao`
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OUso_ProcuraTodosPrimeiro_ESaltaOsOutros_EDizOPasso`
+
+Selo depois: `38c53a75db31c4ec`
+
+## A-0493 · 2026-11-02 · ok-do-diogo
+
+Porquê: DMO-716: mais um teste do Postgres que esperava o aviso de % com a % manual; agora a % do SAP aplica-se e não há aviso
+Referência: thread cmsg_01K75FTs9bQnbhhH7qttpgra7vYFcJvQUaiLE6LHsbqGZh, Diogo 02/11 14:58 «sim» (cmsg_01K75FTs9bQnbhhH7qttpgraUqU2VL7wVxqkpnPCYWWi4f)
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_UmValorManualIgualAoSapContinuaProtegidoQuandoOSapMuda`
+
+Selo depois: `903ec41b854f252d`
+
+## A-0495 · 2026-11-02 · ok-do-diogo
+
+Porquê: DMO-723 (QD253-01): só um 200 conta como enviado; a app diz que o envio falhou; 2 testes novos no fim do sap-estado-erro.test.cjs
+Referência: Diogo 02/11 23:46 «sim 1 e 2» (cmsg_01K75FTs9bQnbhhH7qttpgra8GuZdgudXRrHYbaBivwoqZ)
+Novos: 3 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.ODiario_SoUm200ContaComoEnviado`
+- novo: `tests/ShellProof/sap-estado-erro.test.cjs :: Leu tudo mas o DMO recusou o envio (403): aviso com o «Instalar»`
+- novo: `tests/ShellProof/sap-estado-erro.test.cjs :: Sem rede ou com erro 500 no envio: diz o motivo`
+- mudou: `tests/ShellProof/sap-estado-erro.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `b93840dff2faec4f`
+
+## A-0490 · 2026-11-02 · teste-novo
+
+Porquê: DMO-719/A-0490: Registar sem Job On pelo Job On já feito (referência/produção preenche a BQ·lote). 2 testes novos; nenhum antigo mudou.
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_PeloJobOnJaFeito_OferecePorReferenciaEProducao_ComABqELoteQueUsou`
+- novo: `tests/ShellProof/bq-sem-jobon-pelo-jobon.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/bq-sem-jobon-pelo-jobon.test.cjs :: Escolher um Job On já feito preenche a BQ, a referência, a produção e a linha`
+
+Selo depois: `d39b95a8407be96b`
+
+## A-0492 · 2026-11-02 · ok-do-diogo
+
+Porquê: DMO-721: tipo escolhido uma vez em cima; Entrada com Reparadas e Sem reparação na mesma linha (Diogo 02/11 22:09)
+Referência: thread cmsg_01K75FTs9bQnbhhH7qttpgraU4m6GEoFMTYQyC8povNVn8
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: BoquilhasRegistoPageTests.RegisterMany_ALineWithoutQuantity_DoesNotStopTheOthers`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: BoquilhasRegistoPageTests.RegisterMany_RecordsEachLineOnItsOwnProduction_WithTheSameTime`
+
+Selo depois: `63e4ca06a40aacb2`
+
+## A-0496 · 2026-11-02 · teste-novo
+
+Porquê: DMO-724 (A-0496): QD253-02, fabrico só retira produções do material/linha que traz e diz quantas
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.UmRelatorioSemOMaterial_NaoApagaAsOrdensDesseMaterial`
+- novo: `tests/DMO.Alpha.Web.Tests/MensagemFabricoSapTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/MensagemFabricoSapTests.cs :: MensagemFabricoSapTests.AsRetiradas_AparecemNaMensagem`
+
+Selo depois: `5a72e7f143c61de1`
+
+## A-0497 · 2026-11-03 · ok-do-diogo
+
+Porquê: Ramo do ensaio beta.254: junta #383, #384, #385, #386, #387, #388, #390 e #391 sobre a main .253; impressão refeita; os testes mudados estão explicados nas entradas de cada PR
+Referência: Coordenador 03/11 (ensaio com os PR verdes); só ensaio, sem main
+Novos: 13 · mudaram: 12 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.UmRelatorioSemOMaterial_NaoApagaAsOrdensDesseMaterial`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: BoquilhasRegistoPageTests.RegisterMany_ALineWithoutQuantity_DoesNotStopTheOthers`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: BoquilhasRegistoPageTests.RegisterMany_RecordsEachLineOnItsOwnProduction_WithTheSameTime`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_PeloJobOnJaFeito_OferecePorReferenciaEProducao_ComABqELoteQueUsou`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs :: JobOnAvisosPessoaisTests.ArmazemDesligado_SaiSoOAvisoDoArmazem`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs :: JobOnAvisosPessoaisTests.LerEEscrever_IgnoramChavesQueNaoExistem`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs :: JobOnAvisosPessoaisTests.SemNadaDesligado_MostraTodos`
+- novo: `tests/DMO.Alpha.Web.Tests/MensagemFabricoSapTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/MensagemFabricoSapTests.cs :: MensagemFabricoSapTests.AsRetiradas_AparecemNaMensagem`
+- novo: `tests/ShellProof/bq-sem-jobon-pelo-jobon.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/bq-sem-jobon-pelo-jobon.test.cjs :: Escolher um Job On já feito preenche a BQ, a referência, a produção e a linha`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasDiscrepancyResetTests.cs :: BoquilhasRegistoPageTests.DiscrepancyReset_ClickOpensTheWindow_AndPuttingToZeroKeepsTheMovements`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasDiscrepancyResetTests.cs :: BoquilhasRegistoPageTests.DiscrepancyReset_WithoutDiscrepancy_ShowsNoLink`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasOrdemTests.cs :: BoquilhasRegistoPageTests.GuiasOutOfOrder_TableFollowsTheRealTime_AndTheSaidaCountsFirstAtTheSameTime`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.CanonicalTraceId_LoadsPersistedTrace`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachinesCard_ShowsTheThreeLiveValues_WhenTheCurrentBqExists`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachinesPanel_DirectLinkOpensProductionRegisterAndKeepsSearchCollapsed`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.NativePath_ServerDataIsSourceOfTruth`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.PostEntradaSemReparacao_PersistsWithClosedSemantics`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.PostEntrada_ServerComputedDiscrepancyReflected`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.PostSaida_PersistsThroughHandler`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.RegisterMetrics_RenderFromTheBackend_NeverFromTheClient`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Pessoal_SoTemAContaAPalavraPasseEAAparencia`
+
+Selo depois: `760a4c98bffd8aa4`
+
+## A-0504 · 2026-11-04 · ok-do-diogo
+
+Porquê: Junta do ensaio .254 (#392: #383 a #391) à main .253 com DMO-730. As mudanças de testes já tinham «sim» do Diogo nas entradas A-0486 a A-0497 deste registo; aqui só se acerta a impressão ao juntar. Diogo 04/11: «tudo que está feito mandar para o oficial».
+Referência: A-0486..A-0497, cmsg_01K75FTs9bQnbhhH7qttpgraMavZHsAts5GcuXfXucfP3Q
+Novos: 19 · mudaram: 16 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs :: FerramentasFabricoSapTests.UmRelatorioSemOMaterial_NaoApagaAsOrdensDesseMaterial`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.AListaDeTodos_LigaPeloCodigo_EAsBqPeloPadrao`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs :: FerramentasUsoSapTests.APercentDoSap_SubstituiAEscritaAMao_SemAviso`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: BoquilhasRegistoPageTests.RegisterMany_ALineWithoutQuantity_DoesNotStopTheOthers`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: BoquilhasRegistoPageTests.RegisterMany_RecordsEachLineOnItsOwnProduction_WithTheSameTime`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasSemJobOnTests.cs :: BoquilhasRegistoPageTests.RegistarSemJobOn_PeloJobOnJaFeito_OferecePorReferenciaEProducao_ComABqELoteQueUsou`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs :: JobOnAvisosPessoaisTests.ArmazemDesligado_SaiSoOAvisoDoArmazem`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs :: JobOnAvisosPessoaisTests.LerEEscrever_IgnoramChavesQueNaoExistem`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs :: JobOnAvisosPessoaisTests.SemNadaDesligado_MostraTodos`
+- novo: `tests/DMO.Alpha.Web.Tests/MensagemFabricoSapTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/MensagemFabricoSapTests.cs :: MensagemFabricoSapTests.AsRetiradas_AparecemNaMensagem`
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.ODiario_SoUm200ContaComoEnviado`
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.OUso_ProcuraTodosPrimeiro_ESaltaOsOutros_EDizOPasso`
+- novo: `tests/ShellProof/bq-sem-jobon-pelo-jobon.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/bq-sem-jobon-pelo-jobon.test.cjs :: Escolher um Job On já feito preenche a BQ, a referência, a produção e a linha`
+- novo: `tests/ShellProof/sap-estado-erro.test.cjs :: Leu tudo mas o DMO recusou o envio (403): aviso com o «Instalar»`
+- novo: `tests/ShellProof/sap-estado-erro.test.cjs :: Sem rede ou com erro 500 no envio: diz o motivo`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_NaoMantemQuantidadeEUsoManual_NaoRepeteMesmoValorEMostraNovoValor`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_SimUsaOPercentDoServidorEDepoisVoltaAAplicarAutomaticamente`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs :: PostgresMigrationIntegrationTests.Sap_UmValorManualIgualAoSapContinuaProtegidoQuandoOSapMuda`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasDiscrepancyResetTests.cs :: BoquilhasRegistoPageTests.DiscrepancyReset_ClickOpensTheWindow_AndPuttingToZeroKeepsTheMovements`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasDiscrepancyResetTests.cs :: BoquilhasRegistoPageTests.DiscrepancyReset_WithoutDiscrepancy_ShowsNoLink`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasOrdemTests.cs :: BoquilhasRegistoPageTests.GuiasOutOfOrder_TableFollowsTheRealTime_AndTheSaidaCountsFirstAtTheSameTime`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.CanonicalTraceId_LoadsPersistedTrace`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachinesCard_ShowsTheThreeLiveValues_WhenTheCurrentBqExists`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachinesPanel_DirectLinkOpensProductionRegisterAndKeepsSearchCollapsed`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.NativePath_ServerDataIsSourceOfTruth`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.PostEntradaSemReparacao_PersistsWithClosedSemantics`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.PostEntrada_ServerComputedDiscrepancyReflected`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.PostSaida_PersistsThroughHandler`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.RegisterMetrics_RenderFromTheBackend_NeverFromTheClient`
+- mudou: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.Pessoal_SoTemAContaAPalavraPasseEAAparencia`
+- mudou: `tests/ShellProof/sap-estado-erro.test.cjs :: (resto do ficheiro)`
+
+Selo depois: `0e60d20c8596766d`

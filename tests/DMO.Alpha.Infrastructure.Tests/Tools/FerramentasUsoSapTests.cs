@@ -286,6 +286,62 @@ public sealed class FerramentasUsoSapTests
         Assert.Null((await db.Tools.AsNoTracking().SingleAsync(t => t.ToolId == "cm-c3")).TechnicalName);
     }
 
+    // DMO-716 (Diogo, 02/11/2026 «sim»): o SAP é a fonte de verdade; a % do
+    // SAP substitui a escrita à mão, que fica no histórico, e não há aviso de %.
+    [Fact]
+    public async Task APercentDoSap_SubstituiAEscritaAMao_SemAviso()
+    {
+        await using var db = CreateContext();
+        var servico = Servico(db);
+        Assert.True(await servico.RegistarPercentagemManualAsync("cm11", 29));
+
+        await servico.ImportarAsync(CsvDoScript, "dmo-uso-sap.csv", null);
+
+        db.ChangeTracker.Clear();
+        var leituras = await db.FerramentaUtilizacoes.AsNoTracking().Where(u => u.ToolId == "cm11").OrderBy(u => u.Id).ToListAsync();
+        Assert.Equal(new[] { (FerramentaUtilizacao.OrigemManual, 29m), (FerramentaUtilizacao.OrigemSap, 91.4m) }, leituras.Select(u => (u.Origem, u.Percentagem)));
+        Assert.Null((await new FerramentasAvisosSap(db, new Sessao()).LerAsync("cm11"))!.Uso);
+    }
+
+    // DMO-717: a lista de todos os moldes (procura «*») liga cada equipamento à
+    // ferramenta pelo código da Codificação; as BQ pelo padrão com «*», e o
+    // lote 107 não vai para o lote 7.
+    [Fact]
+    public async Task AListaDeTodos_LigaPeloCodigo_EAsBqPeloPadrao()
+    {
+        await using var db = CreateContext();
+        db.Machines.AddRange(new DMO.Alpha.Core.Production.Machine { Id = 31, Code = "C3" }, new DMO.Alpha.Core.Production.Machine { Id = 11, Code = "B1" });
+        db.Tools.AddRange(
+            new Tool { ToolId = "cm-c3", Type = ToolType.Cm, Reference = "2032", Lot = "4" },
+            new Tool { ToolId = "bq-7", Type = ToolType.Bq, Reference = "2032", Lot = "7" },
+            new Tool { ToolId = "bq-107", Type = ToolType.Bq, Reference = "2032", Lot = "107" });
+        db.ToolMachineLinks.AddRange(
+            new ToolMachineLink { ToolId = "cm-c3", MachineId = 31 },
+            new ToolMachineLink { ToolId = "bq-7", MachineId = 11 },
+            new ToolMachineLink { ToolId = "bq-107", MachineId = 11 });
+        await db.SaveChangesAsync();
+        db.ChangeTracker.Clear();
+        const string csv = """
+            search,equipment,percent_use,last_production,batch_description,status,error
+            "*","M203244MPPSX04","40,5","21.10.2026","","FOUND",""
+            "*","AB2032NX3460107","12","21.10.2026","","FOUND",""
+            "*","AB2032NX346007","33","21.10.2026","","FOUND",""
+            "*","ZZZ999","1","21.10.2026","","FOUND",""
+            """;
+
+        await Servico(db).ImportarAsync(csv, "dmo-uso-sap.csv", null);
+
+        db.ChangeTracker.Clear();
+        var ultimas = (await db.FerramentaUtilizacoes.AsNoTracking().ToListAsync())
+            .GroupBy(u => u.ToolId).ToDictionary(g => g.Key, g => g.OrderBy(u => u.Id).Last().Percentagem);
+        Assert.Equal(40.5m, ultimas["cm-c3"]);
+        Assert.Equal(33m, ultimas["bq-7"]);
+        Assert.Equal(12m, ultimas["bq-107"]);
+        Assert.True(SapProcura.CorrespondeAoPadrao("AB2032NX*07", "ab2032nx346007"));
+        Assert.False(SapProcura.CorrespondeAoPadrao("AB2032NX*07", "AB2033NX346007"));
+        Assert.False(SapProcura.CorrespondeAoPadrao("AB2032NX*07", "AB2032NX"));
+    }
+
     [Fact]
     public async Task Pedir_AbreUmLembreteSoUmaVez()
     {
