@@ -61,9 +61,10 @@
       cartao.classList.remove('bq-varias-escolhido');
       cartao.setAttribute('aria-pressed', 'false');
     } else {
-      const spans = cartao.querySelectorAll('span');
-      const producao = spans.length > 1 ? spans[spans.length - 1].textContent.trim() : '';
-      const codigo = [cartao.querySelector('strong')?.textContent || '', producao].filter(Boolean).join(' · ');
+      // O mesmo que o cartão, numa linha: «C1 · BQ T194 · Lote 214 · 8326T194 · 202603» (Diogo, 04/11/2026).
+      const partes = [cartao.querySelector('strong'), ...cartao.querySelectorAll('span')]
+        .map((e) => (e ? e.textContent.trim() : '')).filter(Boolean);
+      const codigo = partes.join(' · ');
       const nova = linhaHtml(id, codigo);
       f.querySelector('.bq-varias-linhas').appendChild(nova);
       vestir(nova.querySelector('.bq-varias-codigo'), cartao);
