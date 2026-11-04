@@ -327,7 +327,7 @@ public sealed class BoquilhasRegistoQueryTests : IDisposable
     public async Task FindTrace_ReadsOnlyThePageAsked_TheTotalsCountEveryMovement()
     {
         // 30 saídas de 1, uma por hora: a página 1 tem as 10 mais recentes,
-        // a página 3 as 5 mais antigas; as contas somam as 30.
+        // a página 3 as 10 mais antigas; as contas somam as 30.
         _db.Tools.Add(new Tool { ToolId = "BQ-PAG-1", Type = ToolType.Bq, Reference = "T400", Lot = "1" });
         var trace = new BqRepairTrace { ToolId = "BQ-PAG-1" };
         _db.BqRepairTraces.Add(trace);
@@ -348,7 +348,7 @@ public sealed class BoquilhasRegistoQueryTests : IDisposable
 
         var second = (await _query.FindTraceAsync(trace.Id, movementPage: 3))!;
         Assert.Equal(3, second.MovementPageNumber);
-        Assert.Equal(5, second.Movements.Count);
+        Assert.Equal(10, second.Movements.Count);
         Assert.Equal(start, second.Movements[^1].OccurredAtUtc);
         Assert.Equal(30, second.QuantityLegitimatelyOut);
 

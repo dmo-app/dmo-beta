@@ -219,7 +219,7 @@ public partial class BoquilhasRegistoPageTests
         var first = await GetPageHtmlAsync(client, TraceUrl(trace.Id));
         Assert.Equal(10, Rows(first, "bqTraceMovements"));
         var second = await GetPageHtmlAsync(client, TraceUrl(trace.Id) + "&mov_pagina=3");
-        Assert.Equal(5, Rows(second, "bqTraceMovements"));
+        Assert.Equal(10, Rows(second, "bqTraceMovements"));
 
         var opened = await GetPageHtmlAsync(client, EditModeUrl(trace.Id, oldestId));
         Assert.Contains("Guardar correção", opened);
