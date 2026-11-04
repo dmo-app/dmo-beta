@@ -6100,3 +6100,4 @@ Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; no
 
 | `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs` › `UmRelatorioSemOMaterial_NaoApagaAsOrdensDesseMaterial` (novo) | Um relatório de fabrico que não traz um material/linha não apaga as produções desse material/linha | por correr (CI) | DMO-724 (A-0496), QD253-02, Diogo 02/11 23:46. |
 | `tests/DMO.Alpha.Web.Tests/MensagemFabricoSapTests.cs` › `MensagemFabricoSapTests.AsRetiradas_AparecemNaMensagem` (novo) | A mensagem da leitura do fabrico diz quantas produções foram retiradas | por correr (CI) | DMO-724 (A-0496). |
+| `src/DMO.Alpha.Web/Pages/JobOn/Folha.cshtml` (cartões CM/MF/BQ) | A linha «Utilização» mostra só o número anterior a amarelo, sem a palavra «antes» (deixava de sobrepor o valor no BQ) | Por ver no ensaio | DMO-731 (A-0504), Diogo 03/11 14:53. |

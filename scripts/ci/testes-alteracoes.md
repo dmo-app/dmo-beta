@@ -6527,3 +6527,12 @@ Novos: 19 · mudaram: 16 · saíram: 0
 - mudou: `tests/ShellProof/sap-estado-erro.test.cjs :: (resto do ficheiro)`
 
 Selo depois: `0e60d20c8596766d`
+## A-0504 · 2026-11-03 · ok-do-diogo
+
+Porquê: Diogo pediu tirar a palavra «antes» do uso anterior nos cartões do Job On; o teste lê o número sem a palavra
+Referência: DMO-731 A-0504, Diogo 03/11 14:53
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_MostramOUsoDaUltimaLeitura`
+
+Selo depois: `af8964511f5db861`
