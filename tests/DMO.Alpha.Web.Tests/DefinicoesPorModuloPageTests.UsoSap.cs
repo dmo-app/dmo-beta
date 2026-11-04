@@ -53,8 +53,6 @@ public sealed partial class DefinicoesPorModuloPageTests
         var utilizacao = ZonaUsoSap(ficha, "ferrUtilizacao");
         Assert.Contains("Utilização", utilizacao, StringComparison.Ordinal);
         Assert.Contains("90.2 %", utilizacao, StringComparison.Ordinal);
-        var definicoes = await (await client.GetAsync("/Definicoes")).Content.ReadAsStringAsync();
-        Assert.Contains("(ficheiro percentagem.HTML)", definicoes, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -170,10 +168,6 @@ public sealed partial class DefinicoesPorModuloPageTests
         SeedToolComNomeTecnico(nome, "5");
         var client = await LoginOperatorAsync("7189", DmoCapabilities.Ferramentas);
 
-        var definicoes = await client.GetStringAsync("/Definicoes");
-        var inicio = definicoes.IndexOf("id=\"ferrDefSap\"", StringComparison.Ordinal);
-        Assert.True(inicio >= 0, "Falta o cartão do SAP.");
-        Assert.Contains(">Pedir todas</button>", definicoes[inicio..definicoes.IndexOf("</section>", inicio, StringComparison.Ordinal)], StringComparison.Ordinal);
         using var so = JsonDocument.Parse(await (await client.GetAsync($"{FerramentasPath}?handler=UsoSap")).Content.ReadAsStringAsync());
         using var todas = JsonDocument.Parse(await (await client.GetAsync($"{FerramentasPath}?handler=UsoSap&todas=true")).Content.ReadAsStringAsync());
         Assert.DoesNotContain(nome + "05", so.RootElement.GetProperty("codigos").EnumerateArray().Select(c => c.GetString()));

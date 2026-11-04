@@ -27,6 +27,9 @@ public sealed partial class DefinicoesPorModuloPageTests
         using var admin = await LoginAdminAsync();
         var sap = await (await admin.GetAsync("/Definicoes?secao=admin&sub=sap")).Content.ReadAsStringAsync();
         Assert.Contains("id=\"admSapProcura\"", sap);
+        // O seletor «Tudo | Desatualizadas» ao lado do «Atualizar do SAP» (Diogo, 30/10/2026).
+        Assert.Contains("data-ferr-sap-escolha=\"todas\" aria-pressed=\"true\">Tudo</button>", sap);
+        Assert.Contains("data-ferr-sap-escolha=\"espera\" aria-pressed=\"false\">Desatualizadas</button>", sap);
         var token = HtmlFormHelpers.ExtractRequestVerificationToken(sap)!;
 
         var invalido = await admin.PostAsync("/Admin/Definicoes?handler=SaveSapProcura", HtmlFormHelpers.BuildFormPost(

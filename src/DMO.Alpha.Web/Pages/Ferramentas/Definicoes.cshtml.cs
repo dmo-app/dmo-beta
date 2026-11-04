@@ -147,7 +147,15 @@ public sealed class DefinicoesModel(ICodificacaoFerramentas codificacao, IFerram
     }
 
     /// <summary>O que a leitura do relatório de fabrico fez.</summary>
-    public static string MensagemFabricoSap(ImportarFabricoSapOutcome outcome) => outcome switch
+    public static string MensagemFabricoSap(ImportarFabricoSapOutcome outcome) =>
+        MensagemFabricoSapLinhas(outcome) + outcome.Retiradas switch
+        {
+            0 => "",
+            1 => " 1 produção retirada (já não vem no SAP).",
+            var n => $" {n} produções retiradas (já não vêm no SAP)."
+        };
+
+    private static string MensagemFabricoSapLinhas(ImportarFabricoSapOutcome outcome) => outcome switch
     {
         { Linhas: 0 } => "Fabrico lido do SAP: o relatório não tem nenhuma linha.",
         { Linhas: 1, Novas: 1 } => "Fabrico lido do SAP: 1 produção nova.",

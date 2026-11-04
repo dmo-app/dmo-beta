@@ -1919,6 +1919,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | Sidepanel_SurvivesTheHistoryViews | Painel das produções correntes mantém-se nas vistas do histórico | OK |  |
 | ViewDropdown_AndContextualPdfButton_AreWiredToTheGenerators | Dropdown de vistas e um só botão «Imprimir / PDF» ligado aos filtros | OK |  |
 | ReferenciaExistente_ComLoteInexistente_MostraMensagemClara_NaListaENoPdf | Referência com lote que não existe mostra mensagem clara, na lista e no PDF, sem erro | OK | A-0387 (DMO-648) |
+| (11 testes do cartão «Quantidades» em BoquilhasRegistoPageTests, BoquilhasDiscrepancyResetTests e BoquilhasOrdemTests) | O cartão «Quantidades» é igual para todas as BQ: mostra sempre BQ e AN, com «—» onde não há AN | OK | A-0491 (DMO-720) |
 
 ### `tests/DMO.Alpha.Web.Tests/Boquilhas/BoquilhasRegistoConsultasTests.cs`
 
@@ -2145,6 +2146,7 @@ Testes de uma `Theory` e testes iguais podem estar agrupados numa só linha.
 | BoquilhasRegistoPageTests.RegistarSemJobOn_ALinhaSoTemAsDaFichaDaBq_EVemJaEscolhida | Linha limitada às da ficha da BQ e já escolhida | OK |  |
 | BoquilhasRegistoPageTests.RegistarSemJobOn_NaPaginaBoquilhas_GravaEMostraOMovimento | Registar sem Job On grava BQ, linha e quantidade e mostra-o | OK |  |
 | BoquilhasRegistoPageTests.RegistarSemJobOn_NumJobOnAnterior_FicaNoRegistoDesseJobOn_EODaEntradaDizQuemRegistou | Registar em Job On anterior; Job On de outra BQ recusado | OK | Recusa JobOnErrado sem verificar explicitamente que nada grava antes do segundo envio |
+| BoquilhasRegistoPageTests.RegistarSemJobOn_PeloJobOnJaFeito_OferecePorReferenciaEProducao_ComABqELoteQueUsou | Registar sem Job On oferece escolher o Job On já feito (referência · produção · BQ · lote) | OK | A-0490 (DMO-719) |
 | BoquilhasRegistoPageTests.RegistarSemJobOn_SemQuantidade_ReabreAJanelaComAFrase | Sem Job On: quantidade 0 recusada, janela reaberta, nada grava | OK |  |
 | BoquilhasRegistoPageTests.SemJobOnTool_Label_MostraOQueIdentificaABq_PelaReferencia | Etiqueta da BQ com referência, lote, quantidade, máquinas e MF | OK |  |
 
@@ -5994,3 +5996,109 @@ Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; no
 |---|---|---|---|
 | `tests/ShellProof/jobon-folha-avisos-canto.test.cjs` (2 testes) | Nada do que a app faz hoje: afirma que os avisos dos cartões da folha do Job On vão para uma pilha própria `[data-jof-avisos-canto]`, com um × que os fecha | OBSOLETO | **Fora do `test:js` de propósito.** Prova o ramo `else` de `wwwroot/js/jobon-folha.js:859-872`, que só corre quando `window.DMOLive` não existe — e o `dmo-live.js` vem no `Pages/Shared/_DmoShellLayout.cshtml:77`, por isso na app esse ramo nunca corre. Afirma ainda o contrário do pedido do Diogo de 29/10 («deve aparecer como aparecem os alertas»), que o `jobon-folha-avisos-alerta.test.cjs` prova (A-0411); os dois não podem correr os dois. Apagar este teste **e** o ramo morto precisa do «sim» do Diogo. Ver A-0450. |
 
+
+## R10 e R16 (A-0459, DMO-692/693)
+
+| Teste | O que prova | Estado | Notas |
+|---|---|---|---|
+| `tests/DMO.Alpha.Web.Tests/PuncoesPageTests.SemBotoesNasLinhas.cs` › `Vistos_UmaLinhaEscolhe_EOsDoisBotoesDoCantoTrocam` (ajustado) | PU NNPB: nenhum botão no canto da lista; 4 botões «Visto» na tabela que enviam o Seen; × de remover por linha; 6 colunas | OK | R16, Diogo 30/10. O R10 (largura do painel em `dmo-support.js`) não tem teste automático: ver no ensaio. |
+
+## DMO-691 · A-0457 · 30/10/2026
+
+| Teste | O que garante | Estado | Registo |
+|---|---|---|---|
+| `BoquilhasHistoricoPageTests.HistoryDay_ReplacesRangePreservesFiltersAndExportsTheSameSelection` (alterado) | O Registo do dia mostra, na linha da máquina, as quantidades que saíram e entraram nesse dia (S/E/SR). | OK | A-0457 |
+| `BoquilhasHistoricoPageTests.DailySummaryGrid_RendersDayByMachine_FromTheBackend` (alterado) | O Resumo diário já não tem a linha «Total» (a soma de boquilhas diferentes por máquina). | OK | A-0457 |
+| `tests/visual/bq_historico_lista_browser.py` (alterado) | Em Boquilhas › Movimentos os cartões das linhas nunca ficam esmagados (≥70 px) e a lista mantém o cabeçalho e uma linha inteira; a 1366×768 a página não desliza; em ecrãs mais baixos pode deslizar. | OK | A-0457 |
+## Refinamentos de 30/10/2026 (R5, R8, R11, R13, R14, SAP só no ADMIN)
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| `tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs` (2 novos) | No Job On, o «antes» é o uso no início da produção (o fim da anterior, ≈ pelo produzido quando falta leitura) e o número grande o uso no fim dela | NOVO | R13 (Diogo, 30/10: «o antes está trocado») |
+| `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs` · `Ficha_FerramentasUsadas_MostramOUsoDaUltimaLeitura` | O cartão mostra a última leitura em grande e a do início como «antes» | MUDADO | R13 |
+| `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFolhaPrimeiraFilaTests.cs` · `Peso_…` e `JobOnPageTests.CoberturaA1Folha.cs` (painel) | O Peso do cabeçalho vem do SAP; o escrito à mão já não aparece | MUDADO | R14 |
+| `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Folha.cs` · `Imprimir_UsaAsPincas…` | A impressão leva as pinças e as notas da PI; sem diâmetro, as pinças no lugar dele | MUDADO | R11 |
+| `tests/visual/excel_bq_browser.py` | O Excel das Boquilhas escreve-se sozinho só às 14:00 e às 16:20 (Portugal) | MUDADO | R8, «sim» do Diogo 30/10 («continua») |
+| `DefinicoesPorModuloPageTests.*`, `DefinicoesNumSoSitioTests` | O cartão «Utilização pela produção» já não aparece nas Definições dos users; seletor «Tudo \| Desatualizadas» no Admin › SAP | MUDADO | SAP só no ADMIN (Diogo, 30/10, «sim») |
+
+
+## R1 (A-0463, DMO-695)
+
+| Teste | O que prova | Estado | Notas |
+|---|---|---|---|
+| `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.UtilizacaoReferencia.cs` › `AJanelaDaUtilizacao_MostraAReferenciaDeCadaProducao` (ajustado) | Janela Utilização: colunas Referência antes de Produção, Linha e N.º | OK | R1, Diogo 30/10. A ordem (mais antiga em cima) ver no ensaio. |
+
+## R6 (A-0468, DMO-699)
+
+| Teste | O que prova | Estado | Notas |
+|---|---|---|---|
+| `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs` › `SemAPermissao_OGeralLeSeComCadeado_ENaoGrava` (ajustado) | Sem PIN, a hora de viragem não grava; os reparadores das Boquilhas ficam fora do cadeado e gravam | OK | R6, Diogo 02/11. Fabricante/Data de aquisição: ver no ensaio (migração nova FerramentaFabricanteDataAquisicao). |
+
+## PU NNPB esquerda/direita (A-0469, DMO-700)
+
+| Teste | O que prova | Estado | Notas |
+|---|---|---|---|
+| `tests/visual/cobertura_b_browser.py` (sem mudança) | O número e o botão na mesma linha e altura; o grupo continua encostado à direita do cartão | OK | Diogo 02/11: Registar, número e lote à esquerda; o resto à direita. Só disposição. |
+
+## R4 com escolha (A-0471, DMO-701)
+
+| Teste | O que prova | Estado | Notas |
+|---|---|---|---|
+| `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs` › `Editar_muda_o_modo_da_B2` (ajustado) | A escolha à mão manda; sem escolha, as linhas e depois o nome técnico dão o modo | OK | Diogo 02/11: «quando dê para identificar selecionar o certo, caso não dê aviso». |
+| `tests/DMO.Alpha.Infrastructure.Tests/Tools/CodificacaoNasFerramentasTests.cs` › `O_nome_tecnico_da_o_modo_da_B2` (novo) | CM 44/55, MF 4T/55, BQ PX77/PX8855 | OK | |
+| `tests/DMO.Alpha.Web.Tests/PaginasDeslizamCssTests.cs` › `NenhumaPaginaFicaPresaAAlturaDaJanela` | Nenhuma regra de página no CSS junta altura do ecrã com overflow escondido: a página desliza sempre quando não cabe | OK | Vem do #367 (DMO-690); entrou pelo DMO-694 (A-0472). |
+| `tests/ShellProof/sap-estado-erro.test.cjs` (novo, 3 testes) | O aviso do «Atualizar do SAP» diz o passo que falhou, porquê, e o que correu bem; só uma parte falhada é aviso, não erro | OK | DMO-704 (A-0475), Diogo 02/11: «A leitura do SAP falhou» com a % uso gravada. |
+| `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs` › `UmPassoFalhado_OEstadoDizTambemOQueCorreuBem` (novo) | O DMO_SAP_DIARIO.vbs escreve «ok:» com os passos que correram bem | OK | DMO-704 (A-0475). |
+| `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs` › `AJanelaDoSap_VoltaAMinimizarSe` (novo) | A janela do SAP volta a minimizar-se depois de mostrada para a lista e depois da entrada | OK | DMO-704 (A-0475), Diogo 02/11: «a janela já não está a minimizar». |
+| `tests/DMO.Alpha.Infrastructure.Tests/Tools/SapSenhaGuardadaTests.cs` (novo, 3 testes) | A «Senha do SAP» só diz «guardada» quando a senha gravada se lê; cifrada com outra chave ou vazia diz «por escrever» | OK | DMO-705 (A-0476), Diogo 02/11: «meteram guardada e não estava». Sem a correção, `ComASenhaIlegivel_NaoDizGuardada` falha. |
+| `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapEscolhaNaJanela.cs` › `OTudoEDesatualizadas_FicamDentroDaJanelaDoAtualizarDoSap` (novo) | O «Tudo | Desatualizadas» está na janela do «Atualizar do SAP», antes do botão Atualizar, e já não no topo do cartão | OK | DMO-706 (A-0477), Diogo 02/11: «metemos o tudo dentro do atualizar SAP». |
+| `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs` › `NaJanelaDeEntrada_ASenhaEscreveSe` (novo, 2 casos) | Na janela de entrada (botão «Logon») a 2.ª caixa é a senha; sem caixas à vista escreve-se pelo teclado; sem «Logon» nada se escreve | OK | DMO-707 (A-0478), Diogo 02/11: parado na janela com a senha por escrever. |
+| `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapAdminUsoSap.cs` › `OAdmin_PedeOsCodigosDoSapASuaPagina_ERecebeJson` (novo) | No Admin › SAP os códigos («Tudo» e «Desatualizadas») vêm em JSON da página do Admin, e o browser do Admin pede-os lá | OK | DMO-708 (A-0479), Diogo 02/11: «Unexpected token '<'». |
+| `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs` › `Codigo3SemJanelaDoSapComEsseNome_EscrevePeloTeclado` (novo, 2 casos) | O código 3 só trava a escrita da senha se uma janela do SAP tiver o nome «Moldes Existentes»; sem nenhuma, escreve-se pelo teclado | OK | DMO-709 (A-0480), log do Diogo 02/11 12:19. |
+| `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs` › `OFabrico_SoAvancaDepoisDeEntrar_EDizNoLog` (novo) | O ecrã de entrada não conta como SAP pronto; o log diz «SAP pronto» e quantas produções gravou | OK | DMO-710 (A-0481), Diogo 02/11. |
+| `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs` › `AEntradaPeloSap_TentaSempre_EOTecladoSoComAJanelaAFrente` (novo, 2 casos) | O ecrã de entrada do SAP preenche-se sempre que aparece (máx. 2); o teclado só escreve com a janela da senha à frente | OK | DMO-711 (A-0482), Diogo 02/11 12:49. Nota: `AEntrada_PreencheSePeloProprioSap` procura o texto antigo «senhaEscrita = EntrarPeloSap()», que já não existe; continua a passar (IndexOf -1) mas fica fraco: ver PROBLEMAS. |
+| `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs` › `ComUmaJanelaDoSapAberta_OTecladoNaoEscreve` (novo, 2 casos) | Com qualquer sessão do SAP aberta o teclado não escreve; só há um `shell.SendKeys` em cada script | OK | DMO-712 (A-0483), Diogo 02/11 13:17: «AUSERREQMG», «Função impossível». |
+| `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs` › `OFabrico_ComOSapAbertoNoEcraDeEntrada_EntraPrimeiro` (novo) | Com o SAP já aberto no ecrã de entrada, o FABRICO entra pelo SAP e espera que fique pronto antes de ler | OK | DMO-713 (A-0484), log do Diogo 02/11 13:17:01. |
+| `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs` › `SemNomeTecnico_OCodigoVemDaCodificacaoPorLinha` (novo) | Sem nome técnico, o código de procura vem da Codificação por linha (referência + linha); sem linha fica de fora; nada é gravado | OK | DMO-714 (A-0485), Diogo 02/11 13:38. |
+
+## DMO-730 · A-0503 · 03/11/2026
+
+| Teste | O que garante | Estado | Registo |
+|---|---|---|---|
+| `ControloCapabilitiesCutHPageTests.Estrutura_Folha_SoOCorpoDesliza` (alterado) | A estrutura das páginas ocupa pelo menos a janela e desliza quando não cabe. | OK | A-0503 |
+| `tests/visual/cabecalho_nome_comprido_browser.py` (alterado) | O nome comprido não muda o cabeçalho nem acrescenta scroll; a folha pode deslizar na vertical. | OK | A-0503 |
+| `tests/visual/cobertura_a1_browser.py` (alterado) | A folha do Job On não desliza para o lado; na vertical a página desliza. | OK | A-0503 |
+| `tests/visual/cobertura_a2_browser.py` (alterado) | Ficha, Utilizadores e Revisão sem deslizar para o lado; na vertical deslizam. | OK | A-0503 |
+| `tests/visual/cobertura_b_browser.py` (alterado) | Punções, Pegamentos, Armazém e outras sem deslizar para o lado; na vertical deslizam e a folha dos Pegamentos aparece inteira. | OK | A-0503 |
+### `tests/DMO.Alpha.Web.Tests/JobOn/JobOnAvisosPessoaisTests.cs`
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| JobOnAvisosPessoaisTests.ArmazemDesligado_SaiSoOAvisoDoArmazem | Avisos do Job On desligados em Definições › A minha conta: o desligado sai, os outros ficam | OK | DMO-715 · A-0486 |
+| JobOnAvisosPessoaisTests.SemNadaDesligado_MostraTodos | Sem nada desligado, aparecem todos os avisos | OK | DMO-715 · A-0486 |
+| JobOnAvisosPessoaisTests.LerEEscrever_IgnoramChavesQueNaoExistem | A escolha gravada só guarda avisos que existem | OK | DMO-715 · A-0486 |
+
+| `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs` › `APercentDoSap_SubstituiAEscritaAMao_SemAviso` (novo) | A % do SAP substitui a escrita à mão (fica no histórico) e não há aviso de % | OK | DMO-716 (A-0487), Diogo 02/11 14:58 «sim». |
+| `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs` › `Sap_NaoMantemQuantidadeEUsoManual_…` e `Sap_SimUsaOPercentDoServidor…` (mudaram) | Com a % escrita à mão, a importação do SAP aplica a % e o aviso de % fica vazio; as peças continuam com aviso | OK (PostgreSQL 16 local) | DMO-716 (A-0487), ok do Diogo 02/11 14:58. |
+| `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.AvisosSap.cs` › `Sap_UmValorManualIgualAoSapContinuaProtegidoQuandoOSapMuda` (mudou) | Com a % manual, uma % do SAP diferente aplica-se e não há aviso de %; um manual novo depois fica | OK (PostgreSQL 16 local, 214 testes) | DMO-716 (A-0493), ok do Diogo 02/11 14:58; faltou no A-0487 e o CI apanhou. |
+| `tests/ShellProof/sap-estado-erro.test.cjs` › 2 testes do envio (novos) e `SapScriptsVbsTests.ODiario_SoUm200ContaComoEnviado` (novo) | Só um 200 conta como enviado; 403/500/sem rede dão «erro envio:…» e a app diz que o envio falhou e porquê | OK | DMO-723 (A-0495), QD253-01 do deep-sweep .253; Diogo 02/11 23:46 «sim 1 e 2». |
+| `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasUsoSapTests.cs` › `AListaDeTodos_LigaPeloCodigo_EAsBqPeloPadrao` (novo) | A lista «*» liga CM pelo código da Codificação e BQ pelo padrão; lote 107 não vai para o 7 | OK | DMO-717 (A-0488), Diogo 02/11 14:58 «sim». |
+| `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs` › `OUso_ProcuraTodosPrimeiro_ESaltaOsOutros_EDizOPasso` (novo) | USO procura «*» primeiro e salta as outras; USO e FABRICO escrevem o dmo-sap-passo.txt | OK | DMO-717 (A-0488). Falta ver no PC do SAP quanto demora a lista «*». |
+
+### `tests/ShellProof/bq-sem-jobon-pelo-jobon.test.cjs`
+
+| Teste | Garante | Estado | Nota |
+|---|---|---|---|
+| Escolher um Job On já feito preenche a BQ, a referência, a produção e a linha | Pelo Job On já feito: BQ·lote, referência, produção e linha ficam preenchidas | OK | A-0490 (DMO-719) |
+
+| `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs` › `RegisterMetrics_RenderFromTheBackend_NeverFromTheClient` | Sem o título «Quantidades»; a dica continua no cartão; tom ligeiro no tema claro | OK | DMO-718 (A-0489), Diogo 02/11: «está bom». Nenhum teste mudado. |
+
+| `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs` › `RegisterMany_RecordsEachLineOnItsOwnProduction_WithTheSameTime` (novo) | Várias linhas de uma vez: cada cartão grava na sua produção, com a mesma hora | OK | DMO-721 (A-0492), Diogo 02/11. |
+| `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs` › `RegisterMany_ALineWithoutQuantity_DoesNotStopTheOthers` (novo) | Uma linha sem quantidade não impede as outras e o aviso diz qual falhou | OK | DMO-721 (A-0492). |
+
+| Capturas antes/depois de 51 páginas a 1366×768, claro e escuro (fora do CI) | A limpeza do CSS, parte 1 (menos `!important` em `dmo-normalize.css` e `dmo-design.css`), não muda o aspeto. | OK | A-0494 |
+
+| `tests/DMO.Alpha.Infrastructure.Tests/Tools/FerramentasFabricoSapTests.cs` › `UmRelatorioSemOMaterial_NaoApagaAsOrdensDesseMaterial` (novo) | Um relatório de fabrico que não traz um material/linha não apaga as produções desse material/linha | por correr (CI) | DMO-724 (A-0496), QD253-02, Diogo 02/11 23:46. |
+| `tests/DMO.Alpha.Web.Tests/MensagemFabricoSapTests.cs` › `MensagemFabricoSapTests.AsRetiradas_AparecemNaMensagem` (novo) | A mensagem da leitura do fabrico diz quantas produções foram retiradas | por correr (CI) | DMO-724 (A-0496). |
+| `src/DMO.Alpha.Web/Pages/JobOn/Folha.cshtml` (cartões CM/MF/BQ) | A linha «Utilização» mostra só o número anterior a amarelo, sem a palavra «antes» (deixava de sobrepor o valor no BQ) | Por ver no ensaio | DMO-731 (A-0504), Diogo 03/11 14:53. |
+| Capturas antes/depois de 51 páginas a 1366×768, claro e escuro (fora do CI) | A limpeza do CSS, parte 3 (menos `!important` em `d1366-boquilhas-ferramentas.css` e `dmo-ferramenta-form.css`), não muda o aspeto. | OK | A-0499 |
