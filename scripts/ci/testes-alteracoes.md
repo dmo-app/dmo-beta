@@ -6619,3 +6619,12 @@ Novos: 6 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `e37630bab1377d01`
+
+## A-0514 · 2026-11-04 · teste-novo
+
+Porquê: DMO-741: com o SAP a ser usado, o FABRICO lê numa janela nova e o USO abre a ZPPG numa janela nova; motivos no log
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.ComOSapASerUsado_LeNumaJanelaNova_EDizPorqueFalhou`
+
+Selo depois: `2cad57a8fa8b26cb`

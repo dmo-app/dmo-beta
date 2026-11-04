@@ -149,6 +149,8 @@ entradasSap = 0
 ' Mesmo com o SAP já aberto, o atalho pode abrir a janela da senha (Diogo,
 ' 29/10/2026: «o sap já estava aberto», ficou preso na senha): escreve-se se ela aparecer.
 senhaEscrita = False
+Dim zppgPedida
+zppgPedida = False
 Do
     ' A janela da senha: escrever a senha e carregar em Logon.
     ' Primeiro pelo próprio SAP (o ecrã de entrada tem as caixas
@@ -189,8 +191,18 @@ Do
 
     If Not searchField Is Nothing Then Exit Do
 
+    ' DMO-741 (oficial, 04/11/2026 12:14): com o SAP já aberto, o atalho
+    ' entrou (logon múltiplo) mas a ZPPG não apareceu e esperou 5 minutos.
+    ' Ao fim de 90 segundos abre-se a ZPPG numa janela nova de um SAP já
+    ' entrado, sem mexer nas janelas de quem o usa.
+    If Not zppgPedida And ElapsedSeconds(startedAt) >= 90 Then
+        zppgPedida = True
+        AbrirZppgNumaJanelaNova
+    End If
+
     If ElapsedSeconds(startedAt) >= SAP_WAIT_SECONDS Then
-        MsgBox "O SAP abriu, mas o ecrã da ZPPG não ficou pronto em " & SAP_WAIT_SECONDS & " segundos.", 16, TITULO
+        Registo "falhou: o ecrã da ZPPG não ficou pronto em " & SAP_WAIT_SECONDS & " segundos; janelas do SAP: " & JanelasSap()
+        If Not automatico Then MsgBox "O SAP abriu, mas o ecrã da ZPPG não ficou pronto em " & SAP_WAIT_SECONDS & " segundos.", 16, TITULO
         WScript.Quit 1
     End If
 
@@ -366,6 +378,78 @@ Sub MinimizarSap(ByVal usada)
 End Sub
 
 ' A sessão que já está na ZPPG (a que o atalho abriu, ou outra já aberta).
+' Uma janela nova (CreateSession) num SAP já entrado, com /nzppg (DMO-741).
+Sub AbrirZppgNumaJanelaNova()
+    Dim gui, motor, c, s, base, antes, comeco, nova
+    On Error Resume Next
+    Set gui = GetObject("SAPGUI")
+    Set motor = gui.GetScriptingEngine
+    Set base = Nothing
+    For Each c In motor.Children
+        For Each s In c.Children
+            If base Is Nothing Then
+                If Not CampoSap(s, "wnd[0]/tbar[0]/okcd") Is Nothing And CampoSap(s, "wnd[0]/usr/pwdRSYST-BCODE") Is Nothing Then Set base = s
+            End If
+            Err.Clear
+        Next
+    Next
+    If base Is Nothing Then
+        Registo "a ZPPG não apareceu e não há nenhum SAP entrado para abrir outra janela"
+        Err.Clear
+        On Error GoTo 0
+        Exit Sub
+    End If
+    Registo "a ZPPG não apareceu: a abrir a ZPPG numa janela nova do SAP"
+    Set c = base.Parent
+    antes = c.Children.Count
+    base.CreateSession
+    comeco = Timer
+    Set nova = Nothing
+    Do While ElapsedSeconds(comeco) < 20
+        WScript.Sleep 1000
+        If c.Children.Count > antes Then Set nova = c.Children(c.Children.Count - 1)
+        If Not nova Is Nothing Then Exit Do
+        Err.Clear
+    Loop
+    If Not nova Is Nothing Then
+        WScript.Sleep 1000
+        nova.findById("wnd[0]/tbar[0]/okcd").text = "/nzppg"
+        nova.findById("wnd[0]").sendVKey 0
+    End If
+    Err.Clear
+    On Error GoTo 0
+End Sub
+
+' O controlo do SAP ou Nothing, sem erro.
+Function CampoSap(ByVal sapSession, ByVal id)
+    Set CampoSap = Nothing
+    On Error Resume Next
+    Set CampoSap = sapSession.findById(id)
+    If Err.Number <> 0 Then Set CampoSap = Nothing
+    Err.Clear
+    On Error GoTo 0
+End Function
+
+' Os títulos das janelas do SAP abertas, para o dmo-sap.log.
+Function JanelasSap()
+    Dim gui, motor, c, s, t
+    JanelasSap = ""
+    On Error Resume Next
+    Set gui = GetObject("SAPGUI")
+    Set motor = gui.GetScriptingEngine
+    For Each c In motor.Children
+        For Each s In c.Children
+            t = ""
+            t = s.findById("wnd[0]").Text
+            JanelasSap = JanelasSap & "«" & t & "» "
+            Err.Clear
+        Next
+    Next
+    If JanelasSap = "" Then JanelasSap = "nenhuma"
+    Err.Clear
+    On Error GoTo 0
+End Function
+
 Function ProcurarSessaoZppg(ByVal app)
     Dim c, s, campo
     Set ProcurarSessaoZppg = Nothing

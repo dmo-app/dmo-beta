@@ -141,6 +141,15 @@ Err.Clear
 On Error GoTo 0
 Registo "SAP pronto (" & tituloSap & ")"
 
+' DMO-741 (oficial, 04/11/2026 12:13): o SAP aberto estava a ser usado
+' noutra transação («Fornecimento s/ref. Criar») e o /nzfmd ia por cima do
+' trabalho de quem o usa. Numa transação que não é o menu nem a ZFMD, abre-se
+' outra janela do SAP para a leitura e a do utilizador fica como está.
+Dim janelaNova
+janelaNova = False
+Set session = SessaoParaLer(session)
+If session Is Nothing Then Falhar "O SAP está a ser usado e não foi possível abrir outra janela do SAP."
+
 ' Minimizar o SAP (Diogo, 22/10/2026: correr com a página minimizada).
 MinimizarSap session
 
@@ -227,9 +236,13 @@ stream.Close
 fso.MoveFile temporario, saida
 Registo total & " produções gravadas em " & fso.GetFileName(saida)
 
-' Voltar ao menu do SAP.
+' Voltar ao menu do SAP; a janela aberta só para a leitura fecha-se (/i).
 On Error Resume Next
-session.findById("wnd[0]/tbar[0]/okcd").text = "/n"
+If janelaNova Then
+    session.findById("wnd[0]/tbar[0]/okcd").text = "/i"
+Else
+    session.findById("wnd[0]/tbar[0]/okcd").text = "/n"
+End If
 session.findById("wnd[0]").sendVKey 0
 Err.Clear
 On Error GoTo 0
@@ -263,6 +276,66 @@ Function PrimeiraSessao()
             Next
         Next
     End If
+    Err.Clear
+    On Error GoTo 0
+End Function
+
+' A sessão onde ler: a dada se estiver no menu do SAP ou já na ZFMD; senão
+' outra janela livre da mesma ligação; senão uma janela nova (CreateSession).
+Function SessaoParaLer(ByVal usada)
+    Dim cn, s, antes, comeco
+    Set SessaoParaLer = usada
+    If SessaoLivre(usada) Then Exit Function
+    Registo "o SAP está a ser usado (" & TituloDe(usada) & "): a abrir outra janela do SAP"
+    Set SessaoParaLer = Nothing
+    On Error Resume Next
+    Set cn = usada.Parent
+    For Each s In cn.Children
+        If SessaoLivre(s) Then
+            Set SessaoParaLer = s
+            Err.Clear
+            On Error GoTo 0
+            Exit Function
+        End If
+    Next
+    antes = cn.Children.Count
+    usada.CreateSession
+    Err.Clear
+    comeco = Timer
+    Do While ElapsedSeconds(comeco) < 20
+        WScript.Sleep 1000
+        If cn.Children.Count > antes Then
+            Set s = cn.Children(cn.Children.Count - 1)
+            If Not Campo(s, "wnd[0]/tbar[0]/okcd") Is Nothing Then
+                Set SessaoParaLer = s
+                janelaNova = True
+                Exit Do
+            End If
+        End If
+        Err.Clear
+    Loop
+    Err.Clear
+    On Error GoTo 0
+End Function
+
+' Livre: no menu do SAP (SESSION_MANAGER/SMEN) ou já na ZFMD, sem janela por cima.
+Function SessaoLivre(ByVal s)
+    Dim t
+    SessaoLivre = False
+    On Error Resume Next
+    t = UCase(s.Info.Transaction)
+    If Err.Number = 0 Then
+        SessaoLivre = (t = "SESSION_MANAGER" Or t = "SMEN" Or t = "ZFMD" Or t = "S000") _
+            And Campo(s, "wnd[1]") Is Nothing
+    End If
+    Err.Clear
+    On Error GoTo 0
+End Function
+
+Function TituloDe(ByVal s)
+    TituloDe = ""
+    On Error Resume Next
+    TituloDe = s.findById("wnd[0]").Text
     Err.Clear
     On Error GoTo 0
 End Function
@@ -301,6 +374,8 @@ Function Limpo(ByVal texto)
 End Function
 
 Sub Falhar(ByVal mensagem)
+    ' DMO-741: o motivo fica no dmo-sap.log (antes só «acabou (código 1)»).
+    Registo "falhou: " & Replace(mensagem, vbCrLf, " ")
     If Not automatico Then MsgBox mensagem, 16, TITULO
     WScript.Quit 1
 End Sub

@@ -1,5 +1,5 @@
 {
-  "selo": "e37630bab1377d01",
+  "selo": "2cad57a8fa8b26cb",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -3259,6 +3259,7 @@
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.AEntrada_PreencheSePeloProprioSap": "aeb93a01c19509a0",
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.AJanelaDoSap_VoltaAMinimizarSe": "0a90b26b6dab6b92",
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.Codigo3SemJanelaDoSapComEsseNome_EscrevePeloTeclado": "5bbd1284889d26a0",
+    "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.ComOSapASerUsado_LeNumaJanelaNova_EDizPorqueFalhou": "e0776fe2a952522e",
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.ComUmaJanelaDoSapAberta_OTecladoNaoEscreve": "15361a17284b044f",
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.NaJanelaDeEntrada_ASenhaEscreveSe": "2147e765befd0077",
     "tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.ODiario_SoUm200ContaComoEnviado": "cb85f7648e9dbace",

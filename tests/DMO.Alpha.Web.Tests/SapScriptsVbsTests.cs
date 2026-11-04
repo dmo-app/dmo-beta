@@ -272,4 +272,32 @@ public sealed class SapScriptsVbsTests
         Assert.Contains("Falhar \"envio\", \"rede\"", enviar);
         Assert.True(vbs.IndexOf("EnviarNovos \"dmo-uso-sap-\"", StringComparison.Ordinal) < vbs.IndexOf("If erroGeral = \"\" Then", StringComparison.Ordinal));
     }
+
+    // DMO-741 (oficial, 04/11/2026 12:13): com o SAP a ser usado noutra transação, o FABRICO ia
+    // por cima («/nzfmd» na janela de quem o usa) e falhava sem dizer porquê; o USO esperou 5 min
+    // pela ZPPG. Agora: outra janela para ler, o motivo no log, e a ZPPG numa janela nova aos 90 s.
+    [Fact]
+    public void ComOSapASerUsado_LeNumaJanelaNova_EDizPorqueFalhou()
+    {
+        string Ler(string nome)
+        {
+            using var stream = typeof(SapScripts).Assembly.GetManifestResourceStream(nome)!;
+            return new StreamReader(stream).ReadToEnd();
+        }
+
+        var fabrico = Ler("Sap.DMO_FABRICO_SAP.vbs");
+        var escolha = fabrico.IndexOf("Set session = SessaoParaLer(session)", StringComparison.Ordinal);
+        var zfmd = fabrico.IndexOf("session.findById(\"wnd[0]/tbar[0]/okcd\").text = \"/nzfmd\"", StringComparison.Ordinal);
+        Assert.True(escolha > 0 && zfmd > escolha, "a sessão para ler escolhe-se antes do /nzfmd");
+        Assert.Contains("t = \"SESSION_MANAGER\" Or t = \"SMEN\" Or t = \"ZFMD\"", fabrico);
+        Assert.Contains("usada.CreateSession", fabrico);
+        Assert.Contains("If janelaNova Then", fabrico);
+        Assert.Contains("Registo \"falhou: \" & Replace(mensagem, vbCrLf, \" \")", fabrico);
+
+        var uso = Ler("Sap.DMO_USO_SAP.vbs");
+        Assert.Contains("If Not zppgPedida And ElapsedSeconds(startedAt) >= 90 Then", uso);
+        Assert.Contains("nova.findById(\"wnd[0]/tbar[0]/okcd\").text = \"/nzppg\"", uso);
+        Assert.Contains("Registo \"falhou: o ecrã da ZPPG não ficou pronto em \"", uso);
+        Assert.Contains("If Not automatico Then MsgBox \"O SAP abriu, mas o ecrã da ZPPG", uso);
+    }
 }
