@@ -426,7 +426,7 @@ html:root body .jof2.jof2 .jof-artigo-escolher:hover{outline-color:var(--dmo-bor
   html[data-dmo-embedded="true"]:root body main.jof2.jof2.jof2{min-height:100vh}
   html:root body main.jof2.jof2.jof2>.wrap{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;width:100%;box-sizing:border-box;padding-bottom:4px}
   html:root body main.jof2.jof2.jof2>.wrap>*{flex:none}
-  html:root body main.jof2.jof2.jof2>.wrap>.sheet{flex:1 0 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+  html:root body main.jof2.jof2.jof2>.wrap>.sheet{flex:1 0 auto;min-height:0;overflow-y:auto;scrollbar-width:thin}
   /* Uma nota muito comprida não estica o cartão para lá do ecrã: fica com a altura do ecrã menos o cabeçalho e
      desliza por dentro; aberta, a nota usa quase o ecrã todo e fica sempre maior do que fechada. */
   html:root body .jof2.jof2.jof2.jof2.jof2.jof2:not(.editing) .sec>.note-box.note-view:not(.is-ampliada)>p{flex:1 1 auto !important;max-height:calc(100vh - 230px) !important;overflow-y:auto}
