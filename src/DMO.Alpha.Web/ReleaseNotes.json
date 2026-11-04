@@ -687,7 +687,8 @@
     { "id": "DMO-738", "module": "Job On", "description": "Job On › Editar: a lista para escolher a CM, a MF ou a BQ alarga-se para mostrar o texto todo (por ex. «T269 · Lote 10 · B3 · 72%»), sem sair do ecrã, também a meio ecrã. Ficha da ferramenta › Editar: o seletor «B2» fica à altura dos botões das linhas." },
     { "id": "DMO-740", "module": "Admin", "description": "Admin › SAP › Pasta do SAP neste computador: o passo do SAP volta a mostrar os acentos («a ler as produções (ZFMD)»), em vez de letras estranhas. Carregar outra vez em «Instalar» para os scripts novos." },
     { "id": "DMO-741", "module": "SAP", "description": "(A-0514): com o SAP a ser usado noutra transação, a leitura das produções abre outra janela do SAP em vez de ir por cima do trabalho; a % de uso abre a ZPPG numa janela nova se o atalho não a abrir; o motivo de cada falha fica no dmo-sap.log." },
-    { "id": "DMO-744", "module": "Boquilhas", "description": "(A-0517): o Registo é sempre de várias linhas (sem o botão «Várias linhas»): escolhe uma ou mais linhas nos cartões, que ficam na cor viva da linha; Saída, Entrada ou Entrada sem reparação em cima; os cartões na lista ficam centrados e a página não salta ao escolher." }
+    { "id": "DMO-744", "module": "Boquilhas", "description": "(A-0517): o Registo é sempre de várias linhas (sem o botão «Várias linhas»): escolhe uma ou mais linhas nos cartões, que ficam na cor viva da linha; Saída, Entrada ou Entrada sem reparação em cima; os cartões na lista ficam centrados e a página não salta ao escolher." },
+    { "id": "DMO-746", "module": "Boquilhas", "description": "(A-0519): no Registo, cada linha escolhida mostra o mesmo que o cartão numa linha: linha, BQ, lote, referência e produção." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
