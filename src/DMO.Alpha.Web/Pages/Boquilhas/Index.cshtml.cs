@@ -707,6 +707,14 @@ public sealed partial class IndexModel : PageModel
         // Histórico o painel ficava sem informação.
         Currents = await _currentQuery.ListAsync(HttpContext.RequestAborted);
 
+        // Os últimos registos por baixo de «Várias linhas» (Diogo, 02/11/2026).
+        // Só com «Várias linhas» ligado (?varias=1): as outras vistas não pagam esta consulta.
+        if (Request.Query["varias"] == "1")
+        {
+            UltimosRegistos = await _history.ListMovementsAsync(
+                null, null, null, null, null, null, HttpContext.RequestAborted, limit: 8);
+        }
+
         // A VISTA DO HISTÓRICO (o Owner: «o calendario pertence ao
         // historico das boquilhas, para conseguirmos carregar num dia e ver
         // os movimentos desse dia. depois poder filtrar por reparador
@@ -1513,6 +1521,84 @@ public sealed partial class IndexModel : PageModel
             ("quantity", quantity),
             ("quantity_an", anQuantity),
             ("data_antiga", occurredValidLocal is DateTime escrita ? LocalFieldValue(escrita) : null)));
+    }
+
+    // VÁRIAS LINHAS DE UMA VEZ (Diogo, 02/11/2026, DMO-721): escolhem-se os
+    // cartões das linhas no painel, cada um com o seu movimento, e o reparador
+    // e a hora são os mesmos para todos. Cada linha grava no registo da
+    // produção que está nela (o bq_id do cartão), pelo MESMO handler do
+    // registo de um movimento. Uma linha recusada não impede as outras.
+    public IReadOnlyList<BqHistoryMovementItem> UltimosRegistos { get; private set; } = [];
+    [BindProperty(SupportsGet = true, Name = "varias_ok")] public string? VariasOk { get; set; }
+    [BindProperty(SupportsGet = true, Name = "varias_falhou")] public string? VariasFalhou { get; set; }
+
+    public async Task<IActionResult> OnPostRegisterManyAsync(
+        [FromForm(Name = "linha_bq_id")] int[]? bqIds,
+        [FromForm(Name = "movement_type")] string? tipo,
+        [FromForm(Name = "linha_qtd")] string[]? quantidades,
+        [FromForm(Name = "linha_qtd_sr")] string[]? quantidadesSemReparacao,
+        [FromForm(Name = "linha_qtd_an")] string[]? quantidadesAn,
+        [FromForm(Name = "occurred_at")] string? occurredAt)
+    {
+        if (User?.Identity?.IsAuthenticated != true)
+        {
+            return Challenge();
+        }
+
+        DateTime? occurredAtUtc = null;
+        if (!string.IsNullOrWhiteSpace(occurredAt)
+            && DateTime.TryParse(occurredAt, CultureInfo.InvariantCulture, DateTimeStyles.None, out var local))
+        {
+            occurredAtUtc = DMO.Alpha.Core.Runtime.DmoBusinessTime.ToUtc(
+                DMO.Alpha.Core.Runtime.DmoBusinessTime.NextValidLocal(local, out _));
+        }
+
+        var currents = await _currentQuery.ListAsync(HttpContext.RequestAborted);
+        var operatorId = User.FindFirst(DmoClaimTypes.OperatorId)?.Value;
+        var ok = new List<string>();
+        var falhou = new List<string>();
+        bqIds ??= [];
+        for (var i = 0; i < bqIds.Length; i++)
+        {
+            var linha = currents.FirstOrDefault(c => c.BqContextId == bqIds[i]);
+            var nome = linha?.MachineCode ?? "?";
+            // Com Entrada, a mesma linha pode ter reparadas e sem reparação
+            // (Diogo, 02/11/2026: «entrou 30 reparadas e 22 sem reparação»).
+            var movimentos = new List<(string Tipo, string? Qtd)>
+            {
+                (tipo ?? string.Empty, quantidades?.ElementAtOrDefault(i))
+            };
+            if (tipo == "entrada")
+            {
+                movimentos.Add(("entrada_sem_reparacao", quantidadesSemReparacao?.ElementAtOrDefault(i)));
+            }
+            movimentos.RemoveAll(m => string.IsNullOrWhiteSpace(m.Qtd));
+            if (movimentos.Count == 0
+                || movimentos.Any(m => !int.TryParse(m.Qtd, out var q) || q < 1)
+                || !TryReadAnQuantity(quantidadesAn?.ElementAtOrDefault(i), out var an))
+            {
+                falhou.Add(nome);
+                continue;
+            }
+
+            var tudoBem = true;
+            for (var m = 0; m < movimentos.Count; m++)
+            {
+                var outcome = await _movementHandler.HandleForContextAsync(
+                    new RegisterBqMovementForContext(bqIds[i], movimentos[m].Tipo, int.Parse(movimentos[m].Qtd!), operatorId,
+                        occurredAtUtc, linha?.MachineId, m == 0 ? an : null),
+                    HttpContext.RequestAborted);
+                tudoBem &= outcome.Result == RegisterBqMovementResult.Success;
+            }
+            (tudoBem ? ok : falhou).Add(nome);
+        }
+
+        return RedirectToPage("/Boquilhas/Index", new
+        {
+            varias = 1,
+            varias_ok = ok.Count == 0 ? null : string.Join(", ", ok),
+            varias_falhou = falhou.Count == 0 ? null : string.Join(", ", falhou)
+        });
     }
 
     /// <summary>

@@ -37,7 +37,7 @@ public partial class BoquilhasRegistoPageTests
         Assert.Null(movements.Single(m => m.Quantity == 15).Discrepancy);
 
         var html = await GetPageHtmlAsync(client, TraceUrl(trace.Id));
-        Assert.Contains("<span>Em reparação</span><strong>5</strong>", html);
+        Assert.Contains("<span>Em reparação</span><strong>5<small class=\"bq-peca\">BQ</small>", html);
         var table = html[html.IndexOf("id=\"bqTraceMovements\"", StringComparison.Ordinal)..];
         table = table[..table.IndexOf("</table>", StringComparison.Ordinal)];
         // Os mais recentes no topo: 12:45 entrada, 12:45 saída, 08:21 entrada, 08:21 saída.
