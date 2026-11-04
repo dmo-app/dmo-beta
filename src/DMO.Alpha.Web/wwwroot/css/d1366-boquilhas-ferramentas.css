@@ -51,6 +51,10 @@ html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-ref :is
 html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>:is(.ferr-w-lot,.ferr-w-qty) input{width:56px !important;min-width:0}
 html body :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-b2{flex:0 0 auto;width:auto}
 html body :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-b2 select{width:128px !important;min-width:0}
+/* O seletor B2 à altura dos botões das Linhas compatíveis (Diogo, 04/11/2026: «alinhas dropdown da b2»):
+   os dois rótulos com a mesma altura e o seletor desce o que os botões descem (6 px do rótulo + 4 px da fila). */
+html body .ferr-create-row-machines>.dmo-field>:is(.dmo-label,label){line-height:16px}
+html body .ferr-create-row-machines>.ferr-w-b2>select{margin-top:10px}
 html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-uso input{width:56px !important;min-width:0}
 html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-uso input.ferr-sem-registo-campo{width:92px !important;padding-inline:8px}
 html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-sap input{width:164px;min-width:0;padding-inline:10px}

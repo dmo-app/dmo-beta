@@ -271,7 +271,7 @@
           }
           @if (editar)
           {
-            <div class="jof-tool-procura" data-jof-tool-procura hidden>
+            <div class="jof-tool-procura" data-jof-tool-procura data-dmo-suggest-largo hidden>
               <select name="@(tipo.ToLowerInvariant())_tool_id" data-facts-type="@tipo" data-dmo-filter aria-label="Mudar @tipo: escreva a referência">
                 <!option value="">Escreva a referência da @tipo</!option>
                 @if (toolId is not null)

@@ -1,5 +1,5 @@
 {
-  "selo": "9b64a2c6d8bb8e42",
+  "selo": "2c047a0a45efdcc9",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -3414,6 +3414,12 @@
     "tests/ShellProof/dmo-suggest-abort.test.cjs :: limpar o campo cancela o pedido em voo": "1f9ec38dd92cbbb6",
     "tests/ShellProof/dmo-suggest-abort.test.cjs :: sair do campo cancela o pedido em voo": "b1892a4f82baa90d",
     "tests/ShellProof/dmo-suggest-abort.test.cjs :: um pedido cancelado não mostra mensagem de erro": "978d42a46322ab5f",
+    "tests/ShellProof/dmo-suggest-largo.test.cjs :: (resto do ficheiro)": "b641fe05f4a5c217",
+    "tests/ShellProof/dmo-suggest-largo.test.cjs :: a lista das ferramentas do Job On fica com a largura do texto todo": "a742bd0c12146e34",
+    "tests/ShellProof/dmo-suggest-largo.test.cjs :: a meio ecrã a lista larga encosta à esquerda para não sair do ecrã": "b78553d9d419ddd4",
+    "tests/ShellProof/dmo-suggest-largo.test.cjs :: as outras listas continuam com a largura do campo": "4281d71b3a705251",
+    "tests/ShellProof/dmo-suggest-largo.test.cjs :: com texto curto a lista nunca fica mais estreita do que o campo": "64da1f47df72c98f",
+    "tests/ShellProof/dmo-suggest-largo.test.cjs :: com texto mais largo do que o ecrã a lista fica com a largura do ecrã": "79566e6aa4103fd5",
     "tests/ShellProof/dmo-suggest-sair.test.cjs :: (resto do ficheiro)": "4b0117618377ca5b",
     "tests/ShellProof/dmo-suggest-sair.test.cjs :: sair da página cancela o pedido em voo": "5b23f8e360c027cf",
     "tests/ShellProof/dmo-suggest-sair.test.cjs :: trocar a zona do campo 25 vezes deixa um só «pagehide» e sair da página ainda cancela o pedido": "2ec007f986caf493",
@@ -3524,7 +3530,7 @@
     "tests/ShellProof/jobon-tool-picker.test.cjs :: «Criar BQ» abre o registo das Ferramentas com a máquina da folha no momento do clique": "2747f0dc6012fecf",
     "tests/ShellProof/jobon-tool-picker.test.cjs :: «Mostrar todas as ferramentas» só pede o catálogo inteiro quando está marcado": "61d6174d62480996",
     "tests/ShellProof/package-lock.json": "8cabd09c7635d204",
-    "tests/ShellProof/package.json": "c19ae4b33bc16524",
+    "tests/ShellProof/package.json": "d0d2a5414e61ff00",
     "tests/ShellProof/painel-apoio-alteracoes.test.cjs :: (resto do ficheiro)": "746debc2c59fb275",
     "tests/ShellProof/painel-apoio-alteracoes.test.cjs :: Painel de apoio: um <dmo-painel> com alterações por guardar fica com o aviso e o apoio não abre por cima": "0b2b99e6fc3e1cbc",
     "tests/ShellProof/painel-estrutura.test.cjs :: (resto do ficheiro)": "c525db31e3b4284e",

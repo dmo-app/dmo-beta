@@ -6588,3 +6588,18 @@ Novos: 0 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasMovementCorrectionTests.cs :: BoquilhasRegistoPageTests.Registo_ShowsOnlyThePageAsked_AndAMovementFromAnotherPageOpensToCorrect`
 
 Selo depois: `9b64a2c6d8bb8e42`
+
+## A-0511 · 2026-11-04 · contagem-lista
+
+Porquê: Teste novo dmo-suggest-largo.test.cjs acrescentado à lista do test:js; nenhum teste muda.
+Novos: 6 · mudaram: 1 · saíram: 0
+
+- novo: `tests/ShellProof/dmo-suggest-largo.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/dmo-suggest-largo.test.cjs :: a lista das ferramentas do Job On fica com a largura do texto todo`
+- novo: `tests/ShellProof/dmo-suggest-largo.test.cjs :: a meio ecrã a lista larga encosta à esquerda para não sair do ecrã`
+- novo: `tests/ShellProof/dmo-suggest-largo.test.cjs :: as outras listas continuam com a largura do campo`
+- novo: `tests/ShellProof/dmo-suggest-largo.test.cjs :: com texto curto a lista nunca fica mais estreita do que o campo`
+- novo: `tests/ShellProof/dmo-suggest-largo.test.cjs :: com texto mais largo do que o ecrã a lista fica com a largura do ecrã`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `2c047a0a45efdcc9`

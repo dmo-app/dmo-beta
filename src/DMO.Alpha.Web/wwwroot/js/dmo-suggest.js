@@ -78,8 +78,19 @@
       var above = rect.top - GAP * 2;
       var up = below < want && above > below;
       var room = Math.max(MIN_ROOM, Math.min(cap, up ? above : below));
-      list.style.left = rect.left + "px";
-      list.style.width = rect.width + "px";
+      // Com data-dmo-suggest-largo (as ferramentas do Job On; Diogo, 04/11/2026: «expandir
+      // largura do dropdown para mostrar tudo»), a lista fica tão larga quanto o texto mais
+      // comprido, nunca mais estreita do que o campo, e encosta à esquerda para não sair do ecrã.
+      var width = rect.width;
+      var left = rect.left;
+      if (field.closest("[data-dmo-suggest-largo]")) {
+        var screen = document.documentElement.clientWidth || window.innerWidth;
+        list.style.width = "max-content";
+        width = Math.min(Math.max(rect.width, list.getBoundingClientRect().width), screen - GAP * 2);
+        left = Math.max(GAP, Math.min(rect.left, screen - GAP - width));
+      }
+      list.style.left = left + "px";
+      list.style.width = width + "px";
       list.style.maxHeight = room + "px";
       list.style.top = up
         ? (rect.top - GAP - Math.min(list.scrollHeight, room)) + "px"
