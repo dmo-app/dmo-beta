@@ -5,12 +5,13 @@
 const { chromium } = require('playwright');
 const base = process.argv[2] || 'http://127.0.0.1:5080';
 const contas = [
-  { email: 'operador@teste.local', paginas: ['/JobOn', '/Boquilhas', '/Boquilhas?historico=1&vista=movimentos',
+  { email: 'operador@teste.local', paginas: ['/JobOn', '/JobOn/Folha?jobon_id=1', '/JobOn/Folha?jobon_id=1&editar=1', '/Boquilhas', '/Boquilhas?historico=1&vista=movimentos',
     '/Ferramentas', '/Armazem/Ultimos', '/Armazem/Movimentos', '/Armazem/Pesquisar', '/Controlo/Approve', '/Controlo/Peso',
     '/Controlo/Pegamentos', '/Controlo/Puncoes', '/Controlo/Resumo', '/ReparacaoInterna', '/Definicoes'] },
   { email: 'admin@teste.local', paginas: ['/Admin', '/Admin/Users', '/Admin/Templates', '/Admin/Registos', '/Definicoes'] },
 ];
-const ecras = [{ nome: '1366', width: 1366, height: 768 }, { nome: 'meio', width: 683, height: 768 }];
+// Ecrã de 1366×768 com o Chrome aberto (barras, separadores, barra do Windows) deixa ~657 px para a página.
+const ecras = [{ nome: '1366', width: 1366, height: 657 }, { nome: 'meio', width: 683, height: 657 }];
 (async () => {
   const browser = await chromium.launch();
   let falhas = 0;
@@ -43,10 +44,25 @@ const ecras = [{ nome: '1366', width: 1366, height: 768 }, { nome: 'meio', width
         }
         return { precisa, chegou, largura, alt: el.scrollHeight, presas };
       });
-      const ok = estado < 400 && !page.url().includes('/login') && (!s.precisa || s.chegou) && s.presas.length === 0 && erros.length === 0;
+      // Roda do rato a sério: no meio do ecrã, desce; alguma coisa tem de mexer se houver o que deslizar.
+      await page.evaluate(() => { document.querySelectorAll('*').forEach(e => { e.scrollTop = 0; }); scrollTo(0, 0); });
+      await page.waitForTimeout(100);
+      const antes = await page.evaluate(() => [...document.querySelectorAll('*')].map(e => e.scrollTop).join(',') + '|' + scrollY);
+      await page.mouse.move(ecra.width / 2, ecra.height * 0.6);
+      for (let i = 0; i < 10; i++) { await page.mouse.wheel(0, 300); await page.waitForTimeout(40); }
+      await page.waitForTimeout(250);
+      const roda = await page.evaluate((antes) => {
+        const agora = [...document.querySelectorAll('*')].map(e => e.scrollTop).join(',') + '|' + scrollY;
+        const haQueDeslizar = document.scrollingElement.scrollHeight > innerHeight + 2 ||
+          [...document.querySelectorAll('*')].some(e => e.clientHeight > 150 && e.scrollHeight > e.clientHeight + 20 &&
+            /auto|scroll/.test(getComputedStyle(e).overflowY));
+        return { mexeu: agora !== antes, haQueDeslizar };
+      }, antes);
+      s.rodaPresa = roda.haQueDeslizar && !roda.mexeu;
+      const ok = !s.rodaPresa && estado < 400 && !page.url().includes('/login') && (!s.precisa || s.chegou) && s.presas.length === 0 && erros.length === 0;
       if (!ok) falhas++;
       console.log(`${ok ? 'OK   ' : 'FALHA'} ${ecra.nome} ${conta.email.split('@')[0]} ${p} http=${estado}` +
-        ` altura=${s.alt}${s.precisa ? (s.chegou ? ' scroll=ok' : ' scroll=PRESO') : ''}${s.largura ? ' (desliza para o lado)' : ''}${s.presas.length ? ' PRESO=' + s.presas.slice(0,3).join(',') : ''}` +
+        ` altura=${s.alt}${s.precisa ? (s.chegou ? ' scroll=ok' : ' scroll=PRESO') : ''}${s.largura ? ' (desliza para o lado)' : ''}${s.rodaPresa ? ' RODA-DO-RATO-PRESA' : ''}${s.presas.length ? ' PRESO=' + s.presas.slice(0,3).join(',') : ''}` +
         `${erros.length ? ' js=' + erros[0] : ''}${page.url().includes('/login') ? ' (mandou para o login)' : ''}`);
     }
     await page.close();
