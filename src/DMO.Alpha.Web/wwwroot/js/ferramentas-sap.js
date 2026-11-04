@@ -84,6 +84,26 @@
   }
   window.DMOSapErro = erroSap;
 
+  // O texto de um ficheiro da pasta (DMO-740, Diogo 04/11/2026: «SAP: a ler as
+  // produ��es»). Os scripts do SAP gravam em UTF-16 ou UTF-8, mas o
+  // CreateTextFile do VBScript e o próprio SAP podem gravar em Windows-1252:
+  // lido como UTF-8, cada acento virava «�». Igual ao SapScripts.Texto do servidor.
+  function textoDosBytes(bytes) {
+    if (bytes[0] === 0xFF && bytes[1] === 0xFE) return new TextDecoder("utf-16le").decode(bytes.subarray(2));
+    if (bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF) return new TextDecoder("utf-8").decode(bytes.subarray(3));
+    try {
+      return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+    } catch (erro) {
+      return new TextDecoder("windows-1252").decode(bytes);
+    }
+  }
+  window.DMOSapTexto = textoDosBytes;
+
+  async function textoDoFicheiro(ficheiro) {
+    if (typeof ficheiro.arrayBuffer !== "function" || typeof TextDecoder !== "function") return ficheiro.text();
+    return textoDosBytes(new Uint8Array(await ficheiro.arrayBuffer()));
+  }
+
   const cartao = document.querySelector("[data-ferr-sap]");
   const automatico = document.querySelector("[data-ferr-sap-auto]");
   const admin = document.querySelector("[data-sap-admin-pasta]");
@@ -244,7 +264,7 @@
   async function enviar(ficheiro) {
     const corpo = new URLSearchParams();
     corpo.set("__RequestVerificationToken", token());
-    corpo.set("conteudo", await ficheiro.text());
+    corpo.set("conteudo", await textoDoFicheiro(ficheiro));
     corpo.set("ficheiro", ficheiro.name);
     corpo.set("modificado", String(ficheiro.lastModified));
     const resposta = await fetch(URL_IMPORTAR, {
@@ -285,7 +305,7 @@
   async function lerEstado(pasta, nome) {
     try {
       const ficheiro = await (await pasta.getFileHandle(nome || ESTADO_SAP)).getFile();
-      return { texto: (await ficheiro.text()).trim(), quando: ficheiro.lastModified };
+      return { texto: (await textoDoFicheiro(ficheiro)).trim(), quando: ficheiro.lastModified };
     } catch (erro) {
       return null;
     }

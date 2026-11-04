@@ -6603,3 +6603,19 @@ Novos: 6 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `2c047a0a45efdcc9`
+
+## A-0513 · 2026-11-04 · contagem-lista
+
+Porquê: Teste novo sap-texto-acentos.test.cjs acrescentado à lista do test:js; nenhum teste muda.
+Referência: A-0513
+Novos: 6 · mudaram: 1 · saíram: 0
+
+- novo: `tests/ShellProof/sap-texto-acentos.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/sap-texto-acentos.test.cjs :: A app lê os ficheiros da pasta pelos bytes, não com .text() (que supõe UTF-8)`
+- novo: `tests/ShellProof/sap-texto-acentos.test.cjs :: O passo gravado em Unicode (UTF-16 com BOM) mostra os acentos certos`
+- novo: `tests/ShellProof/sap-texto-acentos.test.cjs :: O passo gravado em Windows-1252 pelo VBScript mostra os acentos certos`
+- novo: `tests/ShellProof/sap-texto-acentos.test.cjs :: Os ficheiros em UTF-8, com ou sem BOM, ficam como estavam`
+- novo: `tests/ShellProof/sap-texto-acentos.test.cjs :: Os scripts do SAP gravam o dmo-sap-passo.txt em Unicode`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `e37630bab1377d01`

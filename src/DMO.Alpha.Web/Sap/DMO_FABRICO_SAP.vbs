@@ -337,9 +337,11 @@ End Function
 ' Um registo do que o script fez, para se perceber onde parou
 ' (dmo-sap.log, na mesma pasta; o DMO não lê .log).
 ' O passo em que está, para a app mostrar (dmo-sap-passo.txt, DMO-717).
+' Em Unicode (o terceiro True), para os acentos chegarem certos à app
+' (DMO-740, Diogo 04/11/2026: «SAP: a ler as produ��es»).
 Sub Passo(ByVal texto)
     On Error Resume Next
-    With fso.CreateTextFile(fso.BuildPath(pasta, "dmo-sap-passo.txt"), True)
+    With fso.CreateTextFile(fso.BuildPath(pasta, "dmo-sap-passo.txt"), True, True)
         .WriteLine texto
         .Close
     End With

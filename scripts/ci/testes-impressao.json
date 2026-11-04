@@ -1,5 +1,5 @@
 {
-  "selo": "2c047a0a45efdcc9",
+  "selo": "e37630bab1377d01",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -3530,7 +3530,7 @@
     "tests/ShellProof/jobon-tool-picker.test.cjs :: «Criar BQ» abre o registo das Ferramentas com a máquina da folha no momento do clique": "2747f0dc6012fecf",
     "tests/ShellProof/jobon-tool-picker.test.cjs :: «Mostrar todas as ferramentas» só pede o catálogo inteiro quando está marcado": "61d6174d62480996",
     "tests/ShellProof/package-lock.json": "8cabd09c7635d204",
-    "tests/ShellProof/package.json": "d0d2a5414e61ff00",
+    "tests/ShellProof/package.json": "490a9c16d7127a6f",
     "tests/ShellProof/painel-apoio-alteracoes.test.cjs :: (resto do ficheiro)": "746debc2c59fb275",
     "tests/ShellProof/painel-apoio-alteracoes.test.cjs :: Painel de apoio: um <dmo-painel> com alterações por guardar fica com o aviso e o apoio não abre por cima": "0b2b99e6fc3e1cbc",
     "tests/ShellProof/painel-estrutura.test.cjs :: (resto do ficheiro)": "c525db31e3b4284e",
@@ -3639,6 +3639,12 @@
     "tests/ShellProof/sap-estado-erro.test.cjs :: Sem rede ou com erro 500 no envio: diz o motivo": "5b77d6cb9a69bac6",
     "tests/ShellProof/sap-estado-erro.test.cjs :: Tudo falhou: diz cada passo e o motivo": "40cd916a9f2b801a",
     "tests/ShellProof/sap-estado-erro.test.cjs :: Um estado antigo, sem motivo, continua a dizer que falhou": "27dc7cf817162760",
+    "tests/ShellProof/sap-texto-acentos.test.cjs :: (resto do ficheiro)": "c03c8b063cb2b4d2",
+    "tests/ShellProof/sap-texto-acentos.test.cjs :: A app lê os ficheiros da pasta pelos bytes, não com .text() (que supõe UTF-8)": "9f7698fa7ee9fce7",
+    "tests/ShellProof/sap-texto-acentos.test.cjs :: O passo gravado em Unicode (UTF-16 com BOM) mostra os acentos certos": "7fcebe82074a0455",
+    "tests/ShellProof/sap-texto-acentos.test.cjs :: O passo gravado em Windows-1252 pelo VBScript mostra os acentos certos": "3896e7631a6ecc21",
+    "tests/ShellProof/sap-texto-acentos.test.cjs :: Os ficheiros em UTF-8, com ou sem BOM, ficam como estavam": "aa8536a6474b60e8",
+    "tests/ShellProof/sap-texto-acentos.test.cjs :: Os scripts do SAP gravam o dmo-sap-passo.txt em Unicode": "a3798d48efc147e3",
     "tests/ShellProof/scroll-sem-trava-todo-css.test.cjs :: (resto do ficheiro)": "5c7e975d4368e147",
     "tests/ShellProof/scroll-sem-trava-todo-css.test.cjs :: nenhum CSS da app usa overscroll-behavior:contain": "750c79240fd809c2",
     "tests/ShellProof/scroll-sem-trava.test.cjs :: (resto do ficheiro)": "bad7fcb6a00802c9",
