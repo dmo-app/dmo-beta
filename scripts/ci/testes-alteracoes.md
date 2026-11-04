@@ -6603,3 +6603,12 @@ Novos: 6 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `2c047a0a45efdcc9`
+
+## A-0512 · 2026-11-04 · teste-novo
+
+Porquê: Teste novo: o cartão «Avisos do Job On» não aparece ao ADMIN em Definições › A minha conta; os outros utilizadores continuam a vê-lo. Nenhum teste muda.
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesNumSoSitioTests.cs :: DefinicoesNumSoSitioTests.AvisosDoJobOn_SoParaQuemNaoEAdmin_OAdminFicaComAAparenciaEAPalavraPasse`
+
+Selo depois: `65c29a04d676c5d1`

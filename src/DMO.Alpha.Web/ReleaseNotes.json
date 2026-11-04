@@ -684,7 +684,8 @@
     { "id": "DMO-731", "module": "Job On", "description": "0.3.0-beta.254: folha do Job On, cartões CM/MF/BQ: a Utilização mostra só os dois valores («79.30% 58.95%», o anterior a amarelo); a palavra «antes» deixa de ficar por cima do valor." },
     { "id": "DMO-732", "module": "Controlo", "description": "0.3.0-beta.254: Controlo › Punções: cada linha da lista tem um botão ✎ para corrigir o número, o lote e o lugar na lista, sem apagar tudo até à punção que faltou." },
     { "id": "DMO-735", "module": "Job On", "description": "A folha do Job On (e os corpos das páginas) voltam a deslizar com a roda do rato a 1366×768." },
-    { "id": "DMO-738", "module": "Job On", "description": "Job On › Editar: a lista para escolher a CM, a MF ou a BQ alarga-se para mostrar o texto todo (por ex. «T269 · Lote 10 · B3 · 72%»), sem sair do ecrã, também a meio ecrã. Ficha da ferramenta › Editar: o seletor «B2» fica à altura dos botões das linhas." }
+    { "id": "DMO-738", "module": "Job On", "description": "Job On › Editar: a lista para escolher a CM, a MF ou a BQ alarga-se para mostrar o texto todo (por ex. «T269 · Lote 10 · B3 · 72%»), sem sair do ecrã, também a meio ecrã. Ficha da ferramenta › Editar: o seletor «B2» fica à altura dos botões das linhas." },
+    { "id": "DMO-739", "module": "Admin", "description": "Definições › A minha conta: o ADMIN deixa de ver o cartão «Avisos do Job On» (não usa o Job On); ficam a Aparência e a palavra-passe." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

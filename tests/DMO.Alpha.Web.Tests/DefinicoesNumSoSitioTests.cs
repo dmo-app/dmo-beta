@@ -284,6 +284,23 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
     }
 
     [Fact]
+    public async Task AvisosDoJobOn_SoParaQuemNaoEAdmin_OAdminFicaComAAparenciaEAPalavraPasse()
+    {
+        // Diogo, 04/11/2026 (cmsg_01K75FTs9bQnbhhH7qttpgra7TZnbSESVBdsVfqv2Ej2Yq): «admin nao precisa disto».
+        using var admin = await LoginAdminAsync();
+        var doAdmin = await GetOkAsync(admin, "/Definicoes");
+        Assert.DoesNotContain("data-dmo-avisos-pessoais", doAdmin);
+        Assert.DoesNotContain("Avisos do Job On", doAdmin);
+        Assert.Contains("id=\"defTemaBotao\"", doAdmin);
+        Assert.Contains("id=\"defPalavraPasseForm\"", doAdmin);
+
+        var (operador, _) = await LoginOperatorAsync("7316", DmoCapabilities.Boquilhas);
+        var doOperador = await GetOkAsync(operador, "/Definicoes");
+        Assert.Contains("data-dmo-avisos-pessoais", doOperador);
+        Assert.Contains("Avisos do Job On", doOperador);
+    }
+
+    [Fact]
     public async Task UmModuloInativo_NaoTemSeccao()
     {
         var (client, _) = await LoginOperatorAsync("7305", DmoCapabilities.Boquilhas);
