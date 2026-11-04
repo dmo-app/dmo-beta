@@ -96,7 +96,7 @@
               <datalist id="bqSemJobOnPorJobOnLista">
                 @foreach (var (j, t) in porJobOn)
                 {
-                  <option value="@j.Reference.Trim().ToUpperInvariant() · @j.ProductionNumber · BQ @t!.Reference · Lote @t.Lot" data-bq="@j.ToolId" data-bq-id="@j.BqId"></option>
+                  <option value="@j.Reference.Trim().ToUpperInvariant() · @j.ProductionNumber · BQ @t!.Reference · Lote @t.Lot" data-bq="@j.ToolId" data-bq-id="@j.BqId" data-ref="@j.Reference.Trim().ToUpperInvariant()"></option>
                 }
               </datalist>
             </div>

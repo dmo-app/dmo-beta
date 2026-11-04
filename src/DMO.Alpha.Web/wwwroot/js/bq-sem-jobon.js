@@ -164,6 +164,18 @@
       const porJobOn = document.querySelector('[data-bq-por-jobon]');
       const dados = porJobOn ? document.getElementById(porJobOn.getAttribute('list')) : null;
       if (porJobOn && dados) {
+        // Com uma BQ escolhida, só os Job On das referências em que ela
+        // trabalha (Diogo, 04/11/2026: «não está a filtrar as BQ pelas
+        // referências que trabalha»).
+        const todos = [...dados.options];
+        const filtrarJobOns = () => {
+          const refs = select.value
+            ? new Set([...referencia.options].filter(o => o.value && o.dataset.bq === select.value).map(o => o.value.trim().toUpperCase()))
+            : null;
+          dados.replaceChildren(...todos.filter(o => !refs || refs.has(o.dataset.ref)));
+        };
+        select.addEventListener('change', filtrarJobOns);
+        filtrarJobOns();
         porJobOn.addEventListener('input', () => {
           const opcao = [...dados.options].find(o => o.value === porJobOn.value);
           if (!opcao) return;
