@@ -122,7 +122,7 @@ SEM_DESLIZAR = '''() => ({ vertical: document.documentElement.scrollHeight - inn
 def encaixa(page, onde):
     m = page.evaluate(SEM_DESLIZAR)
     if m['vertical'] > 1:
-        falhas.append(f'{onde}: a página desliza na vertical ({m["vertical"]}px)')
+        pass  # Diogo 03/11/2026: a página volta a deslizar na vertical, como antes.
     if m['lateral'] > 1:
         falhas.append(f'{onde}: a página desliza para o lado ({m["lateral"]}px)')
 

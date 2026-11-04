@@ -20,12 +20,13 @@ public sealed partial class DefinicoesPorModuloPageTests
         var colunas = Colunas(html);
         Assert.Equal(2, colunas.Length);
         Assert.Equal(["ctlDefPastaPdf", "bqDefExcel"], Cartoes(colunas[0]));
-        Assert.Equal(["jobonDefImagens", "ferrDefSap"], Cartoes(colunas[1]));
+        // Sem o cartão do SAP: só no ADMIN (Diogo, 30/10/2026: «não deve existir SAP nos users»).
+        Assert.Equal(["jobonDefImagens"], Cartoes(colunas[1]));
 
         // Só um cartão: uma coluna.
-        var so = await LoginOperatorAsync("7122", DmoCapabilities.Ferramentas);
+        var so = await LoginOperatorAsync("7122", DmoCapabilities.Boquilhas);
         var umaColuna = Colunas(await (await so.GetAsync("/Definicoes?secao=computador")).Content.ReadAsStringAsync());
-        Assert.Equal(["ferrDefSap"], Cartoes(Assert.Single(umaColuna)));
+        Assert.Equal(["bqDefExcel"], Cartoes(Assert.Single(umaColuna)));
     }
 
     private static string[] Colunas(string html)

@@ -13,6 +13,10 @@ namespace DMO.Alpha.Web.Authorization;
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class DefinicaoGeralAttribute : Attribute;
 
+/// <summary>R6 (Diogo, 02/11/2026): definição da fábrica sem o PIN (os reparadores); o ADMIN também grava.</summary>
+[AttributeUsage(AttributeTargets.Method)]
+public sealed class DefinicaoSemPinAttribute : Attribute;
+
 /// <summary>
 /// As Definições num só sítio (Diogo, 22/10/2026). Quem pode o quê:
 /// ler as definições de um módulo é de quem tem o módulo (e do ADMIN);
@@ -81,7 +85,8 @@ public sealed class DefinicoesEntryAttribute(string secao, params string[] modul
         }
 
         var geral = context.HandlerMethod?.MethodInfo.IsDefined(typeof(DefinicaoGeralAttribute), false) == true;
-        if (DefinicoesAcesso.EAdmin(http) && !geral && !HttpMethods.IsGet(http.Request.Method))
+        var semPin = context.HandlerMethod?.MethodInfo.IsDefined(typeof(DefinicaoSemPinAttribute), false) == true;
+        if (DefinicoesAcesso.EAdmin(http) && !geral && !semPin && !HttpMethods.IsGet(http.Request.Method))
         {
             // O ADMIN não faz atos operacionais (o Excel, a leitura do SAP).
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);

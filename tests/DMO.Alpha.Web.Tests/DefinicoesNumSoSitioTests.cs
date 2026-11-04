@@ -229,14 +229,19 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         Assert.Contains("id=\"bqDefReparadores\"", html);
 
         var token = HtmlFormHelpers.ExtractRequestVerificationToken(html)!;
-        var post = await client.PostAsync("/Boquilhas/Definicoes?handler=CreateRepairer",
-            HtmlFormHelpers.BuildFormPost(("name", "Sem Permissão"), ("__RequestVerificationToken", token)));
+        var post = await client.PostAsync("/Boquilhas/Definicoes?handler=SaveDayChangeHour",
+            HtmlFormHelpers.BuildFormPost(("dayChangeHour", "9"), ("__RequestVerificationToken", token)));
         Assert.Equal(HttpStatusCode.Redirect, post.StatusCode);
         Assert.Equal("/Definicoes?geral=sem-permissao&secao=boquilhas", post.Headers.Location!.OriginalString);
         Assert.Contains("Abra o cadeado com o PIN das Definições", await GetOkAsync(client, post.Headers.Location!.OriginalString));
 
+        // R6 (Diogo, 02/11/2026): os reparadores não ficam atrás do PIN.
+        Assert.DoesNotMatch("<fieldset class=\"def-geral-campos\"[^>]*disabled[^>]*>(?:(?!</fieldset>)[\\s\\S])*id=\"bqDefReparadores\"", html);
+        var reparador = await client.PostAsync("/Boquilhas/Definicoes?handler=CreateRepairer",
+            HtmlFormHelpers.BuildFormPost(("name", "Sem PIN"), ("__RequestVerificationToken", token)));
+        Assert.Equal("/Definicoes?save=ok-reparador&secao=boquilhas", reparador.Headers.Location!.OriginalString);
         using var scope = _factory.Services.CreateScope();
-        Assert.Empty(await scope.ServiceProvider.GetRequiredService<DmoDbContext>().BqRepairers.AsNoTracking().ToListAsync());
+        Assert.Single(await scope.ServiceProvider.GetRequiredService<DmoDbContext>().BqRepairers.AsNoTracking().ToListAsync());
     }
 
     [Fact]
@@ -320,21 +325,10 @@ public sealed class DefinicoesNumSoSitioTests : IClassFixture<CustomWebApplicati
         var (client, _) = await LoginOperatorAsync("7314", DmoCapabilities.Boquilhas, DmoCapabilities.ControloCreate, DmoCapabilities.Ferramentas);
         var html = WebUtility.HtmlDecode(await GetOkAsync(client, "/Definicoes"));
 
-        // Ferramentas: «Utilização pela produção» no Geral; «Atualizar do SAP» e
-        // «Instalar» saíram para o Admin (SEC-01, 29/10/2026): levavam a senha
-        // do SAP a quem só tem as Ferramentas. Só as opções sem senha ficam.
-        var producao = Regex.Match(html, "<section id=\"ferrDefSap\"[\\s\\S]*?</section>").Value;
-        Assert.Contains("Utilização pela produção", producao);
-        Assert.DoesNotContain("SAP</h3>", Regex.Match(producao, "<h3 id=\"ferr-sap-title\"[\\s\\S]*?</h3>").Value);
-        Assert.Contains("data-ferr-sap-codigos disabled=\"disabled\"", producao);
-        Assert.DoesNotContain("data-ferr-sap-atualizar", producao);
-        Assert.DoesNotContain("data-ferr-sap-instalar", producao);
-        Assert.DoesNotContain("data-ferr-sap-janela", producao);
-        Assert.DoesNotContain("data-ferr-sap-ler", producao);
-        Assert.DoesNotContain("data-ferr-sap-pasta", producao);
-        // As pastas juntas em Este computador (Diogo, 26/10/2026, cmsg_01K75FTs9bQnbhhH7qttpgraXJAtaKT9Zq5Rd7rwLJZDkP).
+        // Ferramentas: o cartão «Utilização pela produção» é do SAP e o SAP é só do ADMIN
+        // (Diogo, 30/10/2026: «remover isto dos users, não deve existir SAP nos users»).
+        Assert.DoesNotContain("id=\"ferrDefSap\"", html);
         var computador = Regex.Match(html, "<section id=\"sec-computador\"[\\s\\S]*?(?=<section id=\"sec-controlo\")").Value;
-        Assert.Contains("id=\"ferrDefSap\"", computador);
 
         // Boquilhas: a pasta e o ficheiro com cadeado; «Atualizar» fica.
         var excel = Regex.Match(html, "<section id=\"bqDefExcel\"[\\s\\S]*?</section>").Value;

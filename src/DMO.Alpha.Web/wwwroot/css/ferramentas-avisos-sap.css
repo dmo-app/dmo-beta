@@ -4,3 +4,12 @@
 .ferr-sap-fechar { position: absolute; top: 2px; right: 6px; }
 .ferr-sap-aviso form { display: flex; gap: 8px; margin-top: 8px; }
 .ferr-opcional [id$="-sap-fornecedor"] { max-width: 22ch; overflow-wrap: anywhere; }
+/* R3 (Diogo, 30/10/2026): × simples embutido no canto; «Substituir» como link com a cor dos botões. */
+.ferr-sap-fechar { all: unset; position: absolute; top: 4px; right: 8px; cursor: pointer; font-size: 16px; line-height: 1; color: var(--dmo-muted); }
+.ferr-sap-fechar:hover { color: var(--dmo-text); }
+.ferr-sap-link { all: unset; cursor: pointer; color: var(--dmo-brand-600); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.ferr-sap-link:hover { color: var(--dmo-brand-700); }
+.ferr-sap-fechar:focus-visible, .ferr-sap-link:focus-visible { outline: 2px solid var(--dmo-brand-500); outline-offset: 2px; }
+:root[data-theme="dark"] .ferr-sap-link { color: var(--dmo-brand-300, var(--dmo-text)); }
+.ferr-sap-aviso form { gap: 16px; }
+.ferr-sap-link-discreto { color: var(--dmo-muted); font-weight: 500; }
