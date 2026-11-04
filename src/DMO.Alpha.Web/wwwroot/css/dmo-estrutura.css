@@ -125,3 +125,12 @@ html:root[data-dmo-embedded="true"] body .jof2.jof2.jof2.jof2.jof2 #jofVoltar{di
 /* «Voltar» do painel de apoio: link no canto superior esquerdo, antes do título (Diogo, 29/10/2026). */
 html body .dmo-painel-topo > a.dmo-painel-voltar{flex:0 0 auto;margin:0;white-space:nowrap}
 html body .dmo-painel-topo > a.dmo-painel-voltar[hidden]{display:none}
+
+/* TABELAS: pelo menos 10 linhas à vista antes de deslizarem por dentro (Diogo, 04/11/2026: «tabelas no mínimo
+   deveriam mostrar 10»). Ao tirar a altura presa à janela (03/11), os cartões que enchiam o ecrã (flex:1 1 0)
+   ficaram com a altura mínima e as tabelas com 1 ou 2 linhas. Agora o que leva uma tabela cresce com ela e a
+   página desliza como antes; a tabela só desliza por dentro depois de 10 linhas (ou do que couber no ecrã). */
+html{--dmo-tabela-10-linhas:400px}
+html:root body .dmo-table-wrap:not(#_):not(#_){max-height:max(var(--dmo-tabela-10-linhas),calc(100vh - 300px))}
+html:root body :is(.dmo-table-wrap:has(>.dmo-matrix),.bq-lista-rolante .dmo-table-wrap):not(#_):not(#_){max-height:none}
+html:root body :is(main,main *):has(.dmo-table-wrap):not(#_):not(#_){min-height:min-content}

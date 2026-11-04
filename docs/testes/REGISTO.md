@@ -6110,3 +6110,4 @@ Pedido do Diogo: ao escolher uma referência, restringir os restantes campos; no
 
 | `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs` › `ComOSapASerUsado_LeNumaJanelaNova_EDizPorqueFalhou` (novo) | FABRICO escolhe/abre uma janela livre do SAP antes do /nzfmd e fecha-a no fim; USO abre a ZPPG numa janela nova aos 90 s; motivos no dmo-sap.log | OK | DMO-741 (A-0514), log da oficial 04/11 12:13–12:19. Falta ver no PC do SAP. |
 | `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs` › `RegisterMany_RecordsEachLineOnItsOwnProduction_WithTheSameTime` (ajustado) | Sem o botão «Várias linhas»: o Registo é sempre de várias linhas | OK | DMO-744 (A-0517), Diogo 04/11 «mas uma chega». |
+| `tests/ShellProof/tabelas-10-linhas.test.cjs` (novo) | As tabelas mostram pelo menos 10 linhas antes de deslizarem por dentro e o que as leva cresce com elas (a página desliza, sem altura presa) | OK (falha sem a mudança) | DMO-745 (A-0518), Diogo 04/11 16:30. |

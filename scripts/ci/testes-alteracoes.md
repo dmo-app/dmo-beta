@@ -6638,3 +6638,13 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: BoquilhasRegistoPageTests.RegisterMany_RecordsEachLineOnItsOwnProduction_WithTheSameTime`
 
 Selo depois: `863f154c1fa3aa30`
+
+## A-0518 · 2026-11-04 · teste-novo
+
+Porquê: Tabelas com pelo menos 10 linhas à vista (DMO-745, Diogo 04/11)
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/ShellProof/tabelas-10-linhas.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/tabelas-10-linhas.test.cjs :: as tabelas mostram pelo menos 10 linhas e os cartões delas crescem com elas`
+
+Selo depois: `6accecae1736ee09`
