@@ -69,42 +69,39 @@
       vestir(nova.querySelector('.bq-varias-codigo'), cartao);
       cartao.classList.add('bq-varias-escolhido');
       cartao.setAttribute('aria-pressed', 'true');
-      f.querySelector(`.bq-varias-linha[data-id="${id}"] input[name=linha_qtd]`).focus();
+      f.querySelector(`.bq-varias-linha[data-id="${id}"] input[name=linha_qtd]`).focus({ preventScroll: true });
     }
     atualizar();
   }
 
-  function ligar(sim) {
-    ligado = sim;
+  // O Registo é sempre de várias linhas (Diogo, 04/11/2026: «uma chega»;
+  // com uma linha escolhida regista só essa). Com um registo aberto (bq_id ou
+  // trace_id no endereço) o registo dele continua por baixo.
+  function arrancar() {
     const f = form();
-    const botao = document.getElementById('bqVariasLigar');
-    if (!f || !botao) return;
-    botao.setAttribute('aria-pressed', sim ? 'true' : 'false');
-    f.hidden = !sim;
-    document.getElementById('bqRegistoAberto')?.toggleAttribute('hidden', sim);
-    if (!sim) {
-      f.querySelector('.bq-varias-linhas').innerHTML = '';
-      cartoes().forEach((c) => { c.classList.remove('bq-varias-escolhido'); c.removeAttribute('aria-pressed'); });
+    if (!f) return;
+    ligado = true;
+    const q = new URLSearchParams(location.search);
+    if (!q.get('bq_id') && !q.get('trace_id')) {
+      document.getElementById('bqRegistoAberto')?.setAttribute('hidden', '');
     }
     atualizar();
+    const u = document.getElementById('bqVariasUltimos');
+    if (u && u.dataset.url) {
+      fetch(u.dataset.url, { credentials: 'same-origin' })
+        .then((r) => (r.ok ? r.text() : ''))
+        .then((html) => { u.innerHTML = html; })
+        .catch(() => {});
+    }
   }
-
-  // Depois de registar, a página volta com «Várias linhas» ligado.
-  if (new URLSearchParams(location.search).get('varias') === '1') {
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => ligar(true));
-    else ligar(true);
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', arrancar);
+  else arrancar();
 
   document.addEventListener('change', (e) => {
     if (e.target.closest && e.target.closest('#bqVarias') && e.target.name === 'movement_type') atualizar();
   });
   // Em captura, antes do ouvinte que abre a linha: ligado, o clique escolhe.
   document.addEventListener('click', (e) => {
-    if (e.target.closest && e.target.closest('#bqVariasLigar')) {
-      // Ligar abre ?varias=1 (traz os últimos registos); desligar volta ao Registo.
-      location.href = ligado ? '/Boquilhas' : '/Boquilhas?varias=1';
-      return;
-    }
     if (!ligado) return;
     const cartao = e.target.closest && e.target.closest('#registo .beta-production-lines button[data-id]');
     if (!cartao || !cartao.dataset.id || cartao.classList.contains('bq-line-empty')) return;

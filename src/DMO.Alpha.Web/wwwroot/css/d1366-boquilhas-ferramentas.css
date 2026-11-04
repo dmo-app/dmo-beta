@@ -563,11 +563,18 @@ html body .beta-bq-layout #bqMetrics{display:flex;flex-direction:column;justify-
 /* VÁRIAS LINHAS DE UMA VEZ (Diogo, 02/11/2026, DMO-721): o cartão escolhido
    fica com um contorno forte; o botão «Várias linhas» é uma opção que liga
    e desliga, por isso ligado fica invertido. */
-html body #registo .beta-production-lines button.bq-varias-escolhido{box-shadow:inset 0 0 0 3px var(--dmo-brand-600)!important}
+/* Escolhido = a cor viva da linha (Diogo, 04/11/2026), como o rato por cima. */
+html:root body #registo .beta-production-lines button.bq-varias-escolhido:not(#_){background:var(--dmo-linha-cheia,var(--dmo-machine-color,var(--dmo-brand-600)));border-color:var(--dmo-linha-cheia,var(--dmo-machine-color,var(--dmo-brand-600)));color:var(--dmo-text-on-color,#fff);box-shadow:none;outline:0}
+html:root body #registo .beta-production-lines button.bq-varias-escolhido:not(#_) *{color:var(--dmo-text-on-color,#fff)}
+html:root[data-theme="dark"] body #registo .beta-production-lines button.bq-varias-escolhido:not(#_){background:color-mix(in srgb,var(--dmo-linha-cheia,var(--dmo-machine-color,var(--dmo-brand-600))) 72%,#fff);border-color:color-mix(in srgb,var(--dmo-linha-cheia,var(--dmo-machine-color,var(--dmo-brand-600))) 72%,#fff)}
 html body #bqVariasLigar[aria-pressed="true"]{background:var(--dmo-card);border:2px solid var(--dmo-brand-600);color:var(--dmo-brand-600)}
 .bq-varias{display:flex;flex-direction:column;gap:8px;padding:10px 12px}
 .bq-varias-linhas{display:flex;flex-direction:column;gap:6px}
-.bq-varias-codigo{min-width:200px;font-size:13px;white-space:nowrap;border:0;padding:6px 10px;align-self:flex-end;height:var(--dmo-control-height,34px);display:inline-flex;align-items:center;box-sizing:border-box}
+.bq-varias-codigo{min-width:200px;font-size:13px;white-space:nowrap;border:0;padding:6px 10px;align-self:flex-end;height:var(--dmo-control-height,34px);display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box}
+/* Os nomes dos campos só na primeira linha; as outras ficam centradas com o cartão (Diogo, 04/11/2026). */
+.bq-varias-linha + .bq-varias-linha .field > label{display:none}
+.bq-varias-linha + .bq-varias-linha{align-items:center}
+.bq-varias-linha + .bq-varias-linha .bq-varias-codigo{align-self:center}
 .bq-varias-ultimos-titulo{margin:6px 0 0;font-size:14px}
 .bq-varias-vazio{margin:0}
 

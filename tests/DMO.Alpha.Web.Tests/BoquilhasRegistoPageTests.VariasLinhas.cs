@@ -31,7 +31,7 @@ public partial class BoquilhasRegistoPageTests
         using var client = await LoginClientAsync("4191", "RegistoPass91!");
 
         var html = await GetPageHtmlAsync(client, PagePath);
-        Assert.Contains("id=\"bqVariasLigar\"", html);
+        Assert.DoesNotContain("id=\"bqVariasLigar\"", html);
         Assert.Contains("id=\"bqVarias\"", html);
 
         var token = await GetVerificationTokenAsync(client, PagePath);

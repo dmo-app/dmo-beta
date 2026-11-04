@@ -6628,3 +6628,13 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.ComOSapASerUsado_LeNumaJanelaNova_EDizPorqueFalhou`
 
 Selo depois: `2cad57a8fa8b26cb`
+
+## A-0515 · 2026-11-04 · ok-do-diogo
+
+Porquê: DMO-742: o Registo das Boquilhas é sempre de várias linhas, sem o botão «Várias linhas» (Diogo 04/11 15:30 «mas uma chega»)
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraDncwWsc5dg6Zum7YMJn1Kq
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: BoquilhasRegistoPageTests.RegisterMany_RecordsEachLineOnItsOwnProduction_WithTheSameTime`
+
+Selo depois: `863f154c1fa3aa30`
