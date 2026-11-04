@@ -109,7 +109,7 @@ html body .jof2-gaveta .rail-head{flex:0 0 auto;display:flex;align-items:center;
 html body .jof2-gaveta .rail-head .rail-voltar{flex:1 1 auto;min-width:0;margin:0;font-size:17px;font-weight:650;letter-spacing:-.01em;line-height:1.25;color:var(--dmo-text);text-decoration:none}
 html body .jof2-gaveta .rail-head .rail-voltar:is(:hover,:focus-visible){color:var(--dmo-action,var(--dmo-brand-600));text-decoration:none}
 html body .jof2-gaveta .rail-head .rail-close{flex:0 0 auto;margin:0}
-html body .jof2-gaveta .rail-list{flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;align-content:start;margin:0;padding:16px 20px}
+html body .jof2-gaveta .rail-list{flex:1 1 auto;min-height:0;overflow:auto;align-content:start;margin:0;padding:16px 20px}
 html body .jof2-gaveta .rail-vazio{color:var(--dmo-muted)}
 
 /* ---------------------------------------------------------------- Job On no painel de apoio

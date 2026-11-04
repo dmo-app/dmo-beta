@@ -1,5 +1,5 @@
 {
-  "selo": "d0ae26e28de15e97",
+  "selo": "094038839f9c974e",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -3633,6 +3633,8 @@
     "tests/ShellProof/sap-estado-erro.test.cjs :: Sem rede ou com erro 500 no envio: diz o motivo": "5b77d6cb9a69bac6",
     "tests/ShellProof/sap-estado-erro.test.cjs :: Tudo falhou: diz cada passo e o motivo": "40cd916a9f2b801a",
     "tests/ShellProof/sap-estado-erro.test.cjs :: Um estado antigo, sem motivo, continua a dizer que falhou": "27dc7cf817162760",
+    "tests/ShellProof/scroll-sem-trava-todo-css.test.cjs :: (resto do ficheiro)": "5c7e975d4368e147",
+    "tests/ShellProof/scroll-sem-trava-todo-css.test.cjs :: nenhum CSS da app usa overscroll-behavior:contain": "750c79240fd809c2",
     "tests/ShellProof/scroll-sem-trava.test.cjs :: (resto do ficheiro)": "bad7fcb6a00802c9",
     "tests/ShellProof/scroll-sem-trava.test.cjs :: a folha do Job On e os corpos das páginas não prendem a roda do rato": "139326e5acf9d125",
     "tests/ShellProof/troca-escolhas.test.cjs :: (resto do ficheiro)": "0dbfc26748ac4d96",

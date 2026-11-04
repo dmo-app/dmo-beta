@@ -6556,3 +6556,13 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/ShellProof/scroll-sem-trava.test.cjs :: a folha do Job On e os corpos das páginas não prendem a roda do rato`
 
 Selo depois: `d0ae26e28de15e97`
+
+## A-0508 · 2026-11-04 · teste-novo (2)
+
+Porquê: DMO-735 (A-0508): teste novo a todo o CSS
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/ShellProof/scroll-sem-trava-todo-css.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/scroll-sem-trava-todo-css.test.cjs :: nenhum CSS da app usa overscroll-behavior:contain`
+
+Selo depois: `094038839f9c974e`
