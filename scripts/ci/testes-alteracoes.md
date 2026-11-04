@@ -6339,7 +6339,7 @@ Novos: 0 · mudaram: 5 · saíram: 0
 
 Selo depois: `f00eb29ce495fa05`
 
-## A-0504 · 2026-11-04 · contagem-lista
+## A-0506 · 2026-11-04 · contagem-lista
 
 Porquê: Últimos movimentos passam a 10 por página (Diogo 04/11): 30 movimentos dão 3 páginas, a última com 5
 Referência: PR #401
