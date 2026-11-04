@@ -4,8 +4,9 @@
 // Uso: node scripts/nuvem/verificar.cjs [endereço]   (por omissão http://127.0.0.1:5080)
 const { chromium } = require('playwright');
 const base = process.argv[2] || 'http://127.0.0.1:5080';
+const jo = process.env.DMO_JOBON_ID || '1';
 const contas = [
-  { email: 'operador@teste.local', paginas: ['/JobOn', '/JobOn/Folha?jobon_id=1', '/JobOn/Folha?jobon_id=1&editar=1', '/Boquilhas', '/Boquilhas?historico=1&vista=movimentos',
+  { email: 'operador@teste.local', paginas: ['/JobOn', `/JobOn/Folha?jobon_id=${jo}`, `/JobOn/Folha?jobon_id=${jo}&editar=1`, '/Boquilhas', '/Boquilhas?historico=1&vista=movimentos',
     '/Ferramentas', '/Armazem/Ultimos', '/Armazem/Movimentos', '/Armazem/Pesquisar', '/Controlo/Approve', '/Controlo/Peso',
     '/Controlo/Pegamentos', '/Controlo/Puncoes', '/Controlo/Resumo', '/ReparacaoInterna', '/Definicoes'] },
   { email: 'admin@teste.local', paginas: ['/Admin', '/Admin/Users', '/Admin/Templates', '/Admin/Registos', '/Definicoes'] },

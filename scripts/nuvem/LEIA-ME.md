@@ -13,7 +13,7 @@ NODE_PATH=$(npm root -g) node scripts/nuvem/verificar.cjs   # entra e verifica a
 `verificar.cjs` entra com as duas contas de teste e abre as páginas principais
 a 1366 e a meio ecrã (683), com 657 px de altura (o que sobra de um ecrã de 768 com o Chrome aberto). Falha se uma página der erro, mandar para o
 login, tiver erro de JavaScript, não chegar ao fundo com scroll, ou tiver uma
-caixa grande com conteúdo cortado sem scroll, ou se a roda do rato (a sério, no meio do ecrã) não mexer nada quando há o que deslizar. Provado: apanha o scroll preso da folha do Job On na main (.254). Acrescentar páginas na lista do
+caixa grande com conteúdo cortado sem scroll, ou se a roda do rato (a sério, no meio do ecrã) não mexer nada quando há o que deslizar. Folha do Job On: `DMO_JOBON_ID=<n>` (por omissão 1). Provado: apanha o scroll preso da folha do Job On na main (.254). Acrescentar páginas na lista do
 topo do ficheiro quando se mexe nelas.
 
 Contas (só existem nesta base): `admin@teste.local` (ADMIN) e
