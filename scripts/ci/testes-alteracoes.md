@@ -6577,3 +6577,14 @@ Novos: 0 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasMovementCorrectionTests.cs :: BoquilhasRegistoPageTests.Registo_ShowsOnlyThePageAsked_AndAMovementFromAnotherPageOpensToCorrect`
 
 Selo depois: `1c5516fe84c01859`
+
+## A-0509 · 2026-11-04 · contagem-lista
+
+Porquê: Junta de #401: a paginação passa de 25 a 10 por página e os dois testes só acertam o número (30 movimentos dão 3 páginas); o que verificam fica igual. Diogo 04/11: «tudo que seja para meter mete».
+Referência: A-0506, cmsg_01K75FTs9bQnbhhH7qttpgraA5JvFkJCNKf6FgTX4CGpUM
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasRegistoQueryTests.cs :: BoquilhasRegistoQueryTests.FindTrace_ReadsOnlyThePageAsked_TheTotalsCountEveryMovement`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasMovementCorrectionTests.cs :: BoquilhasRegistoPageTests.Registo_ShowsOnlyThePageAsked_AndAMovementFromAnotherPageOpensToCorrect`
+
+Selo depois: `9b64a2c6d8bb8e42`
