@@ -24,7 +24,10 @@
   const bloqueadas = new Set(['/Ferramentas/Ficha']);
   function bloquear(doc, sim) {
     doc.documentElement.classList.toggle('dmo-bloqueado', sim);
-    doc.querySelectorAll('form[method="post"] :is(input:not([type=hidden]),select,textarea,button), button[form]').forEach(campo => {
+    // As janelas (Duplicar, Eliminar) ficam fora do bloqueio: são ações
+    // próprias, com Cancelar (Diogo, 04/11/2026: «ao duplicar não me deixa
+    // escrever o lote»).
+    doc.querySelectorAll('form[method="post"]:not(dialog form) :is(input:not([type=hidden]),select,textarea,button), button[form]').forEach(campo => {
       if (sim) { if (!campo.disabled) { campo.disabled = true; campo.dataset.dmoBloqueado = ''; } }
       else if ('dmoBloqueado' in campo.dataset) { campo.disabled = false; delete campo.dataset.dmoBloqueado; }
       // Bloqueado, o campo perde a caixa: vazio, não se via nada (o Gargalo
