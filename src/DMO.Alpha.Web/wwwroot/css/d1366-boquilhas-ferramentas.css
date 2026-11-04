@@ -580,3 +580,6 @@ html body #bqVariasLigar[aria-pressed="true"]{background:var(--dmo-card);border:
 
 /* Últimos movimentos: Entradas com fundo ligeiro, Saídas em branco (Diogo, 04/11/2026); claro e escuro. */
 html body .beta-bq-layout .bq-latest-card tr.bq-mov-entrada>td{background:color-mix(in srgb,currentColor 7%,transparent)}
+
+/* Com um registo aberto, a grelha do registo manda: o formulário de várias linhas sai (DMO-744). */
+html body .beta-bq-layout section#registo:has(.register-open)>#bqVarias{display:none}

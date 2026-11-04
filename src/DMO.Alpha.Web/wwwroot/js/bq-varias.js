@@ -80,11 +80,11 @@
   function arrancar() {
     const f = form();
     if (!f) return;
+    const aberto = document.getElementById('bqRegistoAberto');
+    // Com um registo aberto (vindo dos Movimentos ou do Corrigir), a página é a desse registo.
+    if (aberto && aberto.querySelector('.register-open')) return;
     ligado = true;
-    const q = new URLSearchParams(location.search);
-    if (!q.get('bq_id') && !q.get('trace_id')) {
-      document.getElementById('bqRegistoAberto')?.setAttribute('hidden', '');
-    }
+    aberto?.setAttribute('hidden', '');
     atualizar();
     const u = document.getElementById('bqVariasUltimos');
     if (u && u.dataset.url) {
