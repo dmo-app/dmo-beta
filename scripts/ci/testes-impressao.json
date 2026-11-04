@@ -1,5 +1,5 @@
 {
-  "selo": "2cad57a8fa8b26cb",
+  "selo": "c53833f89070ba56",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2950,6 +2950,10 @@
     "tests/DMO.Alpha.Web.Tests/JobOnSidepanelWeekTests.cs :: JobOnSidepanelWeekTests.Mostra_so_entradas_de_hoje_ate_uma_semana": "c2694f4922b06ee8",
     "tests/DMO.Alpha.Web.Tests/JobOnSidepanelWeekTests.cs :: JobOnSidepanelWeekTests.Uma_linha_so_tem_uma_producao_em_curso": "4d5450b76254b22b",
     "tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: (resto do ficheiro)": "c96bdcda5ec593e2",
+    "tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.Anterior_EOUltimoQueComecouAntes": "bfd06df94dc17b66",
+    "tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.ComSnapshotDoJobOnAnterior_InicioEFimSaoOSnapshot": "c56e024b05da5979",
+    "tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.Datas_ComOSeguinteJaComecado_NaoFicaEmCurso": "caee5c664ed5de4c",
+    "tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.Percentagem_LeOQueFicouEscrito": "59160aaa8134aeaa",
     "tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.PrimeiraProducao_AntesZeroEFimPeloProduzido": "ef333ca932ef8ac4",
     "tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.PrimeiraProducao_ComecaAZero": "436caf4e3db8c1b9",
     "tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.ProducaoQueAindaNaoCorreu_ComecaNaPercentagemAtual": "9db76d77378f97c8",

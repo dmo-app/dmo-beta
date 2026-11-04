@@ -44,7 +44,7 @@ else
             <td><small class="ferr-producao-maquina">@prod.Producao</small></td>
             <td>@prod.Maquina</td>
             <td>@(primeiroNumero - indice)</td>
-            <td>@DMO.Alpha.Web.Presentation.UsoFerramenta.Datas(prod.InicioEm, prod.FimEm, DateOnly.FromDateTime(DMO.Alpha.Core.Runtime.DmoBusinessTime.Now))</td>
+            <td>@DMO.Alpha.Web.Presentation.UsoFerramenta.Datas(prod.InicioEm, prod.FimEm, DateOnly.FromDateTime(DMO.Alpha.Core.Runtime.DmoBusinessTime.Now), producoesFerr.Items.Select(h => h.InicioEm))</td>
             <td>@(prod.ProducaoBruta?.ToString("#,0", pecasProd) ?? "—")</td>
             @* Sem as leituras antes e depois (só o % de hoje), o delta
                estima-se pelo produzido: a parte do % atual que cabe

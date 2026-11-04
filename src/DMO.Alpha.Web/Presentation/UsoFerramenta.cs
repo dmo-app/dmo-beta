@@ -24,8 +24,10 @@ public static class UsoFerramenta
     /// quantidade de dias em frente às datas»): «19/10/2026 a 28/10/2026 · 10 dias».
     /// Sem fim conta até hoje («em curso»); a que está na máquina hoje leva também
     /// «em curso». O mesmo texto no Histórico da ficha e na Utilização por produção.
+    /// Quando a produção seguinte da mesma ferramenta já começou, esta já não está
+    /// «em curso» (Diogo, 04/11/2026: «o anterior ainda mostra o anterior»).
     /// </summary>
-    public static string Datas(DateOnly? inicio, DateOnly? fim, DateOnly hoje)
+    public static string Datas(DateOnly? inicio, DateOnly? fim, DateOnly hoje, IEnumerable<DateOnly?>? outrosInicios = null)
     {
         var texto = (inicio?.ToString("dd/MM/yyyy") ?? "—") + " a " + (fim?.ToString("dd/MM/yyyy") ?? "em curso");
         if (inicio is { } i)
@@ -34,7 +36,8 @@ public static class UsoFerramenta
             if (dias > 0) texto += $" · {dias} {(dias == 1 ? "dia" : "dias")}";
         }
 
-        return fim is { } f && inicio <= hoje && f >= hoje ? texto + " · em curso" : texto;
+        var seguinteComecou = inicio is { } ini && outrosInicios is not null && outrosInicios.Any(o => o > ini && o <= hoje);
+        return fim is { } f && inicio <= hoje && f >= hoje && !seguinteComecou ? texto + " · em curso" : texto;
     }
 
     public static string Href(string toolId) => Pagina + "?tool_id=" + Uri.EscapeDataString(toolId);

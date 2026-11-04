@@ -65,4 +65,40 @@ public sealed class JobOnUsoNoInicioTests
         Assert.Equal(0.48m, FolhaModel.UsoNoFim(J(1, new DateOnly(2026, 5, 18)), Mf7080, Dois)["CM1"]);
         Assert.Equal(2m, FolhaModel.UsoNoFim(J(2, new DateOnly(2026, 8, 17)), Mf7080, Dois)["CM1"]);
     }
+
+    // Diogo, 04/11/2026 (BQ C002 lote 604): o Job On novo, ainda sem produção, começa no % escrito no Job On
+    // anterior com o mesmo bq_id (29 %), não no % de hoje (27,60 %).
+    [Fact]
+    public void ComSnapshotDoJobOnAnterior_InicioEFimSaoOSnapshot()
+    {
+        var snapshots = new Dictionary<string, decimal> { ["CM1"] = 29m };
+        var jobOn = J(2, new DateOnly(2026, 11, 2));
+        Assert.Equal(29m, FolhaModel.UsoNoInicio(jobOn, Producoes, Atual, snapshots)["CM1"]);
+        Assert.Equal(29m, FolhaModel.UsoNoFim(jobOn, Producoes, Atual, snapshots)["CM1"]);
+    }
+
+    [Fact]
+    public void Anterior_EOUltimoQueComecouAntes()
+    {
+        Assert.Equal(1, FolhaModel.Anterior(Producoes["CM1"], J(2, new DateOnly(2026, 11, 2)))!.JobOnId);
+        Assert.Null(FolhaModel.Anterior(Producoes["CM1"], J(1, new DateOnly(2026, 5, 18))));
+    }
+
+    [Theory]
+    [InlineData("29%", 29)]
+    [InlineData("27,6", 27.6)]
+    [InlineData(" 0 % ", 0)]
+    public void Percentagem_LeOQueFicouEscrito(string escrito, double esperado)
+    {
+        Assert.Equal((decimal)esperado, FolhaModel.Percentagem(escrito));
+    }
+
+    [Fact]
+    public void Datas_ComOSeguinteJaComecado_NaoFicaEmCurso()
+    {
+        var hoje = new DateOnly(2026, 11, 4);
+        var texto = DMO.Alpha.Web.Presentation.UsoFerramenta.Datas(new DateOnly(2026, 10, 28), hoje, hoje, [new DateOnly(2026, 10, 28), hoje]);
+        Assert.Equal("28/10/2026 a 04/11/2026 · 8 dias", texto);
+        Assert.EndsWith("· em curso", DMO.Alpha.Web.Presentation.UsoFerramenta.Datas(hoje, new DateOnly(2026, 11, 12), hoje, [new DateOnly(2026, 10, 28), hoje]));
+    }
 }

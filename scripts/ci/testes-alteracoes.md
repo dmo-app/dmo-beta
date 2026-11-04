@@ -6628,3 +6628,15 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/SapScriptsVbsTests.cs :: SapScriptsVbsTests.ComOSapASerUsado_LeNumaJanelaNova_EDizPorqueFalhou`
 
 Selo depois: `2cad57a8fa8b26cb`
+
+## A-0515 · 2026-11-04 · teste-novo
+
+Porquê: DMO-742: a BQ de um Job On ainda sem produção começa no % escrito no Job On anterior com o mesmo bq_id; a produção anterior deixa de dizer «em curso» quando a seguinte da mesma ferramenta já começou
+Novos: 4 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.Anterior_EOUltimoQueComecouAntes`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.ComSnapshotDoJobOnAnterior_InicioEFimSaoOSnapshot`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.Datas_ComOSeguinteJaComecado_NaoFicaEmCurso`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.Percentagem_LeOQueFicouEscrito`
+
+Selo depois: `c53833f89070ba56`

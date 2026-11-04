@@ -276,7 +276,8 @@ public sealed class FolhaModel(
     public static IReadOnlyDictionary<string, decimal> UsoNoInicio(
         ProductionContextReadModel jobOn,
         IReadOnlyDictionary<string, IReadOnlyList<DMO.Alpha.Core.Tools.FerramentaProducao>> producoes,
-        IReadOnlyDictionary<string, decimal> atuais)
+        IReadOnlyDictionary<string, decimal> atuais,
+        IReadOnlyDictionary<string, decimal>? snapshotsAnteriores = null)
     {
         var usos = new Dictionary<string, decimal>(StringComparer.Ordinal);
         foreach (var toolId in new[] { jobOn.CmToolId, jobOn.MfToolId, jobOn.BqToolId }.OfType<string>())
@@ -286,6 +287,10 @@ public sealed class FolhaModel(
             if (esta?.UtilizacaoAntes is { } antes)
             {
                 usos[toolId] = antes;
+            }
+            else if (snapshotsAnteriores is not null && snapshotsAnteriores.TryGetValue(toolId, out var snapshot))
+            {
+                usos[toolId] = snapshot;
             }
             else if (FimDaAnterior(lista, jobOn, atuais.TryGetValue(toolId, out var atual) ? atual : null) is { } anterior)
             {
@@ -328,7 +333,8 @@ public sealed class FolhaModel(
     public static IReadOnlyDictionary<string, decimal> UsoNoFim(
         ProductionContextReadModel jobOn,
         IReadOnlyDictionary<string, IReadOnlyList<DMO.Alpha.Core.Tools.FerramentaProducao>> producoes,
-        IReadOnlyDictionary<string, decimal> atuais)
+        IReadOnlyDictionary<string, decimal> atuais,
+        IReadOnlyDictionary<string, decimal>? snapshotsAnteriores = null)
     {
         var usos = new Dictionary<string, decimal>(StringComparer.Ordinal);
         foreach (var toolId in new[] { jobOn.CmToolId, jobOn.MfToolId, jobOn.BqToolId }.OfType<string>())
@@ -346,6 +352,11 @@ public sealed class FolhaModel(
                 var ate = lista.Where(p => p.InicioEm <= esta.InicioEm).Sum(p => p.ProducaoBruta ?? 0);
                 usos[toolId] = Math.Round(hoje * ate / total, 2);
             }
+            else if (esta is not { ProducaoBruta: > 0 } && snapshotsAnteriores is not null && snapshotsAnteriores.TryGetValue(toolId, out var snapshot))
+            {
+                // Ainda sem produção no SAP: fica no % com que começa (o do Job On anterior), não no de hoje.
+                usos[toolId] = snapshot;
+            }
             else if (atuais.TryGetValue(toolId, out var atual))
             {
                 usos[toolId] = atual;
@@ -354,6 +365,15 @@ public sealed class FolhaModel(
 
         return usos;
     }
+
+    /// <summary>O Job On anterior com a mesma ferramenta: o último que começou antes deste.</summary>
+    public static DMO.Alpha.Core.Tools.FerramentaProducao? Anterior(IReadOnlyList<DMO.Alpha.Core.Tools.FerramentaProducao> lista, ProductionContextReadModel jobOn) =>
+        lista.Where(p => p.JobOnId != jobOn.JobOnId && p.InicioEm < jobOn.InicioEm)
+            .OrderBy(p => p.InicioEm).ThenBy(p => p.JobOnId).LastOrDefault();
+
+    /// <summary>O % escrito na folha («29%», «27,6»), ou null.</summary>
+    public static decimal? Percentagem(string? valor) =>
+        decimal.TryParse(valor?.Replace(',', '.').Replace("%", "").Trim(), System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.InvariantCulture, out var d) ? d : null;
 
     public JobOnToolFacts? Fact(string? toolId) => toolId is null ? null : Facts.FirstOrDefault(f => f.ToolId == toolId);
 
@@ -675,8 +695,17 @@ public sealed class FolhaModel(
                 if (!Editar)
                 {
                     var producoesDoJobOn = await fabricoSap.ProducoesDeFerramentasAsync(ids, null, ct);
-                    UsosNoInicio = UsoNoInicio(aberto, producoesDoJobOn, Usos);
-                    UsosNoFim = UsoNoFim(aberto, producoesDoJobOn, Usos);
+                    // A BQ começa no % que ficou escrito no Job On anterior com o mesmo bq_id (Diogo, 04/11/2026:
+                    // «usar o jobon_id e associem a bq_id do jobon_id anterior deve ter o snapshot com % correcta»).
+                    var snapshots = new Dictionary<string, decimal>(StringComparer.Ordinal);
+                    if (aberto.BqToolId is { } bqId && producoesDoJobOn.TryGetValue(bqId, out var daBq)
+                        && Anterior(daBq, aberto) is { } anteriorBq
+                        && Percentagem((await folha.ForJobOnAsync(anteriorBq.JobOnId, ct)).Valores.GetValueOrDefault("bq_utilizacao")) is { } snapshot)
+                    {
+                        snapshots[bqId] = snapshot;
+                    }
+                    UsosNoInicio = UsoNoInicio(aberto, producoesDoJobOn, Usos, snapshots);
+                    UsosNoFim = UsoNoFim(aberto, producoesDoJobOn, Usos, snapshots);
                 }
             }
             CadenciaSap = await fabricoSap.CadenciaDoJobOnAsync(aberto.JobOnId, ct);
