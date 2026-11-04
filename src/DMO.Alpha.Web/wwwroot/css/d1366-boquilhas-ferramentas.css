@@ -551,3 +551,6 @@ html body .beta-bq-layout form#bqHistoryFilters .bq-history-filter-grid>.dmo-fie
 html body .beta-bq-layout form#bqHistoryFilters .bq-history-filter-grid>.dmo-field:has(#vista){order:0}
 html body .beta-bq-layout form#bqHistoryFilters>.bq-history-filters-head{order:1;flex:1 1 auto;margin:0;align-self:flex-end}
 html body .beta-bq-layout form#bqHistoryFilters::after{content:"";order:1;flex:0 0 100%;height:0}
+
+/* Últimos movimentos: Entradas com fundo ligeiro, Saídas em branco (Diogo, 04/11/2026); claro e escuro. */
+html body .beta-bq-layout .bq-latest-card tr.bq-mov-entrada>td{background:color-mix(in srgb,currentColor 7%,transparent)}

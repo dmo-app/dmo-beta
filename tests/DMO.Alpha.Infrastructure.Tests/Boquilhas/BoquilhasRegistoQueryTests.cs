@@ -326,8 +326,8 @@ public sealed class BoquilhasRegistoQueryTests : IDisposable
     [Fact]
     public async Task FindTrace_ReadsOnlyThePageAsked_TheTotalsCountEveryMovement()
     {
-        // 30 saídas de 1, uma por hora: a página 1 tem as 25 mais recentes,
-        // a página 2 as 5 mais antigas; as contas somam as 30.
+        // 30 saídas de 1, uma por hora: a página 1 tem as 10 mais recentes,
+        // a página 3 as 5 mais antigas; as contas somam as 30.
         _db.Tools.Add(new Tool { ToolId = "BQ-PAG-1", Type = ToolType.Bq, Reference = "T400", Lot = "1" });
         var trace = new BqRepairTrace { ToolId = "BQ-PAG-1" };
         _db.BqRepairTraces.Add(trace);
@@ -342,18 +342,18 @@ public sealed class BoquilhasRegistoQueryTests : IDisposable
         var first = (await _query.FindTraceAsync(trace.Id))!;
         Assert.Equal(30, first.MovementCount);
         Assert.Equal(1, first.MovementPageNumber);
-        Assert.Equal(25, first.Movements.Count);
+        Assert.Equal(10, first.Movements.Count);
         Assert.Equal(start.AddHours(29), first.Movements[0].OccurredAtUtc);
         Assert.Equal(30, first.QuantityLegitimatelyOut);
 
-        var second = (await _query.FindTraceAsync(trace.Id, movementPage: 2))!;
-        Assert.Equal(2, second.MovementPageNumber);
+        var second = (await _query.FindTraceAsync(trace.Id, movementPage: 3))!;
+        Assert.Equal(3, second.MovementPageNumber);
         Assert.Equal(5, second.Movements.Count);
         Assert.Equal(start, second.Movements[^1].OccurredAtUtc);
         Assert.Equal(30, second.QuantityLegitimatelyOut);
 
         // Uma página que não existe fica na última.
-        Assert.Equal(2, (await _query.FindTraceAsync(trace.Id, movementPage: 9))!.MovementPageNumber);
+        Assert.Equal(3, (await _query.FindTraceAsync(trace.Id, movementPage: 9))!.MovementPageNumber);
 
 
         // O movimento a corrigir encontra-se noutra página, mas só no seu registo.
