@@ -566,3 +566,6 @@ html body #bqVariasLigar[aria-pressed="true"]{background:var(--dmo-card);border:
 .bq-varias-codigo{min-width:200px;font-size:13px;white-space:nowrap;border:0;padding:6px 10px;align-self:flex-end;height:var(--dmo-control-height,34px);display:inline-flex;align-items:center;box-sizing:border-box}
 .bq-varias-ultimos-titulo{margin:6px 0 0;font-size:14px}
 .bq-varias-vazio{margin:0}
+
+/* Últimos movimentos: Entradas com fundo ligeiro, Saídas em branco (Diogo, 04/11/2026); claro e escuro. */
+html body .beta-bq-layout .bq-latest-card tr.bq-mov-entrada>td{background:color-mix(in srgb,currentColor 7%,transparent)}

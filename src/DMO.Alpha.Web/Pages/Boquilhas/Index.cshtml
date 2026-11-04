@@ -578,7 +578,8 @@
                   <tbody>
                     @foreach (var movement in traceMovementsPage.Items)
                     {
-                      <tr>
+                      @* As Entradas com um fundo ligeiro, as Saídas em branco (Diogo, 04/11/2026). *@
+                      <tr class="@(movement.MovementType.StartsWith("entrada", StringComparison.OrdinalIgnoreCase) ? "bq-mov-entrada" : null)">
                         @{ MovementCells(movement); }
                       </tr>
                     }

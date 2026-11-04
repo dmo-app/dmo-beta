@@ -6566,3 +6566,14 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/ShellProof/scroll-sem-trava-todo-css.test.cjs :: nenhum CSS da app usa overscroll-behavior:contain`
 
 Selo depois: `094038839f9c974e`
+
+## A-0506 · 2026-11-04 · contagem-lista
+
+Porquê: Últimos movimentos passam a 10 por página (Diogo 04/11): 30 movimentos dão 3 páginas de 10
+Referência: PR #401
+Novos: 0 · mudaram: 2 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasRegistoQueryTests.cs :: BoquilhasRegistoQueryTests.FindTrace_ReadsOnlyThePageAsked_TheTotalsCountEveryMovement`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasMovementCorrectionTests.cs :: BoquilhasRegistoPageTests.Registo_ShowsOnlyThePageAsked_AndAMovementFromAnotherPageOpensToCorrect`
+
+Selo depois: `1c5516fe84c01859`
