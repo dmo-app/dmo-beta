@@ -1374,7 +1374,10 @@ public sealed partial class IndexModel : PageModel
                 : t.Trocada
                 ? "BQ trocada nesta produção"
                 : ProductionStateLabel(t.InicioEm, t.FimEm, hoje),
-            t.MovementCount)).ToList(),
+            t.MovementCount,
+            t.SaidasQuantidade,
+            t.EntradasQuantidade,
+            t.SemReparacaoQuantidade)).ToList(),
             traces.TotalCount, traces.PageNumber, traces.PageSize);
     }
 
@@ -1809,7 +1812,10 @@ public sealed record BqRegisterCandidate(
     string? ProductionReference,
     string? MachineCode,
     string State,
-    int MovementCount);
+    int MovementCount,
+    int SaidasQuantidade = 0,
+    int EntradasQuantidade = 0,
+    int SemReparacaoQuantidade = 0);
 
 /// <summary>
 /// A ficha da ferramenta (o toolsTab do dmo-html — a ficha única por

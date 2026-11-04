@@ -43,14 +43,23 @@ public sealed class BoquilhasAssociacaoQuery : IBoquilhasAssociacaoQuery
             })
             .ToPagedListAsync(pageNumber, cancellationToken: cancellationToken);
 
-        // As contagens só dos registos da página.
+        // As contagens só dos registos da página, com as quantidades de BQ
+        // de cada tipo (Diogo, 04/11/2026: «movimentos não aparecem a
+        // quantidade»).
         var traceIds = traces.Items.Select(t => t.Id).ToList();
         var movementCounts = await _db.BqMovements
             .AsNoTracking()
             .Where(m => traceIds.Contains(m.BqRepairTraceId))
             .GroupBy(m => m.BqRepairTraceId)
-            .Select(g => new { TraceId = g.Key, Count = g.Count() })
-            .ToDictionaryAsync(g => g.TraceId, g => g.Count, cancellationToken);
+            .Select(g => new
+            {
+                TraceId = g.Key,
+                Count = g.Count(),
+                Saidas = g.Sum(m => m.Type == BqMovementType.Saida ? m.Quantity : 0),
+                Entradas = g.Sum(m => m.Type == BqMovementType.Entrada ? m.Quantity : 0),
+                SemReparacao = g.Sum(m => m.Type == BqMovementType.EntradaSemReparacao ? m.Quantity : 0)
+            })
+            .ToDictionaryAsync(g => g.TraceId, cancellationToken);
 
         return new PagedList<BqRegistoDaBq>(traces.Items.Select(t => new BqRegistoDaBq(
             t.Id,
@@ -61,7 +70,10 @@ public sealed class BoquilhasAssociacaoQuery : IBoquilhasAssociacaoQuery
             t.MachineCode,
             t.InicioEm,
             t.FimEm,
-            movementCounts.TryGetValue(t.Id, out var count) ? count : 0)).ToList(),
+            movementCounts.TryGetValue(t.Id, out var count) ? count.Count : 0,
+            count?.Saidas ?? 0,
+            count?.Entradas ?? 0,
+            count?.SemReparacao ?? 0)).ToList(),
             traces.TotalCount, traces.PageNumber, traces.PageSize);
     }
 
