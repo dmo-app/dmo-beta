@@ -11,7 +11,7 @@
 .ferr-w-lot{width:76px}
 .ferr-w-qty{width:140px}
 .ferr-w-processo{width:170px}
-.ferr-w-sap{flex:1 1 220px !important;max-width:300px}
+.ferr-w-sap{flex:1 1 220px;max-width:300px}
 .ferr-create-row-machines{margin-top:0;margin-bottom:2px;align-items:flex-start;justify-content:flex-start;column-gap:28px}
 .ferr-checks{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:6px}
 /* AS LINHAS COMO BOTÕES (Diogo, 26/10/2026: «criar botões para as máquinas

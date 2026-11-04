@@ -676,6 +676,11 @@
     { "id": "DMO-721", "module": "Boquilhas", "description": "0.3.0-beta.254: (A-0492): no Registo, «Várias linhas» deixa escolher vários cartões das linhas e registar tudo de uma vez: cada linha com Saída ou Entrada e a quantidade, a mesma data e hora para todas, cada uma gravada na produção que está nessa linha." },
     { "id": "DMO-722", "module": "Geral", "description": "0.3.0-beta.253 (A-0494): limpeza do CSS, parte 1. Tirámos regras forçadas que não faziam falta na base. O aspeto da app não muda." },
     { "id": "DMO-730", "module": "Geral", "description": "As páginas voltam a deslizar como antes: deixam de estar presas à altura da janela, e as tabelas, as listas e o calendário aparecem inteiros (Boquilhas, Armazém, folha do Job On, Pegamentos, Resumo, Revisão, Definições e Utilizadores). Não desliza para o lado." }
+    {
+      "id": "DMO-726",
+      "module": "Ferramentas",
+      "description": "0.3.0-beta.253 (A-0499): limpeza do CSS, parte 3. Tirámos 13 regras forçadas que não faziam falta nos estilos de Boquilhas e Ferramentas. O aspeto não muda."
+    }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
