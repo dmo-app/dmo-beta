@@ -1,5 +1,5 @@
 {
-  "selo": "f00eb29ce495fa05",
+  "selo": "643e815bda10c2d1",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -224,7 +224,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasRegistoQueryTests.cs :: BoquilhasRegistoQueryTests.FindByContext_WithAssociatedTrace_ReturnsTraceProductionAndTool": "dff02e03d1c809f7",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasRegistoQueryTests.cs :: BoquilhasRegistoQueryTests.FindByContext_WithoutTrace_ReturnsToolAndNoTrace": "0ded0574ec3a50bf",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasRegistoQueryTests.cs :: BoquilhasRegistoQueryTests.FindTrace_CarriesLotAccountedQuantity": "ef60e4a7402a1729",
-    "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasRegistoQueryTests.cs :: BoquilhasRegistoQueryTests.FindTrace_ReadsOnlyThePageAsked_TheTotalsCountEveryMovement": "117a1627852efa50",
+    "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasRegistoQueryTests.cs :: BoquilhasRegistoQueryTests.FindTrace_ReadsOnlyThePageAsked_TheTotalsCountEveryMovement": "9985c9b053da9b97",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasRegistoQueryTests.cs :: BoquilhasRegistoQueryTests.MissingPiecesAreNotDiscrepancy_TheBalanceStaysLegitimatelyOut": "3582f8416437b59d",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasRegistoQueryTests.cs :: BoquilhasRegistoQueryTests.Movements_AreListedByRealDate_NotByInsertionOrder": "b3bb540c24815dc0",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasRegistoQueryTests.cs :: BoquilhasRegistoQueryTests.Movements_CarryTheRealDateAndTheFrozenRepairer": "515231e58cb8c369",
@@ -1986,7 +1986,7 @@
     "tests/DMO.Alpha.Web.Tests/BoquilhasMovementCorrectionTests.cs :: BoquilhasRegistoPageTests.DeleteMovement_TheOldestOfSixCanBeDeleted": "fdcae33cbec2786d",
     "tests/DMO.Alpha.Web.Tests/BoquilhasMovementCorrectionTests.cs :: BoquilhasRegistoPageTests.EditMovement_ChangesTheTypeAndRecomputesTheBalance": "2e9829c72a90f1d1",
     "tests/DMO.Alpha.Web.Tests/BoquilhasMovementCorrectionTests.cs :: BoquilhasRegistoPageTests.MovementCorrection_IsHiddenUntilTheEditModeIsOpened": "2356c427fe911cdb",
-    "tests/DMO.Alpha.Web.Tests/BoquilhasMovementCorrectionTests.cs :: BoquilhasRegistoPageTests.Registo_ShowsOnlyThePageAsked_AndAMovementFromAnotherPageOpensToCorrect": "202880cad0facc49",
+    "tests/DMO.Alpha.Web.Tests/BoquilhasMovementCorrectionTests.cs :: BoquilhasRegistoPageTests.Registo_ShowsOnlyThePageAsked_AndAMovementFromAnotherPageOpensToCorrect": "db35489ab90d24ce",
     "tests/DMO.Alpha.Web.Tests/BoquilhasOrdemTests.cs :: (resto do ficheiro)": "e36ed2497f6a7711",
     "tests/DMO.Alpha.Web.Tests/BoquilhasOrdemTests.cs :: BoquilhasRegistoPageTests.GuiasOutOfOrder_TableFollowsTheRealTime_AndTheSaidaCountsFirstAtTheSameTime": "8e91b23c2949147d",
     "tests/DMO.Alpha.Web.Tests/BoquilhasProcuraPeloInicioTests.cs :: (resto do ficheiro)": "eb56309939de8264",
