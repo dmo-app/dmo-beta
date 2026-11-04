@@ -6536,3 +6536,13 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_MostramOUsoDaUltimaLeitura`
 
 Selo depois: `af8964511f5db861`
+
+## A-0505 · 2026-11-04 · ok-do-diogo
+
+Porquê: Junta de #376, #399, #398 e #394 ao ensaio .254; o teste da ficha do Job On só acerta ao texto novo da Utilização (#398, DMO-731, sem «antes»). Diogo 04/11: «tudo que está feito mandar para o oficial».
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraMavZHsAts5GcuXfXucfP3Q
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_MostramOUsoDaUltimaLeitura`
+
+Selo depois: `b214baae2e0a5aad`
