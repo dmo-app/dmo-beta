@@ -1286,3 +1286,11 @@ html:root body .jof2.jof2.jof2 .jof-artigo-aviso[hidden]{display:none}
 /* O número do botão «Linhas» num círculo que se vê, centrado com o texto (Diogo, 29/10/2026: «alinhar o círculo com 1»). */
 html body .jof2 .rail-toggle:not(#_){display:inline-flex;align-items:center;gap:8px}
 html body .jof2 .rail-toggle .count:not(#_){display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-width:22px;height:22px;padding:0 6px;line-height:1;border-radius:999px;border:1px solid currentColor;opacity:1}
+/* Meio ecrã (Diogo, 04/11/2026: usa a app em metade do ecrã 1366×768, ao lado do Excel):
+   os dados da produção passam a filas, sem se sobreporem. Só abaixo de 900px; o ecrã inteiro fica igual. */
+@media (max-width:900px){
+  html body .jof2 .page-head .facts{flex-wrap:wrap;min-width:0}
+  html body .jof2 .page-head .facts-dados{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px 14px;flex:1 1 100%;min-width:0;max-width:100%}
+  html body .jof2 .page-head .facts-dados>.fact-col,html body .jof2 .page-head .facts-dados>.fact-col:first-child{display:flex;flex-wrap:nowrap;gap:6px;min-width:0;padding:0;border:0}
+  html body .jof2 .page-head .head-acoes{flex-wrap:wrap}
+}
