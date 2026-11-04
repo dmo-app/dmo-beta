@@ -682,7 +682,8 @@
       "description": "0.3.0-beta.254 (A-0499): limpeza do CSS, parte 3. Tirámos 13 regras forçadas que não faziam falta nos estilos de Boquilhas e Ferramentas. O aspeto não muda."
     },
     { "id": "DMO-731", "module": "Job On", "description": "0.3.0-beta.254: folha do Job On, cartões CM/MF/BQ: a Utilização mostra só os dois valores («79.30% 58.95%», o anterior a amarelo); a palavra «antes» deixa de ficar por cima do valor." },
-    { "id": "DMO-732", "module": "Controlo", "description": "0.3.0-beta.254: Controlo › Punções: cada linha da lista tem um botão ✎ para corrigir o número, o lote e o lugar na lista, sem apagar tudo até à punção que faltou." }
+    { "id": "DMO-732", "module": "Controlo", "description": "0.3.0-beta.254: Controlo › Punções: cada linha da lista tem um botão ✎ para corrigir o número, o lote e o lugar na lista, sem apagar tudo até à punção que faltou." },
+    { "id": "DMO-735", "module": "Job On", "description": "A folha do Job On (e os corpos das páginas) voltam a deslizar com a roda do rato a 1366×768." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

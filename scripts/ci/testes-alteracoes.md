@@ -6546,3 +6546,23 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/JobOn/JobOnFichaTests.cs :: JobOnFichaTests.Ficha_FerramentasUsadas_MostramOUsoDaUltimaLeitura`
 
 Selo depois: `b214baae2e0a5aad`
+
+## A-0508 · 2026-11-04 · teste-novo
+
+Porquê: DMO-735 (A-0508): teste novo do scroll do Job On
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/ShellProof/scroll-sem-trava.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/scroll-sem-trava.test.cjs :: a folha do Job On e os corpos das páginas não prendem a roda do rato`
+
+Selo depois: `d0ae26e28de15e97`
+
+## A-0508 · 2026-11-04 · teste-novo (2)
+
+Porquê: DMO-735 (A-0508): teste novo a todo o CSS
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/ShellProof/scroll-sem-trava-todo-css.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/scroll-sem-trava-todo-css.test.cjs :: nenhum CSS da app usa overscroll-behavior:contain`
+
+Selo depois: `094038839f9c974e`
