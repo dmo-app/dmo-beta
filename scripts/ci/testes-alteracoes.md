@@ -6629,9 +6629,9 @@ Novos: 1 · mudaram: 0 · saíram: 0
 
 Selo depois: `2cad57a8fa8b26cb`
 
-## A-0515 · 2026-11-04 · ok-do-diogo
+## A-0517 · 2026-11-04 · ok-do-diogo
 
-Porquê: DMO-742: o Registo das Boquilhas é sempre de várias linhas, sem o botão «Várias linhas» (Diogo 04/11 15:30 «mas uma chega»)
+Porquê: DMO-744: o Registo das Boquilhas é sempre de várias linhas, sem o botão «Várias linhas» (Diogo 04/11 15:30 «mas uma chega»)
 Referência: cmsg_01K75FTs9bQnbhhH7qttpgraDncwWsc5dg6Zum7YMJn1Kq
 Novos: 0 · mudaram: 1 · saíram: 0
 
