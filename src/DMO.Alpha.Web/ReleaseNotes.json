@@ -686,7 +686,8 @@
     { "id": "DMO-735", "module": "Job On", "description": "A folha do Job On (e os corpos das páginas) voltam a deslizar com a roda do rato a 1366×768." },
     { "id": "DMO-738", "module": "Job On", "description": "Job On › Editar: a lista para escolher a CM, a MF ou a BQ alarga-se para mostrar o texto todo (por ex. «T269 · Lote 10 · B3 · 72%»), sem sair do ecrã, também a meio ecrã. Ficha da ferramenta › Editar: o seletor «B2» fica à altura dos botões das linhas." },
     { "id": "DMO-740", "module": "Admin", "description": "Admin › SAP › Pasta do SAP neste computador: o passo do SAP volta a mostrar os acentos («a ler as produções (ZFMD)»), em vez de letras estranhas. Carregar outra vez em «Instalar» para os scripts novos." },
-    { "id": "DMO-741", "module": "SAP", "description": "(A-0514): com o SAP a ser usado noutra transação, a leitura das produções abre outra janela do SAP em vez de ir por cima do trabalho; a % de uso abre a ZPPG numa janela nova se o atalho não a abrir; o motivo de cada falha fica no dmo-sap.log." }
+    { "id": "DMO-741", "module": "SAP", "description": "(A-0514): com o SAP a ser usado noutra transação, a leitura das produções abre outra janela do SAP em vez de ir por cima do trabalho; a % de uso abre a ZPPG numa janela nova se o atalho não a abrir; o motivo de cada falha fica no dmo-sap.log." },
+    { "id": "DMO-742", "module": "Job On", "description": "(A-0515): Job On ainda sem produção no SAP: a % de uso da BQ começa na % escrita no Job On anterior com a mesma BQ, em vez da % de hoje. Ficha da ferramenta › Histórico de produções: a produção anterior deixa de dizer «em curso» quando a seguinte já começou." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
