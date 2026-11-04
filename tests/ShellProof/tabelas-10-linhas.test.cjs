@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { test } = require('node:test');
 
-// DMO-745 (A-0518), Diogo 04/11/2026: «tabelas no mínimo deveriam mostrar 10» (Boquilhas › Registos desta
+// DMO-747 (A-0520), Diogo 04/11/2026: «tabelas no mínimo deveriam mostrar 10» (Boquilhas › Registos desta
 // boquilha só mostrava 1 linha depois de se tirar a altura presa à janela). Cada tabela mostra pelo menos
 // 10 linhas antes de deslizar por dentro, e o que a leva cresce com ela (a página desliza, não fica presa).
 const css = fs.readFileSync(path.resolve(__dirname, '../../src/DMO.Alpha.Web/wwwroot/css/dmo-estrutura.css'), 'utf8');

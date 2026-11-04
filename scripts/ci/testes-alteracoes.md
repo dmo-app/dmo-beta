@@ -6639,9 +6639,9 @@ Novos: 0 · mudaram: 1 · saíram: 0
 
 Selo depois: `863f154c1fa3aa30`
 
-## A-0518 · 2026-11-04 · teste-novo
+## A-0520 · 2026-11-04 · teste-novo
 
-Porquê: Tabelas com pelo menos 10 linhas à vista (DMO-745, Diogo 04/11)
+Porquê: Tabelas com pelo menos 10 linhas à vista (DMO-747, Diogo 04/11)
 Novos: 2 · mudaram: 0 · saíram: 0
 
 - novo: `tests/ShellProof/tabelas-10-linhas.test.cjs :: (resto do ficheiro)`
