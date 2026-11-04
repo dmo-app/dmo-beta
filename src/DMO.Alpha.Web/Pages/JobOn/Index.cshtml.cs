@@ -1165,6 +1165,20 @@ public sealed class IndexModel : PageModel
                 page = await _toolCandidates.FindPageAsync(usado! with { MachineId = null, CompanheiraToolIds = companheiras, ReferenciaTotal = Sanitize(reference) }, 1, ToolSuggestionLimit, HttpContext.RequestAborted);
                 filtro += " (nenhuma ligada a esta linha: sem filtro de linha)";
             }
+            if (page.TotalCount == 0 && machineId is not null && term is not null)
+            {
+                // Nada pela referência: procura o escrito só nas ferramentas
+                // desta linha (e nas sem linha), não nas das outras máquinas
+                // (Diogo, 04/11/2026: «no Job On para B3 ainda aparecem BQs
+                // de outras máquinas», DMO-734).
+                page = await _toolCandidates.FindPageAsync(
+                    new ToolCandidateFilter(Type: slot, MachineId: machineId, Search: term, IncluirSemLinha: true, CompanheiraToolIds: companheiras, ReferenciaTotal: Sanitize(reference)), 1, ToolSuggestionLimit, HttpContext.RequestAborted);
+                if (page.TotalCount > 0)
+                {
+                    filtro = "Catálogo completo (nenhuma corresponde) · só desta linha";
+                    maisPorEscrever = 0;
+                }
+            }
             if (page.TotalCount == 0)
             {
                 page = await _toolCandidates.FindPageAsync(
