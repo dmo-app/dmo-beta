@@ -688,7 +688,8 @@
     { "id": "DMO-740", "module": "Admin", "description": "Admin › SAP › Pasta do SAP neste computador: o passo do SAP volta a mostrar os acentos («a ler as produções (ZFMD)»), em vez de letras estranhas. Carregar outra vez em «Instalar» para os scripts novos." },
     { "id": "DMO-741", "module": "SAP", "description": "(A-0514): com o SAP a ser usado noutra transação, a leitura das produções abre outra janela do SAP em vez de ir por cima do trabalho; a % de uso abre a ZPPG numa janela nova se o atalho não a abrir; o motivo de cada falha fica no dmo-sap.log." },
     { "id": "DMO-744", "module": "Boquilhas", "description": "(A-0517): o Registo é sempre de várias linhas (sem o botão «Várias linhas»): escolhe uma ou mais linhas nos cartões, que ficam na cor viva da linha; Saída, Entrada ou Entrada sem reparação em cima; os cartões na lista ficam centrados e a página não salta ao escolher." },
-    { "id": "DMO-745", "module": "Boquilhas", "description": "(A-0518): na ficha da boquilha, «Registos desta boquilha» mostra ao lado do número de movimentos as quantidades de BQ (S, E e SR) de cada registo, também no registo sem Job On." }
+    { "id": "DMO-745", "module": "Boquilhas", "description": "(A-0518): na ficha da boquilha, «Registos desta boquilha» mostra ao lado do número de movimentos as quantidades de BQ (S, E e SR) de cada registo, também no registo sem Job On." },
+    { "id": "DMO-747", "module": "Geral", "description": "(A-0520): as tabelas mostram pelo menos 10 linhas antes de deslizarem por dentro (Boquilhas › «Registos desta boquilha» só mostrava uma); a página continua a deslizar normalmente." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
