@@ -1,5 +1,5 @@
 {
-  "selo": "e9dac66d5ee6281a",
+  "selo": "b4218d7052b70376",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -3651,6 +3651,8 @@
     "tests/ShellProof/scroll-sem-trava-todo-css.test.cjs :: nenhum CSS da app usa overscroll-behavior:contain": "750c79240fd809c2",
     "tests/ShellProof/scroll-sem-trava.test.cjs :: (resto do ficheiro)": "bad7fcb6a00802c9",
     "tests/ShellProof/scroll-sem-trava.test.cjs :: a folha do Job On e os corpos das páginas não prendem a roda do rato": "139326e5acf9d125",
+    "tests/ShellProof/tabelas-10-linhas.test.cjs :: (resto do ficheiro)": "d93077c6d564de0a",
+    "tests/ShellProof/tabelas-10-linhas.test.cjs :: as tabelas mostram pelo menos 10 linhas e os cartões delas crescem com elas": "ad40c39b23f558a0",
     "tests/ShellProof/troca-escolhas.test.cjs :: (resto do ficheiro)": "0dbfc26748ac4d96",
     "tests/ShellProof/troca-escolhas.test.cjs :: OK, NOK e OK outra vez antes de a primeira gravação responder: fica gravada a última escolha": "38f941f4be47fc34",
     "tests/ShellProof/troca-escolhas.test.cjs :: com as setas, o OK/NOK só grava com Enter ou ao sair do campo": "aeabf930170d7e47",

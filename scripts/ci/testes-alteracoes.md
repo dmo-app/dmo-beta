@@ -6657,3 +6657,14 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/ShellProof/tabelas-10-linhas.test.cjs :: as tabelas mostram pelo menos 10 linhas e os cartões delas crescem com elas`
 
 Selo depois: `6accecae1736ee09`
+
+## A-0521 · 2026-11-04 · teste-novo
+
+Porquê: Junta de #415, #416 e #417 sobre a main 638a8593: o teste novo tabelas-10-linhas (#416, DMO-747) entra na impressão (o registo do #416 já o explicava com A-0520). Diogo 04/11: autorização permanente de juntar PR com CI verde.
+Referência: DMO-747, A-0520
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/ShellProof/tabelas-10-linhas.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/tabelas-10-linhas.test.cjs :: as tabelas mostram pelo menos 10 linhas e os cartões delas crescem com elas`
+
+Selo depois: `b4218d7052b70376`
