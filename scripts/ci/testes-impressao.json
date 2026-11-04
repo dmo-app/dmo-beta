@@ -1,5 +1,5 @@
 {
-  "selo": "863f154c1fa3aa30",
+  "selo": "e9dac66d5ee6281a",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -192,6 +192,7 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasAssociacaoQueryTests.cs :: BoquilhasAssociacaoQueryTests.ProducoesDoNumero_MaisRecentePrimeiro_ComAIndicacaoDeTerAMesmaBq": "422b6fa8154989aa",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasAssociacaoQueryTests.cs :: BoquilhasAssociacaoQueryTests.RegistoSemJobOn_DevolveOTraceAvulsoComOsMovimentosESemEleDevolveNulo": "292a912d7ae30e93",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasAssociacaoQueryTests.cs :: BoquilhasAssociacaoQueryTests.RegistosDaBq_PaginaPedidaForaDoFimFicaNaUltima": "9798f1ee3d95456c",
+    "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasAssociacaoQueryTests.cs :: BoquilhasAssociacaoQueryTests.RegistosDaBq_TrazAsQuantidadesDeCadaTipo_TambemSemJobOn": "ab1dde3ff7e8fd12",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasAssociacaoQueryTests.cs :: BoquilhasAssociacaoQueryTests.RegistosDaBq_VemOsDaFerramentaEOsAssociadosMaisRecentesPrimeiro_ComProducaoEMovimentos": "d9ade0d950afba21",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasCurrentQueryTests.cs :: (resto do ficheiro)": "ba2fd3edd6877c27",
     "tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasCurrentQueryTests.cs :: FixedClock.CurrentProduction_ChangesAtEightInLisbonRatherThanServerTime": "c827bcdeb440ab54",

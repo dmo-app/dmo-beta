@@ -80,6 +80,31 @@ public sealed class BoquilhasAssociacaoQueryTests : IDisposable
         Assert.Equal(1, semJobOn.MovementCount);
     }
 
+    // As quantidades de BQ de cada tipo, também no registo sem Job On
+    // (Diogo, 04/11/2026: «movimentos não aparecem a quantidade»).
+    [Fact]
+    public async Task RegistosDaBq_TrazAsQuantidadesDeCadaTipo_TambemSemJobOn()
+    {
+        _db.Tools.Add(new Tool { ToolId = "BQ-1", Type = ToolType.Bq, Reference = "T194", Lot = "1" });
+        var avulso = new BqRepairTrace { ToolId = "BQ-1" };
+        var vazio = new BqRepairTrace { ToolId = "BQ-1" };
+        _db.BqRepairTraces.AddRange(avulso, vazio);
+        await _db.SaveChangesAsync();
+        DateTime quando = new(2026, 11, 4, 8, 0, 0, DateTimeKind.Utc);
+        _db.BqMovements.AddRange(
+            new BqMovement { BqRepairTraceId = avulso.Id, Type = BqMovementType.Saida, Quantity = 7, OccurredAtUtc = quando },
+            new BqMovement { BqRepairTraceId = avulso.Id, Type = BqMovementType.Entrada, Quantity = 5, OccurredAtUtc = quando.AddHours(1) },
+            new BqMovement { BqRepairTraceId = avulso.Id, Type = BqMovementType.EntradaSemReparacao, Quantity = 2, OccurredAtUtc = quando.AddHours(2) });
+        await _db.SaveChangesAsync();
+
+        var pagina = await new BoquilhasAssociacaoQuery(_db).RegistosDaBqAsync("BQ-1", null);
+
+        var semJobOn = pagina.Items.Single(r => r.Id == avulso.Id);
+        Assert.Equal((3, 7, 5, 2), (semJobOn.MovementCount, semJobOn.SaidasQuantidade, semJobOn.EntradasQuantidade, semJobOn.SemReparacaoQuantidade));
+        var semMovimentos = pagina.Items.Single(r => r.Id == vazio.Id);
+        Assert.Equal((0, 0, 0, 0), (semMovimentos.MovementCount, semMovimentos.SaidasQuantidade, semMovimentos.EntradasQuantidade, semMovimentos.SemReparacaoQuantidade));
+    }
+
     [Fact]
     public async Task RegistosDaBq_PaginaPedidaForaDoFimFicaNaUltima()
     {

@@ -6638,3 +6638,13 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: BoquilhasRegistoPageTests.RegisterMany_RecordsEachLineOnItsOwnProduction_WithTheSameTime`
 
 Selo depois: `863f154c1fa3aa30`
+
+## A-0518 · 2026-11-04 · teste-novo
+
+Porquê: DMO-745: Boquilhas › Registos desta boquilha mostra as quantidades S/E/SR de cada registo, também sem Job On
+Referência: cmsg_01K75FTs9bQnbhhH7qttpgraBvmtBiUSLdnBkDMvDN2vgn
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Boquilhas/BoquilhasAssociacaoQueryTests.cs :: BoquilhasAssociacaoQueryTests.RegistosDaBq_TrazAsQuantidadesDeCadaTipo_TambemSemJobOn`
+
+Selo depois: `e9dac66d5ee6281a`
