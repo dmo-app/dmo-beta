@@ -230,7 +230,7 @@
   html body main.peg-page .peg-map-status{margin-top:8px;padding:6px 12px}
 }
 @media (min-width:1100px){
-  html body main.peg-page .peg-context-grid:has(>.dmo-fact:nth-child(6):last-child){grid-template-columns:.7fr .7fr 1fr 1fr 1fr 1.8fr}
+  html body main.peg-page .peg-context-grid:has(>.dmo-fact:nth-child(6):last-child){grid-template-columns:repeat(5,minmax(0,1fr)) minmax(0,.6fr)}
 }
 /* As colunas das leituras e do mapa não alargam a página (num ecrã estreito as tabelas deslizam dentro do cartão). */
 html body main.peg-page :is(.peg-folha,.peg-folha-leituras){min-width:0}
@@ -516,11 +516,7 @@ html body main.peg-page :is(.peg-folha,.peg-folha-leituras){min-width:0}
   html body main.peg-page .peg-card>.dmo-modo-head:has(+form.dmo-filter-bar #pegCmRef){align-items:center;margin-bottom:12px}
   html body main.peg-page .peg-card>.dmo-modo-head:has(+form.dmo-filter-bar #pegCmRef) h3{margin:0;line-height:var(--dmo-control-height)}
   html body main.peg-page .peg-card:has(>.dmo-modo-head+form.dmo-filter-bar #pegCmRef){padding-top:10px}
-  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef){flex-wrap:nowrap;justify-content:flex-start;align-items:flex-end;gap:8px 16px;margin:0}
-  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.dmo-field{flex:0 0 auto;display:block;margin:0}
-  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.dmo-field>label{display:block;margin:0 0 6px;font-size:12px;font-weight:500;color:var(--dmo-muted);white-space:nowrap}
-  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.dmo-field>:is(input,.dmo-suggest){width:234px;flex:0 0 234px}
-  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)~.peg-context-grid{margin-top:8px!important}
+  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef) .dmo-field>label{display:block;margin:0 0 6px;font-size:12px;font-weight:500;color:var(--dmo-muted);white-space:nowrap}
 
   /* Pegamentos · registo: as três tabelas com as mesmas colunas. */
   html body main.peg-page table.peg-registo-tabela{table-layout:fixed;width:100%}
@@ -658,3 +654,33 @@ html:root body #bqCurrentLines>.beta-production-rail-head{display:none}
 /* Pegamentos › Contexto da produção: os valores maiores e ao centro (Diogo, 28/10/2026). */
 html body main.peg-page .peg-context-grid>.dmo-fact{text-align:center;align-items:center}
 html body main.peg-page .peg-context-grid>.dmo-fact>strong{font-size:18px}
+
+/* Pegamentos · Ferramentas (sem Job On), alinhado (Diogo, 06/11/2026: «não está
+   alinhado»): três colunas iguais, CM · BQ · MF, cada uma com a referência e o
+   lote lado a lado; o resumo por baixo com as mesmas três colunas, cada caixa
+   debaixo dos campos dela. O «Associar Job On» fica sempre no canto direito,
+   ao lado do «Criar Pegamentos», em vez de saltar quando este aparece. */
+html body main.peg-page .peg-card>.dmo-modo-head:has(+form.dmo-filter-bar #pegCmRef)>.dmo-modo{margin-left:auto}
+html body main.peg-page .peg-card>.dmo-modo-head:has(+form.dmo-filter-bar #pegCmRef)>.dmo-card-topo-acoes{margin-left:0}
+html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef){display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 24px;align-items:end;margin:0}
+html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.peg-ferr{display:flex;gap:12px;align-items:flex-end;min-width:0}
+html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.peg-ferr>.dmo-field{flex:1 1 0;min-width:0;display:block;margin:0}
+html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.peg-ferr>.dmo-field:has(select){flex:0 0 140px}
+html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.peg-ferr>.dmo-field>:is(input,select,.dmo-suggest){width:100%;min-width:0;box-sizing:border-box;flex:none}
+html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.peg-ferr>.dmo-field>.dmo-suggest>input{width:100%;max-width:none;box-sizing:border-box}
+html body main.peg-page .peg-card>.peg-context-grid.peg-ferr-resumo{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin:12px 0 0!important;padding:0;border:0;background:none;box-shadow:none}
+html body main.peg-page .peg-card>.peg-context-grid.peg-ferr-resumo>.dmo-fact{padding:6px 12px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control,8px);background:var(--dmo-surface-2,transparent)}
+@media (max-width:760px){
+  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef){gap:12px}
+  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.peg-ferr{flex-direction:column;align-items:stretch;gap:8px}
+  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.peg-ferr>.dmo-field:has(select){flex:none}
+  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.peg-ferr>.dmo-field>label{white-space:normal}
+  html body main.peg-page .peg-card>.peg-context-grid.peg-ferr-resumo{gap:12px}
+  html body main.peg-page .peg-card>.peg-context-grid.peg-ferr-resumo>.dmo-fact>strong{font-size:15px}
+}
+html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.peg-ferr>.peg-lote-fixo{flex:0 0 140px}
+html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef) .peg-lote-rotulo{display:block;margin:0 0 6px;font-size:12px;font-weight:500;color:var(--dmo-muted);white-space:nowrap}
+html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef) .peg-lote-valor{display:flex;align-items:center;box-sizing:border-box;height:var(--dmo-control-height);padding:0 10px;border:1px dashed var(--dmo-border);border-radius:var(--dmo-r-control,8px);color:var(--dmo-text);font-variant-numeric:tabular-nums}
+@media (max-width:760px){
+  html body main.peg-page .peg-card>form.dmo-filter-bar:has(#pegCmRef)>.peg-ferr>.peg-lote-fixo{flex:none}
+}

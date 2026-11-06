@@ -1,5 +1,5 @@
 {
-  "selo": "b4218d7052b70376",
+  "selo": "fb004d814fefd7af",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2205,6 +2205,7 @@
     "tests/DMO.Alpha.Web.Tests/Controlo/PegamentosSemJobOnPageTests.cs :: PegamentosSemJobOnPageTests.Novos_SemFerramentas_Recusa_EAssociarAbrePeloControloId": "3a9a9d9a6e48ed11",
     "tests/DMO.Alpha.Web.Tests/Controlo/PegamentosSemJobOnPageTests.cs :: PegamentosSemJobOnPageTests.SemJobOn_CriaMedeEAssociaMaisTarde": "b6949fde32de1782",
     "tests/DMO.Alpha.Web.Tests/Controlo/PegamentosSemJobOnPageTests.cs :: PegamentosSemJobOnPageTests.SemJobOn_CriarRecusado_VoltaComOLoteEscolhido": "4bc786eb5cb28f7a",
+    "tests/DMO.Alpha.Web.Tests/Controlo/PegamentosSemJobOnPageTests.cs :: PegamentosSemJobOnPageTests.SemJobOn_Ferramentas_TodasComOLoteAFrenteEAlinhadas": "17b3389f74793fa6",
     "tests/DMO.Alpha.Web.Tests/Controlo/PegamentosSemJobOnPageTests.cs :: PegamentosSemJobOnPageTests.SemJobOn_LoteQueNaoEDaReferencia_NaoConta": "86e44864dc9c345d",
     "tests/DMO.Alpha.Web.Tests/Controlo/PegamentosSemJobOnPageTests.cs :: PegamentosSemJobOnPageTests.SemJobOn_ReferenciaComVariosLotes_EscolheOLoteEAssocia": "e9368b3c9a84b788",
     "tests/DMO.Alpha.Web.Tests/Controlo/PesoCapSupportPageTests.cs :: (resto do ficheiro)": "f1e81569c89c7547",

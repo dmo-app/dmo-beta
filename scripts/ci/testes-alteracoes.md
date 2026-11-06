@@ -6668,3 +6668,13 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/ShellProof/tabelas-10-linhas.test.cjs :: as tabelas mostram pelo menos 10 linhas e os cartões delas crescem com elas`
 
 Selo depois: `b4218d7052b70376`
+
+## A-0522 · 2026-11-06 · teste-novo
+
+Porquê: Pegamentos sem Job On: CM, BQ e MF alinhados em colunas com o lote à frente (DMO-748)
+Referência: Diogo 06/11/2026
+Novos: 1 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PegamentosSemJobOnPageTests.cs :: PegamentosSemJobOnPageTests.SemJobOn_Ferramentas_TodasComOLoteAFrenteEAlinhadas`
+
+Selo depois: `fb004d814fefd7af`
