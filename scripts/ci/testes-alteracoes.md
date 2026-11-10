@@ -6678,3 +6678,16 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/Controlo/PegamentosSemJobOnPageTests.cs :: PegamentosSemJobOnPageTests.SemJobOn_Ferramentas_TodasComOLoteAFrenteEAlinhadas`
 
 Selo depois: `fb004d814fefd7af`
+
+## A-0523 · 2026-11-10 · ok-do-diogo
+
+Porquê: DMO-750/A-0524: a Gota escrita à mão ganha ao nome técnico e escreve-se sempre no Editar
+Referência: Diogo 10/11/2026 «tem de ter sempre forma de alterar» / «bloquearam-me a quantidade de gotas», PR #420
+Novos: 2 · mudaram: 1 · saíram: 1
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.GotaNomeTecnico.cs :: JobOnPageTests.Folha_GotaEscritaGanhaAoNomeTecnico_EEditarDeixaEscrever`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.GotaNomeTecnico.cs :: JobOnPageTests.Folha_GotaVemDoNomeTecnicoDaCm_SemEscrita`
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.GotaNomeTecnico.cs :: JobOnPageTests.Folha_SemNomeNaCm_GotaDoMf_ESemNenhum_AEscrita`
+- saiu: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.GotaNomeTecnico.cs :: JobOnPageTests.Folha_GotaVemDoNomeTecnicoDaCm_PorCimaDaEscrita`
+
+Selo depois: `e7f02d837e414d68`
