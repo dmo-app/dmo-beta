@@ -151,7 +151,7 @@ html body main.ri-page:has(#riConsultaFiltros) .ri-filtros-acoes{margin-left:aut
 /* No painel do Job On a consulta cabe no ecrã: os filtros e o resumo ficam, a lista das
    reparações desliza por dentro com os títulos à vista (Diogo, 28/10/2026: «ui das reparações
    dentro do jobon»). */
-html[data-dmo-embedded] body main.ri-page:has(#riConsultaFiltros){box-sizing:border-box;height:100vh;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+html[data-dmo-embedded] body main.ri-page:has(#riConsultaFiltros){box-sizing:border-box;min-height:100vh;display:flex;flex-direction:column;gap:12px}
 html[data-dmo-embedded] body main.ri-page:has(#riConsultaFiltros)>*{flex:none}
 html[data-dmo-embedded] body main.ri-page:has(#riConsultaFiltros)>#riConsultaResultados{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
 html[data-dmo-embedded] body main.ri-page:has(#riConsultaFiltros)>#riConsultaResultados>*{flex:none}
@@ -297,12 +297,12 @@ html body main.def-page .def-conta-modulos :is(th,td){text-align:left;padding:6p
 /* DEFINIÇÕES: a página não desliza (Diogo, 28/10/2026). O título, os separadores, o aviso do
    cadeado e os módulos ficam à vista; só o conteúdo da secção desliza dentro da sua caixa. */
 @media (min-width:1100px){
-  html body .app:has(>main.def-page){height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+  html body .app:has(>main.def-page){min-height:100dvh;display:flex;flex-direction:column}
   html body .app:has(>main.def-page)>:not(main){flex:none}
-  html body .app:has(>main.def-page)>main.def-page{flex:1 1 0;min-height:0;box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column}
-  html body main.def-page>.def-layout{flex:1 1 0;min-height:0}
+  html body .app:has(>main.def-page)>main.def-page{flex:1 0 auto;min-height:0;box-sizing:border-box;display:flex;flex-direction:column}
+  html body main.def-page>.def-layout{flex:1 0 auto;min-height:0}
   html body main.def-page .def-layout>:not(.def-conteudo){flex:none}
-  html body main.def-page .def-layout>.def-conteudo{flex:1 1 0;min-height:0;overflow:auto}
+  html body main.def-page .def-layout>.def-conteudo{flex:1 0 auto;min-height:0;overflow:auto}
 }
 
 /* REPARAÇÃO (Registar, Histórico, Consultar) e ARMAZÉM › MOVIMENTOS: do título ao primeiro
@@ -368,7 +368,7 @@ html body #riLinhasRail .beta-production-lines :is(button,.dmo-rail-link):is(.dm
   html body main:is(.arm-page,:has(#armMovimentos)) .dmo-table-wrap>.dmo-table thead th{position:sticky;top:-4px;z-index:2}
 
   /* REGISTO: a página tem a altura do ecrã; as últimas entradas e saídas ficam com o que sobra. */
-  html body main.beta-light-main.arm-page{box-sizing:border-box;height:calc(100vh - 95px);grid-template-rows:auto auto 104px auto auto minmax(0,1fr)}
+  html body main.beta-light-main.arm-page{box-sizing:border-box;min-height:calc(100vh - 95px);grid-template-rows:auto auto 104px auto auto minmax(0,1fr)}
   html body main.arm-page #armRegisto>#armLog{align-self:start;display:flex;flex-direction:column;min-height:0;max-height:calc(100% - 12px);margin:12px 0 0;padding:12px 20px}
   html body main.arm-page #armLog>.dmo-card-topo{flex:none;min-height:0;margin:0 0 8px}
   html body main.arm-page #armLog>.dmo-table-wrap{flex:0 1 auto;min-height:0}
@@ -386,7 +386,7 @@ html body #riLinhasRail .beta-production-lines :is(button,.dmo-rail-link):is(.dm
   html body main.arm-page #armProcuraLista .dmo-table-wrap{max-height:max(150px,calc(100vh - 560px))}
 
   /* MOVIMENTOS: os dois cartões chegam ao fundo do ecrã; as tabelas deslizam dentro deles. */
-  html body main.dmo-workspace:has(#armMovimentos){box-sizing:border-box;height:calc(100vh - 95px);display:flex;flex-direction:column}
+  html body main.dmo-workspace:has(#armMovimentos){box-sizing:border-box;min-height:calc(100vh - 95px);display:flex;flex-direction:column}
   html body main.dmo-workspace:has(#armMovimentos)>.page-head{flex:none}
   html body main:has(#armMovimentos) .arm-mov{flex:1 1 auto;min-height:0;align-items:start;grid-template-rows:minmax(0,1fr)}
   /* O cartão tem a altura do que leva; só chega ao fundo (e a tabela desliza) quando não cabe. */
@@ -427,3 +427,12 @@ html body main.def-page .def-conta-modulos:not(#_) :is(th,td){padding:0 32px 0 0
 html body main.def-page .def-conta-modulos:not(#_) thead th{padding-bottom:4px;font-size:12px;font-weight:500;color:var(--dmo-muted)}
 html body main.def-page .def-conta-modulos:not(#_) tbody td{font-size:15px;font-weight:600;color:var(--dmo-text)}
 html body main.def-page .def-conta-modulos:not(#_) tbody tr:hover{background:none}
+
+/* R7 (DMO-694): Armazém › Registo no painel (mais estreito que 1100 px): «Registar», Entrada e Saída
+   numa só linha com Referência e Posição, alinhados pela base dos campos, como na página normal. */
+@media (max-width:1099.98px){
+  html body main.arm-page #armProcuraForm{display:flex;flex-wrap:nowrap;align-items:flex-end;gap:8px}
+  html body main.arm-page #armProcuraForm>.arm-modo-linha{display:flex;flex:none;align-items:center;gap:8px;margin:0}
+  html body main.arm-page #armProcuraForm .arm-modo-linha>*{margin:0}
+  html body main.arm-page #armProcuraForm .arm-modo-separador{align-self:stretch;width:1px;background:var(--dmo-border)}
+}

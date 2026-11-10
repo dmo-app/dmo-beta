@@ -61,21 +61,41 @@
           }
         </div>
         <form method="get" asp-page="/Controlo/Pegamentos" class="dmo-filter-bar">
-          <div class="dmo-field">
-            <label for="pegCmRef">CM — referência</label>
-            <input id="pegCmRef" name="cm_ref" value="@Model.RequestedCmReference" placeholder="Ex.: 5447" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="cm" data-dmo-suggest-submit />
+          @* Todos com o lote à frente da referência (Diogo, 06/11/2026: «para todos
+             terem lote em frente»): com um só lote mostra-o fixo, sem escolha. *@
+          <div class="peg-ferr" data-peg-ferr="cm">
+            <div class="dmo-field">
+              <label for="pegCmRef">CM — referência</label>
+              <input id="pegCmRef" name="cm_ref" value="@Model.RequestedCmReference" placeholder="Ex.: 5447" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="cm" data-dmo-suggest-submit />
+            </div>
+            <partial name="_PegamentosLote" model="@(("pegCmRef", "cm_tool", "CM — lote", Model.CmLotes, Model.CmTool?.ToolId, Model.RequestedCmReference))" />
+            @if (Model.CmLotes.Count <= 1)
+            {
+              <div class="dmo-field peg-lote-fixo"><span class="peg-lote-rotulo">CM — lote</span><span class="peg-lote-valor">@(Model.CmTool?.Lot ?? "—")</span></div>
+            }
           </div>
-          <partial name="_PegamentosLote" model="@(("pegCmRef", "cm_tool", "CM — lote", Model.CmLotes, Model.CmTool?.ToolId, Model.RequestedCmReference))" />
-          <div class="dmo-field">
-            <label for="pegBqRef">Boquilha (BQ) — referência</label>
-            <input id="pegBqRef" name="bq_ref" value="@Model.RequestedBqReference" placeholder="Ex.: T194" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="bq" data-dmo-suggest-submit />
+          <div class="peg-ferr" data-peg-ferr="bq">
+            <div class="dmo-field">
+              <label for="pegBqRef">Boquilha (BQ) — referência</label>
+              <input id="pegBqRef" name="bq_ref" value="@Model.RequestedBqReference" placeholder="Ex.: T194" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="bq" data-dmo-suggest-submit />
+            </div>
+            <partial name="_PegamentosLote" model="@(("pegBqRef", "bq_tool", "Boquilha (BQ) — lote", Model.BqLotes, Model.BqTool?.ToolId, Model.RequestedBqReference))" />
+            @if (Model.BqLotes.Count <= 1)
+            {
+              <div class="dmo-field peg-lote-fixo"><span class="peg-lote-rotulo">Boquilha (BQ) — lote</span><span class="peg-lote-valor">@(Model.BqTool?.Lot ?? "—")</span></div>
+            }
           </div>
-          <partial name="_PegamentosLote" model="@(("pegBqRef", "bq_tool", "Boquilha (BQ) — lote", Model.BqLotes, Model.BqTool?.ToolId, Model.RequestedBqReference))" />
-          <div class="dmo-field">
-            <label for="pegMfRef">Molde final (MF) — referência</label>
-            <input id="pegMfRef" name="mf_ref" value="@Model.RequestedMfReference" placeholder="Ex.: 5810" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="mf" data-dmo-suggest-submit />
+          <div class="peg-ferr" data-peg-ferr="mf">
+            <div class="dmo-field">
+              <label for="pegMfRef">Molde final (MF) — referência</label>
+              <input id="pegMfRef" name="mf_ref" value="@Model.RequestedMfReference" placeholder="Ex.: 5810" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="mf" data-dmo-suggest-submit />
+            </div>
+            <partial name="_PegamentosLote" model="@(("pegMfRef", "mf_tool", "Molde final (MF) — lote", Model.MfLotes, Model.MfTool?.ToolId, Model.RequestedMfReference))" />
+            @if (Model.MfLotes.Count <= 1)
+            {
+              <div class="dmo-field peg-lote-fixo"><span class="peg-lote-rotulo">Molde final (MF) — lote</span><span class="peg-lote-valor">@(Model.MfTool?.Lot ?? "—")</span></div>
+            }
           </div>
-          <partial name="_PegamentosLote" model="@(("pegMfRef", "mf_tool", "Molde final (MF) — lote", Model.MfLotes, Model.MfTool?.ToolId, Model.RequestedMfReference))" />
           @* Escolher a sugestão mostra logo a referência e o lote, sem botão
              (Diogo, 17/10/2026: os campos de procura aplicam ao escolher). *@
           <noscript><button type="submit" class="dmo-button">Ferramentas</button></noscript>
@@ -83,7 +103,7 @@
         @if (Model.CmTool is not null || Model.BqTool is not null || Model.MfTool is not null
              || Model.CmLotes.Count > 0 || Model.BqLotes.Count > 0 || Model.MfLotes.Count > 0)
         {
-          <div class="dmo-facts peg-context-grid" style="margin-top:12px">
+          <div class="dmo-facts peg-context-grid peg-ferr-resumo">
             <div class="dmo-fact"><span>CM</span><strong>@DMO.Alpha.Web.Pages.Controlo.PegamentosModel.FerramentaEscolhida(Model.CmTool, Model.CmLotes)</strong></div>
             <div class="dmo-fact"><span>BQ</span><strong>@DMO.Alpha.Web.Pages.Controlo.PegamentosModel.FerramentaEscolhida(Model.BqTool, Model.BqLotes)</strong></div>
             <div class="dmo-fact"><span>MF</span><strong>@DMO.Alpha.Web.Pages.Controlo.PegamentosModel.FerramentaEscolhida(Model.MfTool, Model.MfLotes)</strong></div>

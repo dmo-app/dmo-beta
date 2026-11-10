@@ -45,5 +45,8 @@ public sealed record BoquilhasRegistoTrace(
 {
     /// <summary>A página dos movimentos para a tabela (mais recentes primeiro).</summary>
     public DMO.Alpha.Core.Paging.PagedList<BoquilhasRegistoMovement> MovementsPage =>
-        new(Movements, MovementCount, MovementPageNumber, DMO.Alpha.Core.Paging.ListPaging.DefaultPageSize);
+        new(Movements, MovementCount, MovementPageNumber, MovementPageSize);
+
+    /// <summary>Linhas por página nos «Últimos movimentos» (Diogo, 04/11/2026: a lista ficava muito comprida).</summary>
+    public const int MovementPageSize = 10;
 }

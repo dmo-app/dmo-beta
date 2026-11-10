@@ -634,6 +634,51 @@
     else window.setTimeout(depois, 0);
   });
 
+  // O PDF NÃO PERDE O QUE ESTÁ ESCRITO (Diogo, 06/11/2026: «preenchi os
+  // pegamentos sai sem nada»): as leituras só gravam com o Enter. Se ao
+  // carregar em «Extrair PDF» há valores escritos por registar, gravam-se
+  // primeiro (como se fosse o Enter em cada cartão) e o PDF sai depois, já
+  // com elas. Se uma leitura for recusada (valor ilegível), o PDF não sai e
+  // o aviso do cartão fica à vista.
+  var pdfDepois = false;
+
+  function porRegistar() {
+    return Array.prototype.filter.call(document.querySelectorAll('[data-peg-component]'), function (cartao) {
+      return Array.prototype.some.call(cartao.querySelectorAll(NOVA), function (linha) {
+        var v = valores(linha);
+        return String(v[0]).trim() !== '' || String(v[1]).trim() !== '';
+      });
+    });
+  }
+
+  function tirarPdf() {
+    if (!pdfDepois || Object.keys(acoes).length) return;
+    pdfDepois = false;
+    if (porRegistar().length) return;
+    var botao = document.getElementById('pegExtrairPdf');
+    if (botao && botao.form) { botao.form.setAttribute('data-peg-pdf-pronto', ''); botao.form.requestSubmit(botao); }
+  }
+
+  document.addEventListener('submit', function (evento) {
+    var form = evento.target;
+    if (!form.querySelector || !form.querySelector('#pegExtrairPdf')) return;
+    if (form.hasAttribute('data-peg-pdf-pronto')) { form.removeAttribute('data-peg-pdf-pronto'); return; }
+    var cartoes = porRegistar();
+    if (!cartoes.length || !window.DmoTroca) return;
+    evento.preventDefault();
+    evento.stopImmediatePropagation();
+    pdfDepois = true;
+    cartoes.forEach(function (cartao) {
+      var registo = cartao.querySelector('form[id^="peg-registar-"]');
+      if (registo && registo.reportValidity()) registo.requestSubmit();
+    });
+    if (!Object.keys(acoes).length) pdfDepois = false;
+  }, true);
+
+  ['dmo:troca', 'dmo:fim'].forEach(function (nome) {
+    document.addEventListener(nome, function () { window.setTimeout(tirarPdf, 0); });
+  });
+
   preparar(document);
   document.querySelectorAll('[data-peg-component]').forEach(function (cartao) {
     contagem[componenteDe(cartao)] = leituras(cartao);

@@ -74,7 +74,7 @@ public sealed partial class DefinicoesPorModuloPageTests
         Assert.Contains("202501", producoes, StringComparison.Ordinal);
         Assert.Contains($"title=\"{maquina} · 21/01/2025 a 04/02/2025\"", producoes, StringComparison.Ordinal);
         Assert.Contains(1_404_234.ToString("#,0", System.Globalization.CultureInfo.GetCultureInfo("pt-PT")), producoes, StringComparison.Ordinal);
-        Assert.Matches("<a class=\"ferr-armazem-link\" href=\"/JobOn\\?jobon_id=\\d+\"><strong>202501</strong></a>", producoes);
+        Assert.Matches("<a class=\"ferr-armazem-link\" href=\"/JobOn\\?jobon_id=\\d+\"><strong>[^<]*</strong></a></td>\\s*<td><small class=\"ferr-producao-maquina\">202501</small></td>", producoes); // R1
         Assert.DoesNotContain("id=\"ferrProducoesSemSap\"", producoes, StringComparison.Ordinal);
     }
 
@@ -162,8 +162,8 @@ public sealed partial class DefinicoesPorModuloPageTests
         var client = await LoginOperatorAsync("7109", DmoCapabilities.Ferramentas);
         var ficha = await (await client.GetAsync($"/Ferramentas/Ficha?tool_id={toolId}")).Content.ReadAsStringAsync();
 
-        // Vem depois da informação técnica, fechado.
-        Assert.True(ficha.IndexOf("id=\"ferrHistoricoProducoes\"", StringComparison.Ordinal) > ficha.IndexOf("id=\"ferr-tech-title\"", StringComparison.Ordinal));
+        // Vem antes da informação técnica, fechado (Diogo, 02/11/2026: «primeiro histórico de produções, depois informação técnica»).
+        Assert.True(ficha.IndexOf("id=\"ferrHistoricoProducoes\"", StringComparison.Ordinal) < ficha.IndexOf("id=\"ferr-tech-title\"", StringComparison.Ordinal));
         var historico = WebUtility.HtmlDecode(ZonaUsoSap(ficha, "ferrHistoricoProducoes"));
         Assert.Contains("Histórico de produções", historico, StringComparison.Ordinal);
         Assert.Contains("<details>", historico, StringComparison.Ordinal);

@@ -600,4 +600,25 @@ public sealed class PegamentosSemJobOnPageTests : IClassFixture<CustomWebApplica
         using var scope = _factory.Services.CreateScope();
         Assert.Equal(0, await scope.ServiceProvider.GetRequiredService<DmoDbContext>().Pegamentos.CountAsync());
     }
+
+    [Fact]
+    public async Task SemJobOn_Ferramentas_TodasComOLoteAFrenteEAlinhadas()
+    {
+        // Diogo, 06/11/2026 («não está alinhado», «para todos terem lote em
+        // frente»): a CM, a BQ e o MF ficam cada um na sua coluna, com o lote
+        // à frente da referência. Com um só lote mostra-o fixo; com vários, a escolha.
+        await SeedProductionAsync();
+        await SeedLotesAsync();
+        using var client = await LoginAsync("4506");
+
+        var escolha = await HtmlAsync(client, $"{PagePath}?cm_ref=5447&bq_ref=T194&mf_ref=5810");
+        Assert.Contains("<div class=\"peg-ferr\" data-peg-ferr=\"cm\">", escolha);
+        Assert.Contains("<div class=\"peg-ferr\" data-peg-ferr=\"bq\">", escolha);
+        Assert.Contains("<div class=\"peg-ferr\" data-peg-ferr=\"mf\">", escolha);
+        Assert.Contains("<span class=\"peg-lote-rotulo\">CM — lote</span><span class=\"peg-lote-valor\">3</span>", escolha);
+        Assert.Contains("<span class=\"peg-lote-rotulo\">Molde final (MF) — lote</span><span class=\"peg-lote-valor\">1</span>", escolha);
+        Assert.Contains("<select id=\"pegBqRefLote\"", escolha);
+        Assert.DoesNotContain("Boquilha (BQ) — lote</span>", escolha);
+        Assert.Contains("dmo-facts peg-context-grid peg-ferr-resumo", escolha);
+    }
 }

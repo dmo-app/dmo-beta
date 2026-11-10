@@ -448,7 +448,7 @@
           <div id="lightToolWarnings" class="job-tool-warnings">
             @foreach (var fact in Model.FolhaAberta ? Model.FichaFacts : Array.Empty<DMO.Alpha.Core.Production.JobOnToolFacts>())
             {
-              foreach (var avisoFerramenta in IndexModel.AvisosDasFerramentas(fact, Model.MostrarAvisoArmazem))
+              foreach (var avisoFerramenta in IndexModel.AvisosDasFerramentas(fact, Model.MostrarAvisoArmazem, Model.AvisosEscondidos))
               {
                 <div class="jobon-aviso warn" role="status">@avisoFerramenta.Texto@foreach (var link in avisoFerramenta.Links)
                   {<partial name="_DmoAvisoLink" model="link" />}</div>

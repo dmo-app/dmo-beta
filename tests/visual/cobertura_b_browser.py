@@ -96,24 +96,15 @@ with sync_playwright() as playwright:
                 falhas.append(f'puncoes {ecra}: o canto do cartão não está encostado à direita: {topo} / {cartao}')
         if page.evaluate(SCROLL_LATERAL) > 0:
             falhas.append(f'puncoes {ecra}: a página desliza para os lados ({page.evaluate(SCROLL_LATERAL)} px)')
-        if page.evaluate(SCROLL_VERTICAL) > 1:
-            falhas.append(f'puncoes {ecra}: a página desliza para baixo ({page.evaluate(SCROLL_VERTICAL)} px)')
         context.close()
 
-        # Os Pegamentos: a página não desliza; só a folha, por dentro.
+        # Os Pegamentos: a página não desliza para os lados; na vertical desliza como antes (Diogo, 03/11/2026).
         context, page = abrir(browser, 'pegamentos-folha.html', '/Controlo/Pegamentos', largura, altura)
         if page.locator('.peg-folha').count() == 0:
             falhas.append(f'pegamentos {ecra}: sem .peg-folha no HTML (nada para medir)')
         else:
-            if page.evaluate(SCROLL_VERTICAL) > 1:
-                falhas.append(f'pegamentos {ecra}: a página desliza para baixo ({page.evaluate(SCROLL_VERTICAL)} px)')
             if page.evaluate(SCROLL_LATERAL) > 0:
                 falhas.append(f'pegamentos {ecra}: a página desliza para os lados ({page.evaluate(SCROLL_LATERAL)} px)')
-            if page.eval_on_selector('.peg-folha', 'e => getComputedStyle(e).overflowY') not in ('auto', 'scroll'):
-                falhas.append(f'pegamentos {ecra}: a folha não desliza por dentro')
-            folha = page.evaluate(RETANGULO, '.peg-folha')
-            if folha and folha['b'] > altura + 0.5:
-                falhas.append(f'pegamentos {ecra}: a folha sai do ecrã por baixo ({folha["b"]})')
         context.close()
 
         # O Peso: a leitura nova estreita e o «Registar leitura» com a largura dos dois campos.
@@ -152,8 +143,7 @@ with sync_playwright() as playwright:
         return sum(canais(rgb))
 
     def sem_deslizar(page, onde):
-        if page.evaluate(SCROLL_VERTICAL) > 1:
-            falhas.append(f'{onde}: a página desliza para baixo ({page.evaluate(SCROLL_VERTICAL)} px)')
+        # Só para os lados: na vertical a página volta a deslizar (Diogo, 03/11/2026: «as janelas todas como estavam antes»).
         if page.evaluate(SCROLL_LATERAL) > 0:
             falhas.append(f'{onde}: a página desliza para os lados ({page.evaluate(SCROLL_LATERAL)} px)')
 

@@ -425,6 +425,7 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.Property(t => t.Lot).IsRequired();
             entity.Property(t => t.DuplicateWarningByNameFrozen).HasMaxLength(254);
             entity.Property(t => t.FabricaOrigem).HasMaxLength(32);
+            entity.Property(t => t.Fabricante).HasMaxLength(120);
             entity.Property(t => t.SapCodigo).HasMaxLength(FerramentaUtilizacao.CodigoMaxLength);
             entity.Property(t => t.SapFornecedor).HasMaxLength(254);
             entity.Property(t => t.SapPercentagem).HasPrecision(9, 2);
