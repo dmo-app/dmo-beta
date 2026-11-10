@@ -6679,6 +6679,17 @@ Novos: 1 · mudaram: 0 · saíram: 0
 
 Selo depois: `fb004d814fefd7af`
 
+## A-0523 · 2026-11-10 · teste-novo
+
+Porquê: Teste novo: sem a B2 escolhida, o seletor B2 vem escondido (Diogo, 10/11/2026).
+Referência: A-0523
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeletorB2Escondido.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeletorB2Escondido.cs :: FerramentasPagesTests.Registar_SemAB2Escolhida_EscondeOSeletorB2`
+
+Selo depois: `297f7ad0f8634155`
+
 ## A-0525 · 2026-11-10 · contagem-lista
 
 Porquê: DMO-751 (A-0525): testes novos do Enter na procura do Job On; o package.json só junta o ficheiro novo à lista do test:js.
@@ -6694,4 +6705,4 @@ Novos: 8 · mudaram: 1 · saíram: 0
 - novo: `tests/visual/jobon_procura_enter_browser.py`
 - mudou: `tests/ShellProof/package.json`
 
-Selo depois: `1c7aee95b1228c82`
+Selo depois: `9f1a03dc4d6a170e`
