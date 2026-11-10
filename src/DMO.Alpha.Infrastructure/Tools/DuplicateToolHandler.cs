@@ -116,7 +116,8 @@ public sealed class DuplicateToolHandler : IDuplicateToolHandler
             AssociatedMfReference = source.AssociatedMfReference,
             BqAccountedQuantity = source.BqAccountedQuantity,
             AnQuantity = source.AnQuantity,
-            TechnicalName = source.TechnicalName,
+            // O nome técnico é de cada ferramenta (do SAP): não se copia, senão a
+            // cópia fica com as gotas e o tipo da de origem (Diogo, 10/11/2026).
             FabricaOrigem = source.FabricaOrigem,
             RegisteredAtUtc = DateTime.UtcNow
         };

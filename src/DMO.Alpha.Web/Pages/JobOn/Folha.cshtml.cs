@@ -366,9 +366,10 @@ public sealed class FolhaModel(
         JobOn is null ? null : new[] { Fact(JobOn.CmToolId), Fact(JobOn.MfToolId) }.FirstOrDefault(f => f?.Gotas is not null);
 
     /// <summary>A Gota da produção: a do nome técnico; sem ela, a escrita na folha (<c>cab_gota</c>).</summary>
+    /// A escrita à mão ganha sempre (Diogo, 10/11/2026: «tem de ter sempre forma de alterar»).
     public string? Gota =>
-        FerramentaDaGota?.Gotas?.ToString(System.Globalization.CultureInfo.InvariantCulture)
-        ?? (Folha.Valor("cab_gota") is { } escrita && !string.IsNullOrWhiteSpace(escrita) ? escrita : null);
+        (Folha.Valor("cab_gota") is { } escrita && !string.IsNullOrWhiteSpace(escrita) ? escrita : null)
+        ?? FerramentaDaGota?.Gotas?.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
     /// <summary>De onde vem a Gota quando vem do nome técnico («Do nome técnico da CM: M107595MPPSX»).</summary>
     public string? GotaOrigem => FerramentaDaGota is { } f ? $"Do nome técnico {(f.Type == "MF" ? "do MF" : "da CM")}: {f.NomeTecnico}" : null;
