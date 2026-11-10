@@ -6679,7 +6679,7 @@ Novos: 1 · mudaram: 0 · saíram: 0
 
 Selo depois: `fb004d814fefd7af`
 
-## A-0523 · 2026-11-10 · ok-do-diogo
+## A-0524 · 2026-11-10 · ok-do-diogo
 
 Porquê: DMO-750/A-0524: a Gota escrita à mão ganha ao nome técnico e escreve-se sempre no Editar
 Referência: Diogo 10/11/2026 «tem de ter sempre forma de alterar» / «bloquearam-me a quantidade de gotas», PR #420
