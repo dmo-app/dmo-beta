@@ -6679,7 +6679,7 @@ Novos: 1 · mudaram: 0 · saíram: 0
 
 Selo depois: `fb004d814fefd7af`
 
-## A-0523 · 2026-11-10 · contagem-lista
+## A-0525 · 2026-11-10 · contagem-lista
 
 Porquê: DMO-751 (A-0525): testes novos do Enter na procura do Job On; o package.json só junta o ficheiro novo à lista do test:js.
 Novos: 8 · mudaram: 1 · saíram: 0
