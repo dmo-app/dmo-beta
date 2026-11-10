@@ -692,7 +692,7 @@
     { "id": "DMO-747", "module": "Geral", "description": "(A-0520): as tabelas mostram pelo menos 10 linhas antes de deslizarem por dentro (Boquilhas › «Registos desta boquilha» só mostrava uma); a página continua a deslizar normalmente." },
     { "id": "DMO-746", "module": "Boquilhas", "description": "(A-0519): no Registo, cada linha escolhida mostra o mesmo que o cartão numa linha: linha, BQ, lote, referência e produção." },
     { "id": "DMO-748", "module": "Pegamentos", "description": "(A-0522): Pegamentos sem Job On: CM, BQ e MF alinhados em três colunas, todos com o lote à frente da referência e o resumo por baixo de cada um; «Associar Job On» fica sempre no canto; a Tolerância ocupa menos espaço no contexto. «Extrair PDF» grava primeiro as leituras escritas sem Enter, para o PDF não sair vazio." },
-    { "id": "DMO-749", "module": "Ferramentas", "description": "(A-0523): em Ferramentas › Criar, o seletor B2 mostra «Sem escolha» numa só linha (já não fica por cima do Lote) e a Data de aquisição aparece inteira." }
+    { "id": "DMO-749", "module": "Ferramentas", "description": "(A-0523): em Ferramentas › Criar, o seletor B2 mostra «Sem escolha» numa só linha (já não fica por cima do Lote) e a Data de aquisição aparece inteira. No Criar e na ficha, o seletor B2 só aparece quando a B2 está nas Linhas compatíveis." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
