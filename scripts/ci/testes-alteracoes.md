@@ -6678,3 +6678,14 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/Controlo/PegamentosSemJobOnPageTests.cs :: PegamentosSemJobOnPageTests.SemJobOn_Ferramentas_TodasComOLoteAFrenteEAlinhadas`
 
 Selo depois: `fb004d814fefd7af`
+
+## A-0523 · 2026-11-10 · teste-novo
+
+Porquê: Teste novo: sem a B2 escolhida, o seletor B2 vem escondido (Diogo, 10/11/2026).
+Referência: A-0523
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeletorB2Escondido.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeletorB2Escondido.cs :: FerramentasPagesTests.Registar_SemAB2Escolhida_EscondeOSeletorB2`
+
+Selo depois: `297f7ad0f8634155`

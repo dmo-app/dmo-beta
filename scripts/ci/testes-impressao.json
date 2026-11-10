@@ -1,5 +1,5 @@
 {
-  "selo": "fb004d814fefd7af",
+  "selo": "297f7ad0f8634155",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2644,6 +2644,8 @@
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Ficha_Editar_LinhasCompativeis_InformacaoOpcionalComFabricaDeOrigem": "ee13e5bcf10cdd69",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Ficha_PercentagemDeUso_NoEditar_GravaComOGuardar_SoAvisos": "52df90b089900255",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeccoesTecnicas.cs :: FerramentasPagesTests.Registo_InformacaoTecnicaEmSeccoesComDica_QuantidadeAntesDaRefMf": "88622d2c97276fe8",
+    "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeletorB2Escondido.cs :: (resto do ficheiro)": "bfdd8497dd6380de",
+    "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SeletorB2Escondido.cs :: FerramentasPagesTests.Registar_SemAB2Escolhida_EscondeOSeletorB2": "d92a9acfa5e89703",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SemTampaoNaCm.cs :: (resto do ficheiro)": "38aff1b8828b1495",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SemTampaoNaCm.cs :: FerramentasPagesTests.Ficha_Cm_MostraOVolumeDaPuncao_EGuardaOValorEditado": "81b35ec055453b8c",
     "tests/DMO.Alpha.Web.Tests/FerramentasPagesTests.SemTampaoNaCm.cs :: FerramentasPagesTests.Ficha_GuardarSemTampaoNemPuncao_MantemOsValoresGravados": "4b716bda32f183cf",
