@@ -10,16 +10,16 @@ namespace DMO.Alpha.Web.Tests;
 /// A GOTA PELO NOME TÉCNICO (Diogo, 28/10/2026: «ver se o jobon já tem em
 /// consideração nome técnico para mudar gota e meter número correto»): a Gota
 /// da folha, do painel e do Imprimir vem do nome técnico da CM (senão do MF),
-/// por cima da escrita à mão. Sem nome técnico que a diga, fica a escrita.
+/// quando não há Gota escrita à mão; a escrita ganha sempre (Diogo, 10/11/2026).
 /// </summary>
 public partial class JobOnPageTests
 {
     [Fact]
-    public async Task Folha_GotaVemDoNomeTecnicoDaCm_PorCimaDaEscrita()
+    public async Task Folha_GotaVemDoNomeTecnicoDaCm_SemEscrita()
     {
         SeedUser("4602", "Chefe gota", "provider-folha-gota", "Folha1234!");
         var id = await SeedJobOnCompletoAsync();
-        await GotaEscritaENomesAsync(id, "1", cm: "M580955MPPSX", mf: "M58104TMFPSV");
+        await GotaEscritaENomesAsync(id, "", cm: "M580955MPPSX", mf: "M58104TMFPSV");
         using var client = await LoginClientAsync("4602", "Folha1234!");
 
         var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={id}"));
@@ -28,15 +28,27 @@ public partial class JobOnPageTests
 
         var painel = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={id}&painel=1"));
         Assert.Contains("<div><dt>Gota</dt><dd>2</dd></div>", painel, StringComparison.Ordinal);
+    }
 
-        // No Editar não se escreve: mostra a do nome técnico e a escrita vai como está.
+    // Diogo, 10/11/2026: «tem de ter sempre forma de alterar» (C3 com 4 gotas
+    // por duplicar da B1). A escrita à mão ganha ao nome técnico, e no Editar
+    // a Gota escreve-se sempre.
+    [Fact]
+    public async Task Folha_GotaEscritaGanhaAoNomeTecnico_EEditarDeixaEscrever()
+    {
+        SeedUser("4604", "Chefe gota escrita", "provider-folha-gota-escrita", "Folha1234!");
+        var id = await SeedJobOnCompletoAsync();
+        await GotaEscritaENomesAsync(id, "", cm: "M580995MPPSX", mf: null);
+        using var client = await LoginClientAsync("4604", "Folha1234!");
+
         var editar = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={id}&editar=1"));
-        Assert.DoesNotContain("id=\"jobon-cab-gota\"", editar, StringComparison.Ordinal);
-        Assert.Contains("data-jof-gota-nome-tecnico>2</strong>", editar, StringComparison.Ordinal);
-        var (acao, campos) = EnvioDoFormulario.Mudar(editar, "jobon-cab-seccoes", "12");
+        Assert.Contains("id=\"jobon-cab-gota\"", editar, StringComparison.Ordinal);
+        var (acao, campos) = EnvioDoFormulario.Mudar(editar, "jobon-cab-gota", "3");
         Assert.Equal(HttpStatusCode.Redirect, (await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos))).StatusCode);
-        using var scope = _factory.Services.CreateScope();
-        Assert.Equal("1", scope.ServiceProvider.GetRequiredService<DmoDbContext>().JobOnFolhas.AsNoTracking().Single(f => f.JobOnId == id).CabGota);
+
+        var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={id}"));
+        Assert.DoesNotContain("data-jof-gota-nome-tecnico", html, StringComparison.Ordinal);
+        Assert.Contains("<div><span>Gota</span><b>3</b></div>", html, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -44,7 +56,7 @@ public partial class JobOnPageTests
     {
         SeedUser("4603", "Chefe gota MF", "provider-folha-gota-mf", "Folha1234!");
         var id = await SeedJobOnCompletoAsync();
-        await GotaEscritaENomesAsync(id, "1", cm: null, mf: "M581095MFPSV");
+        await GotaEscritaENomesAsync(id, "", cm: null, mf: "M581095MFPSV");
         using var client = await LoginClientAsync("4603", "Folha1234!");
 
         var html = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={id}"));

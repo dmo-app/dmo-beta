@@ -657,13 +657,12 @@ else
                     }
                   </select>
                 }
-                else if (chave == "cab_gota" && Model.GotaOrigem is { } origemGota)
+                else if (chave == "cab_gota" && Model.GotaOrigem is { } origemGota && !editar && string.IsNullOrWhiteSpace(Model.Folha.Valor(chave)))
                 {
                   @* A Gota vem do nome técnico da CM (senão do MF), não se escreve (Diogo, 28/10/2026: «ver se o
                      jobon já tem em consideração nome técnico para mudar gota e meter número correto»). No Editar,
                      a escrita à mão vai como está. *@
                   <strong title="@origemGota" data-jof-gota-nome-tecnico>@Model.Gota</strong>
-                  @if (editar) {<input type="hidden" name="@campo.NomeNoFormulario" value="@Model.Folha.Valor(chave)" />}
                 }
                 else if (chave == "cab_peso")
                 {
@@ -675,7 +674,7 @@ else
                 }
                 else if (editar)
                 {
-                  <input class="f" id="@campo.Id" name="@campo.NomeNoFormulario" type="text" maxlength="@campo.Maximo" autocomplete="off" spellcheck="false" value="@Mostra(Model.Folha.Valor(chave))" aria-label="@rotulo" data-edit="@chave" />
+                  <input class="f" id="@campo.Id" name="@campo.NomeNoFormulario" type="text" maxlength="@campo.Maximo" autocomplete="off" spellcheck="false" value="@Mostra(Model.Folha.Valor(chave))" placeholder="@(chave == "cab_gota" ? Model.FerramentaDaGota?.Gotas?.ToString() : null)" title="@(chave == "cab_gota" ? Model.GotaOrigem : null)" aria-label="@rotulo" data-edit="@chave" />
                 }
                 else
                 {
