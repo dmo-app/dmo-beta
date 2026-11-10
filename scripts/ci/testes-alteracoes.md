@@ -6678,3 +6678,20 @@ Novos: 1 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/Controlo/PegamentosSemJobOnPageTests.cs :: PegamentosSemJobOnPageTests.SemJobOn_Ferramentas_TodasComOLoteAFrenteEAlinhadas`
 
 Selo depois: `fb004d814fefd7af`
+
+## A-0523 · 2026-11-10 · contagem-lista
+
+Porquê: DMO-751 (A-0525): testes novos do Enter na procura do Job On; o package.json só junta o ficheiro novo à lista do test:js.
+Novos: 8 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOn/RascunhoEEnterNaProcuraTests.cs :: RascunhoEEnterNaProcuraTests.JobOn_OEnterNaProcuraEntraNaProducao_OScriptVemNaPagina`
+- novo: `tests/ShellProof/jobon-procura-enter.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/jobon-procura-enter.test.cjs :: Enter no dropdown entra na produção escolhida`
+- novo: `tests/ShellProof/jobon-procura-enter.test.cjs :: com a referência completa e a produção no dropdown, o Enter entra (não recarrega a página)`
+- novo: `tests/ShellProof/jobon-procura-enter.test.cjs :: com só o início («3245»), o Enter completa a referência, enche o dropdown e passa-lhe o foco`
+- novo: `tests/ShellProof/jobon-procura-enter.test.cjs :: com várias referências possíveis, o Enter não escolhe nenhuma nem cria Job On`
+- novo: `tests/ShellProof/jobon-procura-enter.test.cjs :: o Enter com a resposta da procura a caminho espera pela lista do texto atual`
+- novo: `tests/visual/jobon_procura_enter_browser.py`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `1c7aee95b1228c82`
