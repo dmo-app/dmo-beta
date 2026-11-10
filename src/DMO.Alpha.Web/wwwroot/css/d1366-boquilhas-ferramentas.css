@@ -50,7 +50,10 @@ html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-type se
 html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-ref :is(input,select){width:104px;min-width:0;padding-inline:10px}
 html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>:is(.ferr-w-lot,.ferr-w-qty) input{width:56px !important;min-width:0}
 html body :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-b2{flex:0 0 auto;width:auto}
-html body :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-b2 select{width:128px !important;min-width:0}
+html body :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-b2 select{width:144px !important;min-width:0;white-space:nowrap}
+/* «Sem escolha» numa linha só (Diogo, 10/11/2026: «espaços»): com o seletor da app
+   (base-select) o texto partia em duas e a 2.ª linha caía em cima do «Lote». */
+html body :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-b2 select :is(selectedcontent,option){white-space:nowrap}
 /* O seletor B2 à altura dos botões das Linhas compatíveis (Diogo, 04/11/2026: «alinhas dropdown da b2»):
    os dois rótulos com a mesma altura e o seletor desce o que os botões descem (6 px do rótulo + 4 px da fila). */
 html body .ferr-create-row-machines>.dmo-field>:is(.dmo-label,label){line-height:16px}
@@ -61,6 +64,8 @@ html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-sap inp
 html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-fab input{width:56px;min-width:0}
 html body main.ferr-page :is(.ferr-create-row,.ferr-tech-campos)>.ferr-w-processo select{width:168px}
 html body main.ferr-page .ferr-tech-campos>.dmo-field:not(.ferr-w-processo,.ferr-w-ref,.ferr-w-sap,.ferr-w-fab) input{width:88px !important;min-width:0}
+/* A Data de aquisição inteira (dd/mm/aaaa e o calendário), sem cortar (Diogo, 10/11/2026). */
+html body main.ferr-page .ferr-tech-campos>.dmo-field input[type=date]{width:140px !important}
 html body main.ferr-page .ferr-tech-campos>.ferr-w-ref input{width:88px !important}
 /* O % uso sem leitura: o «sem registo» cabe, em letra mais pequena. */
 html body main.ferr-page input.ferr-sem-registo-campo::placeholder{font-size:12px}
