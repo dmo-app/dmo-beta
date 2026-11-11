@@ -74,10 +74,10 @@ html body table.dmo-table.pu-grelha tbody th{font-size:14px}
 /* A tabela das punções com larguras fixas: o estado («Visto» / «Por verificar») não mexe as colunas (Diogo, 24/10/2026). */
 .pu-table-fixa{table-layout:fixed;width:100%;min-width:560px}
 .pu-table-fixa .pu-col-escolha{width:0}
-.pu-table-fixa .pu-col-posicao{width:10%}
-.pu-table-fixa .pu-col-numero{width:20%}
+.pu-table-fixa .pu-col-posicao{width:12%}
+.pu-table-fixa .pu-col-numero{width:16%}
 .pu-posicao{font-weight:600;color:var(--dmo-brand-500)}
-.pu-table-fixa .pu-col-lote{width:14%}
+.pu-table-fixa .pu-col-lote{width:10%}
 .pu-table-fixa .pu-col-estado{width:24%}
 .pu-table-fixa td,.pu-table-fixa th{overflow-wrap:anywhere}
 

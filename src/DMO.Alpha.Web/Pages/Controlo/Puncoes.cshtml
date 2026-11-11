@@ -373,6 +373,11 @@
               <label for="pu-lote-puncao" class="pu-oculto">Lote desta punção</label>
               <input id="pu-lote-puncao" name="lote_puncao" inputmode="numeric" maxlength="12" placeholder="Lote desta punção, ex.: 2" />
             </div>
+            @* A CAVIDADE (Diogo, 11/11/2026, DMO-753): escreve-se onde a punção vai ficar. *@
+            <div class="dmo-field pu-cavidade">
+              <label for="pu-cavidade" class="pu-oculto">Posição (cavidade)</label>
+              <input id="pu-cavidade" name="cavidade" maxlength="8" placeholder="Posição, ex.: A1" autocapitalize="characters" />
+            </div>
           </form>
           @* LADO ESQUERDO / LADO DIREITO (Diogo, 02/11/2026): à esquerda o «Registar»,
              o número e o lote (quando o número é repetido); o resto à direita. *@
@@ -420,13 +425,13 @@
         <div class="dmo-table-wrap">
           @* Larguras fixas (Diogo, 24/10/2026): mudar «Visto» para «Por verificar» não mexe a tabela. *@
           <table class="dmo-table pu-table pu-table-fixa" id="puLista" data-dmo-list="Lista de punções">
-            <colgroup><col class="pu-col-escolha" /><col class="pu-col-posicao" /><col class="pu-col-numero" /><col class="pu-col-lote" /><col class="pu-col-estado" /><col class="pu-col-estado" /><col class="pu-col-acoes" /></colgroup>
+            <colgroup><col class="pu-col-escolha" /><col class="pu-col-numero" /><col class="pu-col-lote" /><col class="pu-col-posicao" /><col class="pu-col-estado" /><col class="pu-col-estado" /><col class="pu-col-acoes" /></colgroup>
             <thead>
               <tr>
                 <th></th>
-                <th title="Onde a punção fica na linha: A1, B1, C1, D1, A2… pela ordem da lista (as gotas da linha vêm das Definições).">Posição</th>
                 <th>N.º da punção</th>
                 <th>Lote</th>
+                <th title="A cavidade onde a punção fica: A1, B1, C1, D1…">Posição</th>
                 <th>Punção visto</th>
                 <th>Arrefecedor visto</th>
                 <th class="pu-right"></th>
@@ -440,10 +445,6 @@
               else
               {
                 @* O último registo em cima: vê-se logo se a PU inserida está certa, sem scroll (Diogo, 28/10/2026). *@
-                @* A POSIÇÃO NA LINHA (Diogo, 11/11/2026, DMO-753): A1, B1, C1, D1…; numa linha
-                   de 3 gotas (C3) vai só até C. A mesma conta da folha e do PDF. *@
-                var etiquetas = (Model.Posicoes?.Linha ?? []).Concat(Model.Posicoes?.Reserva ?? []).ToDictionary(p => p.Ordem, p => p.Etiqueta);
-                var ordemLinha = registo.Rows.Select((r, i) => (r.Id, i + 1)).ToDictionary(t => t.Id, t => t.Item2);
                 @foreach (var row in registo.Rows.Reverse())
                 {
                   var estaPu = row.Id == escolhidaPu;
@@ -451,9 +452,9 @@
                       class="@(estaPu ? "selected" : null)" aria-selected="@(estaPu ? "true" : "false")"
                       aria-label="Punção @row.Number · lote @row.Lot · punção @(row.PunchSeen ? "vista" : "por verificar") · arrefecedor @(row.CoolerSeen ? "visto" : "por verificar")">
                     <td><input type="radio" name="inspecao_id" value="@row.Id" form="puVistoForm" required checked="@estaPu" aria-label="Escolher a punção @row.Number · lote @row.Lot" /></td>
-                    <td class="pu-posicao">@(etiquetas.GetValueOrDefault(ordemLinha[row.Id], ""))</td>
                     <td class="pu-number">@row.Number@if (row.IsAlteracao) {<span class="pu-alteracao">Alteração</span>}</td>
                     <td class="pu-lot">@row.Lot</td>
+                    <td class="pu-posicao">@row.Cavidade</td>
                     @foreach (var (campo, visto) in new[] { ("puncao", row.PunchSeen), ("arrefecedor", row.CoolerSeen) })
                     {
                       <td class="pu-estado @(visto ? "on" : null)" data-pu-estado="@campo">
@@ -496,6 +497,10 @@
               <div class="dmo-field">
                 <label for="pu-editar-lote-@row.Id">Lote</label>
                 <input id="pu-editar-lote-@row.Id" name="lote_puncao" inputmode="numeric" maxlength="12" required value="@row.Lot" />
+              </div>
+              <div class="dmo-field">
+                <label for="pu-editar-cavidade-@row.Id">Posição (cavidade)</label>
+                <input id="pu-editar-cavidade-@row.Id" name="cavidade" maxlength="8" value="@row.Cavidade" placeholder="Ex.: A1" />
               </div>
               <div class="dmo-field">
                 <label for="pu-editar-lugar-@row.Id">Lugar na lista</label>

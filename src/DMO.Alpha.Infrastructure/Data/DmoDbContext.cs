@@ -1486,6 +1486,7 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.Property(i => i.Number).HasMaxLength(PuncaoInspecao.NumberMaxLength).IsRequired();
             entity.Property(i => i.Lot).HasMaxLength(DMO.Alpha.Core.Controlo.Puncoes.LotMaxLength).IsRequired();
             entity.Property(i => i.RegisteredBy).HasMaxLength(254);
+            entity.Property(i => i.Cavidade).HasMaxLength(PuncaoInspecao.CavidadeMaxLength);
 
             entity.HasOne(i => i.Puncoes)
                 .WithMany(p => p.Inspecoes)

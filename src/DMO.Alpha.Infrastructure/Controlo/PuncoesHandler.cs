@@ -155,7 +155,8 @@ public sealed class PuncoesHandler
         string? lot,
         string? registeredBy,
         CancellationToken cancellationToken = default,
-        string? punchLot = null)
+        string? punchLot = null,
+        string? cavidade = null)
     {
         var canonicalNumber = number?.Trim();
         if (string.IsNullOrEmpty(canonicalNumber))
@@ -206,6 +207,7 @@ public sealed class PuncoesHandler
                 Position = nextPosition,
                 Number = canonicalNumber,
                 Lot = inspecaoLot,
+                Cavidade = CanonicalCavidade(cavidade),
                 PunchSeen = true,
                 CoolerSeen = true,
                 RegisteredBy = registeredBy,
@@ -262,7 +264,8 @@ public sealed class PuncoesHandler
         string? lot,
         int? afterInspecaoId,
         string? updatedBy,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        string? cavidade = null)
     {
         var canonicalNumber = number?.Trim();
         if (string.IsNullOrEmpty(canonicalNumber))
@@ -300,6 +303,7 @@ public sealed class PuncoesHandler
 
             inspecao.Number = canonicalNumber;
             inspecao.Lot = canonicalLot;
+            inspecao.Cavidade = CanonicalCavidade(cavidade);
             Touch(inspecao.Puncoes!, updatedBy);
 
             if (afterInspecaoId is int depois && depois != inspecao.Id)
@@ -661,6 +665,18 @@ public sealed class PuncoesHandler
     }
 
 
+    /// <summary>A cavidade em maiúsculas e sem espaços (a1 → A1); vazia é null.</summary>
+    public static string? CanonicalCavidade(string? cavidade)
+    {
+        var texto = new string((cavidade ?? "").Where(c => !char.IsWhiteSpace(c)).ToArray()).ToUpperInvariant();
+        if (texto.Length == 0)
+        {
+            return null;
+        }
+
+        return texto.Length > PuncaoInspecao.CavidadeMaxLength ? texto[..PuncaoInspecao.CavidadeMaxLength] : texto;
+    }
+
     private static void Touch(Puncoes registo, string? updatedBy)
     {
         registo.UpdatedBy = updatedBy;
@@ -682,7 +698,8 @@ public sealed class PuncoesHandler
                 i.CoolerSeen,
                 !seen.Add(i.Number),
                 i.RegisteredBy,
-                i.RegisteredAtUtc))
+                i.RegisteredAtUtc,
+                i.Cavidade))
             .ToArray();
 
         return new PuncoesReadModel(

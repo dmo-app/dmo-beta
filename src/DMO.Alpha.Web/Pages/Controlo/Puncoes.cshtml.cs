@@ -365,10 +365,11 @@ public sealed class PuncoesModel : PageModel
         [FromForm(Name = "numero")] string? number,
         [FromForm(Name = "referencia")] string? punchReference,
         [FromForm(Name = "lote")] string? lot,
-        [FromForm(Name = "lote_puncao")] string? punchLot)
+        [FromForm(Name = "lote_puncao")] string? punchLot,
+        [FromForm(Name = "cavidade")] string? cavidade)
     {
         var target = Target(controloId, puncoesId);
-        var result = await _handler.AddAsync(target, number, punchReference, lot, Operator(), HttpContext.RequestAborted, punchLot);
+        var result = await _handler.AddAsync(target, number, punchReference, lot, Operator(), HttpContext.RequestAborted, punchLot, cavidade);
         if (result == PuncoesResult.DuplicatePunch)
         {
             var route = TargetRoute(target);
@@ -413,10 +414,11 @@ public sealed class PuncoesModel : PageModel
         [FromForm(Name = "inspecao_id")] int inspecaoId,
         [FromForm(Name = "numero")] string? number,
         [FromForm(Name = "lote_puncao")] string? punchLot,
-        [FromForm(Name = "depois_de")] int? afterInspecaoId)
+        [FromForm(Name = "depois_de")] int? afterInspecaoId,
+        [FromForm(Name = "cavidade")] string? cavidade)
     {
         var target = Target(controloId, puncoesId);
-        var result = await _handler.EditAsync(target, inspecaoId, number, punchLot, afterInspecaoId, Operator(), HttpContext.RequestAborted);
+        var result = await _handler.EditAsync(target, inspecaoId, number, punchLot, afterInspecaoId, Operator(), HttpContext.RequestAborted, cavidade);
         if (result == PuncoesResult.DuplicatePunch)
         {
             var route = TargetRoute(target);

@@ -1613,6 +1613,10 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Cavidade")
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
                     b.Property<bool>("CoolerSeen")
                         .HasColumnType("boolean");
 
