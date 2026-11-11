@@ -420,10 +420,11 @@
         <div class="dmo-table-wrap">
           @* Larguras fixas (Diogo, 24/10/2026): mudar «Visto» para «Por verificar» não mexe a tabela. *@
           <table class="dmo-table pu-table pu-table-fixa" id="puLista" data-dmo-list="Lista de punções">
-            <colgroup><col class="pu-col-escolha" /><col class="pu-col-numero" /><col class="pu-col-lote" /><col class="pu-col-estado" /><col class="pu-col-estado" /><col class="pu-col-acoes" /></colgroup>
+            <colgroup><col class="pu-col-escolha" /><col class="pu-col-posicao" /><col class="pu-col-numero" /><col class="pu-col-lote" /><col class="pu-col-estado" /><col class="pu-col-estado" /><col class="pu-col-acoes" /></colgroup>
             <thead>
               <tr>
                 <th></th>
+                <th title="Onde a punção fica na linha: A1, B1, C1, D1, A2… pela ordem da lista (as gotas da linha vêm das Definições).">Posição</th>
                 <th>N.º da punção</th>
                 <th>Lote</th>
                 <th>Punção visto</th>
@@ -434,11 +435,15 @@
             <tbody>
               @if (registo is null || registo.Rows.Count == 0)
               {
-                <tr><td colspan="6" class="pu-empty">Sem punções registadas. Adicione o primeiro número.</td></tr>
+                <tr><td colspan="7" class="pu-empty">Sem punções registadas. Adicione o primeiro número.</td></tr>
               }
               else
               {
                 @* O último registo em cima: vê-se logo se a PU inserida está certa, sem scroll (Diogo, 28/10/2026). *@
+                @* A POSIÇÃO NA LINHA (Diogo, 11/11/2026, DMO-753): A1, B1, C1, D1…; numa linha
+                   de 3 gotas (C3) vai só até C. A mesma conta da folha e do PDF. *@
+                var etiquetas = (Model.Posicoes?.Linha ?? []).Concat(Model.Posicoes?.Reserva ?? []).ToDictionary(p => p.Ordem, p => p.Etiqueta);
+                var ordemLinha = registo.Rows.Select((r, i) => (r.Id, i + 1)).ToDictionary(t => t.Id, t => t.Item2);
                 @foreach (var row in registo.Rows.Reverse())
                 {
                   var estaPu = row.Id == escolhidaPu;
@@ -446,6 +451,7 @@
                       class="@(estaPu ? "selected" : null)" aria-selected="@(estaPu ? "true" : "false")"
                       aria-label="Punção @row.Number · lote @row.Lot · punção @(row.PunchSeen ? "vista" : "por verificar") · arrefecedor @(row.CoolerSeen ? "visto" : "por verificar")">
                     <td><input type="radio" name="inspecao_id" value="@row.Id" form="puVistoForm" required checked="@estaPu" aria-label="Escolher a punção @row.Number · lote @row.Lot" /></td>
+                    <td class="pu-posicao">@(etiquetas.GetValueOrDefault(ordemLinha[row.Id], ""))</td>
                     <td class="pu-number">@row.Number@if (row.IsAlteracao) {<span class="pu-alteracao">Alteração</span>}</td>
                     <td class="pu-lot">@row.Lot</td>
                     @foreach (var (campo, visto) in new[] { ("puncao", row.PunchSeen), ("arrefecedor", row.CoolerSeen) })
