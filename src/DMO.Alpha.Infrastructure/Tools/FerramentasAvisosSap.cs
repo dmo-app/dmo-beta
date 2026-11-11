@@ -13,7 +13,10 @@ public sealed class FerramentasAvisosSap(DmoDbContext db, ICurrentAccountContext
         var tool = await db.Tools.SingleOrDefaultAsync(t => t.ToolId == toolId && t.ToolId != ToolRegistryConstants.RemovedToolId, cancellationToken);
         if (tool is null) return null;
         var uso = await db.FerramentaUtilizacoes.AsNoTracking().Where(u => u.ToolId == toolId).OrderByDescending(u => u.Id).FirstOrDefaultAsync(cancellationToken);
-        var quantidade = tool.Type == ToolType.Bq ? tool.BqAccountedQuantity : tool.AnQuantity;
+        // A «Qtd. lote» da ficha é a BqAccountedQuantity em todos os tipos; na CM e
+        // na MF comparar com os AN dava «aqui está vazio» com a quantidade à vista
+        // (Diogo, 10/11/2026: CM 6442 lote 2 com 72 e o aviso «vazio… preencher?»).
+        var quantidade = tool.BqAccountedQuantity;
         return new(toolId, db.Entry(tool).Property<uint>(DmoDbContext.RowVersion).CurrentValue, quantidade,
             tool.SapPecas != quantidade && tool.SapPecas != tool.SapPecasIgnoradas ? tool.SapPecas : null,
             uso?.Percentagem,
@@ -34,11 +37,7 @@ public sealed class FerramentasAvisosSap(DmoDbContext db, ICurrentAccountContext
         var tool = await db.Tools.SingleAsync(t => t.ToolId == toolId, cancellationToken);
         if (campo == "pecas")
         {
-            if (aceitar)
-            {
-                if (tool.Type == ToolType.Bq) tool.BqAccountedQuantity = avisos.Pecas;
-                else tool.AnQuantity = avisos.Pecas;
-            }
+            if (aceitar) tool.BqAccountedQuantity = avisos.Pecas;
             if (!aceitar) tool.SapPecasIgnoradas = avisos.Pecas;
         }
         else
