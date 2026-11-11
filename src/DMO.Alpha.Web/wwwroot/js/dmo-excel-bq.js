@@ -6,11 +6,13 @@
  * Definições das Boquilhas, e fica guardado só neste navegador (IndexedDB,
  * File System Access API: Chrome e Edge), tal como a pasta dos PDFs.
  *
- * Depois de cada registo (e ao abrir as Boquilhas), pergunta ao servidor a
- * versão dos movimentos; se mudou desde a última escrita, envia o ficheiro,
+ * Só às 14:00 e às 16:20, hora de Portugal (Diogo, 30/10/2026, R8; antes era
+ * depois de cada registo): com as Boquilhas abertas, ou ao abri-las depois
+ * dessa hora, pergunta ao servidor a versão dos movimentos; se mudou desde a
+ * última escrita, envia o ficheiro,
  * recebe-o com os dias escritos (desde o dia em que foi escolhido) e grava-o
  * por cima. Com o Excel aberto o Windows não deixa gravar: avisa e tenta de
- * novo no registo seguinte. O ficheiro nunca fica no servidor.
+ * novo na hora seguinte. «Atualizar» escreve a qualquer hora. O ficheiro nunca fica no servidor.
  */
 (function () {
   "use strict";
@@ -67,6 +69,28 @@
     return d.getFullYear() + "-" + mm + "-" + dd;
   }
 
+  // As horas da escrita automática, em Portugal (R8).
+  var HORAS = [14 * 60, 16 * 60 + 20];
+
+  // O dia e os minutos de um momento na hora de Portugal.
+  function emPortugal(data) {
+    var partes = {};
+    new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Lisbon", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
+      .formatToParts(data).forEach(function (p) { partes[p.type] = p.value; });
+    return { dia: partes.year + "-" + partes.month + "-" + partes.day, minutos: Number(partes.hour) * 60 + Number(partes.minute) };
+  }
+
+  // Já passou uma das horas de hoje desde a última escrita?
+  function aHora(ligado) {
+    var agora = emPortugal(new Date());
+    var passadas = HORAS.filter(function (h) { return h <= agora.minutos; });
+    if (passadas.length === 0) return false;
+    var visto = [ligado.escritoEm, ligado.vistoEm].filter(Boolean).sort().pop();
+    if (!visto) return true;
+    var ultima = emPortugal(new Date(visto));
+    return ultima.dia < agora.dia || ultima.minutos < passadas[passadas.length - 1];
+  }
+
   function dataPt(iso) {
     var p = String(iso || "").split("-");
     return p.length === 3 ? p[2] + "/" + p[1] + "/" + p[0] : iso;
@@ -118,6 +142,7 @@
     // acabado de escrever.
     aEscrever = umDeCadaVez(function () { return load().then(function (ligado) {
       if (!ligado || !ligado.handle) return null;
+      if (!manual && !aHora(ligado)) return null;
       return permission(ligado.handle, manual).then(function (ok) {
         if (!ok) {
           // Sem licença (o Chrome pede-a de novo depois de fechado): pede-a
@@ -133,7 +158,11 @@
           });
         }
         return versaoAtual().then(function (versao) {
-          if (!manual && versao && versao === ligado.versao) return null;
+          if (!manual && versao && versao === ligado.versao) {
+            // Nada mudou: fica visto até à hora seguinte.
+            ligado.vistoEm = new Date().toISOString();
+            return save(ligado).then(function () { return null; });
+          }
           var mensagem = null;
           return ligado.handle.getFile().then(function (ficheiro) {
             var corpo = new FormData();
@@ -300,4 +329,6 @@
   window.DMOExcelBq = { escrever: escrever };
   mostrar();
   escrever(false);
+  // Com a página aberta, vê a cada minuto se chegou a hora.
+  setInterval(function () { escrever(false); }, 60000);
 })();

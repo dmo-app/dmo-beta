@@ -29,6 +29,7 @@ html body .def-secao[hidden]{display:none}
 .def-cartoes{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start}
 .def-cartoes > *{flex:0 1 auto}
 .def-geral-campos{border:0;margin:0;padding:0;min-width:0}
+.def-geral-campos:has(> legend.dmo-visually-hidden){display:contents}
 .def-pin{display:flex;gap:10px;align-items:flex-end}
 .def-pin .dmo-field{margin:0}
 .def-geral-campos:disabled .dmo-button,.def-geral-campos:disabled input,.def-geral-campos:disabled select,.def-geral-campos:disabled textarea{cursor:not-allowed;opacity:.7}
@@ -212,6 +213,19 @@ html body #sec-ferramentas > .def-parte > fieldset.def-geral-campos:only-child{g
                 </form>
               </section>
             }
+            @* Os avisos do Job On que cada pessoa quer ver (Diogo, 30/10/2026); os erros e as mensagens das páginas aparecem sempre. *@
+            <section id="defAvisos" class="dmo-card def-linha" aria-labelledby="def-avisos-title">
+              <form method="post" asp-page="/Definicoes/Index" asp-page-handler="Avisos" data-dmo-avisos-pessoais>
+                <div class="dmo-card-topo">
+                  <h3 id="def-avisos-title">Avisos do Job On</h3>
+                  <button type="submit" class="dmo-button">Guardar</button>
+                </div>
+                @foreach (var (chave, nome) in DMO.Alpha.Core.Admin.AvisosPessoais.Todos)
+                {
+                  <div><label><input type="checkbox" name="mostrar" value="@chave" checked="@(!Model.AvisosEscondidos.Contains(chave))" /> @nome</label></div>
+                }
+              </form>
+            </section>
             @* O modo claro ou escuro (Diogo, 22/10/2026): troca o modo e grava-o na conta. *@
             <section id="defTema" class="dmo-card def-linha" aria-labelledby="def-tema-title" data-dmo-regiao>
               <h3 id="def-tema-title">Aparência</h3>
@@ -258,7 +272,8 @@ html body #sec-ferramentas > .def-parte > fieldset.def-geral-campos:only-child{g
               if (Model.Controlo is { } controloPasta) pastas.Add(await Html.PartialAsync("/Pages/Controlo/_DefinicoesPasta.cshtml", controloPasta, dadosPasta));
               if (Model.Boquilhas is { } boquilhasPasta) pastas.Add(await Html.PartialAsync("/Pages/Boquilhas/_DefinicoesPasta.cshtml", boquilhasPasta, dadosPasta));
               if (Model.TemJobOn) pastas.Add(await Html.PartialAsync("/Pages/JobOn/_DefinicoesImagens.cshtml", null, dadosPasta));
-              if (Model.Ferramentas is { } ferramentasPasta) pastas.Add(await Html.PartialAsync("/Pages/Ferramentas/_DefinicoesPasta.cshtml", ferramentasPasta, dadosPasta));
+              // O SAP só no ADMIN (Diogo, 30/10/2026: «remover isto dos users, não deve existir SAP nos users»).
+              if (Model.EAdmin && Model.Ferramentas is { } ferramentasPasta) pastas.Add(await Html.PartialAsync("/Pages/Ferramentas/_DefinicoesPasta.cshtml", ferramentasPasta, dadosPasta));
               var naPrimeira = (pastas.Count + 1) / 2;
           }
           <div class="def-pastas">
@@ -287,7 +302,7 @@ html body #sec-ferramentas > .def-parte > fieldset.def-geral-campos:only-child{g
         <section id="sec-boquilhas" class="def-secao" data-dmo-def-secao="boquilhas" aria-labelledby="def-boquilhas-title" hidden="@(Model.Secao != "boquilhas")">
           <h2 id="def-boquilhas-title" class="dmo-visually-hidden">Boquilhas</h2>
           <div class="def-parte" id="boquilhas">
-            <fieldset class="def-geral-campos" disabled="@cadeado"><legend class="dmo-visually-hidden">Definições gerais das Boquilhas</legend>
+            @{ ViewData["DefCadeado"] = cadeado; }<fieldset class="def-geral-campos"><legend class="dmo-visually-hidden">Definições gerais das Boquilhas</legend>
               <div class="def-cartoes"><partial name="/Pages/Boquilhas/_DefinicoesGeral.cshtml" model="boquilhas" /></div>
             </fieldset>
           </div>
@@ -310,7 +325,7 @@ html body #sec-ferramentas > .def-parte > fieldset.def-geral-campos:only-child{g
         <section id="sec-armazem" class="def-secao" data-dmo-def-secao="armazem" aria-labelledby="def-armazem-title" hidden="@(Model.Secao != "armazem")">
           <h2 id="def-armazem-title" class="dmo-visually-hidden">Armazém</h2>
           <div class="def-parte" id="armazem">
-            <fieldset class="def-geral-campos" disabled="@cadeado"><legend class="dmo-visually-hidden">Definições gerais do Armazém</legend>
+            @{ ViewData["DefCadeado"] = cadeado; }<fieldset class="def-geral-campos"><legend class="dmo-visually-hidden">Definições gerais do Armazém</legend>
               <div class="def-cartoes"><partial name="/Pages/Armazem/_DefinicoesGeral.cshtml" model="armazem" /></div>
             </fieldset>
           </div>

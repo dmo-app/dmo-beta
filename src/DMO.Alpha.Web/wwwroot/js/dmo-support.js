@@ -24,7 +24,10 @@
   const bloqueadas = new Set(['/Ferramentas/Ficha']);
   function bloquear(doc, sim) {
     doc.documentElement.classList.toggle('dmo-bloqueado', sim);
-    doc.querySelectorAll('form[method="post"] :is(input:not([type=hidden]),select,textarea,button), button[form]').forEach(campo => {
+    // As janelas (Duplicar, Eliminar) ficam fora do bloqueio: são ações
+    // próprias, com Cancelar (Diogo, 04/11/2026: «ao duplicar não me deixa
+    // escrever o lote»).
+    doc.querySelectorAll('form[method="post"]:not(dialog form) :is(input:not([type=hidden]),select,textarea,button), button[form]').forEach(campo => {
       if (sim) { if (!campo.disabled) { campo.disabled = true; campo.dataset.dmoBloqueado = ''; } }
       else if ('dmoBloqueado' in campo.dataset) { campo.disabled = false; delete campo.dataset.dmoBloqueado; }
       // Bloqueado, o campo perde a caixa: vazio, não se via nada (o Gargalo
@@ -96,7 +99,10 @@
   function acertarPainel(caminho, doc) {
     title.textContent = destinations.get(caminho) || outrasPaginas.get(caminho)
       || doc?.querySelector('main h1')?.textContent.trim() || title.textContent;
-    panel.dataset.largura = largas.has(caminho) ? 'total' : resumos.has(caminho) ? 'media' : 'larga';
+    // R10 (Diogo 30/10/2026): depois de gravar, a folha inteira (sem o resumo
+    // .jof-painel) ficava no painel médio e caía no formato antigo (precisa de 1181 px).
+    const folhaInteira = resumos.has(caminho) && doc && !doc.querySelector('.jof-painel');
+    panel.dataset.largura = largas.has(caminho) || folhaInteira ? 'total' : resumos.has(caminho) ? 'media' : 'larga';
   }
   function close() {
     panel.close(); frame.removeAttribute('src'); dirty = false; aberta = null; paginas = 0; pilha.length = 0; voltar.hidden = true;

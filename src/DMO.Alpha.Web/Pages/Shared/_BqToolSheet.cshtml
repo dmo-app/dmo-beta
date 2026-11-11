@@ -73,7 +73,8 @@
                         <td><strong>@(register.ProductionNumber is string pn ? $"Produção {pn}" : "—")@(register.ProductionReference is string pr ? $" · {pr}" : null)</strong></td>
                         <td>@(register.MachineCode ?? "—")</td>
                         <td>@register.State</td>
-                        <td>@register.MovementCount</td>
+                        @* Com as quantidades de BQ (Diogo, 04/11/2026: «movimentos não aparecem a quantidade»); o zero não aparece. *@
+                        <td>@register.MovementCount <span class="bq-dia-quantidades">@if (register.SaidasQuantidade > 0) {<span class="entry-s">S @register.SaidasQuantidade</span>}@if (register.EntradasQuantidade > 0) {<span class="entry-e">E @register.EntradasQuantidade</span>}@if (register.SemReparacaoQuantidade > 0) {<span class="entry-r">SR @register.SemReparacaoQuantidade</span>}</span></td>
                       </tr>
                     }
                   </tbody>

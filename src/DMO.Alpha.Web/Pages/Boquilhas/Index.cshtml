@@ -61,11 +61,45 @@
         <div class="page-head">
           <div>
             <h2>Boquilhas · Registo de reparação</h2>
-            <p>Abra uma boquilha no painel lateral para registar movimentos.</p>
+            <p>Escolha uma ou mais linhas nos cartões e registe tudo de uma vez.</p>
           </div>
         </div>
         @* As linhas por baixo do título, como nos mockups (Owner, 26/10/2026): o mesmo painel, com os mesmos ids e zonas. *@
         <div class="dmo-zona" data-dmo-parcial><partial name="_DmoSidepanelBoquilhas" model="Model.Currents" /></div>
+        @if (Model.VariasOk is { } variasOk)
+        {
+          <div data-dmo-toast="ok" role="status">Registado em @variasOk.</div>
+        }
+        @if (Model.VariasFalhou is { } variasFalhou)
+        {
+          <div data-dmo-toast="erro" role="alert">Não ficou registado em @variasFalhou. Confirme a quantidade e registe essa linha outra vez.</div>
+        }
+        @* Com «Várias linhas» ligado, um clique no cartão escolhe-o (não abre) e
+           acrescenta aqui a linha dele; a data e a hora são as mesmas para todas. *@
+        <form method="post" asp-page="/Boquilhas/Index" asp-page-handler="RegisterMany" id="bqVarias" class="card bq-varias" aria-label="Registar várias linhas">
+          <div class="bq-movement-line">
+            <button type="submit" class="btn primary" disabled>Registar</button>
+          @* Um tipo de movimento por registo (Diogo, 02/11/2026): escolhe-se uma vez, em cima. *@
+            <fieldset class="bq-movement-types">
+              <legend class="visually-hidden">Movimento</legend>
+              <label><input type="radio" name="movement_type" value="saida" checked /><span>Saída</span></label>
+              <label><input type="radio" name="movement_type" value="entrada" /><span>Entrada</span></label>
+            </fieldset>
+            <div class="field dmo-field bq-line-date">
+              <label for="variasDia">Data</label>
+              <input id="variasDia" type="date" data-bq-dia="variasOccurredAt" value="@((Model.MovementFormOccurredAt).Split('T')[0])" required />
+            </div>
+            <div class="field dmo-field bq-line-hora">
+              <label for="variasHora">Hora</label>
+              <input id="variasHora" type="time" data-bq-hora="variasOccurredAt" value="@((Model.MovementFormOccurredAt).Split('T').ElementAtOrDefault(1))" required />
+            </div>
+            <input id="variasOccurredAt" name="occurred_at" type="hidden" value="@Model.MovementFormOccurredAt" />
+          </div>
+          <p class="muted bq-varias-vazio">Carregue nos cartões das linhas acima para as escolher.</p>
+          <div class="bq-varias-linhas"></div>
+          @* Os últimos registos chegam depois da página (bq-varias.js), para o Registo não pagar a consulta. *@
+          <div id="bqVariasUltimos" data-url="@Url.Page("/Boquilhas/Index", "Ultimos")"></div>
+        </form>
 
         @* AS ZONAS DO REGISTO (cada uma existe sempre, mesmo vazia): o
            cabeçalho, o formulário do movimento, os números e os últimos
@@ -416,9 +450,8 @@
         <div id="bqRegistoNumeros" class="dmo-zona" data-dmo-regiao data-dmo-parcial>
         @if (trace is not null)
         {
-          <div class="card bq-metrics-card" id="bqMetrics">
-            @* O título é a ferramenta escolhida, sem «valores» nem dica (Diogo, 27/10/2026: «Registo T188 - Lote 22»). *@
-            <h3 title="Quantidades calculadas para este lote e contexto, com base na sequência de movimentos; não são stock editável.">Quantidades</h3>
+          @* Sem o título «Quantidades» (Diogo, 02/11/2026: «é óbvio»); a dica fica no cartão. DMO-718 *@
+          <div class="card bq-metrics-card" id="bqMetrics" title="Quantidades calculadas para este lote e contexto, com base na sequência de movimentos; não são stock editável.">
             @* O PAINEL DAS QUANTIDADES CALCULADAS (o card das metrics do
                dmo-html: «Quantidade do lote — Fabricação — Em reparação —
                Discrepância acumulada»): TODOS os valores vêm do backend (a
@@ -430,7 +463,9 @@
             @* OS AN (Diogo, 28/10/2026): com AN no lote ou nos movimentos, cada
                valor mostra as BQ e, por baixo, os AN, com a mesma conta. *@
             @{
-              var temAn = trace.ToolAnQuantity is not null || trace.AnQuantityOut is not null;
+              // O cartão é igual para todas as BQ (Diogo, 02/11/2026: «páginas diferentes… só por escolher linha»):
+              // sempre as BQ e os AN, com «—» nos AN que a BQ não tem.
+              var temAn = true;
               var anFora = trace.AnQuantityOut ?? 0;
             }
             <div class="lot-data@(temAn ? " bq-com-an" : null)">
@@ -520,7 +555,8 @@
                   <tbody>
                     @foreach (var movement in traceMovementsPage.Items)
                     {
-                      <tr>
+                      @* As Entradas com um fundo ligeiro, as Saídas em branco (Diogo, 04/11/2026). *@
+                      <tr class="@(movement.MovementType.StartsWith("entrada", StringComparison.OrdinalIgnoreCase) ? "bq-mov-entrada" : null)">
                         @{ MovementCells(movement); }
                       </tr>
                     }
@@ -873,6 +909,13 @@
                             <span>@(group.Reference ?? group.ToolReference)</span>
                             <span>@group.ToolReference · Lote @group.ToolLot</span>
                             <span>@(group.ProductionNumber is { } number ? $"Produção {number}" : "Sem Job On")</span>
+                            @* O que entrou e saiu nesse dia (Diogo, 30/10/2026): as quantidades de BQs, com os selos da grelha; o zero não aparece. *@
+                            @{
+                              var diaE = group.Movements.Where(m => m.MovementType == nameof(DMO.Alpha.Core.Boquilhas.BqMovementType.Entrada)).Sum(m => m.Quantity);
+                              var diaS = group.Movements.Where(m => m.MovementType == nameof(DMO.Alpha.Core.Boquilhas.BqMovementType.Saida)).Sum(m => m.Quantity);
+                              var diaSr = group.Movements.Where(m => m.MovementType == nameof(DMO.Alpha.Core.Boquilhas.BqMovementType.EntradaSemReparacao)).Sum(m => m.Quantity);
+                            }
+                            <span class="bq-dia-quantidades">@if (diaS > 0) {<span class="entry-s">S @diaS</span>}@if (diaE > 0) {<span class="entry-e">E @diaE</span>}@if (diaSr > 0) {<span class="entry-r">SR @diaSr</span>}</span>
                           </div>
                         }
                       </div>
@@ -972,32 +1015,7 @@
                       </tr>
                     }
                   </tbody>
-                  <tfoot>
-                    <tr>
-                      <td><strong>Total</strong></td>
-                      @foreach (var machine in houseMachines)
-                      {
-                        var machineEntries = Model.MatrixEntries.Where(e => e.MachineCode == machine).ToList();
-                        <td>
-                          @if (machineEntries.Count == 0)
-                          {
-                            <span class="muted">—</span>
-                          }
-                          else
-                          {
-                            @* O tfoot do html: E e S sempre, o SR só
-                               quando existe (o zero nunca é facto). *@
-                            <span class="entry-e">E @machineEntries.Sum(e => e.EntradasQuantidade)</span>
-                            <span class="entry-s">S @machineEntries.Sum(e => e.SaidasQuantidade)</span>
-                            @if (machineEntries.Sum(e => e.EntradasSemReparacaoQuantidade) > 0)
-                            {
-                              <span class="entry-r">SR @machineEntries.Sum(e => e.EntradasSemReparacaoQuantidade)</span>
-                            }
-                          }
-                        </td>
-                      }
-                    </tr>
-                  </tfoot>
+                  @* Sem linha «Total»: a soma de boquilhas diferentes por máquina não diz nada; o que conta é o total por produção (tool_id) (Diogo, 30/10/2026). *@
                 </table>
               </div>
               <p class="muted bq-matrix-legend"><span class="entry-e">E</span> Entradas de reparação&nbsp; <span class="entry-s">S</span> Saídas&nbsp; <span class="entry-r">SR</span> Entradas sem reparação</p>
@@ -1064,6 +1082,7 @@
 @if (activeTab is "registo" or "boquilhas")
 {
   <script src="~/js/bq-registo.js" asp-append-version="true"></script>
+  <script src="~/js/bq-varias.js" asp-append-version="true"></script>
 }
 @if (activeTab == "boquilhas")
 {

@@ -155,7 +155,8 @@ public sealed class PuncoesHandler
         string? lot,
         string? registeredBy,
         CancellationToken cancellationToken = default,
-        string? punchLot = null)
+        string? punchLot = null,
+        string? cavidade = null)
     {
         var canonicalNumber = number?.Trim();
         if (string.IsNullOrEmpty(canonicalNumber))
@@ -206,6 +207,7 @@ public sealed class PuncoesHandler
                 Position = nextPosition,
                 Number = canonicalNumber,
                 Lot = inspecaoLot,
+                Cavidade = CanonicalCavidade(cavidade),
                 PunchSeen = true,
                 CoolerSeen = true,
                 RegisteredBy = registeredBy,
@@ -247,6 +249,93 @@ public sealed class PuncoesHandler
         Touch(inspecao.Puncoes!, updatedBy);
         await _db.SaveChangesAsync(cancellationToken);
         return PuncoesResult.Success;
+    }
+
+    /// <summary>
+    /// Corrige uma punção já registada: o número, o lote e o lugar na ordem
+    /// (Diogo, 03/11/2026, DMO-732: quando falta uma punção a meio, já não é
+    /// preciso apagar até lá). <paramref name="afterInspecaoId"/> é a punção
+    /// depois da qual esta fica; 0 põe-na em primeiro; null não a mexe.
+    /// </summary>
+    public async Task<PuncoesResult> EditAsync(
+        PuncoesTarget target,
+        int inspecaoId,
+        string? number,
+        string? lot,
+        int? afterInspecaoId,
+        string? updatedBy,
+        CancellationToken cancellationToken = default,
+        string? cavidade = null)
+    {
+        var canonicalNumber = number?.Trim();
+        if (string.IsNullOrEmpty(canonicalNumber))
+        {
+            return PuncoesResult.MissingNumber;
+        }
+
+        if (canonicalNumber.Length > PuncaoInspecao.NumberMaxLength)
+        {
+            canonicalNumber = canonicalNumber[..PuncaoInspecao.NumberMaxLength];
+        }
+
+        if (CanonicalLot(lot) is not { } canonicalLot)
+        {
+            return PuncoesResult.InvalidLot;
+        }
+
+        return await DbWrite.InTransactionAsync(_db, async () =>
+        {
+            var inspecao = await FindInspecaoAsync(target, inspecaoId, cancellationToken);
+            if (inspecao is null)
+            {
+                return PuncoesResult.InspecaoNotFound;
+            }
+
+            var todas = await _db.PuncaoInspecoes
+                .Where(i => i.PuncoesId == inspecao.PuncoesId)
+                .OrderBy(i => i.Position)
+                .ToListAsync(cancellationToken);
+
+            if (todas.Any(i => i.Id != inspecao.Id && i.Number == canonicalNumber && i.Lot == canonicalLot))
+            {
+                return PuncoesResult.DuplicatePunch;
+            }
+
+            inspecao.Number = canonicalNumber;
+            inspecao.Lot = canonicalLot;
+            inspecao.Cavidade = CanonicalCavidade(cavidade);
+            Touch(inspecao.Puncoes!, updatedBy);
+
+            if (afterInspecaoId is int depois && depois != inspecao.Id)
+            {
+                var ordem = todas.Where(i => i.Id != inspecao.Id).ToList();
+                var indice = depois == 0 ? 0 : ordem.FindIndex(i => i.Id == depois) + 1;
+                if (depois != 0 && indice == 0)
+                {
+                    return PuncoesResult.InspecaoNotFound;
+                }
+
+                ordem.Insert(indice, inspecao);
+                if (!ordem.Select(i => i.Id).SequenceEqual(todas.Select(i => i.Id)))
+                {
+                    // A posição é única no registo: primeiro todas a negativo,
+                    // depois 1..n pela ordem nova.
+                    for (var k = 0; k < ordem.Count; k++)
+                    {
+                        ordem[k].Position = -(k + 1);
+                    }
+
+                    await _db.SaveChangesAsync(cancellationToken);
+                    for (var k = 0; k < ordem.Count; k++)
+                    {
+                        ordem[k].Position = k + 1;
+                    }
+                }
+            }
+
+            await _db.SaveChangesAsync(cancellationToken);
+            return PuncoesResult.Success;
+        }, cancellationToken);
     }
 
     /// <summary>Remove uma punção do registo (pedido com confirmação na folha).</summary>
@@ -576,6 +665,18 @@ public sealed class PuncoesHandler
     }
 
 
+    /// <summary>A cavidade em maiúsculas e sem espaços (a1 → A1); vazia é null.</summary>
+    public static string? CanonicalCavidade(string? cavidade)
+    {
+        var texto = new string((cavidade ?? "").Where(c => !char.IsWhiteSpace(c)).ToArray()).ToUpperInvariant();
+        if (texto.Length == 0)
+        {
+            return null;
+        }
+
+        return texto.Length > PuncaoInspecao.CavidadeMaxLength ? texto[..PuncaoInspecao.CavidadeMaxLength] : texto;
+    }
+
     private static void Touch(Puncoes registo, string? updatedBy)
     {
         registo.UpdatedBy = updatedBy;
@@ -597,7 +698,8 @@ public sealed class PuncoesHandler
                 i.CoolerSeen,
                 !seen.Add(i.Number),
                 i.RegisteredBy,
-                i.RegisteredAtUtc))
+                i.RegisteredAtUtc,
+                i.Cavidade))
             .ToArray();
 
         return new PuncoesReadModel(

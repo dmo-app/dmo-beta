@@ -1613,6 +1613,10 @@ namespace DMO.Alpha.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Cavidade")
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
                     b.Property<bool>("CoolerSeen")
                         .HasColumnType("boolean");
 
@@ -2831,9 +2835,16 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<Guid?>("DuplicateWarningByUserId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateOnly?>("DataAquisicao")
+                        .HasColumnType("date");
+
                     b.Property<string>("FabricaOrigem")
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)");
+
+                    b.Property<string>("Fabricante")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
 
                     b.Property<string>("Lot")
                         .IsRequired()

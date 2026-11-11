@@ -74,7 +74,8 @@ public sealed partial class ControloCapabilitiesCutHPageTests
     public void Estrutura_Folha_SoOCorpoDesliza()
     {
         var css = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "src", "DMO.Alpha.Web", "wwwroot", "css", "dmo-estrutura.css"));
-        Assert.Contains("html body .app:has(> main > .dmo-pagina-topo){display:flex;flex-direction:column;height:100dvh;min-height:0;overflow:hidden}", css);
+        // A página ocupa pelo menos a janela e desliza quando não cabe (Diogo, 03/11/2026: «as janelas todas como estavam antes»).
+        Assert.Contains("html body .app:has(> main > .dmo-pagina-topo){display:flex;flex-direction:column;min-height:100dvh}", css);
         Assert.Matches(new Regex("html body \\.dmo-pagina-corpo\\{flex:1 1 auto;min-height:0;overflow:auto;"), css);
         Assert.Matches(new Regex("html body \\.dmo-painel-corpo\\{flex:1 1 auto;min-height:0;overflow:auto;"), css);
         Assert.Contains("html[data-dmo-embedded=\"true\"] body :is(.dmo-pagina-titulo,.dmo-pagina-voltar){display:none}", css);
@@ -94,7 +95,9 @@ public sealed partial class ControloCapabilitiesCutHPageTests
         Assert.Contains("const largas = new Set(['/JobOn']);", js);
         // A folha do Job On abre no painel como um resumo, com a largura média (Diogo, 27/10/2026).
         Assert.Contains("const resumos = new Set(['/JobOn/Folha']);", js);
-        Assert.Contains("panel.dataset.largura = largas.has(caminho) ? 'total' : resumos.has(caminho) ? 'media' : 'larga';", js);
+        Assert.Contains("panel.dataset.largura = largas.has(caminho) || folhaInteira ? 'total' : resumos.has(caminho) ? 'media' : 'larga';", js);
+        // R10 (Diogo, 30/10/2026): a folha inteira (sem o resumo .jof-painel) no painel abre com a largura toda.
+        Assert.Contains("const folhaInteira = resumos.has(caminho) && doc && !doc.querySelector('.jof-painel');", js);
         Assert.Contains("acertarPainel(frame.contentWindow.location.pathname, doc);", js);
         var css = File.ReadAllText(Path.Combine(raiz, "css", "dmo-estrutura.css"));
         Assert.Contains("html body dialog.dmo-painel[data-largura=\"total\"]{--dmo-painel-largura:calc(100vw - 64px)}", css);

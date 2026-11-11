@@ -38,7 +38,10 @@ public sealed record BqRegistoDaBq(
     string? MachineCode,
     DateOnly? InicioEm,
     DateOnly? FimEm,
-    int MovementCount);
+    int MovementCount,
+    int SaidasQuantidade = 0,
+    int EntradasQuantidade = 0,
+    int SemReparacaoQuantidade = 0);
 
 /// <summary>O registo da BQ sem Job On e quantos movimentos tem.</summary>
 public sealed record BqRegistoPendente(int Id, int Movements);

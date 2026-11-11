@@ -71,14 +71,13 @@ html body dialog.ferr-producoes-janela .ferr-producoes-lista{flex:0 1 auto;min-h
 html[data-dmo-embedded="true"] body main.ferr-page:has(>.dmo-pagina-topo){padding:0}
 /* O «← Voltar» está no cabeçalho fixo (<dmo-voltar>); o botão do cartão Geral fica escondido. */
 html body main.ferr-page #ferrVoltar{display:none}
-/* A Informação opcional na mesma linha de Tipo, Referência, Lote, Qtd. lote e % uso. */
-html body main.ferr-page #ferrEditar .ferr-editar-linha{flex-wrap:nowrap;align-items:flex-end}
-html body main.ferr-page #ferrEditar .ferr-editar-linha>.ferr-editar-principal{flex:0 0 auto}
-html body main.ferr-page #ferrEditar .ferr-editar-linha>.ferr-opcional{flex:0 1 auto;margin:0;padding:0 0 0 24px;border-top:0;border-left:1px solid var(--dmo-border)}
-html body main.ferr-page #ferrEditar .ferr-editar-linha>.ferr-opcional>.ferr-tech-campos{flex-wrap:nowrap}
-/* O título «Informação opcional» sobe para o espaço livre à direita das linhas, por cima dos campos. */
-html body main.ferr-page #ferrEditar .ferr-opcional{position:relative}
-html body main.ferr-page #ferrEditar .ferr-opcional>legend{position:absolute;top:-24px;left:24px;margin:0}
+/* A Informação opcional numa linha própria por baixo, minimizada, como a Informação técnica (Diogo, 02/11/2026:
+   «meter os dados opcionais noutra como informação técnica minimizado»): sem scroll para o lado no painel a 1366. */
+html body main.ferr-page #ferrEditar .ferr-editar-linha{flex-wrap:wrap;align-items:flex-end}
+html body main.ferr-page #ferrEditar .ferr-editar-linha>.ferr-editar-principal{flex:0 1 auto;min-width:0}
+html body main.ferr-page #ferrEditar .ferr-editar-linha>.ferr-opcional{flex:1 0 100%;min-width:0;margin:4px 0 0;padding:12px 0 0;border:0;border-top:1px solid var(--dmo-border)}
+html body main.ferr-page #ferrEditar .ferr-editar-linha>.ferr-opcional>.ferr-tech-campos{flex-wrap:wrap;margin-top:8px}
+html body main.ferr-page #ferrEditar .ferr-opcional>legend{float:left;width:100%;display:flex;align-items:center;gap:4px;margin:0}
 html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
 </style>
 }
@@ -244,8 +243,9 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
     {
       <p class="dmo-aviso warn" data-dmo-aviso>@avisoArmazem</p>
     }
+    @{ var b2Identificado = tool.B2Modo ?? DMO.Alpha.Core.Tools.Codificacao.ModoIdentificado(tool.Machines.Select(m => m.Code), tool.TechnicalName); }
     @* A B2 sem Dupla nem Tripla é um aviso importante (Diogo, 28/10/2026); escolhe-se no Editar. *@
-    @if (tool.B2Modo is null && tool.Machines.Any(m => m.Code == "B2"))
+    @if (b2Identificado is null && tool.Machines.Any(m => m.Code == "B2"))
     {
       <p class="dmo-aviso warn" data-dmo-aviso id="ferrAvisoB2">@DMO.Alpha.Core.Tools.Codificacao.AvisoSemModo("Esta ferramenta") Escolha a B2 no Editar.</p>
     }
@@ -568,10 +568,19 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
     @* ---------------------------------------------------------------- *@
     @* 2. Editar factos: full-replace no MESMO tool_id.                   *@
     @* ---------------------------------------------------------------- *@
+    var factosEditar = new FerramentaFactosForm("ferr-edit", false, Model.FactsType(tool.Type), null,
+            Model.FactsReference(tool.Reference), Model.FactsLot(tool.Lot), Model.FactsQuantity(tool.BqAccountedQuantity), null,
+            Model.FactsMf(tool.AssociatedMfReference), Model.FactsTechnicalName(tool.TechnicalName), Model.Machines,
+            id => Model.FactsMachine(id, tool.Machines.Any(m => m.MachineId == id)),
+            Model.FactsFabricaOrigem(tool.FabricaOrigem),
+            Model.FactsUso(Model.Utilizacao?.Ultima?.Percentagem),
+            Model.Utilizacao?.Ultima is { } usoData ? DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(usoData.RegistadaEmUtc).ToString("dd/MM/yyyy", pt) : null,
+            Model.FactsAnQuantity(tool.AnQuantity), Model.Fabricas, b2Identificado?.ToString(), Model.AvisosSap,
+            tool.Fabricante, tool.DataAquisicao?.ToString("yyyy-MM-dd"));
     <section id="ferrEditar" class="dmo-card ferr-card" aria-labelledby="ferr-edit-facts-title" data-dmo-regiao data-dmo-parcial>
       @* O título e o «Guardar» ficam dentro do formulário: o botão é o mesmo
          botão de sempre (gravar sem recarregar, fila, foco no mesmo id). *@
-      <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="EditFacts">
+      <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="EditFacts" id="ferr-edit-form">
         <div class="dmo-card-topo">
           <h3 id="ferr-edit-facts-title">Editar</h3>
           <div class="dmo-card-topo-acoes">
@@ -588,78 +597,11 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
         }
         @* Os mesmos campos do Criar (um só formulário de ferramenta, Diogo,
            20/10/2026), com o Nome técnico (SAP) também aqui. *@
-        <partial name="_FerramentaFactos" model="@(new FerramentaFactosForm("ferr-edit", false, Model.FactsType(tool.Type), null,
-            Model.FactsReference(tool.Reference), Model.FactsLot(tool.Lot), Model.FactsQuantity(tool.BqAccountedQuantity), null,
-            Model.FactsMf(tool.AssociatedMfReference), Model.FactsTechnicalName(tool.TechnicalName), Model.Machines,
-            id => Model.FactsMachine(id, tool.Machines.Any(m => m.MachineId == id)),
-            Model.FactsFabricaOrigem(tool.FabricaOrigem),
-            Model.FactsUso(Model.Utilizacao?.Ultima?.Percentagem),
-            Model.Utilizacao?.Ultima is { } usoData ? DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(usoData.RegistadaEmUtc).ToString("dd/MM/yyyy", pt) : null,
-            Model.FactsAnQuantity(tool.AnQuantity), Model.Fabricas, tool.B2Modo?.ToString(), Model.AvisosSap))" />
+        <partial name="_FerramentaFactos" model="@factosEditar" />
       </form>
 
     </section>
 
-    @* ---------------------------------------------------------------- *@
-    @* 3. TÉCNICA — os valores técnicos Tool-owned (o Owner 2026-10-12:   *@
-    @*    «segundo tipo de informaçao da ferramenta é o tecnico, peso      *@
-    @*    nominal gargalos, tampao etc»): a precisão REAL dos factos e    *@
-    @*    os RÓTULOS HUMANOS da oficina — nunca nomes de coluna da BD     *@
-    @*    (P2-9) — incl. o TAMPÃO (a geometria TP do desenho).            *@
-    @* ---------------------------------------------------------------- *@
-    @* Aberta ou fechada como o operador a deixou (data-dmo-fica): guardar o
-       Editar não a fecha nem mexe no que lá está escrito. O título e o
-       formulário são zonas. Sem o círculo da ajuda no título (Diogo, 27/10/2026). *@
-    <section class="dmo-card ferr-card dmo-card-dobravel" aria-labelledby="ferr-tech-title" data-dmo-fica data-dmo-parcial>
-      <details open="@Model.ShowTechnical">
-      <summary id="ferrTecnicaTitulo" class="dmo-card-topo" data-dmo-regiao><h3 id="ferr-tech-title"><span class="dmo-caret" aria-hidden="true"></span>Informação técnica</h3></summary>
-      @{
-          // Cada tipo só tem os seus campos (os valores ficam na linha do próprio tool_id):
-          // CM → processo, peso nominal, punção, gargalo e tampão; BQ → marisa e gargalo; MF → gargalo.
-          var tech = tool.Technical;
-          var isCm = tool.Type == ToolType.Cm;
-          var isBq = tool.Type == ToolType.Bq;
-          // O volume do tampão é calculado (PesoCapCalculation.Cap, a fórmula do apoio TP/calote):
-          // V = π·h·(3a² + h²)/6000 cm³, a = D/2. No Job On a calote da produção substitui esta.
-          var volumeTampao = tech?.TpDiametroMm is { } tpD && tpD > 0m && tech.TpSagittaMm is { } tpH && tpH >= 0m
-              ? DMO.Alpha.Core.Controlo.PesoCapCalculation.Cap(tpD, tpH).VolumeCm3
-              : (decimal?)null;
-      }
-
-      <div id="ferrTecnica" data-dmo-regiao>
-      <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="EditTechnical" id="ferr-tech-form">
-        <input type="hidden" name="tool_id" value="@tool.ToolId" />
-        <input type="hidden" name="versao" value="@tool.TechnicalVersion" />
-        @if (Model.ContinueUrl is { } regresso)
-        {
-          <input type="hidden" name="continuar" value="@regresso" />
-        }
-        @* Os mesmos campos do Criar, só os do tipo desta ferramenta. *@
-        <partial name="_FerramentaTecnica" model="@(new FerramentaTecnicaForm("ferr-tech", false, tokenOf(tool.Type),
-            nome => nome == "process_token" ? Model.TechnicalProcessValue(tech?.Process) : Model.TechnicalValue(nome, nome switch
-            {
-                "nominal_weight" => tech?.NominalWeightGrams,
-                "volume_puncao" => tech?.VolumePuncaoCm3,
-                "volume_marisa" => tech?.VolumeMarisaCm3,
-                "diametro_gargalo" => tech?.DiametroGargaloMm,
-                "tp_diametro" => tech?.TpDiametroMm,
-                "tp_sagitta" => tech?.TpSagittaMm,
-                _ => null,
-            }),
-            Model.TechnicalInvalid, Model.TechnicalFocus,
-            isCm ? (volumeTampao is { } vt ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(vt) : "—") : null))" />
-      </form>
-      </div>
-      </details>
-      @* O «Guardar» na linha do título, à direita (Diogo, 18/10/2026). Não vai
-         dentro do summary (nada interativo lá dentro): fica a seguir ao
-         <details>, sobre a linha do título (.dmo-card-dobravel), e grava o
-         formulário da técnica pelo atributo form, aberta ou fechada, sem a
-         abrir nem fechar. Fica fora das zonas: não muda ao gravar. *@
-      <div class="dmo-card-topo-acoes">
-        <button type="submit" class="dmo-button" id="ferr-tech-guardar" form="ferr-tech-form">Guardar</button>
-      </div>
-    </section>
 
     @* Histórico de produções (Diogo, 26/10/2026): por baixo da informação
        técnica, dobrável como ela. Cada Job On em que a ferramenta esteve,
@@ -889,6 +831,80 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
           }
       </section>
     }
+
+    @* ---------------------------------------------------------------- *@
+    @* 3. TÉCNICA — os valores técnicos Tool-owned (o Owner 2026-10-12:   *@
+    @*    «segundo tipo de informaçao da ferramenta é o tecnico, peso      *@
+    @*    nominal gargalos, tampao etc»): a precisão REAL dos factos e    *@
+    @*    os RÓTULOS HUMANOS da oficina — nunca nomes de coluna da BD     *@
+    @*    (P2-9) — incl. o TAMPÃO (a geometria TP do desenho).            *@
+    @* ---------------------------------------------------------------- *@
+    @* Aberta ou fechada como o operador a deixou (data-dmo-fica): guardar o
+       Editar não a fecha nem mexe no que lá está escrito. O título e o
+       formulário são zonas. Sem o círculo da ajuda no título (Diogo, 27/10/2026). *@
+    <section class="dmo-card ferr-card dmo-card-dobravel" aria-labelledby="ferr-tech-title" data-dmo-fica data-dmo-parcial>
+      <details open="@Model.ShowTechnical">
+      <summary id="ferrTecnicaTitulo" class="dmo-card-topo" data-dmo-regiao><h3 id="ferr-tech-title"><span class="dmo-caret" aria-hidden="true"></span>Informação técnica</h3></summary>
+      @{
+          // Cada tipo só tem os seus campos (os valores ficam na linha do próprio tool_id):
+          // CM → processo, peso nominal, punção, gargalo e tampão; BQ → marisa e gargalo; MF → gargalo.
+          var tech = tool.Technical;
+          var isCm = tool.Type == ToolType.Cm;
+          var isBq = tool.Type == ToolType.Bq;
+          // O volume do tampão é calculado (PesoCapCalculation.Cap, a fórmula do apoio TP/calote):
+          // V = π·h·(3a² + h²)/6000 cm³, a = D/2. No Job On a calote da produção substitui esta.
+          var volumeTampao = tech?.TpDiametroMm is { } tpD && tpD > 0m && tech.TpSagittaMm is { } tpH && tpH >= 0m
+              ? DMO.Alpha.Core.Controlo.PesoCapCalculation.Cap(tpD, tpH).VolumeCm3
+              : (decimal?)null;
+      }
+
+      <div id="ferrTecnica" data-dmo-regiao>
+      <form method="post" asp-page="/Ferramentas/Ficha" asp-page-handler="EditTechnical" id="ferr-tech-form">
+        <input type="hidden" name="tool_id" value="@tool.ToolId" />
+        <input type="hidden" name="versao" value="@tool.TechnicalVersion" />
+        @if (Model.ContinueUrl is { } regresso)
+        {
+          <input type="hidden" name="continuar" value="@regresso" />
+        }
+        @* Os mesmos campos do Criar, só os do tipo desta ferramenta. *@
+        <partial name="_FerramentaTecnica" model="@(new FerramentaTecnicaForm("ferr-tech", false, tokenOf(tool.Type),
+            nome => nome == "process_token" ? Model.TechnicalProcessValue(tech?.Process) : Model.TechnicalValue(nome, nome switch
+            {
+                "nominal_weight" => tech?.NominalWeightGrams,
+                "volume_puncao" => tech?.VolumePuncaoCm3,
+                "volume_marisa" => tech?.VolumeMarisaCm3,
+                "diametro_gargalo" => tech?.DiametroGargaloMm,
+                "tp_diametro" => tech?.TpDiametroMm,
+                "tp_sagitta" => tech?.TpSagittaMm,
+                _ => null,
+            }),
+            Model.TechnicalInvalid, Model.TechnicalFocus,
+            isCm ? (volumeTampao is { } vt ? DMO.Alpha.Core.Runtime.DmoNumberFormat.Decimal2(vt) : "—") : null))" />
+      </form>
+      </div>
+      </details>
+      @* O «Guardar» na linha do título, à direita (Diogo, 18/10/2026). Não vai
+         dentro do summary (nada interativo lá dentro): fica a seguir ao
+         <details>, sobre a linha do título (.dmo-card-dobravel), e grava o
+         formulário da técnica pelo atributo form, aberta ou fechada, sem a
+         abrir nem fechar. Fica fora das zonas: não muda ao gravar. *@
+      <div class="dmo-card-topo-acoes">
+        <button type="submit" class="dmo-button" id="ferr-tech-guardar" form="ferr-tech-form">Guardar</button>
+      </div>
+    </section>
+
+    @* INFORMAÇÃO OPCIONAL num cartão próprio, o último, minimizado como a Informação técnica
+       (Diogo, 02/11/2026: «primeiro histórico de produções, depois informação técnica e informação
+       opcional no fim»). Os campos gravam com o Editar (atributo form). *@
+    <section class="dmo-card ferr-card dmo-card-dobravel" aria-labelledby="ferr-opcional-title" id="ferrOpcional" data-dmo-fica>
+      <details>
+      <summary class="dmo-card-topo"><h3 id="ferr-opcional-title"><span class="dmo-caret" aria-hidden="true"></span>Informação opcional</h3></summary>
+      <partial name="_FerramentaOpcional" model="@factosEditar" view-data="@(new ViewDataDictionary(ViewData) { ["form"] = "ferr-edit-form" })" />
+      </details>
+      <div class="dmo-card-topo-acoes">
+        <button type="submit" class="dmo-button" id="ferr-opcional-guardar" form="ferr-edit-form">Guardar</button>
+      </div>
+    </section>
 
 
   }

@@ -425,6 +425,7 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.Property(t => t.Lot).IsRequired();
             entity.Property(t => t.DuplicateWarningByNameFrozen).HasMaxLength(254);
             entity.Property(t => t.FabricaOrigem).HasMaxLength(32);
+            entity.Property(t => t.Fabricante).HasMaxLength(120);
             entity.Property(t => t.SapCodigo).HasMaxLength(FerramentaUtilizacao.CodigoMaxLength);
             entity.Property(t => t.SapFornecedor).HasMaxLength(254);
             entity.Property(t => t.SapPercentagem).HasPrecision(9, 2);
@@ -1485,6 +1486,7 @@ public sealed class DmoDbContext : DbContext, IDataProtectionKeyContext
             entity.Property(i => i.Number).HasMaxLength(PuncaoInspecao.NumberMaxLength).IsRequired();
             entity.Property(i => i.Lot).HasMaxLength(DMO.Alpha.Core.Controlo.Puncoes.LotMaxLength).IsRequired();
             entity.Property(i => i.RegisteredBy).HasMaxLength(254);
+            entity.Property(i => i.Cavidade).HasMaxLength(PuncaoInspecao.CavidadeMaxLength);
 
             entity.HasOne(i => i.Puncoes)
                 .WithMany(p => p.Inspecoes)

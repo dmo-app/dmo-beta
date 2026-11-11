@@ -116,4 +116,5 @@ public sealed record PuncaoReadModel(
     bool CoolerSeen,
     bool IsAlteracao,
     string? RegisteredBy,
-    DateTime RegisteredAtUtc);
+    DateTime RegisteredAtUtc,
+    string? Cavidade = null);

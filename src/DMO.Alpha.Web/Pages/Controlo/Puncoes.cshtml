@@ -338,9 +338,6 @@
 
       <section class="dmo-card pu-card" id="puncoes-lista" aria-labelledby="pu-list-title" data-dmo-parcial>
         <div class="pu-section-head">
-          <div>
-            <h3 id="pu-list-title" title="Ao registar, a punção e o arrefecedor ficam vistos; desmarque o que não foi visto. Um número repetido aparece como «Alteração» e pede o lote dessa punção. O lote de cima aplica-se às novas punções; as anteriores mantêm o seu.">Lista de punções</h3>
-          </div>
           @* UM SÓ BOTÃO «OPÇÕES» (Diogo, 21/10/2026: «um botao com opcoes e nao
              espalhado pela pagina»): o PDF e, no registo sem Job On, o
              associar a uma produção, numa janela pequena. *@
@@ -367,6 +364,7 @@
             <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
             <input type="hidden" name="referencia" value="@Model.ShownPunchReference" data-pu-mirror="pu-referencia" />
             <input type="hidden" name="lote" value="@Model.ShownLot" data-pu-mirror="pu-lote" />
+            <button type="submit" class="dmo-button">+ Adicionar punção</button>
             <div class="dmo-field">
               <label for="pu-numero" class="pu-oculto">Número da punção</label>
               <input id="pu-numero" name="numero" maxlength="40" required value="@Model.EchoNumber" placeholder="Número da punção, ex.: 41" autofocus="@(Model.Refusal is not null || registo is not null ? "autofocus" : null)" />
@@ -375,15 +373,22 @@
               <label for="pu-lote-puncao" class="pu-oculto">Lote desta punção</label>
               <input id="pu-lote-puncao" name="lote_puncao" inputmode="numeric" maxlength="12" placeholder="Lote desta punção, ex.: 2" />
             </div>
-            <button type="submit" class="dmo-button">+ Adicionar punção</button>
+            @* A CAVIDADE (Diogo, 11/11/2026, DMO-753): escreve-se onde a punção vai ficar. *@
+            <div class="dmo-field pu-cavidade">
+              <label for="pu-cavidade" class="pu-oculto">Posição (cavidade)</label>
+              <input id="pu-cavidade" name="cavidade" maxlength="8" placeholder="Posição, ex.: A1" autocapitalize="characters" />
+            </div>
           </form>
+          @* LADO ESQUERDO / LADO DIREITO (Diogo, 02/11/2026): à esquerda o «Registar»,
+             o número e o lote (quando o número é repetido); o resto à direita. *@
+          <div class="pu-topo-direita">
+            <div>
+            <h3 id="pu-list-title" title="Ao registar, a punção e o arrefecedor ficam vistos; desmarque o que não foi visto. Um número repetido aparece como «Alteração» e pede o lote dessa punção. O lote de cima aplica-se às novas punções; as anteriores mantêm o seu.">Lista de punções</h3>
+          </div>
           <div class="dmo-card-topo-acoes" data-dmo-for="puLista">
             @if (linhasPu.Count > 0)
             {
-              <button type="submit" class="dmo-button" form="puVistoForm" name="campo" value="puncao" id="pu-visto-puncao" data-dmo-precisa-escolha disabled="@(escolhidaPu is null)">Punção visto</button>
-              <button type="submit" class="dmo-button" form="puVistoForm" name="campo" value="arrefecedor" id="pu-visto-arrefecedor" data-dmo-precisa-escolha disabled="@(escolhidaPu is null)">Arrefecedor visto</button>
-              @* Remover também no canto (Diogo, 27/10/2026: «nunca botões nas linhas»): abre a janela da linha escolhida. *@
-              <button type="button" class="dmo-button" id="pu-remover" data-dmo-dialog-modelo="pu-remover-{id}" data-dmo-dialog="@(escolhidaPu is { } escolhidaRemover ? $"pu-remover-{escolhidaRemover}" : null)" data-dmo-precisa-escolha disabled="@(escolhidaPu is null)">Remover</button>
+              @* R16 (Diogo, 30/10/2026): sem os botões Punção visto / Arrefecedor visto / Remover no canto; volta-se a carregar no «Visto» da tabela. *@
             }
             <details class="dmo-options" data-dmo-tab-menu>
               <summary class="dmo-button" aria-label="Opções do registo das punções"><span class="dmo-caret" aria-hidden="true"></span>Opções</summary>
@@ -399,6 +404,7 @@
                 }
               </div>
             </details>
+          </div>
           </div>
           </div>
         </div>
@@ -419,20 +425,22 @@
         <div class="dmo-table-wrap">
           @* Larguras fixas (Diogo, 24/10/2026): mudar «Visto» para «Por verificar» não mexe a tabela. *@
           <table class="dmo-table pu-table pu-table-fixa" id="puLista" data-dmo-list="Lista de punções">
-            <colgroup><col class="pu-col-escolha" /><col class="pu-col-numero" /><col class="pu-col-lote" /><col class="pu-col-estado" /><col class="pu-col-estado" /></colgroup>
+            <colgroup><col class="pu-col-escolha" /><col class="pu-col-numero" /><col class="pu-col-lote" /><col class="pu-col-posicao" /><col class="pu-col-estado" /><col class="pu-col-estado" /><col class="pu-col-acoes" /></colgroup>
             <thead>
               <tr>
                 <th></th>
                 <th>N.º da punção</th>
                 <th>Lote</th>
+                <th title="A cavidade onde a punção fica: A1, B1, C1, D1…">Posição</th>
                 <th>Punção visto</th>
                 <th>Arrefecedor visto</th>
+                <th class="pu-right"></th>
               </tr>
             </thead>
             <tbody>
               @if (registo is null || registo.Rows.Count == 0)
               {
-                <tr><td colspan="5" class="pu-empty">Sem punções registadas. Adicione o primeiro número.</td></tr>
+                <tr><td colspan="7" class="pu-empty">Sem punções registadas. Adicione o primeiro número.</td></tr>
               }
               else
               {
@@ -446,8 +454,21 @@
                     <td><input type="radio" name="inspecao_id" value="@row.Id" form="puVistoForm" required checked="@estaPu" aria-label="Escolher a punção @row.Number · lote @row.Lot" /></td>
                     <td class="pu-number">@row.Number@if (row.IsAlteracao) {<span class="pu-alteracao">Alteração</span>}</td>
                     <td class="pu-lot">@row.Lot</td>
-                    <td class="pu-estado @(row.PunchSeen ? "on" : null)" data-pu-estado="puncao">@(row.PunchSeen ? "Visto" : "Por verificar")</td>
-                    <td class="pu-estado @(row.CoolerSeen ? "on" : null)" data-pu-estado="arrefecedor">@(row.CoolerSeen ? "Visto" : "Por verificar")</td>
+                    <td class="pu-posicao">@row.Cavidade</td>
+                    @foreach (var (campo, visto) in new[] { ("puncao", row.PunchSeen), ("arrefecedor", row.CoolerSeen) })
+                    {
+                      <td class="pu-estado @(visto ? "on" : null)" data-pu-estado="@campo">
+                        <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Seen" class="pu-check-form">
+                          <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
+                          <input type="hidden" name="inspecao_id" value="@row.Id" />
+                          <input type="hidden" name="campo" value="@campo" />
+                          <input type="hidden" name="visto" value="@(visto ? "false" : "true")" />
+                          <button type="submit" class="pu-check @(visto ? "on" : null)" aria-pressed="@(visto ? "true" : "false")"
+                                  aria-label="@(campo == "puncao" ? "Punção" : "Arrefecedor da punção") @row.Number: @(visto ? "visto, carregar para desmarcar" : "por verificar, carregar para marcar")">@(visto ? "Visto" : "Por verificar")</button>
+                        </form>
+                      </td>
+                    }
+                    <td class="pu-right"><button type="button" class="pu-editar" data-dmo-dialog="pu-editar-@row.Id" aria-label="Editar ou mover a punção @row.Number" title="Editar ou mover">✎</button><button type="button" class="pu-remove" data-dmo-dialog="pu-remover-@row.Id" aria-label="Remover a punção @row.Number" title="Remover">×</button></td>
                   </tr>
                 }
               }
@@ -457,6 +478,49 @@
         @* As janelas do «Remover» do canto, uma por punção. A confirmação é a
            janela da casa, com o texto escrito pelo Razor como HTML (nunca
            dentro de um onclick: um número com aspas correria como JavaScript). *@
+        @* EDITAR OU MOVER (Diogo, 03/11/2026, DMO-732): corrigir o número e o
+           lote, e pôr a punção no lugar certo da ordem, sem apagar as de cima. *@
+        @{ var ordemPu = registo?.Rows.ToList() ?? []; }
+        @for (var k = 0; k < ordemPu.Count; k++)
+        {
+          var row = ordemPu[k];
+          var antes = k == 0 ? 0 : ordemPu[k - 1].Id;
+          <dialog id="pu-editar-@row.Id" class="dmo-dialog" aria-labelledby="pu-editar-titulo-@row.Id">
+            <h3 id="pu-editar-titulo-@row.Id">Editar punção @row.Number</h3>
+            <form method="post" asp-page="/Controlo/Puncoes" asp-page-handler="Edit" class="pu-editar-form">
+              <input type="hidden" name="@alvo.Name" value="@alvo.Value" />
+              <input type="hidden" name="inspecao_id" value="@row.Id" />
+              <div class="dmo-field">
+                <label for="pu-editar-numero-@row.Id">N.º da punção</label>
+                <input id="pu-editar-numero-@row.Id" name="numero" maxlength="40" required value="@row.Number" />
+              </div>
+              <div class="dmo-field">
+                <label for="pu-editar-lote-@row.Id">Lote</label>
+                <input id="pu-editar-lote-@row.Id" name="lote_puncao" inputmode="numeric" maxlength="12" required value="@row.Lot" />
+              </div>
+              <div class="dmo-field">
+                <label for="pu-editar-cavidade-@row.Id">Posição (cavidade)</label>
+                <input id="pu-editar-cavidade-@row.Id" name="cavidade" maxlength="8" value="@row.Cavidade" placeholder="Ex.: A1" />
+              </div>
+              <div class="dmo-field">
+                <label for="pu-editar-lugar-@row.Id">Lugar na lista</label>
+                <select id="pu-editar-lugar-@row.Id" name="depois_de">
+                  @for (var j = ordemPu.Count - 1; j >= 0; j--)
+                  {
+                    var outra = ordemPu[j];
+                    if (outra.Id == row.Id) { continue; }
+                    <option value="@outra.Id" selected="@(outra.Id == antes)">Logo acima da @outra.Number · lote @outra.Lot</option>
+                  }
+                  <option value="0" selected="@(antes == 0)">Em baixo de todas (a primeira)</option>
+                </select>
+              </div>
+              <div class="dmo-dialog-actions">
+                <button type="button" class="dmo-button dmo-dialog-cancel" data-dmo-dialog-close>Cancelar</button>
+                <button type="submit" class="dmo-button">Guardar</button>
+              </div>
+            </form>
+          </dialog>
+        }
         @foreach (var row in registo?.Rows ?? [])
         {
           <dialog id="pu-remover-@row.Id" class="dmo-dialog" aria-labelledby="pu-remover-titulo-@row.Id">

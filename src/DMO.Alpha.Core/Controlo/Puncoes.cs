@@ -61,6 +61,8 @@ public sealed class PuncaoInspecao
 {
     public const int NumberMaxLength = 40;
 
+    public const int CavidadeMaxLength = 8;
+
     public int Id { get; set; }
 
     public int PuncoesId { get; set; }
@@ -73,6 +75,9 @@ public sealed class PuncaoInspecao
     public string Number { get; set; } = null!;
 
     public string Lot { get; set; } = null!;
+
+    /// <summary>A cavidade onde a punção fica (A1, B1, C1…), escrita por quem preenche (Diogo, 11/11/2026, DMO-753).</summary>
+    public string? Cavidade { get; set; }
 
     public bool PunchSeen { get; set; }
 

@@ -365,10 +365,11 @@ public sealed class PuncoesModel : PageModel
         [FromForm(Name = "numero")] string? number,
         [FromForm(Name = "referencia")] string? punchReference,
         [FromForm(Name = "lote")] string? lot,
-        [FromForm(Name = "lote_puncao")] string? punchLot)
+        [FromForm(Name = "lote_puncao")] string? punchLot,
+        [FromForm(Name = "cavidade")] string? cavidade)
     {
         var target = Target(controloId, puncoesId);
-        var result = await _handler.AddAsync(target, number, punchReference, lot, Operator(), HttpContext.RequestAborted, punchLot);
+        var result = await _handler.AddAsync(target, number, punchReference, lot, Operator(), HttpContext.RequestAborted, punchLot, cavidade);
         if (result == PuncoesResult.DuplicatePunch)
         {
             var route = TargetRoute(target);
@@ -404,6 +405,37 @@ public sealed class PuncoesModel : PageModel
         var route = TargetRoute(target);
         route["inspecao"] = inspecaoId;
         return RedirectToPage("/Controlo/Puncoes", null, route, "puncoes-lista");
+    }
+
+    /// <summary>Corrige o número, o lote e o lugar de uma punção (DMO-732).</summary>
+    public async Task<IActionResult> OnPostEditAsync(
+        [FromForm(Name = "controlo_id")] int? controloId,
+        [FromForm(Name = "puncoes_id")] int? puncoesId,
+        [FromForm(Name = "inspecao_id")] int inspecaoId,
+        [FromForm(Name = "numero")] string? number,
+        [FromForm(Name = "lote_puncao")] string? punchLot,
+        [FromForm(Name = "depois_de")] int? afterInspecaoId,
+        [FromForm(Name = "cavidade")] string? cavidade)
+    {
+        var target = Target(controloId, puncoesId);
+        var result = await _handler.EditAsync(target, inspecaoId, number, punchLot, afterInspecaoId, Operator(), HttpContext.RequestAborted, cavidade);
+        if (result == PuncoesResult.DuplicatePunch)
+        {
+            var route = TargetRoute(target);
+            route["recusa"] = result.ToString();
+            route["numero"] = Limit(number, PuncaoInspecao.NumberMaxLength);
+            route["lote_puncao"] = Limit(punchLot, DMO.Alpha.Core.Controlo.Puncoes.LotMaxLength);
+            return RedirectToPage("/Controlo/Puncoes", null, route, "puncoes-lista");
+        }
+
+        if (result != PuncoesResult.Success)
+        {
+            return Refused(target, result);
+        }
+
+        var back = TargetRoute(target);
+        back["inspecao"] = inspecaoId;
+        return RedirectToPage("/Controlo/Puncoes", null, back, "puncoes-lista");
     }
 
     public async Task<IActionResult> OnPostRemoveAsync(

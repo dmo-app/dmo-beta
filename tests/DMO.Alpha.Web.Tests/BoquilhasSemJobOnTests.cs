@@ -131,6 +131,21 @@ public partial class BoquilhasRegistoPageTests
     }
 
     [Fact]
+    public async Task RegistarSemJobOn_PeloJobOnJaFeito_OferecePorReferenciaEProducao_ComABqELoteQueUsou()
+    {
+        // Diogo, 02/11/2026: «escrever a referência e a produção e associar logo a BQ usada».
+        await SeedToolAsync("BQ-PJ-1", "QS601", "7");
+        var feito = await SeedProductionAsync("BQ-PJ-1", "8326T601", "P-601", "C6");
+        SeedUser("4297", "Registo Pelo Jobon", "provider-registo-pelo-jobon", "RegistoPeloJobon1!");
+        using var client = await LoginClientAsync("4297", "RegistoPeloJobon1!");
+
+        var page = await GetPageHtmlAsync(client, $"{PagePath}?ficheiros=1");
+        Assert.Contains("id=\"bqSemJobOnPorJobOn\"", page);
+        Assert.Contains($"data-bq=\"BQ-PJ-1\" data-bq-id=\"{feito.Id}\"", page);
+        Assert.Contains("8326T601 · P-601 · BQ QS601 · Lote 7", page);
+    }
+
+    [Fact]
     public async Task RegistarSemJobOn_NumJobOnAnterior_FicaNoRegistoDesseJobOn_EODaEntradaDizQuemRegistou()
     {
         // Diogo, 28/10/2026: «boquilhas que chegaram atrasadas e não consigo

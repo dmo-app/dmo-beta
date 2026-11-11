@@ -49,6 +49,9 @@ public sealed class IndexModel(
     public string? Tema { get; private set; }
     public int SessaoHoras { get; private set; } = SessaoDuracao.PorOmissao;
 
+    /// <summary>Os avisos do Job On que esta conta desligou (<see cref="AvisosPessoais"/>).</summary>
+    public IReadOnlySet<string> AvisosEscondidos { get; private set; } = new HashSet<string>();
+
     public string? Aviso { get; private set; }
 
     public Boquilhas.DefinicoesModel? Boquilhas { get; private set; }
@@ -176,6 +179,7 @@ public sealed class IndexModel(
         {
             Tema = await pessoais.LerAsync(userId, UserSettingKeys.Tema, HttpContext.RequestAborted);
             SessaoHoras = SessaoDuracao.Ler(await pessoais.LerAsync(userId, UserSettingKeys.SessaoHoras, HttpContext.RequestAborted));
+            AvisosEscondidos = AvisosPessoais.Ler(await pessoais.LerAsync(userId, UserSettingKeys.AvisosEscondidos, HttpContext.RequestAborted));
         }
 
         if (!EAdmin && await DefinicoesAcesso.VeModuloAsync(HttpContext, DmoCapabilities.ControloCreate))
@@ -278,6 +282,23 @@ public sealed class IndexModel(
         }
 
         await pessoais.GravarAsync(userId, UserSettingKeys.SessaoHoras, horas.ToString(System.Globalization.CultureInfo.InvariantCulture), HttpContext.RequestAborted);
+        return RedirectToPage("/Definicoes/Index");
+    }
+
+    /// <summary>
+    /// POST: os avisos do Job On que esta conta quer ver (as caixas marcadas);
+    /// os desmarcados deixam de aparecer só a ela.
+    /// </summary>
+    public async Task<IActionResult> OnPostAvisosAsync([FromForm(Name = "mostrar")] string[]? mostrar)
+    {
+        if (account.Current.ActorId is not { } userId)
+        {
+            return RedirectToPage("/Definicoes/Index", new { geral = "sem-permissao" });
+        }
+
+        var vistos = (mostrar ?? []).ToHashSet(StringComparer.Ordinal);
+        var escondidos = AvisosPessoais.Todos.Select(a => a.Chave).Where(chave => !vistos.Contains(chave));
+        await pessoais.GravarAsync(userId, UserSettingKeys.AvisosEscondidos, AvisosPessoais.Escrever(escondidos), HttpContext.RequestAborted);
         return RedirectToPage("/Definicoes/Index");
     }
 

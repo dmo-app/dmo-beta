@@ -62,6 +62,48 @@ public class RascunhoEEnterNaProcuraTests : IClassFixture<CustomWebApplicationFa
     }
 
     [Fact]
+    public async Task JobOn_OEnterNaProcuraEntraNaProducao_OScriptVemNaPagina()
+    {
+        // DMO-751 (A-0525): o Enter na referência ou no dropdown «Produção» abre o Job On escolhido.
+        using var client = await LoginAsync("7803", DmoCapabilities.JobOnCreate);
+
+        int primeira, segunda;
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            var b1 = new DMO.Alpha.Core.Production.Machine { Code = "B1" };
+            db.Machines.Add(b1);
+            await db.SaveChangesAsync();
+            var antiga = new DMO.Alpha.Core.Production.JobOn { Reference = "3245C002", ProductionNumber = "202603", MachineId = b1.Id, InicioEm = new DateOnly(2026, 8, 11) };
+            var nova = new DMO.Alpha.Core.Production.JobOn { Reference = "3245C002", ProductionNumber = "202604", MachineId = b1.Id, InicioEm = new DateOnly(2026, 9, 28) };
+            db.JobOns.AddRange(antiga, nova);
+            await db.SaveChangesAsync();
+            primeira = nova.Id;
+            segunda = antiga.Id;
+        }
+
+        var html = await client.GetStringAsync("/JobOn?ano=2026&mes=11&dia=10");
+        var producoes = await client.GetStringAsync("/JobOn?handler=ProcurarProducao&ano=2026&mes=11&dia=10&q=3245C002");
+        var sugestoes = await client.GetStringAsync("/Sugestoes?fonte=referencias&q=3245");
+
+        Assert.Contains("id=\"lightSearch\"", html);
+        Assert.Matches("<script src=\"/js/jobon-procura-enter\\.js\\?v=[^\"]+\" defer></script>", html);
+        // A mais recente vem escolhida: o Enter abre-a.
+        Assert.Matches($"<option value=\"/JobOn/Folha\\?jobon_id={primeira}&amp;dia=2026-11-10\" data-id=\"{primeira}\" selected=\"selected\">", producoes);
+        Assert.Contains($"jobon_id={segunda}", producoes);
+        Assert.Contains("\"3245C002\"", sugestoes);
+
+        var directory = Environment.GetEnvironmentVariable("DMO_UI_EVIDENCE_DIR");
+        if (!string.IsNullOrWhiteSpace(directory))
+        {
+            Directory.CreateDirectory(directory);
+            File.WriteAllText(Path.Combine(directory, "jobon-enter.html"), html);
+            File.WriteAllText(Path.Combine(directory, "jobon-enter-producoes.html"), producoes);
+            File.WriteAllText(Path.Combine(directory, "jobon-enter-sugestoes.json"), sugestoes);
+        }
+    }
+
+    [Fact]
     public async Task ReparacaoProgramada_OEnterNaReferenciaENoLoteSubmeteAProcura_ENaoOAdicionar()
     {
         using var client = await LoginAsync("7802", DmoCapabilities.Ferramentas);

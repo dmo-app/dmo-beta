@@ -23,4 +23,7 @@ public sealed record CreateTool(
     // A quantidade de AN do lote (só na BQ; Diogo, 28/10/2026). null = vazia.
     int? AnQuantity = null,
     // A B2 em que trabalha (Diogo, 28/10/2026); null = pelas outras linhas (C1 → Dupla, C3 → Tripla).
-    B2Modo? B2Modo = null);
+    B2Modo? B2Modo = null,
+    // R6: o fabricante do molde e a data de aquisição, escritos à mão (vazios = em branco).
+    string? Fabricante = null,
+    DateOnly? DataAquisicao = null);
