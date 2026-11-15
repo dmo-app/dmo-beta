@@ -87,6 +87,15 @@
     ligado = true;
     aberto?.setAttribute('hidden', '');
     atualizar();
+    // Vindo de um cartão noutra vista (?escolher=<bq_id>): a linha dele já vem escolhida (DMO-754).
+    const url = new URL(window.location.href);
+    const escolher = url.searchParams.get('escolher');
+    if (escolher) {
+      const cartao = Array.from(cartoes()).find((c) => c.dataset.id === escolher);
+      if (cartao && !cartao.classList.contains('bq-line-empty')) alternar(cartao);
+      url.searchParams.delete('escolher');
+      history.replaceState(history.state, '', url.pathname + url.search + url.hash);
+    }
     const u = document.getElementById('bqVariasUltimos');
     if (u && u.dataset.url) {
       fetch(u.dataset.url, { credentials: 'same-origin' })

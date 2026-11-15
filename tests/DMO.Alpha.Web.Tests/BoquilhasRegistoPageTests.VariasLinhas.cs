@@ -83,4 +83,29 @@ public partial class BoquilhasRegistoPageTests
         var html = await GetPageHtmlAsync(client, response.Headers.Location!.OriginalString);
         Assert.Contains("Não ficou registado em B2.", html);
     }
+
+    // BUG DO CARTÃO (Diogo, 11/11/2026, DMO-754): carregar num cartão abria o
+    // registo antigo, de uma BQ de cada vez. Em qualquer vista das Boquilhas
+    // (o Histórico, ou com um registo aberto), o cartão abre o registo de
+    // várias linhas com essa linha já escolhida.
+    [Fact]
+    public async Task CartaoDaLinha_AbreORegistoDeVariasLinhas_NuncaORegistoAntigo()
+    {
+        await SeedToolAsync("BQ-VAR-CARTAO", "RVACAR", "7");
+        var d4 = await SeedProductionAsync("BQ-VAR-CARTAO", "8007T007", "202697", "D4");
+        SeedUser("4197", "Registo Cartao", "provider-registo-97", "RegistoPass97!");
+        using var client = await LoginClientAsync("4197", "RegistoPass97!");
+
+        foreach (var vista in new[] { "/Boquilhas?historico=1", $"/Boquilhas?bq_id={d4.Id}" })
+        {
+            var painel = PainelDasLinhas(await GetPageHtmlAsync(client, vista));
+            Assert.Contains($"data-dmo-open=\"/Boquilhas?escolher={d4.Id}\"", painel);
+            Assert.DoesNotContain($"data-dmo-open=\"/Boquilhas?bq_id={d4.Id}\"", painel);
+        }
+
+        var aberto = await GetPageHtmlAsync(client, $"/Boquilhas?escolher={d4.Id}");
+        Assert.Contains("id=\"bqVarias\"", aberto);
+        Assert.Contains($"data-id=\"{d4.Id}\"", PainelDasLinhas(aberto));
+        Assert.DoesNotContain("register-open", aberto);
+    }
 }

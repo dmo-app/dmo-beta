@@ -352,8 +352,8 @@ public partial class BoquilhasRegistoPageTests : IClassFixture<CustomWebApplicat
 
         var html = await GetPageHtmlAsync(client, "/Boquilhas");
 
-        // Um clique seleciona a máquina; o duplo clique (ou o Enter) abre o registo.
-        Assert.Contains($"data-dmo-row data-dmo-open=\"/Boquilhas?bq_id={bq.Id}\"", html);
+        // Um clique no cartão abre o registo de várias linhas com esta linha já escolhida (DMO-754).
+        Assert.Contains($"data-dmo-row data-dmo-open=\"/Boquilhas?escolher={bq.Id}\"", html);
         Assert.DoesNotContain("dmo-rail-link", html, StringComparison.Ordinal);
         Assert.Contains("beta-light-rail beta-production-rail", html, StringComparison.Ordinal);
         Assert.Contains("beta-production-lines", html, StringComparison.Ordinal);
