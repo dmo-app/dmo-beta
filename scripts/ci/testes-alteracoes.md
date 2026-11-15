@@ -6706,3 +6706,23 @@ Novos: 8 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `9f1a03dc4d6a170e`
+
+## A-0528 · 2026-11-15 · ok-do-diogo
+
+Porquê: DMO-754: o cartão da linha nas Boquilhas passa a abrir o registo de várias linhas (?escolher=) em vez do registo antigo (?bq_id=). Os testes do painel passam a esperar o endereço novo; o teste do dia da troca regista pelo registo de várias linhas e continua a reler da base que cada movimento fica no Job On certo. Testes novos: o cartão nunca abre o registo antigo (C#) e chega com a linha escolhida (ShellProof).
+Referência: thread «Corrigir card das Boquilhas que abre registo antigo», cartão 15/11/2026 23:18 «Sim, acerta os testes»
+Novos: 4 · mudaram: 7 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.VariasLinhas.cs :: BoquilhasRegistoPageTests.CartaoDaLinha_AbreORegistoDeVariasLinhas_NuncaORegistoAntigo`
+- novo: `tests/ShellProof/bq-varias-escolher.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/bq-varias-escolher.test.cjs :: o cartão de outra vista chega com a linha dele já escolhida`
+- novo: `tests/ShellProof/bq-varias-escolher.test.cjs :: sem ?escolher nenhuma linha vem escolhida`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.Sobreposicao.cs :: BoquilhasRegistoPageTests.DiaDaTroca_AQueEntraSemBq_MostraAProducaoEAbreOJobOn_NaoSemProducao`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.Sobreposicao.cs :: BoquilhasRegistoPageTests.DiaDaTroca_OPainelMostraAsDuasProducoes_SemAviso`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.Sobreposicao.cs :: BoquilhasRegistoPageTests.DiaDaTroca_RegistaPeloPainelUmMovimentoEmCadaProducao_NoJobOnCerto`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.Sobreposicao.cs :: BoquilhasRegistoPageTests.SobreposicaoReal_OPainelMostraAsDuasProducoes_ComAviso`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.Sobreposicao.cs :: BoquilhasRegistoPageTests.UmaSoProducao_OPainelFicaComoAntes`
+- mudou: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.cs :: BoquilhasRegistoPageTests.MachinesPanel_DirectLinkOpensProductionRegisterAndKeepsSearchCollapsed`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `2d362361a58b71ef`
