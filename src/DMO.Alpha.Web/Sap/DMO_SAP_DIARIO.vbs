@@ -180,7 +180,9 @@ Sub Enviar(ByVal nome)
     stream.LoadFromFile caminho
     Set http = CreateObject("MSXML2.ServerXMLHTTP.6.0")
     http.setTimeouts 30000, 30000, 300000, 300000
-    http.open "POST", URL & "/sap/enviar?ficheiro=" & nome, False
+    ' A hora de Lisboa em que o ficheiro foi escrito: o DMO recusa um ficheiro
+    ' mais antigo do que o último que leu (DMO-772).
+    http.open "POST", URL & "/sap/enviar?ficheiro=" & nome & "&modificado=" & DataHora(fso.GetFile(caminho).DateLastModified), False
     http.setRequestHeader "X-DMO-SAP", CHAVE
     http.setRequestHeader "Content-Type", "application/octet-stream"
     http.send stream.Read
@@ -246,6 +248,10 @@ End Function
 
 Function DataDoDia(ByVal d)
     DataDoDia = Year(d) & "-" & Right("0" & Month(d), 2) & "-" & Right("0" & Day(d), 2)
+End Function
+
+Function DataHora(ByVal d)
+    DataHora = DataDoDia(d) & "T" & Right("0" & Hour(d), 2) & ":" & Right("0" & Minute(d), 2) & ":" & Right("0" & Second(d), 2)
 End Function
 
 Function Agora()

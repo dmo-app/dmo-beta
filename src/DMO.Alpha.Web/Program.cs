@@ -805,6 +805,7 @@ app.MapGet("/posto/ativo", async (HttpContext context, IOptionsMonitor<CookieAut
 app.MapPost("/sap/enviar", async (
     HttpRequest request,
     string? ficheiro,
+    string? modificado,
     DMO.Alpha.Core.Tools.ISapDefinicoes sapDefinicoes,
     DMO.Alpha.Core.Tools.IFerramentasUsoSap usoSap,
     DMO.Alpha.Core.Tools.IFerramentasFabricoSap fabricoSap,
@@ -822,7 +823,7 @@ app.MapPost("/sap/enviar", async (
     var conteudo = DMO.Alpha.Web.Services.SapScripts.Texto(memoria.ToArray());
     var nome = string.IsNullOrWhiteSpace(ficheiro) ? "sap" : Path.GetFileName(ficheiro);
     var (gravado, mensagem) = await DMO.Alpha.Web.Pages.Ferramentas.DefinicoesModel.ImportarSapAsync(
-        usoSap, fabricoSap, conteudo, nome, DateTime.UtcNow, cancellationToken);
+        usoSap, fabricoSap, conteudo, nome, SapModificadoEm(modificado), cancellationToken);
     return Results.Json(new { gravado, mensagem });
 }).AllowAnonymous().DisableAntiforgery().WithMetadata(new Microsoft.AspNetCore.Mvc.RequestSizeLimitAttribute(20 * 1024 * 1024));
 // Os códigos de todas as ferramentas com nome técnico, para o script pedir à ZPPG.
@@ -905,6 +906,26 @@ static void SapChaveRecusada(ILoggerFactory logs, HttpRequest request) =>
     logs.CreateLogger("DMO.Sap").LogWarning(
         "SAP: chave X-DMO-SAP recusada em {Caminho}, de {Endereco}.",
         request.Path.Value, request.HttpContext.Connection.RemoteIpAddress?.ToString());
+
+// A data do ficheiro do SAP (audit externo, 16/11/2026, DMO-772): o script
+// manda a hora de Lisboa em que o ficheiro foi escrito («modificado»), para a
+// proteção «ficheiro mais antigo» valer também no envio direto. Sem ela (um
+// script antigo), ou com uma data no futuro, conta a hora da receção.
+static DateTime SapModificadoEm(string? modificado)
+{
+    var agora = DateTime.UtcNow;
+    if (DateTime.TryParseExact(modificado, "yyyy-MM-dd'T'HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.None, out var local))
+    {
+        var utc = DMO.Alpha.Core.Runtime.DmoBusinessTime.ToUtc(local);
+        if (utc <= agora.AddMinutes(5))
+        {
+            return utc;
+        }
+    }
+
+    return agora;
+}
 
 app.Run();
 return 0;

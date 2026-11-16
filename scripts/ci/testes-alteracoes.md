@@ -6851,3 +6851,13 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserAvisoCurtoTests.cs :: TechnicalNameParserAvisoCurtoTests.AvisoCurto_DizOTipoEAParteDaAjuda`
 
 Selo depois: `46fe73b6d2258e96`
+
+## A-0539 · 2026-11-16 · teste-novo
+
+Porquê: SAP: o envio direto (/sap/enviar) usa a data do ficheiro mandada pelo script e não grava um ficheiro mais antigo (audit externo, DMO-772)
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapDataDoFicheiro.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapDataDoFicheiro.cs :: DefinicoesPorModuloPageTests.EnvioDoSap_FicheiroMaisAntigoDoQueOUltimo_NaoGrava`
+
+Selo depois: `6bc759a69a1d5594`
