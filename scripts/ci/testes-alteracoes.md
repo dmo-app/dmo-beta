@@ -6806,3 +6806,13 @@ Novos: 3 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosToleranciaZeroTests.cs :: PegamentosToleranciaZeroTests.ToleranciaZero_NominalExato_Passa_QualquerDesvio_EFora`
 
 Selo depois: `f80c9daad00c98d4`
+
+## A-0535 · 2026-11-16 · ok-do-diogo
+
+Porquê: Guarda dos testes: apagar um teste passa a exigir sempre ok-do-diogo; contagem-lista deixa de servir para testes que saíram (audit externo R1)
+Referência: Diogo, 16/11/2026, cartão «Apagar um teste passa a precisar sempre do teu ok?»: «Sim, sempre com o meu ok»
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `scripts/ci/guarda-testes.py`
+
+Selo depois: `f21368ae6031311e`

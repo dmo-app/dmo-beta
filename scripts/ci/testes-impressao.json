@@ -1,9 +1,9 @@
 {
-  "selo": "f80c9daad00c98d4",
+  "selo": "f21368ae6031311e",
   "unidades": {
     "scripts/ci/ci-local.sh": "2c1d85034db03a8d",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
-    "scripts/ci/guarda-testes.py": "5b1b5836ee0813fa",
+    "scripts/ci/guarda-testes.py": "333c8eeb0e1dd1e0",
     "scripts/ci/testes.md": "022484bbe94c4c69",
     "tests/DMO.Alpha.Infrastructure.Tests/Admin/AdminAuthorizationServiceTests.cs :: (resto do ficheiro)": "cd86eca55df89f48",
     "tests/DMO.Alpha.Infrastructure.Tests/Admin/AdminAuthorizationServiceTests.cs :: AdminAuthorizationServiceTests.AuthorizeTemplateAssignment_AdminEmailUser_IsRefused": "ec17e60f4b709f70",
