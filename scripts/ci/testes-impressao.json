@@ -1,5 +1,5 @@
 {
-  "selo": "f80c9daad00c98d4",
+  "selo": "78657961582f65a9",
   "unidades": {
     "scripts/ci/ci-local.sh": "2c1d85034db03a8d",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -1719,6 +1719,8 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/SapSenhaGuardadaTests.cs :: SapSenhaGuardadaTests.ComASenhaIlegivel_NaoDizGuardada": "98c7178c46c757a6",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/SapSenhaGuardadaTests.cs :: SapSenhaGuardadaTests.ComASenhaLegivel_DizGuardada": "8a6de62a491361cd",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/SapSenhaGuardadaTests.cs :: SapSenhaGuardadaTests.SemSenha_NaoDizGuardada": "1772787f7b41d427",
+    "tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserAvisoCurtoTests.cs :: (resto do ficheiro)": "54ace45ff5b7cb9a",
+    "tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserAvisoCurtoTests.cs :: TechnicalNameParserAvisoCurtoTests.AvisoCurto_DizOTipoEAParteDaAjuda": "fde90eb786072451",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserAvisoTests.cs :: (resto do ficheiro)": "da6c059e1ccc82da",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserAvisoTests.cs :: TechnicalNameParserAvisoTests.UmNomeForaDaRegra_Avisa": "a38e885b693cec28",
     "tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserAvisoTests.cs :: TechnicalNameParserAvisoTests.UmNomeQueBate_NaoTemAviso": "e23f4f7ccfc1ae12",

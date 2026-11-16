@@ -1,0 +1,32 @@
+@page "/ajuda/erros"
+@{
+    Layout = "_DmoAccountLayout";
+    ViewData["Title"] = "Erros e avisos";
+}
+@* O «readme» dos erros (Diogo, 16/11/2026): cada aviso da app mostra só uma
+   frase e um «Saber mais» que abre aqui, na parte desse aviso (#âncora).
+   Um aviso novo com explicação: acrescentar uma secção com id próprio. *@
+<style>.dmo-erros section{scroll-margin-top:16px;margin-bottom:24px}.dmo-erros section:target{outline:2px solid var(--dmo-accent,#c80);outline-offset:6px;border-radius:6px}</style>
+<div class="dmo-erros">
+  <h2>Erros e avisos</h2>
+
+  <section id="nome-tecnico-outro-tipo">
+    <h3>O nome técnico é de outro tipo de ferramenta</h3>
+    <p>O nome técnico diz um tipo (CM, MF ou BQ) diferente do tipo da ferramenta. Por exemplo, uma MF com o nome de uma CM.</p>
+    <p><strong>Porque importa:</strong> o SAP procura a ferramenta pelo nome técnico. Com o nome de outra, a % uso e as gotas podem vir dessa outra ferramenta.</p>
+    <p><strong>Como é o nome certo:</strong></p>
+    <ul>
+      <li>CM: M + modelo + medida + MP + processo + ventilação (ex. M544744MPPSX)</li>
+      <li>MF: M + modelo + medida + MF + processo + ventilação (ex. M00664TMFNNV)</li>
+      <li>BQ: AB + acabamento + processo + material + medidas (ex. ABS023SC4713)</li>
+    </ul>
+    <p><strong>Acontece muitas vezes</strong> quando se duplica uma ferramenta de outra.</p>
+  </section>
+
+  <section id="nome-tecnico-regra">
+    <h3>O nome técnico não segue a regra</h3>
+    <p>O nome técnico não tem a forma dos desenhos, por isso a app não percebe o tipo, a medida nem as gotas.</p>
+    <p><strong>Porque importa:</strong> o SAP pode não encontrar a ferramenta, e a % uso não vem.</p>
+    <p>A forma certa de cada tipo está na secção de cima.</p>
+  </section>
+</div>

@@ -6806,3 +6806,13 @@ Novos: 3 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosToleranciaZeroTests.cs :: PegamentosToleranciaZeroTests.ToleranciaZero_NominalExato_Passa_QualquerDesvio_EFora`
 
 Selo depois: `f80c9daad00c98d4`
+
+## A-0535 · 2026-11-16 · teste-novo
+
+Porquê: Aviso curto do nome técnico com «Saber mais» para /ajuda/erros (Diogo 16/11/2026)
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserAvisoCurtoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserAvisoCurtoTests.cs :: TechnicalNameParserAvisoCurtoTests.AvisoCurto_DizOTipoEAParteDaAjuda`
+
+Selo depois: `78657961582f65a9`

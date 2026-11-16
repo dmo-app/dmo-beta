@@ -501,9 +501,9 @@ html body main.ferr-page #ferrTecnica .ferr-tech-titulo{margin-bottom:4px}
           <div class="ferr-nome-tecnico-decode">
             @(decoded.Family == "desconhecido" ? null : decoded.Family)@(decoded.InferredType is { } inferred ? $" · tipo inferido {tokenOf(inferred)}" : null)@(decoded.InferredReference is { } inferredRef ? $" · referência {inferredRef}" : null)@(decoded.Dimension is { } dimension ? $" · {dimension}" : null)@(decoded.Process is { } process ? $" · {process}" : null)@(decoded.Ventilation is { } ventilation ? $" · ventilação {ventilation}" : null)
           </div>
-          @if (TechnicalNameParser.Aviso(tool.Type, technicalName) is { } avisoNome)
+          @if (TechnicalNameParser.AvisoCurto(tool.Type, technicalName) is { } avisoNome)
           {
-            <p class="ferr-aviso warn" id="ferrNomeTecnicoAviso" role="status">@avisoNome</p>
+            <p class="ferr-aviso warn" id="ferrNomeTecnicoAviso" role="status" title="@TechnicalNameParser.Aviso(tool.Type, technicalName)">@avisoNome.Texto <a class="dmo-aviso-link" href="/ajuda/erros#@avisoNome.Ancora" target="_blank">Saber mais</a></p>
           }
         </div>
       }

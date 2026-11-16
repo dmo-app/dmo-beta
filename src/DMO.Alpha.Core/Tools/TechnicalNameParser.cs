@@ -126,6 +126,24 @@ public static class TechnicalNameParser
     }
 
     /// <summary>
+    /// O aviso curto da ficha, com a parte de «/ajuda/erros» que explica melhor
+    /// (Diogo, 16/11/2026: «muita informação, apresentar o erro e dentro dele
+    /// um link que explica melhor»). Null como <see cref="Aviso"/>.
+    /// </summary>
+    public static (string Texto, string Ancora)? AvisoCurto(ToolType tipo, string? technicalName)
+    {
+        if (Aviso(tipo, technicalName) is null)
+        {
+            return null;
+        }
+
+        var decoded = Decode(technicalName!);
+        return decoded.Family == "desconhecido"
+            ? ("O nome técnico não segue a regra.", "nome-tecnico-regra")
+            : ($"O nome técnico é de uma {Nome(decoded.InferredType!.Value)}, não de uma {Nome(tipo)}.", "nome-tecnico-outro-tipo");
+    }
+
+    /// <summary>
     /// O NOME TÉCNICO QUE NÃO BATE (Diogo, 28/10/2026: «um fullproof system»,
     /// o OP 99 PMD 02): o aviso da ficha quando o nome não segue a regra dos
     /// desenhos ou diz outro tipo de ferramenta (uma CM com MF, uma BQ com M…).
