@@ -4,7 +4,7 @@
    pelo RegistarSemJobOn e volta a esta página com a ficha da BQ e os
    movimentos sem Job On dela. Com uma recusa, a janela abre outra vez com a
    frase. *@
-<div id="bqSemJobOn" class="dmo-zona" data-dmo-regiao>
+<div id="bqSemJobOn" class="dmo-zona" data-dmo-regiao data-dmo-parcial>
 @if (Model.SemJobOnTools.Count > 0)
 {
   var gravou = Model.SemJobOnResult is "ok" or "ok_jobon";

@@ -48,21 +48,25 @@
   </div>
 
   <div class="pu-grelha-baixo">
-    <table class="dmo-table pu-grelha pu-grelha-reserva" data-pu-reserva>
-      <thead><tr><th colspan="@Math.Max(1, grelha.Reserva.Count)">Reserva</th></tr></thead>
-      <tbody>
-        <tr>
-          @if (grelha.Reserva.Count == 0)
-          {
-            <td class="pu-empty-cell">—</td>
-          }
-          @foreach (var puncao in grelha.Reserva)
-          {
-            <td class="@(puncao.Repetido ? "pu-repetido" : null)"><span class="pu-grelha-numero">@puncao.Number</span><small class="pu-grelha-lote">@(puncao.Repetido ? $"Lote {puncao.Lot}" : null)</small></td>
-          }
-        </tr>
-      </tbody>
-    </table>
+    @* Com muitos punções de reserva, a tabela desliza dentro da sua caixa e a
+       página não (audit externo, 16/11/2026, DMO-756). *@
+    <div class="dmo-table-wrap pu-grelha-reserva-caixa">
+      <table class="dmo-table pu-grelha pu-grelha-reserva" data-pu-reserva>
+        <thead><tr><th colspan="@Math.Max(1, grelha.Reserva.Count)">Reserva</th></tr></thead>
+        <tbody>
+          <tr>
+            @if (grelha.Reserva.Count == 0)
+            {
+              <td class="pu-empty-cell">—</td>
+            }
+            @foreach (var puncao in grelha.Reserva)
+            {
+              <td class="@(puncao.Repetido ? "pu-repetido" : null)"><span class="pu-grelha-numero">@puncao.Number</span><small class="pu-grelha-lote">@(puncao.Repetido ? $"Lote {puncao.Lot}" : null)</small></td>
+            }
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <dl class="pu-grelha-totais" data-pu-totais>
       <div><dt>Punções verificados</dt><dd>@grelha.Total</dd></div>

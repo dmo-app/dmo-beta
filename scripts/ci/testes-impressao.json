@@ -1,5 +1,5 @@
 {
-  "selo": "2d362361a58b71ef",
+  "selo": "2394189655dad84c",
   "unidades": {
     "scripts/ci/ci-local.sh": "337df90d37221be8",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -2023,6 +2023,10 @@
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.EnvioUnico.cs :: BoquilhasRegistoPageTests.RegisterMovement_OtherEnvio_IsANewMovement": "f41fb379ac0b1c64",
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.EnvioUnico.cs :: BoquilhasRegistoPageTests.RegisterMovement_SameEnvioAtTheSameTime_TheSecondWaitsAndSavesNothing": "feab8a55f5c96b97",
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.EnvioUnico.cs :: BoquilhasRegistoPageTests.RegisterMovement_SameEnvioTwice_SavesOnceAndAnswersWithTheSameRedirect": "749b67614a4a2589",
+    "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.EnvioUnicoVarias.cs :: (resto do ficheiro)": "4b647de552744ec1",
+    "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.EnvioUnicoVarias.cs :: BoquilhasRegistoPageTests.RegisterMany_MesmoEnvioDuasVezes_GravaUmaVez": "28e8a5692e2c24bd",
+    "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.EnvioUnicoVarias.cs :: BoquilhasRegistoPageTests.ResetDiscrepancy_MesmoEnvioDuasVezes_NaoMudaOMarco": "1b6d6a41c6a65e7a",
+    "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.EnvioUnicoVarias.cs :: BoquilhasRegistoPageTests.VariasLinhasESemJobOn_GravamPelaFilaDaPagina": "ecc58dacf2d71e7e",
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.ErrosDiogo.cs :: (resto do ficheiro)": "3e15a46343678481",
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.ErrosDiogo.cs :: BoquilhasRegistoPageTests.JobOnMudou_FicaNumaLinhaNoCabecalhoDoRegisto_SemBlocoPorBaixoDosCartoes": "6e09da90b161539d",
     "tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.ErrosDiogo.cs :: BoquilhasRegistoPageTests.PainelDasLinhas_MostraABqEmMaquinaComOLote_EAProducaoNumaLinhaDiscreta": "a77c2d2d5f43a26c",

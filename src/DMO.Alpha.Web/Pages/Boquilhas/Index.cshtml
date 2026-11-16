@@ -76,7 +76,7 @@
         }
         @* Com «Várias linhas» ligado, um clique no cartão escolhe-o (não abre) e
            acrescenta aqui a linha dele; a data e a hora são as mesmas para todas. *@
-        <form method="post" asp-page="/Boquilhas/Index" asp-page-handler="RegisterMany" id="bqVarias" class="card bq-varias" aria-label="Registar várias linhas">
+        <form method="post" asp-page="/Boquilhas/Index" asp-page-handler="RegisterMany" id="bqVarias" class="card bq-varias" aria-label="Registar várias linhas" data-dmo-parcial>
           <div class="bq-movement-line">
             <button type="submit" class="btn primary" disabled>Registar</button>
           @* Um tipo de movimento por registo (Diogo, 02/11/2026): escolhe-se uma vez, em cima. *@

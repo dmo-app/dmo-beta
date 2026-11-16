@@ -54,6 +54,8 @@ table.dmo-table.pu-grelha[data-pu-grelha] tbody td{height:58px;position:relative
 .pu-grelha-baixo{display:flex;flex-wrap:wrap;gap:24px;margin-top:16px;align-items:flex-start}
 .dmo-table.pu-grelha.pu-grelha-reserva thead th{background:var(--dmo-warning-soft);color:var(--dmo-text)}
 .dmo-table.pu-grelha.pu-grelha-reserva td{min-width:44px}
+/* A caixa da Reserva nunca passa da largura do ecrã: desliza ela (DMO-756). */
+.pu-grelha-baixo .pu-grelha-reserva-caixa{max-width:100%;min-width:0;border:0;border-radius:0}
 .dmo-table.pu-grelha.pu-grelha-repetidos thead th{background:var(--dmo-subtle);color:var(--dmo-text)}
 .dmo-table.pu-grelha.pu-grelha-repetidos td,.dmo-table.pu-grelha.pu-grelha-repetidos th{padding:6px 14px}
 .pu-grelha-totais{margin:0;display:grid;gap:4px;font-size:13px}

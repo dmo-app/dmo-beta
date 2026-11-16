@@ -618,6 +618,9 @@ html body main.resumo-page .resumo-peso-media .resumo-big-number small { font-si
 html body main.resumo-page .resumo-peso-media > small { color: var(--dmo-muted); font-size: 12px; }
 html body main.resumo-page .resumo-peso-tabela {
   width: 100%;
+  /* A meio ecrã a tabela partilhada ganha 760px de largura mínima; esta tem
+     quatro colunas curtas e cabe sem ela (audit externo, 16/11/2026, DMO-756). */
+  min-width: 0;
   max-width: 520px;
   margin: 6px 0 2px;
   table-layout: auto;

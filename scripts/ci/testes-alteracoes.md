@@ -6726,3 +6726,15 @@ Novos: 4 · mudaram: 7 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `2d362361a58b71ef`
+
+## A-0529 · 2026-11-16 · teste-novo
+
+Porquê: DMO-755 (audit externo 16/11): VariasLinhasESemJobOn_GravamPelaFilaDaPagina garante que o registo de várias linhas e a janela Registar sem Job On gravam pela fila da página (com a chave X-Dmo-Envio); RegisterMany_MesmoEnvioDuasVezes_GravaUmaVez garante que o mesmo envio de várias linhas grava uma vez; ResetDiscrepancy_MesmoEnvioDuasVezes_NaoMudaOMarco garante que o Pôr a zero repetido não muda o marco.
+Novos: 4 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.EnvioUnicoVarias.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.EnvioUnicoVarias.cs :: BoquilhasRegistoPageTests.RegisterMany_MesmoEnvioDuasVezes_GravaUmaVez`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.EnvioUnicoVarias.cs :: BoquilhasRegistoPageTests.ResetDiscrepancy_MesmoEnvioDuasVezes_NaoMudaOMarco`
+- novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.EnvioUnicoVarias.cs :: BoquilhasRegistoPageTests.VariasLinhasESemJobOn_GravamPelaFilaDaPagina`
+
+Selo depois: `2394189655dad84c`

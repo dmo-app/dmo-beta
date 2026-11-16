@@ -1541,6 +1541,7 @@ public sealed partial class IndexModel : PageModel
     [BindProperty(SupportsGet = true, Name = "varias_ok")] public string? VariasOk { get; set; }
     [BindProperty(SupportsGet = true, Name = "varias_falhou")] public string? VariasFalhou { get; set; }
 
+    [EnvioUnico]
     public async Task<IActionResult> OnPostRegisterManyAsync(
         [FromForm(Name = "linha_bq_id")] int[]? bqIds,
         [FromForm(Name = "movement_type")] string? tipo,
