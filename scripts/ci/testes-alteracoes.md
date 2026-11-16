@@ -6816,3 +6816,18 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `scripts/ci/guarda-testes.py`
 
 Selo depois: `f21368ae6031311e`
+
+## A-0536 · 2026-11-16 · contagem-lista
+
+Porquê: Audits externos E1, G1, G4 (16/11): testes novos; o toast-por-baixo-do-cabecalho.test.cjs entra na lista do test:js
+Novos: 6 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.AssociarEnvioUnico.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.AssociarEnvioUnico.cs :: ReparacaoProgramadaPaginaTests.Associar_MesmoEnvioDuasVezes_FazUmaListaSo`
+- novo: `tests/DMO.Alpha.Web.Tests/PostSemHandlerTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PostSemHandlerTests.cs :: PostSemHandlerTests.PostSemHandler_NaoDa500`
+- novo: `tests/ShellProof/toast-por-baixo-do-cabecalho.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/toast-por-baixo-do-cabecalho.test.cjs :: A pilha dos avisos fica por baixo do cabeçalho, não por cima do «Sair»`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `c57a4b7494a6895a`
