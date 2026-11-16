@@ -6807,12 +6807,47 @@ Novos: 3 · mudaram: 0 · saíram: 0
 
 Selo depois: `f80c9daad00c98d4`
 
-## A-0535 · 2026-11-16 · teste-novo
+## A-0535 · 2026-11-16 · ok-do-diogo
 
-Porquê: Aviso curto do nome técnico com «Saber mais» para /ajuda/erros (Diogo 16/11/2026)
+Porquê: Guarda dos testes: apagar um teste passa a exigir sempre ok-do-diogo; contagem-lista deixa de servir para testes que saíram (audit externo R1)
+Referência: Diogo, 16/11/2026, cartão «Apagar um teste passa a precisar sempre do teu ok?»: «Sim, sempre com o meu ok»
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `scripts/ci/guarda-testes.py`
+
+Selo depois: `f21368ae6031311e`
+
+## A-0536 · 2026-11-16 · contagem-lista
+
+Porquê: Audits externos E1, G1, G4 (16/11): testes novos; o toast-por-baixo-do-cabecalho.test.cjs entra na lista do test:js
+Novos: 6 · mudaram: 1 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.AssociarEnvioUnico.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Ferramentas/ReparacaoProgramadaPaginaTests.AssociarEnvioUnico.cs :: ReparacaoProgramadaPaginaTests.Associar_MesmoEnvioDuasVezes_FazUmaListaSo`
+- novo: `tests/DMO.Alpha.Web.Tests/PostSemHandlerTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PostSemHandlerTests.cs :: PostSemHandlerTests.PostSemHandler_NaoDa500`
+- novo: `tests/ShellProof/toast-por-baixo-do-cabecalho.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/toast-por-baixo-do-cabecalho.test.cjs :: A pilha dos avisos fica por baixo do cabeçalho, não por cima do «Sair»`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `c57a4b7494a6895a`
+
+## A-0537 · 2026-11-16 · ok-do-diogo
+
+Porquê: CI local: um grupo que corre sem nenhum teste, ou um relatório TRX em falta, dá FALHOU em vez de OK (audit externo R3)
+Referência: Diogo, 16/11/2026: «sim podes» (grupo com 0 testes passa a FALHOU)
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `scripts/ci/grupos.py`
+
+Selo depois: `5091ca0421858a51`
+
+## A-0538 · 2026-11-16 · teste-novo
+
+Porquê: DMO-771: aviso curto do nome técnico com «Saber mais» para /ajuda/erros (Diogo 16/11/2026)
 Novos: 2 · mudaram: 0 · saíram: 0
 
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserAvisoCurtoTests.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/TechnicalNameParserAvisoCurtoTests.cs :: TechnicalNameParserAvisoCurtoTests.AvisoCurto_DizOTipoEAParteDaAjuda`
 
-Selo depois: `78657961582f65a9`
+Selo depois: `46fe73b6d2258e96`

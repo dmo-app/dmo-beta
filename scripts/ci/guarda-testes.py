@@ -12,6 +12,7 @@ explicação de cada mudança.
       impressão nova. Os testes novos entram sempre como «teste-novo»; o TIPO
       vale para os que mudaram ou saíram:
         contagem-lista  só acertou um número ou uma lista; o que o teste verifica fica igual
+                        (nunca para testes que saíram: apagar precisa sempre do ok do Diogo)
         ok-do-diogo     mudança aprovada pelo Diogo; --ref diz onde (mensagem, cartão, PR)
       Só com testes novos, --tipo pode ficar de fora.
 
@@ -435,6 +436,10 @@ def cmd_registar(a):
             mostrar_dif(novos, mudaram, sairam)
             return 1
         tipo = a.tipo
+    if sairam and tipo != "ok-do-diogo":
+        print("Há testes que saíram: apagar um teste precisa sempre do ok do Diogo (--tipo ok-do-diogo --ref \"...\").")
+        mostrar_dif(novos, mudaram, sairam)
+        return 1
     if tipo == "ok-do-diogo" and not (a.ref and a.ref.strip()):
         print("«ok-do-diogo» precisa de --ref: onde o Diogo deu o ok (mensagem, cartão ou PR).")
         return 1
@@ -473,7 +478,7 @@ nem se mudam entradas antigas. O CI local falha se um teste mudar sem uma entrad
 Tipos:
 
 - `teste-novo`: só testes novos (sempre permitido).
-- `contagem-lista`: só se acertou um número ou uma lista; o que o teste verifica fica igual.
+- `contagem-lista`: só se acertou um número ou uma lista; o que o teste verifica fica igual. Nunca para testes que saíram: apagar um teste precisa sempre do ok do Diogo.
 - `ok-do-diogo`: mudança a um teste existente aprovada pelo Diogo; a «Referência» diz onde.
 - `inicio`: o ponto de partida da guarda.
 
