@@ -797,10 +797,12 @@ app.MapPost("/sap/enviar", async (
     DMO.Alpha.Core.Tools.ISapDefinicoes sapDefinicoes,
     DMO.Alpha.Core.Tools.IFerramentasUsoSap usoSap,
     DMO.Alpha.Core.Tools.IFerramentasFabricoSap fabricoSap,
+    ILoggerFactory logs,
     CancellationToken cancellationToken) =>
 {
     if (!await sapDefinicoes.ConfereChaveAsync(request.Headers["X-DMO-SAP"].ToString(), cancellationToken))
     {
+        SapChaveRecusada(logs, request);
         return Results.StatusCode(StatusCodes.Status403Forbidden);
     }
 
@@ -817,10 +819,12 @@ app.MapGet("/sap/codigos", async (
     HttpRequest request,
     DMO.Alpha.Core.Tools.ISapDefinicoes sapDefinicoes,
     DMO.Alpha.Core.Tools.IFerramentasUsoSap usoSap,
+    ILoggerFactory logs,
     CancellationToken cancellationToken) =>
 {
     if (!await sapDefinicoes.ConfereChaveAsync(request.Headers["X-DMO-SAP"].ToString(), cancellationToken))
     {
+        SapChaveRecusada(logs, request);
         return Results.StatusCode(StatusCodes.Status403Forbidden);
     }
 
@@ -882,6 +886,14 @@ app.MapGet("/Sugestoes", async (
     var items = await suggestions.SuggestAsync(source.Value, q, toolType, linha, context.RequestAborted);
     return Results.Json(items.Select(item => new { value = item.Value, label = item.Label }));
 }).RequireAuthorization();
+
+// Uma chave do SAP recusada fica no log, com o endereço de quem a mandou
+// (audit externo, 16/11/2026, DMO-759): antes não ficava rasto. A chave
+// escrita nunca se escreve.
+static void SapChaveRecusada(ILoggerFactory logs, HttpRequest request) =>
+    logs.CreateLogger("DMO.Sap").LogWarning(
+        "SAP: chave X-DMO-SAP recusada em {Caminho}, de {Endereco}.",
+        request.Path.Value, request.HttpContext.Connection.RemoteIpAddress?.ToString());
 
 app.Run();
 return 0;

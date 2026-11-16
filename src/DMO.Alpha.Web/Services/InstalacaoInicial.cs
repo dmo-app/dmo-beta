@@ -131,24 +131,31 @@ public sealed record LoginProprio(bool Ativo);
 /// é sorteado no arranque, e escreve-se no log da app da primeira vez que a
 /// instalação aparece (é só o servidor que o vê); depois de 5 enganos
 /// sorteia-se outro (e escreve-se também), para não se poder adivinhar.
+/// O código configurado não muda: depois de 5 enganos, a instalação espera
+/// um minuto antes de aceitar outra tentativa (audit externo, 16/11/2026,
+/// DMO-758), e assim não se pode tentar sem fim.
 /// </summary>
 public sealed class CodigoDeInstalacao
 {
     // Sem 0/O, 1/I/L: lê-se do log sem dúvidas.
     private const string Letras = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
     public const int EnganosAteTrocar = 5;
+    public static readonly TimeSpan EsperaComCodigoFixo = TimeSpan.FromMinutes(1);
 
     private readonly ILogger<CodigoDeInstalacao> _logger;
     private readonly bool _fixo;
+    private readonly TimeProvider _relogio;
+    private DateTimeOffset _esperaAte = DateTimeOffset.MinValue;
     private readonly object _trinco = new();
     private string _valor;
     private int _enganos;
     private bool _gasto;
     private bool _anunciado;
 
-    public CodigoDeInstalacao(IConfiguration configuration, ILogger<CodigoDeInstalacao> logger)
+    public CodigoDeInstalacao(IConfiguration configuration, ILogger<CodigoDeInstalacao> logger, TimeProvider? relogio = null)
     {
         _logger = logger;
+        _relogio = relogio ?? TimeProvider.System;
         var configurado = configuration["Dmo:CodigoDeInstalacao"];
         _fixo = !string.IsNullOrWhiteSpace(configurado);
         _valor = _fixo ? Normalizar(configurado) : Sortear();
@@ -170,7 +177,7 @@ public sealed class CodigoDeInstalacao
     {
         lock (_trinco)
         {
-            if (_gasto)
+            if (_gasto || (_fixo && _relogio.GetUtcNow() < _esperaAte))
             {
                 return false;
             }
@@ -182,7 +189,15 @@ public sealed class CodigoDeInstalacao
                 return true;
             }
 
-            if (++_enganos >= EnganosAteTrocar && !_fixo)
+            if (++_enganos >= EnganosAteTrocar && _fixo)
+            {
+                _enganos = 0;
+                _esperaAte = _relogio.GetUtcNow() + EsperaComCodigoFixo;
+                _logger.LogWarning(
+                    "Primeira instalação: {Enganos} códigos errados; o código configurado só volta a ser aceite daqui a {Segundos} s.",
+                    EnganosAteTrocar, (int)EsperaComCodigoFixo.TotalSeconds);
+            }
+            else if (_enganos >= EnganosAteTrocar)
             {
                 _enganos = 0;
                 _valor = Sortear();

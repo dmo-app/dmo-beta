@@ -6738,3 +6738,18 @@ Novos: 4 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/BoquilhasRegistoPageTests.EnvioUnicoVarias.cs :: BoquilhasRegistoPageTests.VariasLinhasESemJobOn_GravamPelaFilaDaPagina`
 
 Selo depois: `2394189655dad84c`
+
+## A-0530 · 2026-11-16 · teste-novo
+
+Porquê: DMO-757/758/759 (audits externos S4 e S2, 16/11): ImportarFabricoSap_EsperaPeloTrincoDeOutraImportacao garante que uma importação do relatório de fabrico espera pela outra (trinco sap-fabrico); CodigoFixo_CincoEnganos_EsperaUmMinutoAntesDeAceitar e CodigoFixo_MenosDeCincoEnganos_AceitaLogo garantem o travão de um minuto do código de instalação configurado; ChaveErrada_FicaNoLog_SemAChave garante que a chave do SAP recusada fica no log sem a chave escrita.
+Novos: 7 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.TrincoDoFabricoSap.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Data/PostgresMigrationIntegrationTests.TrincoDoFabricoSap.cs :: PostgresMigrationIntegrationTests.ImportarFabricoSap_EsperaPeloTrincoDeOutraImportacao`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.CodigoFixo.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.CodigoFixo.cs :: InstalacaoInicialCodigoFixoTests.CodigoFixo_CincoEnganos_EsperaUmMinutoAntesDeAceitar`
+- novo: `tests/DMO.Alpha.Web.Tests/InstalacaoInicialTests.CodigoFixo.cs :: InstalacaoInicialCodigoFixoTests.CodigoFixo_MenosDeCincoEnganos_AceitaLogo`
+- novo: `tests/DMO.Alpha.Web.Tests/SapChaveRecusadaLogTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/SapChaveRecusadaLogTests.cs :: SapChaveRecusadaLogTests.ChaveErrada_FicaNoLog_SemAChave`
+
+Selo depois: `557c498f696073d5`

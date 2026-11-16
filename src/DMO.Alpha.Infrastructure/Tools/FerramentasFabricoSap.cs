@@ -18,8 +18,25 @@ namespace DMO.Alpha.Infrastructure.Tools;
 /// </summary>
 public sealed class FerramentasFabricoSap(DmoDbContext db, ICurrentAccountContext account, ILogger<FerramentasFabricoSap> logger) : IFerramentasFabricoSap
 {
-    public async Task<ImportarFabricoSapOutcome> ImportarAsync(IReadOnlyList<FabricoSapLinha> linhas, string? ficheiro, DateTime? ficheiroModificadoEmUtc,
-        IReadOnlyList<FabricoSapDetalhe>? detalhes = null, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Uma importação de cada vez (audit externo, 16/11/2026, DMO-757): o
+    /// script do SAP e a pasta ligada podem mandar ao mesmo tempo. Sem trinco,
+    /// a segunda falhava ao gravar a mesma ordem, ou retirava uma ordem que a
+    /// outra acabara de gravar. Numa transação, com o trinco «sap-fabrico», a
+    /// segunda espera e lê o que a primeira gravou (como a % uso).
+    /// </summary>
+    public Task<ImportarFabricoSapOutcome> ImportarAsync(IReadOnlyList<FabricoSapLinha> linhas, string? ficheiro, DateTime? ficheiroModificadoEmUtc,
+        IReadOnlyList<FabricoSapDetalhe>? detalhes = null, CancellationToken cancellationToken = default) =>
+        DbWrite.InTransactionAsync(db, async () =>
+        {
+            await DbWrite.LockAsync(db, TrincoImportar, cancellationToken);
+            return await ImportarNoTrincoAsync(linhas, ficheiro, ficheiroModificadoEmUtc, detalhes, cancellationToken);
+        }, cancellationToken);
+
+    private const string TrincoImportar = "sap-fabrico";
+
+    private async Task<ImportarFabricoSapOutcome> ImportarNoTrincoAsync(IReadOnlyList<FabricoSapLinha> linhas, string? ficheiro, DateTime? ficheiroModificadoEmUtc,
+        IReadOnlyList<FabricoSapDetalhe>? detalhes, CancellationToken cancellationToken)
     {
         var detalheDe = (detalhes ?? [])
             .GroupBy(d => (d.Material, d.Linha, d.InicioEm, d.FimEm))
