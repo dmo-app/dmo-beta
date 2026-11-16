@@ -6770,3 +6770,18 @@ Novos: 9 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.MudouEntretanto.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_DuasPessoasAoMesmoTempo_ASegundaEAvisada`
 
 Selo depois: `e901fad7ae89f1f8`
+
+## A-0532 · 2026-11-16 · ok-do-diogo
+
+Porquê: DMO-764 (audit externo P1.2): o peso no e-mail do Peso sai com ponto, como na folha; Preencher_TrocaOPeso_ComAUnidade e Enviar_ComPesoNoAssunto_OAssuntoDoEmailTrazOPesoMedioDaProducao passam a esperar «245.30 g». DMO-762 (P1.3): PesoAssociadoDepoisDaAprovacao_ContaComoRegistoNovo garante que o card da Revisão conta o Peso associado depois da aprovação. DMO-763 (P1.6): PostoAtivo_DeOutroSite_NaoRenova_DaPropriaPagina_Renova garante que só a própria página renova a sessão do posto.
+Referência: Diogo 16/11/2026 01:40 «sim sempre com ponto», «nao uso virgulas» (cmsg_01K75FTs9bQnbhhH7qttpgraQj5SQvs6KLkowGcKLQyFoU)
+Novos: 4 · mudaram: 2 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/RevisaoPesoAssociadoDepoisTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/RevisaoPesoAssociadoDepoisTests.cs :: RevisaoPesoAssociadoDepoisTests.PesoAssociadoDepoisDaAprovacao_ContaComoRegistoNovo`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoAtivoOutroSiteTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/PostoAtivoOutroSiteTests.cs :: PostoAtivoOutroSiteTests.PostoAtivo_DeOutroSite_NaoRenova_DaPropriaPagina_Renova`
+- mudou: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/EnvioEmailRegrasTests.cs :: EnvioEmailRegrasTests.Preencher_TrocaOPeso_ComAUnidade`
+- mudou: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Enviar_ComPesoNoAssunto_OAssuntoDoEmailTrazOPesoMedioDaProducao`
+
+Selo depois: `2da91f99272deb23`

@@ -776,6 +776,15 @@ var suggestionModules = new Dictionary<string, string[]>(StringComparer.Ordinal)
 // qualquer de outra página (JobOn, etc.) NÃO passa por aqui e não renova.
 app.MapGet("/posto/ativo", async (HttpContext context, IOptionsMonitor<CookieAuthenticationOptions> cookieOptions) =>
 {
+    // Só a própria página renova (audit externo, 16/11/2026, DMO-763): uma
+    // página de outro site que abra este endereço (o browser diz
+    // Sec-Fetch-Site: cross-site ou same-site) não estende a sessão do posto.
+    var origem = context.Request.Headers["Sec-Fetch-Site"].ToString();
+    if (origem.Length > 0 && origem is not ("same-origin" or "none"))
+    {
+        return Results.NoContent();
+    }
+
     var auth = await context.AuthenticateAsync(PostoAuthentication.Scheme);
     if (auth.Succeeded && auth.Principal is not null)
     {

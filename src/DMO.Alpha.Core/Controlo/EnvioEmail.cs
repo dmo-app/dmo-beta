@@ -249,7 +249,11 @@ public static class EnvioEmailRegras
             .Replace("{maquina}", maquina, StringComparison.OrdinalIgnoreCase)
             .Replace("{peso}", FormatarPeso(pesoGramas), StringComparison.OrdinalIgnoreCase);
 
-    /// <summary>O peso médio do vidro, como na folha: «245,30 g»; sem leituras, «—».</summary>
+    /// <summary>
+    /// O peso médio do vidro, como na folha: «245.30 g», sempre com ponto
+    /// (Diogo, 16/11/2026: «sim sempre com ponto», «nao uso virgulas»; DMO-764);
+    /// sem leituras, «—».
+    /// </summary>
     public static string FormatarPeso(decimal? gramas) =>
-        gramas is { } g ? g.ToString("0.00", System.Globalization.CultureInfo.GetCultureInfo("pt-PT")) + " g" : "—";
+        gramas is { } g ? g.ToString("0.00", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) + " g" : "—";
 }

@@ -259,8 +259,9 @@ public sealed partial class EnvioEmailPesoPageTests : IClassFixture<CustomWebApp
             var lido = await scope.ServiceProvider.GetRequiredService<IPesoQuery>().FindPesoAsync(pesoId, CancellationToken.None);
             media = Assert.IsType<decimal>(lido!.Averages?.AverageGlassWeightGrams);
         }
-        var pesoTexto = media.ToString("0.00", System.Globalization.CultureInfo.GetCultureInfo("pt-PT")) + " g";
-        Assert.Matches(@"^\d+,\d\d g$", pesoTexto);
+        // Sempre com ponto (Diogo, 16/11/2026: «sim sempre com ponto»; DMO-764).
+        var pesoTexto = media.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + " g";
+        Assert.Matches(@"^\d+\.\d\d g$", pesoTexto);
 
         using var enviado = await EnviarAsync(client, producao, modeloId, listaId);
 

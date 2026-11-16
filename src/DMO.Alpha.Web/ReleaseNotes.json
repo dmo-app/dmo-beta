@@ -700,7 +700,10 @@
     { "id": "DMO-757", "module": "Ferramentas", "description": "(A-0530): nas Ferramentas, o relatório de fabrico do SAP lê-se um de cada vez: se o script do SAP e a pasta ligada mandarem ao mesmo tempo, o segundo espera pelo primeiro, em vez de falhar ou de retirar uma ordem que o outro acabou de gravar." },
     { "id": "DMO-758", "module": "Instalação", "description": "(A-0530): na primeira instalação com o código configurado (DMO_CODIGO_INSTALACAO), depois de 5 códigos errados a instalação espera um minuto antes de aceitar outra tentativa." },
     { "id": "DMO-759", "module": "SAP", "description": "(A-0530): uma chave do SAP recusada no envio direto fica registada no log, com o endereço de quem a mandou." },
-    { "id": "DMO-760", "module": "Controlo", "description": "(A-0531): no Peso, se duas pessoas tiverem a folha aberta e gravarem a produção anterior, a segunda vê «Outra pessoa gravou a produção anterior entretanto» e nada fica por cima sem aviso." }
+    { "id": "DMO-760", "module": "Controlo", "description": "(A-0531): no Peso, se duas pessoas tiverem a folha aberta e gravarem a produção anterior, a segunda vê «Outra pessoa gravou a produção anterior entretanto» e nada fica por cima sem aviso." },
+    { "id": "DMO-762", "module": "Controlo", "description": "(A-0532): na Revisão, o card do Peso deixa de dizer «Aprovado» quando se associou à produção, depois da aprovação, um Peso que o aprovador não viu: fica por aprovar, como no Resumo, no Histórico e nos PDFs." },
+    { "id": "DMO-763", "module": "Reparação Interna", "description": "(A-0532): no posto da Reparação Interna, só a própria página renova a sessão; uma página de outro site aberta no mesmo browser já não a estende." },
+    { "id": "DMO-764", "module": "Controlo", "description": "(A-0532): o peso no e-mail do Peso sai com ponto, como na folha: «245.30 g»." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
