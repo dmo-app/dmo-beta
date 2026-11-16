@@ -6785,3 +6785,13 @@ Novos: 4 · mudaram: 2 · saíram: 0
 - mudou: `tests/DMO.Alpha.Web.Tests/Controlo/EnvioEmailPesoPageTests.cs :: Producao.Enviar_ComPesoNoAssunto_OAssuntoDoEmailTrazOPesoMedioDaProducao`
 
 Selo depois: `2da91f99272deb23`
+
+## A-0533 · 2026-11-16 · ok-do-diogo
+
+Porquê: CI local: o passo «Browser no cabeçalho com nome comprido» falhado passa a dar FALHOU no fim (audit externo S5, P1.4)
+Referência: Diogo, 16/11/2026: «sim» a pôr FALHOU quando um passo do browser falha
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `scripts/ci/ci-local.sh`
+
+Selo depois: `e2cc694e938b9248`

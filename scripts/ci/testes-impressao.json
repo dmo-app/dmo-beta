@@ -1,7 +1,7 @@
 {
-  "selo": "2da91f99272deb23",
+  "selo": "e2cc694e938b9248",
   "unidades": {
-    "scripts/ci/ci-local.sh": "337df90d37221be8",
+    "scripts/ci/ci-local.sh": "2c1d85034db03a8d",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
     "scripts/ci/guarda-testes.py": "5b1b5836ee0813fa",
     "scripts/ci/testes.md": "022484bbe94c4c69",
