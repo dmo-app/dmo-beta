@@ -6860,4 +6860,4 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapDataDoFicheiro.cs :: (resto do ficheiro)`
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapDataDoFicheiro.cs :: DefinicoesPorModuloPageTests.EnvioDoSap_FicheiroMaisAntigoDoQueOUltimo_NaoGrava`
 
-Selo depois: `6bc759a69a1d5594`
+Selo depois: `96187009c250af20`

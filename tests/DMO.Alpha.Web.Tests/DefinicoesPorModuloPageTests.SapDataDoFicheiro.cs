@@ -11,7 +11,8 @@ namespace DMO.Alpha.Web.Tests;
 /// receção como data do ficheiro, e a proteção «ficheiro mais antigo» nunca
 /// valia no envio do script. Agora o script manda a hora (de Lisboa) em que
 /// o ficheiro foi escrito, e um ficheiro mais antigo do que o último lido não
-/// grava. Sem a data (script antigo) conta a hora da receção, como antes.
+/// grava. Sem a data (script antigo) conta a hora da receção, como antes
+/// (o `OScriptDoSap_EnviaDireto_ComAChave_ESemElaNao` continua a enviar assim).
 /// </summary>
 public sealed partial class DefinicoesPorModuloPageTests
 {
@@ -46,18 +47,26 @@ public sealed partial class DefinicoesPorModuloPageTests
             return scope.ServiceProvider.GetRequiredService<DmoDbContext>().FerramentaUtilizacoes.Where(u => u.ToolId == toolId).OrderByDescending(u => u.Id).First().Percentagem;
         }
 
-        var hoje = DMO.Alpha.Core.Runtime.DmoBusinessTime.Now.Date;
-        var novo = await Enviar("70", hoje.AddHours(-20).ToString("yyyy-MM-dd'T'HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture));
-        Assert.True(novo.Gravado, novo.Mensagem);
+        // O último lido fica uns minutos à frente dos outros testes (que mandam a hora da receção).
+        var agora = DMO.Alpha.Core.Runtime.DmoBusinessTime.Now;
+        string Data(DateTime local) => local.ToString("yyyy-MM-dd'T'HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+        try
+        {
+            var novo = await Enviar("70", Data(agora.AddMinutes(2)));
+            Assert.True(novo.Gravado, novo.Mensagem);
 
-        var antigo = await Enviar("40", hoje.AddDays(-3).ToString("yyyy-MM-dd'T'HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture));
-        Assert.False(antigo.Gravado);
-        Assert.Contains("é mais antigo do que o último lido", antigo.Mensagem);
-        Assert.Equal(70m, Percentagem());
-
-        // Sem a data (o script antigo), conta a hora da receção, como antes.
-        var semData = await Enviar("75", null);
-        Assert.True(semData.Gravado, semData.Mensagem);
-        Assert.Equal(75m, Percentagem());
+            var antigo = await Enviar("40", Data(agora.AddDays(-3)));
+            Assert.False(antigo.Gravado);
+            Assert.Contains("é mais antigo do que o último lido", antigo.Mensagem);
+            Assert.Equal(70m, Percentagem());
+        }
+        finally
+        {
+            // Os outros testes mandam ficheiros mais antigos: sem isto não gravavam.
+            using var scope = _factory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<DmoDbContext>();
+            db.FerramentaUtilizacoes.RemoveRange(db.FerramentaUtilizacoes.Where(u => u.ToolId == toolId));
+            await db.SaveChangesAsync();
+        }
     }
 }

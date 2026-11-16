@@ -1,5 +1,5 @@
 {
-  "selo": "6bc759a69a1d5594",
+  "selo": "96187009c250af20",
   "unidades": {
     "scripts/ci/ci-local.sh": "2c1d85034db03a8d",
     "scripts/ci/grupos.py": "bf21e53ba080fa01",
@@ -2553,7 +2553,7 @@
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapAdminUsoSap.cs :: (resto do ficheiro)": "d765b4434dbe782f",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapAdminUsoSap.cs :: DefinicoesPorModuloPageTests.OAdmin_PedeOsCodigosDoSapASuaPagina_ERecebeJson": "40b0fb8b20d59a22",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapDataDoFicheiro.cs :: (resto do ficheiro)": "3741da92ea359227",
-    "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapDataDoFicheiro.cs :: DefinicoesPorModuloPageTests.EnvioDoSap_FicheiroMaisAntigoDoQueOUltimo_NaoGrava": "3b761177bf2bf231",
+    "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapDataDoFicheiro.cs :: DefinicoesPorModuloPageTests.EnvioDoSap_FicheiroMaisAntigoDoQueOUltimo_NaoGrava": "2f3d93c1da02a48d",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapEscolhaNaJanela.cs :: (resto do ficheiro)": "58aa9e56b17e73e7",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapEscolhaNaJanela.cs :: DefinicoesPorModuloPageTests.OTudoEDesatualizadas_FicamDentroDaJanelaDoAtualizarDoSap": "9a77da46f7373497",
     "tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapMaisAntigo.cs :: (resto do ficheiro)": "6d6aca8933b8917d",
