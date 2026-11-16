@@ -6753,3 +6753,20 @@ Novos: 7 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/SapChaveRecusadaLogTests.cs :: SapChaveRecusadaLogTests.ChaveErrada_FicaNoLog_SemAChave`
 
 Selo depois: `557c498f696073d5`
+
+## A-0531 · 2026-11-16 · teste-novo
+
+Porquê: DMO-760 (audits externos S4 F6 e S5 M1-M3, 16/11): ProducaoAnterior_OutraPessoaGravouEntretanto_NaoEscrevePorCima e ProducaoAnterior_DuasPessoasAoMesmoTempo_ASegundaEAvisada garantem que a produção anterior do Peso não se grava por cima de outra pessoa sem aviso; Associar_DuasVezes_FicaUmSoPeso garante um só Peso ao associar duas vezes; Criar_DaToolIdsAleatorios_NuncaEmSequencia garante tool_id aleatórios; PegamentosPdf_SemAprovadoEmNenhumaCaixa garante que o PDF dos Pegamentos não tem selo de aprovação em nenhuma caixa.
+Novos: 9 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosPdfSemAprovadoTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosPdfSemAprovadoTests.cs :: PegamentosPdfSemAprovadoTests.PegamentosPdf_SemAprovadoEmNenhumaCaixa`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoGravarDuasVezesTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoGravarDuasVezesTests.cs :: PesoGravarDuasVezesTests.Associar_DuasVezes_FicaUmSoPeso`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoGravarDuasVezesTests.cs :: PesoGravarDuasVezesTests.ProducaoAnterior_OutraPessoaGravouEntretanto_NaoEscrevePorCima`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolIdAleatorioTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Tools/ToolIdAleatorioTests.cs :: ToolIdAleatorioTests.Criar_DaToolIdsAleatorios_NuncaEmSequencia`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.MudouEntretanto.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/Controlo/PesoFolhaProducaoAnteriorPageTests.MudouEntretanto.cs :: PesoFolhaProducaoAnteriorPageTests.ProducaoAnterior_DuasPessoasAoMesmoTempo_ASegundaEAvisada`
+
+Selo depois: `e901fad7ae89f1f8`

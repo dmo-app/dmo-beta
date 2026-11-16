@@ -141,7 +141,8 @@ public sealed class PesoProducaoAnteriorQuery
         int pesoId,
         int? controloId,
         decimal? pesoGramas,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        string? versaoLida = null)
     {
         if (pesoGramas is <= 0m)
         {
@@ -157,6 +158,14 @@ public sealed class PesoProducaoAnteriorQuery
         if (controloId is int id && !await _db.Controlos.AnyAsync(c => c.Id == id, cancellationToken))
         {
             return GuardarProducaoAnteriorResult.JobOnNotFound;
+        }
+
+        // Gravar ao mesmo tempo (DMO-760): com a versão que a página leu, se
+        // outra pessoa já gravou outra coisa, não se escreve por cima.
+        if (versaoLida is not null
+            && versaoLida != PesoProducaoAnteriorReadModel.VersaoDe(peso.ProducaoAnteriorControloId, peso.ProducaoAnteriorPesoGramas))
+        {
+            return GuardarProducaoAnteriorResult.MudouEntretanto;
         }
 
         peso.ProducaoAnteriorControloId = controloId;
