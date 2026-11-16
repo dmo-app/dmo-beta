@@ -1,5 +1,5 @@
 {
-  "selo": "e2cc694e938b9248",
+  "selo": "f80c9daad00c98d4",
   "unidades": {
     "scripts/ci/ci-local.sh": "2c1d85034db03a8d",
     "scripts/ci/grupos.py": "6a94cd1f2c05e500",
@@ -616,6 +616,9 @@
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosSchemaTests.cs :: PegamentosSchemaTests.PegamentosMeasurementEntity_AppendOnlyFacts_ContraCosturaNullable": "6783d088c0043eb5",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosSchemaTests.cs :: PegamentosSchemaTests.PegamentosToleranceEntity_SingletonShape": "3de16ee0dcd7facf",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosSchemaTests.cs :: PegamentosSchemaTests.ToolTechnicalContext_GargaloColumnIsNullable": "0d663cea73fdf8c0",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosToleranciaZeroTests.cs :: (resto do ficheiro)": "717844d8b369eded",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosToleranciaZeroTests.cs :: PegamentosToleranciaZeroTests.OutraTolerancia_TocarOLimite_ContinuaAlerta": "c6a6f6e5951db5af",
+    "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosToleranciaZeroTests.cs :: PegamentosToleranciaZeroTests.ToleranciaZero_NominalExato_Passa_QualquerDesvio_EFora": "292326a7b2202756",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosWorkedExampleTests.cs :: (resto do ficheiro)": "e8b50404377b2a3a",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosWorkedExampleTests.cs :: PegamentosWorkedExampleTests.WorkedExample_J10_5810_B1_T3_BQ1_FolhaCompleta": "14298e0f29e16082",
     "tests/DMO.Alpha.Infrastructure.Tests/Controlo/PesoAprovacaoDocumentoTests.cs :: (resto do ficheiro)": "632f5ab07b2b6ad8",

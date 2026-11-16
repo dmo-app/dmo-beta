@@ -69,10 +69,15 @@ public static class PegamentosCalculation
     /// o limite cria alerta e a IGUALDADE no limite conta como alerta
     /// (manual L348-354; spec L107: «Reaching or exceeding either
     /// tolerance boundary raises an alert for that row»). Um valor
-    /// exatamente no limite nunca é silenciosamente aceitável.
+    /// exatamente no limite nunca é silenciosamente aceitável. Com a
+    /// tolerância 0 (corredor sem largura), a medição igual ao nominal
+    /// passa e qualquer desvio é fora (Diogo, 16/11/2026: «tolerancia 0
+    /// pode ficar como passa […] mais disso começa a ser o fora»).
     /// </summary>
     public static bool IsAlert(decimal valueMm, decimal corridorLowerMm, decimal corridorUpperMm) =>
-        valueMm <= corridorLowerMm || valueMm >= corridorUpperMm;
+        corridorLowerMm == corridorUpperMm
+            ? valueMm != corridorLowerMm
+            : valueMm <= corridorLowerMm || valueMm >= corridorUpperMm;
 
     /// <summary>
     /// A ovalização tem o mesmo limite que o corredor, a tolerância do
@@ -81,10 +86,12 @@ public static class PegamentosCalculation
     /// ultrapassar os 0.2, seja -0.2 ou +0.2»), e entra no estado da linha.
     /// Como no corredor, tocar o limite conta: ±0,20 com a tolerância 0,20
     /// já é alerta (Diogo, 19/10/2026, cartão da thread). Sem contra costura
-    /// não há ovalização nem alerta.
+    /// não há ovalização nem alerta. Com a tolerância 0, ovalização 0 passa
+    /// e qualquer outra é alerta (Diogo, 16/11/2026).
     /// </summary>
     public static bool IsOvalizacaoAlert(decimal? ovalizacaoMm, decimal toleranceMm) =>
-        ovalizacaoMm is { } ovalizacao && Math.Abs(ovalizacao) >= toleranceMm;
+        ovalizacaoMm is { } ovalizacao
+            && (toleranceMm == 0 ? ovalizacao != 0 : Math.Abs(ovalizacao) >= toleranceMm);
 
     /// <summary>
     /// Avaliação completa de uma linha de medição contra o corredor do seu

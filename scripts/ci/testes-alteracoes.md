@@ -6795,3 +6795,14 @@ Novos: 0 · mudaram: 1 · saíram: 0
 - mudou: `scripts/ci/ci-local.sh`
 
 Selo depois: `e2cc694e938b9248`
+
+## A-0534 · 2026-11-16 · teste-novo
+
+Porquê: Pegamentos: com tolerância 0, a medição igual ao nominal passa e qualquer desvio é fora (audit externo P1.1, Diogo 16/11)
+Novos: 3 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosToleranciaZeroTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosToleranciaZeroTests.cs :: PegamentosToleranciaZeroTests.OutraTolerancia_TocarOLimite_ContinuaAlerta`
+- novo: `tests/DMO.Alpha.Infrastructure.Tests/Controlo/PegamentosToleranciaZeroTests.cs :: PegamentosToleranciaZeroTests.ToleranciaZero_NominalExato_Passa_QualquerDesvio_EFora`
+
+Selo depois: `f80c9daad00c98d4`
