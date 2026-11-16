@@ -506,6 +506,8 @@ builder.Services.AddRazorPages(options =>
     // Um envio grava uma vez (deep sweep, 18/10/2026): os handlers com
     // [EnvioUnico] não gravam duas vezes a mesma chave X-Dmo-Envio.
     options.Conventions.ConfigureFilter(new EnvioUnicoFilter());
+    // Um POST sem handler dá 404/405 em vez de rebentar no shell (G4).
+    options.Conventions.ConfigureFilter(new DMO.Alpha.Web.Services.PostSemHandlerFilter());
 });
 
 // Durable DataProtection keyring: antiforgery tokens and the DmoAuth cookie

@@ -706,7 +706,10 @@
     { "id": "DMO-764", "module": "Controlo", "description": "(A-0532): o peso no e-mail do Peso sai com ponto, como na folha: «245.30 g». Na Comparação de pesos, a calote simulada também sai com ponto." },
     { "id": "DMO-765", "module": "Aplicação", "description": "(A-0533): o CI local acaba em «FALHOU» quando o passo do browser do cabeçalho falha." },
     { "id": "DMO-761", "module": "Pegamentos", "description": "(A-0534): com a tolerância a 0, a medição igual ao nominal fica dentro das tolerâncias e qualquer desvio fica fora da tolerância; com outra tolerância, atingir o limite continua fora da tolerância." },
-    { "id": "DMO-766", "module": "Aplicação", "description": "(A-0535): a guarda dos testes não deixa apagar um teste sem o ok do Diogo." }
+    { "id": "DMO-766", "module": "Aplicação", "description": "(A-0535): a guarda dos testes não deixa apagar um teste sem o ok do Diogo." },
+    { "id": "DMO-767", "module": "Aplicação", "description": "(A-0536): os avisos no canto ficam por baixo do cabeçalho e já não tapam o «Sair», as Definições nem as abas." },
+    { "id": "DMO-768", "module": "Ferramentas", "description": "(A-0536): no Registar Reparação, o «Associar» enviado duas vezes (a ligação caiu) faz uma lista só." },
+    { "id": "DMO-769", "module": "Aplicação", "description": "(A-0536): um envio a uma página que não o aceita dá «não encontrado» em vez de erro do servidor." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

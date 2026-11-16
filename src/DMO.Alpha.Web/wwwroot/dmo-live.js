@@ -253,8 +253,10 @@
     if (!pilha) {
       pilha = document.createElement("div");
       pilha.className = "dmo-toast-pilha";
-      // Por baixo das barras de navegação, que mudam de altura entre módulos.
-      var barras = document.querySelector(".dmo-shell-navigation");
+      // Por baixo do cabeçalho com as barras de navegação, que mudam de altura
+      // entre módulos. Mede-se o cabeçalho: a .dmo-shell-navigation tem
+      // display:contents, não tem caixa (dava 0) e a pilha tapava o «Sair».
+      var barras = document.querySelector(".dmo-shell-header") || document.querySelector(".dmo-shell-navigation");
       if (barras && window.matchMedia && window.matchMedia("(min-width: 641px)").matches) {
         pilha.style.top = Math.max(12, barras.getBoundingClientRect().bottom + 12) + "px";
       }
