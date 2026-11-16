@@ -705,7 +705,7 @@
     { "id": "DMO-763", "module": "Reparação Interna", "description": "(A-0532): no posto da Reparação Interna, só a própria página renova a sessão; uma página de outro site aberta no mesmo browser já não a estende." },
     { "id": "DMO-764", "module": "Controlo", "description": "(A-0532): o peso no e-mail do Peso sai com ponto, como na folha: «245.30 g». Na Comparação de pesos, a calote simulada também sai com ponto." },
     { "id": "DMO-765", "module": "Aplicação", "description": "(A-0533): o CI local acaba em «FALHOU» quando o passo do browser do cabeçalho falha." },
-    { "id": "DMO-761", "module": "Pegamentos", "description": "(A-0534): com a tolerância a 0, a medição igual ao nominal passa e qualquer desvio fica fora; com outra tolerância, tocar o limite continua a ser alerta." }
+    { "id": "DMO-761", "module": "Pegamentos", "description": "(A-0534): com a tolerância a 0, a medição igual ao nominal fica dentro das tolerâncias e qualquer desvio fica fora da tolerância; com outra tolerância, atingir o limite continua fora da tolerância." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },

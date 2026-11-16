@@ -71,7 +71,7 @@ public static class PegamentosCalculation
     /// tolerance boundary raises an alert for that row»). Um valor
     /// exatamente no limite nunca é silenciosamente aceitável. Com a
     /// tolerância 0 (corredor sem largura), a medição igual ao nominal
-    /// passa e qualquer desvio é fora (Diogo, 16/11/2026: «tolerancia 0
+    /// fica dentro das tolerâncias e qualquer desvio fica fora (Diogo, 16/11/2026: «tolerancia 0
     /// pode ficar como passa […] mais disso começa a ser o fora»).
     /// </summary>
     public static bool IsAlert(decimal valueMm, decimal corridorLowerMm, decimal corridorUpperMm) =>
@@ -86,7 +86,7 @@ public static class PegamentosCalculation
     /// ultrapassar os 0.2, seja -0.2 ou +0.2»), e entra no estado da linha.
     /// Como no corredor, tocar o limite conta: ±0,20 com a tolerância 0,20
     /// já é alerta (Diogo, 19/10/2026, cartão da thread). Sem contra costura
-    /// não há ovalização nem alerta. Com a tolerância 0, ovalização 0 passa
+    /// não há ovalização nem alerta. Com a tolerância 0, ovalização 0 fica dentro
     /// e qualquer outra é alerta (Diogo, 16/11/2026).
     /// </summary>
     public static bool IsOvalizacaoAlert(decimal? ovalizacaoMm, decimal toleranceMm) =>
