@@ -1,5 +1,5 @@
 {
-  "selo": "96187009c250af20",
+  "selo": "423cadd3b1dbff08",
   "unidades": {
     "scripts/ci/ci-local.sh": "2c1d85034db03a8d",
     "scripts/ci/grupos.py": "bf21e53ba080fa01",
@@ -3449,6 +3449,8 @@
     "tests/ShellProof/cobertura_b_ri-consulta.test.cjs :: Carregar numa pessoa do resumo escolhe-a no «Quem» e aplica; uma que não está na lista segue o link": "a42006f4b20b7e8b",
     "tests/ShellProof/cobertura_b_ri-consulta.test.cjs :: Esc fecha a lista aberta sem escolher nada": "7fa68eddc1bfa3fb",
     "tests/ShellProof/cobertura_b_ri-consulta.test.cjs :: Escolher uma produção fecha a lista, fica só o número e o select muda e avisa": "01730b0366e61a0d",
+    "tests/ShellProof/definicoes-conta-683.test.cjs :: (resto do ficheiro)": "8ab98856c547455b",
+    "tests/ShellProof/definicoes-conta-683.test.cjs :: A tabela dos módulos da conta desliza dentro do cartão, não alarga a página": "68a0e52a6f320635",
     "tests/ShellProof/dmo-live-toast.test.cjs :: (resto do ficheiro)": "ad9fa8f5b04eb65d",
     "tests/ShellProof/dmo-live-toast.test.cjs :: Ao fim do tempo a mensagem esmorece (a-sair) antes de sair": "216347496a3245ef",
     "tests/ShellProof/dmo-live-toast.test.cjs :: Fechado o aviso, a mesma mensagem volta a aparecer na falha seguinte": "32520db887fe29d2",
@@ -3581,7 +3583,7 @@
     "tests/ShellProof/jobon-tool-picker.test.cjs :: «Criar BQ» abre o registo das Ferramentas com a máquina da folha no momento do clique": "2747f0dc6012fecf",
     "tests/ShellProof/jobon-tool-picker.test.cjs :: «Mostrar todas as ferramentas» só pede o catálogo inteiro quando está marcado": "61d6174d62480996",
     "tests/ShellProof/package-lock.json": "8cabd09c7635d204",
-    "tests/ShellProof/package.json": "c7a853e633ea8e4c",
+    "tests/ShellProof/package.json": "3f7ad2df21ca3e32",
     "tests/ShellProof/painel-apoio-alteracoes.test.cjs :: (resto do ficheiro)": "746debc2c59fb275",
     "tests/ShellProof/painel-apoio-alteracoes.test.cjs :: Painel de apoio: um <dmo-painel> com alterações por guardar fica com o aviso e o apoio não abre por cima": "0b2b99e6fc3e1cbc",
     "tests/ShellProof/painel-estrutura.test.cjs :: (resto do ficheiro)": "c525db31e3b4284e",

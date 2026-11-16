@@ -6861,3 +6861,14 @@ Novos: 2 · mudaram: 0 · saíram: 0
 - novo: `tests/DMO.Alpha.Web.Tests/DefinicoesPorModuloPageTests.SapDataDoFicheiro.cs :: DefinicoesPorModuloPageTests.EnvioDoSap_FicheiroMaisAntigoDoQueOUltimo_NaoGrava`
 
 Selo depois: `96187009c250af20`
+
+## A-0540 · 2026-11-16 · contagem-lista
+
+Porquê: Definições › A minha conta a 683: a tabela dos módulos desliza dentro do cartão (DMO-773); o teste novo entra na lista do test:js
+Novos: 2 · mudaram: 1 · saíram: 0
+
+- novo: `tests/ShellProof/definicoes-conta-683.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/definicoes-conta-683.test.cjs :: A tabela dos módulos da conta desliza dentro do cartão, não alarga a página`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `423cadd3b1dbff08`
