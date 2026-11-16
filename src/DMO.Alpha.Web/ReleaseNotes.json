@@ -703,7 +703,7 @@
     { "id": "DMO-760", "module": "Controlo", "description": "(A-0531): no Peso, se duas pessoas tiverem a folha aberta e gravarem a produção anterior, a segunda vê «Outra pessoa gravou a produção anterior entretanto» e nada fica por cima sem aviso." },
     { "id": "DMO-762", "module": "Controlo", "description": "(A-0532): na Revisão, o card do Peso deixa de dizer «Aprovado» quando se associou à produção, depois da aprovação, um Peso que o aprovador não viu: fica por aprovar, como no Resumo, no Histórico e nos PDFs." },
     { "id": "DMO-763", "module": "Reparação Interna", "description": "(A-0532): no posto da Reparação Interna, só a própria página renova a sessão; uma página de outro site aberta no mesmo browser já não a estende." },
-    { "id": "DMO-764", "module": "Controlo", "description": "(A-0532): o peso no e-mail do Peso sai com ponto, como na folha: «245.30 g»." }
+    { "id": "DMO-764", "module": "Controlo", "description": "(A-0532): o peso no e-mail do Peso sai com ponto, como na folha: «245.30 g». Na Comparação de pesos, a calote simulada também sai com ponto." }
   ],
   "pending": [
     { "id": "DMO-P02", "module": "Contextos", "description": "Completar a implementação dos snapshots e das substituições de componentes durante uma produção." },
