@@ -1,8 +1,8 @@
 {
-  "selo": "c57a4b7494a6895a",
+  "selo": "5091ca0421858a51",
   "unidades": {
     "scripts/ci/ci-local.sh": "2c1d85034db03a8d",
-    "scripts/ci/grupos.py": "6a94cd1f2c05e500",
+    "scripts/ci/grupos.py": "bf21e53ba080fa01",
     "scripts/ci/guarda-testes.py": "333c8eeb0e1dd1e0",
     "scripts/ci/testes.md": "022484bbe94c4c69",
     "tests/DMO.Alpha.Infrastructure.Tests/Admin/AdminAuthorizationServiceTests.cs :: (resto do ficheiro)": "cd86eca55df89f48",

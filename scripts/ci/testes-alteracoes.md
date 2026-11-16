@@ -6831,3 +6831,13 @@ Novos: 6 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `c57a4b7494a6895a`
+
+## A-0537 · 2026-11-16 · ok-do-diogo
+
+Porquê: CI local: um grupo que corre sem nenhum teste, ou um relatório TRX em falta, dá FALHOU em vez de OK (audit externo R3)
+Referência: Diogo, 16/11/2026: «sim podes» (grupo com 0 testes passa a FALHOU)
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `scripts/ci/grupos.py`
+
+Selo depois: `5091ca0421858a51`
