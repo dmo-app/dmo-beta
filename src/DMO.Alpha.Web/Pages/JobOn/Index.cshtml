@@ -167,10 +167,14 @@
                         <span>@(production.Experiencia ? "Experiência " : "")@production.Reference @production.ProductionNumber</span>
                         <span class="beta-light-ref" aria-hidden="true">@(production.Experiencia ? "Experiência " : "")@production.Reference</span>
                         <span class="beta-light-prodnum" aria-hidden="true">@production.ProductionNumber</span>
-                        @{ var notaLote = string.Join(" · ", production.LotNotes); }
+                        @{
+                          var notaLote = string.Join(" · ", production.LotNotes.Concat(
+                              production.ChangeSummary is { Length: > 0 } resumo ? new[] { resumo } : Array.Empty<string>()));
+                          var detalheAlteracoes = string.Join(" · ", production.LotNotes.Concat(production.ChangeDetails));
+                        }
                         @* As alterações da produção (ex.: mudança de lote da BQ) na coluna «Alterações»
                            (Diogo, 28/10/2026), sem o aviso amarelo (23/10/2026). *@
-                        <span class="beta-light-lot-note" title="@notaLote">@notaLote</span>
+                        <span class="beta-light-lot-note" title="@detalheAlteracoes">@notaLote</span>
                         @if (proxima is { Href: { } proximaHref } && production == ultima)
                         {
                           <a class="beta-light-next" href="@proximaHref" title="@proxima.Titulo">@proxima.Texto</a>

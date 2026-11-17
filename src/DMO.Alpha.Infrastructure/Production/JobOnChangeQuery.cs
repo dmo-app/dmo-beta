@@ -128,8 +128,17 @@ public sealed class JobOnChangeQuery
     /// indicadas, da mais recente para a mais antiga (só as que têm alguma):
     /// a linha da máquina em «Produções do dia» mostra qual foi a alteração.
     /// </summary>
-    public async Task<IReadOnlyDictionary<int, IReadOnlyList<JobOnChangeView>>> AfterStartAsync(
-        IReadOnlyCollection<int> jobOnIds, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyDictionary<int, IReadOnlyList<JobOnChangeView>>> AfterStartAsync(
+        IReadOnlyCollection<int> jobOnIds, CancellationToken cancellationToken = default) =>
+        ListActiveAsync(jobOnIds, true, cancellationToken);
+
+    /// <summary>As alterações em vigor, incluindo as feitas durante o planeamento.</summary>
+    public Task<IReadOnlyDictionary<int, IReadOnlyList<JobOnChangeView>>> ForJobOnsAsync(
+        IReadOnlyCollection<int> jobOnIds, CancellationToken cancellationToken = default) =>
+        ListActiveAsync(jobOnIds, false, cancellationToken);
+
+    private async Task<IReadOnlyDictionary<int, IReadOnlyList<JobOnChangeView>>> ListActiveAsync(
+        IReadOnlyCollection<int> jobOnIds, bool depoisDoInicio, CancellationToken cancellationToken)
     {
         if (jobOnIds.Count == 0)
         {
@@ -146,7 +155,7 @@ public sealed class JobOnChangeQuery
             .Select(c => new { c.JobOnId, c.Field, c.OldValueFrozen, c.NewValueFrozen, c.ChangedByNameFrozen, c.ChangedAtUtc, c.JobOn!.InicioEm })
             .ToListAsync(cancellationToken);
         return rows
-            .Where(c => JobOnChange.AfterStart(c.ChangedAtUtc, c.InicioEm))
+            .Where(c => !depoisDoInicio || JobOnChange.AfterStart(c.ChangedAtUtc, c.InicioEm))
             .GroupBy(c => c.JobOnId)
             .ToDictionary(
                 g => g.Key,

@@ -6872,3 +6872,13 @@ Novos: 2 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `423cadd3b1dbff08`
+
+## A-0541 · 2026-11-17 · teste-novo
+
+Porquê: O Sumario mostra as alteracoes atuais do Job On e os lotes que saem e entram, incluindo trocas planeadas antes do inicio. Exclui alteracoes anuladas. Dois testes novos falham antes na ausencia da BQ na linha e passam com a correcao.
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.SumarioAlteracoes.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.SumarioAlteracoes.cs :: JobOnPageTests.Sumario_MostraATrocaDeLoteDaBQ_MesmoSeFoiPlaneadaAntesDoInicio`
+
+Selo depois: `dfaf30029c77cfe6`

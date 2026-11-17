@@ -167,7 +167,7 @@ public static class JobOnChangeFields
     /// do campo mudado mais recentemente para o mais antigo —
     /// «Mudança CM · Sai 66 entra 67; Fim · Sai 18/10/2026 entra 20/10/2026».
     /// </summary>
-    public static string Summarize(IEnumerable<JobOnChangeView> newestFirst) =>
+    public static string Summarize(IEnumerable<JobOnChangeView> newestFirst, bool mostrarLotes = false) =>
         "Mudança " + string.Join("; ", newestFirst
             .GroupBy(c => c.Field)
             .Select(g =>
@@ -178,20 +178,20 @@ public static class JobOnChangeFields
                     return $"{ShortLabel(g.Key)} · {g.First().NewValue ?? "—"}";
                 }
 
-                var (sai, entra) = SaiEntra(g.Key, g.Last().OldValue, g.First().NewValue);
+                var (sai, entra) = SaiEntra(g.Key, g.Last().OldValue, g.First().NewValue, mostrarLotes);
                 return $"{ShortLabel(g.Key)} · Sai {sai} entra {entra}";
             }));
 
     // Numa ferramenta com a mesma referência («6018 · lote 66» → «6018 · lote
     // 67») só o lote conta; com outra referência fica a ferramenta inteira.
-    private static (string Sai, string Entra) SaiEntra(string field, string? oldValue, string? newValue)
+    private static (string Sai, string Entra) SaiEntra(string field, string? oldValue, string? newValue, bool mostrarLotes)
     {
         if (field is Cm or Mf or Bq
             && SplitLot(oldValue) is { } antes
             && SplitLot(newValue) is { } depois
             && antes.Reference == depois.Reference)
         {
-            return (antes.Lot, depois.Lot);
+            return mostrarLotes ? ($"lote {antes.Lot}", $"lote {depois.Lot}") : (antes.Lot, depois.Lot);
         }
 
         return (oldValue ?? "—", newValue ?? "—");

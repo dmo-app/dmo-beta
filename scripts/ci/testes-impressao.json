@@ -1,5 +1,5 @@
 {
-  "selo": "423cadd3b1dbff08",
+  "selo": "dfaf30029c77cfe6",
   "unidades": {
     "scripts/ci/ci-local.sh": "2c1d85034db03a8d",
     "scripts/ci/grupos.py": "bf21e53ba080fa01",
@@ -2928,6 +2928,8 @@
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.Ronda.cs :: JobOnPageTests.Folha_UtilizacaoComPontoEAcimaDe100ComCor": "5940df2bf965d63e",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.SoVerSemFerramentas.cs :: (resto do ficheiro)": "a6ff9b4f270fd908",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.SoVerSemFerramentas.cs :: JobOnPageTests.JobOnVer_SoVeOPlaneamentoEOsJobOn_SemDuplicarNemOutrosModulos": "2e37de59dc34d35f",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.SumarioAlteracoes.cs :: (resto do ficheiro)": "b3fc4431c8a551e4",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.SumarioAlteracoes.cs :: JobOnPageTests.Sumario_MostraATrocaDeLoteDaBQ_MesmoSeFoiPlaneadaAntesDoInicio": "1bbe47c5dd03c739",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.TampaoDaFolha.cs :: (resto do ficheiro)": "c27b7b56c41f0aa4",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.TampaoDaFolha.cs :: JobOnPageTests.FolhaNova_DiametroDoTp_EOTampaoDaProducao": "9b34ef12f99764e2",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.cs :: (resto do ficheiro)": "1f76e2a64d7a0783",
