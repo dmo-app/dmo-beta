@@ -258,11 +258,9 @@ def folha(browser, fixtures):
             page.wait_for_load_state('load')
             page.wait_for_timeout(300)
             desliza = page.evaluate(SEM_DESLIZAR)
-            if desliza['alto'] > 1 or desliza['largo'] > 1:
-                falhas.append(f'{nome} {modo}: a página desliza ({desliza})')
-            cab = page.evaluate(CABECALHO)
-            if abs(cab['antes'] - cab['depois']) > 1 or cab['scrollY'] > 0:
-                falhas.append(f'{nome} {modo}: o cabeçalho não ficou fixo ao deslizar ({cab})')
+            # Diogo 03/11/2026: «quero as janelas todas como estavam antes» — a página volta a deslizar na vertical; só não desliza para o lado.
+            if desliza['largo'] > 1:
+                falhas.append(f'{nome} {modo}: a página desliza para o lado ({desliza})')
             page.evaluate("window.scrollTo(0, 0); document.querySelectorAll('.sheet, .sheet-main, .zones').forEach(e => { e.scrollTop = 0; })")
 
         # Ver: os calibres, as notas, a foto, a nota aberta e a Informação técnica.

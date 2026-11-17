@@ -14,12 +14,8 @@ public sealed partial class DefinicoesPorModuloPageTests
     {
         using var client = await LoginOperatorAsync("7121", DmoCapabilities.Ferramentas);
 
-        var definicoes = await client.GetStringAsync("/Definicoes");
-        var inicio = definicoes.IndexOf("id=\"ferrDefSap\"", StringComparison.Ordinal);
-        Assert.True(inicio >= 0, "Falta o cartão Utilização pelo SAP.");
-        var cartao = definicoes[inicio..definicoes.IndexOf("</section>", inicio, StringComparison.Ordinal)];
-        Assert.Contains("id=\"ferrSapAjuda\" href=\"/Ferramentas/AjudaSap\"", cartao, StringComparison.Ordinal);
-        Assert.DoesNotContain("dmo-codigos.txt com os códigos", cartao, StringComparison.Ordinal);
+        // O cartão do SAP saiu das Definições dos users (Diogo, 30/10/2026); a ajuda continua.
+        Assert.DoesNotContain("id=\"ferrDefSap\"", await client.GetStringAsync("/Definicoes"), StringComparison.Ordinal);
 
         var ajuda = await client.GetStringAsync("/Ferramentas/AjudaSap");
         var inicioAjuda = ajuda.IndexOf("id=\"ajudaSap\"", StringComparison.Ordinal);
@@ -43,12 +39,8 @@ public sealed partial class DefinicoesPorModuloPageTests
     {
         using var client = await LoginOperatorAsync("7122", DmoCapabilities.Ferramentas);
 
-        var definicoes = await client.GetStringAsync("/Definicoes");
-        var inicio = definicoes.IndexOf("id=\"ferrDefSap\"", StringComparison.Ordinal);
-        Assert.True(inicio >= 0, "Falta o cartão do SAP.");
-        var cartao = definicoes[inicio..definicoes.IndexOf("</section>", inicio, StringComparison.Ordinal)];
-        Assert.Contains("id=\"ferrSapApagar\"", cartao, StringComparison.Ordinal);
-        Assert.Contains(">Apagar lidos</button>", cartao, StringComparison.Ordinal);
+        // O cartão do SAP saiu das Definições dos users (Diogo, 30/10/2026: «não deve existir SAP nos users»).
+        Assert.DoesNotContain("id=\"ferrDefSap\"", await client.GetStringAsync("/Definicoes"), StringComparison.Ordinal);
 
         var ajuda = await client.GetStringAsync("/Ferramentas/AjudaSap");
         var inicioAjuda = ajuda.IndexOf("id=\"ajudaSap\"", StringComparison.Ordinal);

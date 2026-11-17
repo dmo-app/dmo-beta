@@ -37,8 +37,12 @@
                 ? current.JobOnId is int jobOnDaLinha
                     ? $"{DMO.Alpha.Core.Admin.DmoCapabilities.BoquilhasViewHome}&jobon_id={jobOnDaLinha}"
                     : null
+                // Com BQ, o cartão abre o registo de várias linhas já com
+                // esta linha escolhida (DMO-754), nunca o registo antigo de
+                // uma BQ de cada vez (o ?bq_id fica para os Movimentos e o
+                // Corrigir).
                 : temBq
-                ? $"/Boquilhas?bq_id={current.BqContextId}"
+                ? $"/Boquilhas?escolher={current.BqContextId}"
                 : semBq ? $"/JobOn?jobon_id={current.JobOnId}#lightFicha" : null;
             // A máquina sem nada em máquina diz «Sem produção» — com letras, não
             // com «— · —». Foi o bug que este adaptador apanhou no primeiro

@@ -204,16 +204,16 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
         Assert.Contains("Resumo diário — B1, B2, B3, C1, C2, C3", html);
 
         // A CÉLULA do registo A na B1: a referência, o JO e as quantidades de
-        // BQs (saiu 2, entrou 1); o SR de 0 não aparece; o tfoot mostra E e S
-        // sempre, o SR só quando existe.
+        // BQs (saiu 2, entrou 1); o SR de 0 não aparece. Sem linha «Total»
+        // (Diogo, 30/10/2026: só interessa o total por produção/tool_id).
         Assert.Contains(">9389T194</strong>", html);
         Assert.Contains("BQ 9389T194 · Lote 12 · JO 202601", html);
         Assert.Contains("entry-e\">E 1</span>", html);
         Assert.Contains("entry-s\">S 2</span>", html);
         Assert.DoesNotContain("entry-r\">SR 0", html);
         Assert.DoesNotContain("entry-r\">SR 0</span>", html);
-        Assert.Contains("entry-e\">E 0</span>", html); // o tfoot do html
-        Assert.Contains("<strong>Total</strong>", html);
+        Assert.DoesNotContain("<strong>Total</strong>", html);
+        Assert.DoesNotContain("<tfoot>", html);
 
         // A CÉLULA do registo B na C2: a grelha mostra quantidades de BQs,
         // como o PDF (o proprietário, 16/10/2026), não o número de movimentos.
@@ -231,7 +231,7 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
         Assert.Contains("<span class=\"entry-s\">S</span> Saídas", html, StringComparison.Ordinal);
         Assert.Contains("<span class=\"entry-r\">SR</span> Entradas sem reparação", html, StringComparison.Ordinal);
         // Todos os dias do período aparecem, mesmo sem movimentos (como a versão antiga).
-        Assert.Equal(DateTime.DaysInMonth(DMO.Alpha.Core.Runtime.DmoBusinessTime.Now.Year, DMO.Alpha.Core.Runtime.DmoBusinessTime.Now.Month) + 1,
+        Assert.Equal(DateTime.DaysInMonth(DMO.Alpha.Core.Runtime.DmoBusinessTime.Now.Year, DMO.Alpha.Core.Runtime.DmoBusinessTime.Now.Month),
             System.Text.RegularExpressions.Regex.Matches(html, "<td><strong>(\\d\\d/\\d\\d|Total)</strong>").Count);
 
         // O PERÍODO da grelha (o matrixPeriod).
@@ -368,7 +368,7 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
         // O CALENDÁRIO (o shared da casa) no mês pedido (um link antigo com
         // mes_ano; o seletor saiu da página a 18/10) + a grelha com o movimento do dia real (20/08) na
         // B1 (a célula mostra S 2, a quantidade de BQs; os zeros são
-        // omitidos na célula; o tfoot mostra E e S sempre).
+        // omitidos na célula).
         Assert.Contains("name=\"mes\" value=\"8\"", html);
         Assert.Contains(">20/08</strong>", html);
         Assert.Contains("S 2", html);
@@ -767,6 +767,8 @@ public class BoquilhasHistoricoPageTests : IClassFixture<CustomWebApplicationFac
         Assert.Contains("Registo da 12/08/2026", html);
         Assert.DoesNotContain("</strong> · —</span>", html);
         Assert.Contains("sem fichas neste dia\"><strong>B2</strong></span>", html);
+        // O que saiu e entrou nesse dia, na linha da máquina (Diogo, 30/10/2026).
+        Assert.Contains("<span class=\"bq-dia-quantidades\"><span class=\"entry-s\">S 4</span></span>", html);
         Assert.DoesNotContain("movimento(s)", html);
         Assert.Contains("beta-light-machine-row mch-B1", html);
         Assert.Contains($"<input type=\"radio\" name=\"bq_day_trace\" value=\"{trace.Id}\"", html);

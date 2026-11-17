@@ -73,14 +73,15 @@ public partial class FerramentasPagesTests
             .Matches(html, $"<label for=\"{prefixo}-[a-z-]+\">([^<]+)<")
             .Select(m => m.Groups[1].Value).ToArray();
         Assert.Equal(
-            ["Tipo", "Referência", "Lote", "Quantidade do lote", "Qtd. AN", "% uso", "Ref. MF associada", "Nome técnico (SAP)"],
-            Rotulos(criar, "ferr-new").Take(8));
+            ["Tipo", "Referência", "Lote", "Quantidade do lote", "Qtd. AN", "% uso", "Fabricante", "Data de aquisição", "Ref. MF associada", "Nome técnico (SAP)"],
+            Rotulos(criar, "ferr-new").Take(10));
+        // R6 (Diogo, 02/11/2026): Fabricante e Data de aquisição na informação opcional.
         // A ficha acrescenta a Fábrica de origem (o % uso também está no Criar, 23/10/2026).
         // A Qtd. AN só existe na ficha de uma BQ (Diogo, 28/10/2026); esta é uma CM.
-        var doCriar = Rotulos(criar, "ferr-new").Take(8).Where(r => r != "Qtd. AN").ToList();
+        var doCriar = Rotulos(criar, "ferr-new").Take(10).Where(r => r != "Qtd. AN").ToList();
         Assert.Equal(doCriar.Append("Fábrica de origem"), Rotulos(ficha, "ferr-edit"));
         // A ficha da CM só tem os campos da CM (a Marisa é da BQ).
-        Assert.Equal(Rotulos(criar, "ferr-new").Skip(8).Where(r => r != "Marisa (cm³)"), Rotulos(ficha, "ferr-tech"));
+        Assert.Equal(Rotulos(criar, "ferr-new").Skip(10).Where(r => r != "Marisa (cm³)"), Rotulos(ficha, "ferr-tech"));
 
         var token = await GetVerificationTokenAsync(client, $"{FichaPath}?tool_id={toolId}");
         var response = await client.PostAsync($"{FichaPath}?handler=EditFacts", HtmlFormHelpers.BuildFormPost(
@@ -112,7 +113,9 @@ public partial class FerramentasPagesTests
         Assert.DoesNotContain("Linhas compatíveis (SAP)", ficha, StringComparison.Ordinal);
         var bloco = ficha[Posicao(ficha, "id=\"ferr-edit-opcional\"")..];
         bloco = bloco[..bloco.IndexOf("</fieldset>", StringComparison.Ordinal)];
-        Assert.Contains(">Informação opcional</legend>", bloco, StringComparison.Ordinal);
+        // Num cartão próprio, o último, minimizado; os campos gravam com o Editar (Diogo, 02/11/2026).
+        Assert.True(Posicao(ficha, "id=\"ferr-tech-title\"") < Posicao(ficha, "id=\"ferr-opcional-title\""));
+        Assert.Contains("<input id=\"ferr-edit-mf\" form=\"ferr-edit-form\"", bloco, StringComparison.Ordinal);
         Assert.True(Posicao(bloco, "id=\"ferr-edit-mf\"") < Posicao(bloco, "id=\"ferr-edit-technical\""));
         Assert.True(Posicao(bloco, "id=\"ferr-edit-technical\"") < Posicao(bloco, "id=\"ferr-edit-fabrica\""));
         // Ao lado dos campos, depois do traço vertical da Informação técnica.

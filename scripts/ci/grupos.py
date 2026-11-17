@@ -54,8 +54,11 @@ def main():
               "infra": [], "web": []}
     tally = {id(g): {"p": 0, "f": 0, "s": 0, "failures": []} for g in table + [others]}
 
+    sem_trx = []
     for project, trx in (("infra", infra_trx), ("web", web_trx)):
         if not Path(trx).is_file():
+            # Sem o relatório não se sabe o que falhou: conta como falha (audit externo R3).
+            sem_trx.append(Path(trx).name)
             continue
         for name, outcome, message, display in results(trx):
             lowered = name.lower()
@@ -89,9 +92,18 @@ def main():
         if counts["s"]:
             text += f", {counts['s']} ignorados"
         print(f"   {text}")
-        state = "FALHOU  " if counts["f"] else "OK      "
-        failed = failed or counts["f"] > 0
+        # Um grupo que corre e não teve nenhum teste não prova nada (audit externo R3).
+        vazio = group is not others and counts["p"] + counts["f"] + counts["s"] == 0
+        if vazio:
+            text += " (nenhum teste do grupo correu)"
+        state = "FALHOU  " if counts["f"] or vazio else "OK      "
+        failed = failed or counts["f"] > 0 or vazio
         summary.append(f"{state}{group['name']} ({text})")
+
+    for nome in sem_trx:
+        print(f"\n== Falta o relatório {nome}: não se sabe o que correu")
+        summary.append(f"FALHOU  Relatório {nome} em falta")
+        failed = True
 
     Path(summary_path).write_text("\n".join(summary) + "\n", encoding="utf-8")
     return 1 if failed else 0

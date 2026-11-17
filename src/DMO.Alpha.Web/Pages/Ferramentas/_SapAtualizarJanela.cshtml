@@ -6,6 +6,12 @@
         <button type="button" class="dmo-button" data-ferr-sap-modo="data" aria-pressed="false">Por data</button>
         <button type="button" class="dmo-button" data-ferr-sap-modo="ref" aria-pressed="false">Por referência</button>
       </div>
+      @* O que o «Atualizar» pede ao SAP (Diogo, 30/10/2026: «criar no cartão um selecionador»; 02/11/2026: «metemos o tudo dentro do atualizar SAP»). *@
+      <div class="rp-modo ferr-sap-escolha" role="group" aria-label="Que ferramentas pedir ao SAP">
+        <span>Ferramentas:</span>
+        <button type="button" class="dmo-button rp-modo-ativo" data-ferr-sap-escolha="todas" aria-pressed="true">Tudo</button>
+        <button type="button" class="dmo-button" data-ferr-sap-escolha="espera" aria-pressed="false">Desatualizadas</button>
+      </div>
       <p class="ferr-sap-modo-texto" data-ferr-sap-parte="normal">As produções dos últimos dias e a % uso de todas as ferramentas (Admin › Definições › SAP).</p>
       <div class="ferr-sap-modo-campos" data-ferr-sap-parte="data" hidden>
         <div class="rp-modo" role="group" aria-label="Datas">
@@ -28,6 +34,8 @@
     </dialog>
 <style>
 #ferrSapJanela .rp-modo{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+#ferrSapJanela .ferr-sap-escolha{align-items:center}
+#ferrSapJanela .ferr-sap-escolha>span{font-size:12.5px;margin-right:4px}
 #ferrSapJanela .ferr-sap-modo-campos{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
 #ferrSapJanela .ferr-sap-modo-campos label{display:flex;flex-direction:column;gap:4px;font-size:12.5px}
 #ferrSapJanela .ferr-sap-modo-campos .rp-modo{flex-basis:100%;margin:0}

@@ -448,7 +448,7 @@
           <div id="lightToolWarnings" class="job-tool-warnings">
             @foreach (var fact in Model.FolhaAberta ? Model.FichaFacts : Array.Empty<DMO.Alpha.Core.Production.JobOnToolFacts>())
             {
-              foreach (var avisoFerramenta in IndexModel.AvisosDasFerramentas(fact, Model.MostrarAvisoArmazem))
+              foreach (var avisoFerramenta in IndexModel.AvisosDasFerramentas(fact, Model.MostrarAvisoArmazem, Model.AvisosEscondidos))
               {
                 <div class="jobon-aviso warn" role="status">@avisoFerramenta.Texto@foreach (var link in avisoFerramenta.Links)
                   {<partial name="_DmoAvisoLink" model="link" />}</div>
@@ -562,6 +562,7 @@
 @section Scripts {
 <script src="~/js/jobon-tool-picker.js" asp-append-version="true" defer></script>
 <script src="~/js/jobon-rascunho.js" asp-append-version="true" defer></script>
+<script src="~/js/jobon-procura-enter.js" asp-append-version="true" defer></script>
 <script>
 // A FICHA (o showToolFacts + a calote — o enhancement mínimo da casa,
 // o padrão do peso-live): TODO o cálculo é do backend — o endpoint

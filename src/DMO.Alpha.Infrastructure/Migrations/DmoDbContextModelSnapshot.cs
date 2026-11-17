@@ -2831,9 +2831,16 @@ namespace DMO.Alpha.Infrastructure.Migrations
                     b.Property<Guid?>("DuplicateWarningByUserId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateOnly?>("DataAquisicao")
+                        .HasColumnType("date");
+
                     b.Property<string>("FabricaOrigem")
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)");
+
+                    b.Property<string>("Fabricante")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
 
                     b.Property<string>("Lot")
                         .IsRequired()

@@ -35,6 +35,46 @@ public static class UserSettingKeys
     /// (Diogo, 26/10/2026); vale a partir da entrada seguinte.
     /// </summary>
     public const string SessaoHoras = "Pessoal:SessaoHoras";
+
+    /// <summary>
+    /// Os avisos do Job On que esta pessoa escolheu não ver (Diogo,
+    /// 30/10/2026): as chaves de <see cref="AvisosPessoais"/> separadas por
+    /// vírgulas; vazio ou sem linha = vê todos.
+    /// </summary>
+    public const string AvisosEscondidos = "Pessoal:AvisosEscondidos";
+}
+
+/// <summary>
+/// Os avisos das ferramentas na folha do Job On que cada pessoa pode
+/// desligar nas Definições › A minha conta (Diogo, 30/10/2026: «ao usar map
+/// abre sempre imensos avisos do armazém»; «os de sistema funcionamento das
+/// páginas não se deve esconder»). Os erros e as mensagens das páginas não
+/// entram aqui.
+/// </summary>
+public static class AvisosPessoais
+{
+    public const string Armazem = "armazem";
+    public const string B2 = "b2";
+    public const string Compatibilidade = "compatibilidade";
+    public const string UsoParalelo = "uso-paralelo";
+
+    public static IReadOnlyList<(string Chave, string Nome)> Todos { get; } =
+    [
+        (Armazem, "Ferramenta sem registo no Armazém"),
+        (B2, "B2 sem Dupla nem Tripla"),
+        (Compatibilidade, "Ferramenta não compatível com a máquina"),
+        (UsoParalelo, "Ferramenta em uso noutro Job On ao mesmo tempo")
+    ];
+
+    /// <summary>As chaves escondidas gravadas; ignora as que não existem.</summary>
+    public static IReadOnlySet<string> Ler(string? valor) =>
+        (valor ?? string.Empty)
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(chave => Todos.Any(a => a.Chave == chave))
+            .ToHashSet(StringComparer.Ordinal);
+
+    public static string Escrever(IEnumerable<string> escondidos) =>
+        string.Join(",", Todos.Select(a => a.Chave).Where(escondidos.Contains));
 }
 
 /// <summary>As durações de sessão permitidas (horas) e a por omissão.</summary>

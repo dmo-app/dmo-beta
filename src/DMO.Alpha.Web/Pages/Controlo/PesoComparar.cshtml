@@ -202,7 +202,7 @@
     @foreach (var lado in new[] { atual, anterior }.Where(l => l.Simulada is not null))
     {
       var s = lado.Simulada!;
-      <p class="card-note" data-peso-comparar-simulada>@Rotulo(lado.Peso): calote @s.CaloteAtualMm.ToString("0.###") → @s.CaloteSupostaMm.ToString("0.###") mm, volume da calote @fmt(s.VolumeAtualCm3) → @fmt(s.VolumeSupostoCm3) cm³, peso médio @fmt(s.PesoMedioAtualGrams) → @fmt(s.PesoMedioSupostoGrams) g (@signed(s.DeltaPesoGrams) g).</p>
+      <p class="card-note" data-peso-comparar-simulada>@Rotulo(lado.Peso): calote @s.CaloteAtualMm.ToString("0.###", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) → @s.CaloteSupostaMm.ToString("0.###", DMO.Alpha.Core.Runtime.DmoNumberFormat.Culture) mm, volume da calote @fmt(s.VolumeAtualCm3) → @fmt(s.VolumeSupostoCm3) cm³, peso médio @fmt(s.PesoMedioAtualGrams) → @fmt(s.PesoMedioSupostoGrams) g (@signed(s.DeltaPesoGrams) g).</p>
     }
     <p class="card-note">Com a calote simulada, cada CM desse Peso muda o volume da calote (ΔV) e o peso ΔV × densidade do vidro do Peso; o diâmetro do tampão fica o mesmo.</p>
   }

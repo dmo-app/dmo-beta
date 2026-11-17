@@ -289,9 +289,9 @@ public sealed class BoquilhasRegistoQuery : IBoquilhasRegistoQuery
 
         chronological.Reverse();
 
-        // A página da tabela: os ids saem da mesma ordem e só esses 25
+        // A página da tabela: os ids saem da mesma ordem e só esses 10
         // movimentos são lidos por inteiro.
-        var pageSize = DMO.Alpha.Core.Paging.ListPaging.DefaultPageSize;
+        var pageSize = BoquilhasRegistoTrace.MovementPageSize;
         var page = DMO.Alpha.Core.Paging.ListPaging.ClampPage(movementPage, chronological.Count, pageSize);
         var pageIds = chronological.Skip((page - 1) * pageSize).Take(pageSize).Select(movement => movement.Id).ToList();
         var pageRows = pageIds.Count == 0

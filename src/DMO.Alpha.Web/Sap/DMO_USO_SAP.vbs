@@ -29,7 +29,10 @@ Const CENTRO = "MG"
 ' Faz uma só procura na ZPPG com «*» (todos os moldes do SAP); o DMO, no
 ' «Ler pasta», grava só nas ferramentas que tem (pelo nome técnico e lote)
 ' e ignora as outras. Os códigos do dmo-codigos.txt continuam a ser pedidos.
-Const PEDIR_TODAS = False
+' Diogo, 02/11/2026 («sim»): uma ferramenta de cada vez demorava 17 minutos.
+' Primeiro a procura «*»; se trouxer a lista, as procuras uma a uma saltam-se.
+' Se falhar, segue-se como antes, código a código (DMO-717).
+Const PEDIR_TODAS = True
 Const LISTA_TODAS_WAIT_SECONDS = 600
 
 ' A senha do utilizador do «Moldes Existentes.SAP» (Diogo, 28/10/2026: «mete a
@@ -105,9 +108,13 @@ With fso.OpenTextFile(ficheiroCodigos, 1)
 End With
 End If
 
-If PEDIR_TODAS Then
+If PEDIR_TODAS And total > 0 Then
+    ' O «*» vai à frente: lido, as outras procuras saltam-se.
     ReDim Preserve codigos(total)
-    codigos(total) = "*"
+    For i = total To 1 Step -1
+        codigos(i) = codigos(i - 1)
+    Next
+    codigos(0) = "*"
     total = total + 1
 End If
 
@@ -137,16 +144,28 @@ shell.Run Chr(34) & atalho & Chr(34), 7, False
 
 ' Esperar por uma sessão do SAP com o campo de procura da ZPPG.
 startedAt = Timer
-Dim senhaEscrita
+Dim senhaEscrita, entradasSap
+entradasSap = 0
 ' Mesmo com o SAP já aberto, o atalho pode abrir a janela da senha (Diogo,
 ' 29/10/2026: «o sap já estava aberto», ficou preso na senha): escreve-se se ela aparecer.
 senhaEscrita = False
+Dim zppgPedida
+zppgPedida = False
 Do
     ' A janela da senha: escrever a senha e carregar em Logon.
     ' Primeiro pelo próprio SAP (o ecrã de entrada tem as caixas
     ' RSYST-BNAME e RSYST-BCODE): sem Windows nem teclado (Diogo,
     ' 29/10/2026: «preciso disto automático», DMO-683).
-    If Not senhaEscrita Then senhaEscrita = EntrarPeloSap()
+    ' O ecrã de entrada do SAP pode vir também depois da janela «Moldes
+    ' Existentes» (Diogo, 02/11/2026: parou no ecrã de entrada depois de
+    ' escrever pelo teclado): tenta-se sempre, no máximo 2 vezes (senha errada
+    ' não bloqueia o utilizador).
+    If entradasSap < 2 Then
+        If EntrarPeloSap() Then
+            senhaEscrita = True
+            entradasSap = entradasSap + 1
+        End If
+    End If
     If Not senhaEscrita Then
         If shell.AppActivate(JANELA_LOGON) Then
             WScript.Sleep 500
@@ -172,8 +191,18 @@ Do
 
     If Not searchField Is Nothing Then Exit Do
 
+    ' DMO-741 (oficial, 04/11/2026 12:14): com o SAP já aberto, o atalho
+    ' entrou (logon múltiplo) mas a ZPPG não apareceu e esperou 5 minutos.
+    ' Ao fim de 90 segundos abre-se a ZPPG numa janela nova de um SAP já
+    ' entrado, sem mexer nas janelas de quem o usa.
+    If Not zppgPedida And ElapsedSeconds(startedAt) >= 90 Then
+        zppgPedida = True
+        AbrirZppgNumaJanelaNova
+    End If
+
     If ElapsedSeconds(startedAt) >= SAP_WAIT_SECONDS Then
-        MsgBox "O SAP abriu, mas o ecrã da ZPPG não ficou pronto em " & SAP_WAIT_SECONDS & " segundos.", 16, TITULO
+        Registo "falhou: o ecrã da ZPPG não ficou pronto em " & SAP_WAIT_SECONDS & " segundos; janelas do SAP: " & JanelasSap()
+        If Not automatico Then MsgBox "O SAP abriu, mas o ecrã da ZPPG não ficou pronto em " & SAP_WAIT_SECONDS & " segundos.", 16, TITULO
         WScript.Quit 1
     End If
 
@@ -182,10 +211,7 @@ Loop
 
 ' Minimizar o SAP (Diogo, 22/10/2026: correr com a página minimizada).
 ' O script do SAP continua a funcionar com a janela minimizada.
-On Error Resume Next
-session.findById("wnd[0]").iconify
-Err.Clear
-On Error GoTo 0
+MinimizarSap session
 
 ' Grava primeiro num ficheiro à parte: o DMO só vê a lista quando estiver completa.
 ' UTF-8: os nomes dos fornecedores podem ter acentos. O leitor já aceita BOM.
@@ -196,8 +222,12 @@ outFile.Open
 outFile.WriteText "search,equipment,percent_use,last_production,batch_description,status,error,consumption,expected life,pieces,supplier,purchase", 1
 encontrados = 0
 
+Dim todasLidas
+todasLidas = False
 For i = 0 To total - 1
     codigo = codigos(i)
+    If todasLidas Then Exit For
+    Passo "% de uso: " & IIf(codigo = "*", "a ler a lista de todos os moldes", (i + 1) & " de " & total)
 
     On Error Resume Next
     Err.Clear
@@ -220,7 +250,8 @@ For i = 0 To total - 1
         Set grid = WaitForControl(session, "wnd[0]/usr/cntlCUSTOM_CONTROL_0010/shellcont/shell", espera)
         ' Com a janela minimizada o SAP pode não desenhar a lista: mostra-se a
         ' janela e espera-se outra vez antes de dar erro.
-        Dim aviso
+        Dim aviso, mostrada
+        mostrada = False
         aviso = AvisoSap(session)
         If grid Is Nothing And Len(aviso) = 0 Then
             Registo "a lista não apareceu com o SAP minimizado; a mostrar a janela"
@@ -229,6 +260,7 @@ For i = 0 To total - 1
             Err.Clear
             On Error GoTo 0
             Set grid = WaitForControl(session, "wnd[0]/usr/cntlCUSTOM_CONTROL_0010/shellcont/shell", espera)
+            mostrada = True
         End If
 
         If grid Is Nothing And Len(aviso) > 0 Then
@@ -243,7 +275,10 @@ For i = 0 To total - 1
             WriteErrorRow outFile, codigo, "Sem resultados"
             GoBackToSearch session
         Else
-            If codigo = "*" Then Registo "lista de todos os moldes: " & grid.RowCount & " linhas"
+            If codigo = "*" Then
+                Registo "lista de todos os moldes: " & grid.RowCount & " linhas"
+                todasLidas = True
+            End If
             ' As colunas das peças pelo título (o id no SAP não se conhece):
             ' Consumption, Expected life e No. of pieces.
             colConsumo = ColunaPorTitulo(grid, "consumption")
@@ -299,6 +334,9 @@ For i = 0 To total - 1
             Next
             GoBackToSearch session
         End If
+        ' Mostrada para desenhar a lista, volta a minimizar-se depois de lida
+        ' (Diogo, 02/11/2026: «a janela já não está a minimizar»).
+        If mostrada Then MinimizarSap session
     End If
 Next
 
@@ -314,7 +352,104 @@ If Not automatico Then
            "Abra as Ferramentas no DMO para gravar a utilização.", 64, TITULO
 End If
 
+' Minimiza a janela do SAP usada e as outras que estejam no ecrã da ZPPG:
+' cada «Moldes Existentes.SAP» pode abrir uma janela nova, e a escrita da
+' senha (AppActivate/SetFocus) traz a janela para a frente (Diogo,
+' 02/11/2026: a janela do SAP já não minimizava enquanto trabalhava).
+Sub MinimizarSap(ByVal usada)
+    Dim gui, motor, c, s, campo
+    On Error Resume Next
+    usada.findById("wnd[0]").iconify
+    Err.Clear
+    Set gui = GetObject("SAPGUI")
+    If Err.Number = 0 And Not gui Is Nothing Then
+        Set motor = gui.GetScriptingEngine
+        For Each c In motor.Children
+            For Each s In c.Children
+                Set campo = Nothing
+                Set campo = s.findById("wnd[0]/usr/ctxtCOD_EQ-LOW")
+                If Not campo Is Nothing Then s.findById("wnd[0]").iconify
+                Err.Clear
+            Next
+        Next
+    End If
+    Err.Clear
+    On Error GoTo 0
+End Sub
+
 ' A sessão que já está na ZPPG (a que o atalho abriu, ou outra já aberta).
+' Uma janela nova (CreateSession) num SAP já entrado, com /nzppg (DMO-741).
+Sub AbrirZppgNumaJanelaNova()
+    Dim gui, motor, c, s, base, antes, comeco, nova
+    On Error Resume Next
+    Set gui = GetObject("SAPGUI")
+    Set motor = gui.GetScriptingEngine
+    Set base = Nothing
+    For Each c In motor.Children
+        For Each s In c.Children
+            If base Is Nothing Then
+                If Not CampoSap(s, "wnd[0]/tbar[0]/okcd") Is Nothing And CampoSap(s, "wnd[0]/usr/pwdRSYST-BCODE") Is Nothing Then Set base = s
+            End If
+            Err.Clear
+        Next
+    Next
+    If base Is Nothing Then
+        Registo "a ZPPG não apareceu e não há nenhum SAP entrado para abrir outra janela"
+        Err.Clear
+        On Error GoTo 0
+        Exit Sub
+    End If
+    Registo "a ZPPG não apareceu: a abrir a ZPPG numa janela nova do SAP"
+    Set c = base.Parent
+    antes = c.Children.Count
+    base.CreateSession
+    comeco = Timer
+    Set nova = Nothing
+    Do While ElapsedSeconds(comeco) < 20
+        WScript.Sleep 1000
+        If c.Children.Count > antes Then Set nova = c.Children(c.Children.Count - 1)
+        If Not nova Is Nothing Then Exit Do
+        Err.Clear
+    Loop
+    If Not nova Is Nothing Then
+        WScript.Sleep 1000
+        nova.findById("wnd[0]/tbar[0]/okcd").text = "/nzppg"
+        nova.findById("wnd[0]").sendVKey 0
+    End If
+    Err.Clear
+    On Error GoTo 0
+End Sub
+
+' O controlo do SAP ou Nothing, sem erro.
+Function CampoSap(ByVal sapSession, ByVal id)
+    Set CampoSap = Nothing
+    On Error Resume Next
+    Set CampoSap = sapSession.findById(id)
+    If Err.Number <> 0 Then Set CampoSap = Nothing
+    Err.Clear
+    On Error GoTo 0
+End Function
+
+' Os títulos das janelas do SAP abertas, para o dmo-sap.log.
+Function JanelasSap()
+    Dim gui, motor, c, s, t
+    JanelasSap = ""
+    On Error Resume Next
+    Set gui = GetObject("SAPGUI")
+    Set motor = gui.GetScriptingEngine
+    For Each c In motor.Children
+        For Each s In c.Children
+            t = ""
+            t = s.findById("wnd[0]").Text
+            JanelasSap = JanelasSap & "«" & t & "» "
+            Err.Clear
+        Next
+    Next
+    If JanelasSap = "" Then JanelasSap = "nenhuma"
+    Err.Clear
+    On Error GoTo 0
+End Function
+
 Function ProcurarSessaoZppg(ByVal app)
     Dim c, s, campo
     Set ProcurarSessaoZppg = Nothing
@@ -515,6 +650,23 @@ End Function
 
 ' Um registo do que o script fez, para se perceber onde parou
 ' (dmo-sap.log, na mesma pasta; o DMO não lê .log).
+' O passo em que está, para a app mostrar (dmo-sap-passo.txt, DMO-717).
+' Em Unicode (o terceiro True), para os acentos chegarem certos à app
+' (DMO-740, Diogo 04/11/2026: «SAP: a ler as produ��es»).
+Sub Passo(ByVal texto)
+    On Error Resume Next
+    With fso.CreateTextFile(fso.BuildPath(pasta, "dmo-sap-passo.txt"), True, True)
+        .WriteLine texto
+        .Close
+    End With
+    Err.Clear
+    On Error GoTo 0
+End Sub
+
+Function IIf(ByVal condicao, ByVal sim, ByVal nao)
+    If condicao Then IIf = sim Else IIf = nao
+End Function
+
 Sub Registo(ByVal texto)
     Dim f
     On Error Resume Next
@@ -581,7 +733,13 @@ Sub EscreverSenha()
     f.WriteLine "$caixas = $w.FindAll($T::Descendants, (New-Object System.Windows.Automation.PropertyCondition($A::ControlTypeProperty, [System.Windows.Automation.ControlType]::Edit)))"
     f.WriteLine "$nome = $null; $senha = $null"
     f.WriteLine "foreach ($c in $caixas) { if ($c.Current.IsPassword) { $senha = $c } elseif (-not $nome) { $nome = $c } }"
-    f.WriteLine "if (-not $nome -or -not $senha) { exit 3 }"
+    ' A janela de entrada tem o botão «Logon»; a do SAP já aberto não (DMO-677).
+    ' Na de entrada a caixa da senha pode não se dar a conhecer como senha
+    ' (Diogo, 02/11/2026: ficou parado com a senha por escrever): a 2.ª caixa é a senha.
+    f.WriteLine "$logon = $false"
+    f.WriteLine "foreach ($b in $w.FindAll($T::Descendants, (New-Object System.Windows.Automation.PropertyCondition($A::ControlTypeProperty, [System.Windows.Automation.ControlType]::Button)))) { if ($b.Current.Name -match '^\W*log\s*on\W*$') { $logon = $true } }"
+    f.WriteLine "if ($logon -and -not $senha -and $caixas.Count -ge 2) { $nome = $caixas[0]; $senha = $caixas[1] }"
+    f.WriteLine "if (-not $nome -or -not $senha) { if ($logon) { exit 4 } else { exit 3 } }"
     f.WriteLine "$caps = [Console]::CapsLock"
     f.WriteLine "if ($caps) { $K::SendWait('{CAPSLOCK}') }"
     f.WriteLine "try {"
@@ -605,13 +763,74 @@ Sub EscreverSenha()
     ' Código 3: a janela «Moldes Existentes» não tem a caixa da senha (o SAP
     ' já está aberto). Pelo teclado escrevia-se na janela do SAP em uso
     ' (Diogo, 29/10/2026: «Função impossível», DMO-677): não se escreve nada.
+    ' Código 3 só é «o SAP já aberto» (DMO-677) se uma janela do SAP tiver mesmo
+    ' esse nome. Se nenhuma tiver, a «Moldes Existentes» é a janela de entrada que o
+    ' Windows não lê (Diogo, 02/11/2026: ficava parada com a senha por escrever):
+    ' escreve-se pelo teclado, como até 29/10.
+    If codigo = 3 And Not SapTemJanela(JANELA_LOGON) Then
+        Registo "nenhuma janela do SAP com este nome: é a janela de entrada"
+        codigo = 4
+    End If
     If codigo = 3 Then Registo "janela sem caixa da senha: nada escrito"
+    ' Código 4: é a janela de entrada (tem «Logon»), mas o Windows não chega às
+    ' caixas: escreve-se pelo teclado, como até 29/10.
+    If codigo = 4 Then Registo "janela de entrada sem caixas à vista: pelo teclado"
+    ' Nunca pelo teclado com uma janela do SAP aberta (Diogo, 02/11/2026 13:17:
+    ' «começa a escrever na janela do SAP se estiver aberta», escreveu «AUSERREQMG»
+    ' e deu «Função impossível»). O ecrã de entrada do SAP preenche-se pelo SAP
+    ' (EntrarPeloSap); o teclado só serve quando não há nenhuma sessão do SAP.
+    If codigo <> 0 And codigo <> 3 And SapTemSessao() Then
+        Registo "há uma janela do SAP aberta: nada pelo teclado"
+        codigo = 3
+    End If
     If codigo <> 0 And codigo <> 3 Then
-        shell.AppActivate JANELA_LOGON
-        WScript.Sleep 300
-        shell.SendKeys "^a" & ParaSendKeys(UTILIZADOR) & "{TAB}" & ParaSendKeys(SENHA) & "{ENTER}"
+        ' Só com a janela da senha à frente: senão o teclado ia para o SAP Logon
+        ' (Diogo, 02/11/2026: ficou o SAP Logon à frente com o BAS escolhido).
+        If shell.AppActivate(JANELA_LOGON) Then
+            WScript.Sleep 300
+            shell.SendKeys "^a" & ParaSendKeys(UTILIZADOR) & "{TAB}" & ParaSendKeys(SENHA) & "{ENTER}"
+            Registo "senha escrita pelo teclado"
+        Else
+            Registo "a janela da senha não veio para a frente: nada escrito"
+        End If
     End If
 End Sub
+
+' Alguma sessão do SAP aberta (qualquer janela do SAP, mesmo o ecrã de entrada)?
+Function SapTemSessao()
+    Dim gui, motor, c
+    SapTemSessao = False
+    On Error Resume Next
+    Set gui = GetObject("SAPGUI")
+    If Err.Number <> 0 Or gui Is Nothing Then Err.Clear: On Error GoTo 0: Exit Function
+    Set motor = gui.GetScriptingEngine
+    For Each c In motor.Children
+        If c.Children.Count > 0 Then SapTemSessao = True
+        Err.Clear
+    Next
+    Err.Clear
+    On Error GoTo 0
+End Function
+
+' Alguma sessão do SAP com uma janela com este nome (o título começa por ele)?
+Function SapTemJanela(ByVal nome)
+    Dim gui, motor, c, s, titulo
+    SapTemJanela = False
+    On Error Resume Next
+    Set gui = GetObject("SAPGUI")
+    If Err.Number <> 0 Or gui Is Nothing Then Err.Clear: On Error GoTo 0: Exit Function
+    Set motor = gui.GetScriptingEngine
+    For Each c In motor.Children
+        For Each s In c.Children
+            titulo = ""
+            titulo = s.findById("wnd[0]").Text
+            If LCase(Left(titulo, Len(nome))) = LCase(nome) Then SapTemJanela = True
+            Err.Clear
+        Next
+    Next
+    Err.Clear
+    On Error GoTo 0
+End Function
 
 ' Um texto entre plicas no PowerShell: a plica dobra-se.
 Function ParaPs(ByVal texto)

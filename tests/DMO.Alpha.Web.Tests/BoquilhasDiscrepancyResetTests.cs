@@ -34,7 +34,7 @@ public partial class BoquilhasRegistoPageTests
 
         var html = await GetPageHtmlAsync(client, TraceUrl(trace.Id));
         Assert.Contains($"href=\"/Boquilhas?trace_id={trace.Id}&amp;acerto=1#bqMetrics\"", html);
-        Assert.Contains(">-4</a></strong>", html);
+        Assert.Contains(">-4</a><small class=\"bq-peca\">BQ</small>", html);
         Assert.DoesNotContain("id=\"bqDiscrepancyReset\"", html);
 
         var opened = await GetPageHtmlAsync(client, $"{PagePath}?trace_id={trace.Id}&acerto=1");
@@ -60,7 +60,7 @@ public partial class BoquilhasRegistoPageTests
         var movementAfter = Assert.Single(await ReadMovementsAsync(trace.Id));
         Assert.Equal(-4, movementAfter.Discrepancy);
         var after = await GetPageHtmlAsync(client, TraceUrl(trace.Id));
-        Assert.Contains("<strong>0</strong>", after);
+        Assert.Contains("<strong>0<small class=\"bq-peca\">BQ</small>", after);
         Assert.DoesNotContain("acerto=1", after);
         Assert.Contains("Metida a zero por Ana Reset em", after);
     }
@@ -75,7 +75,7 @@ public partial class BoquilhasRegistoPageTests
         using var client = await LoginClientAsync("4802", "ResetPass2!");
 
         var html = await GetPageHtmlAsync(client, TraceUrl(trace.Id));
-        Assert.Contains("<span>Discrepância acumulada</span><strong>—</strong>", html);
+        Assert.Contains("<span>Discrepância acumulada</span><strong>—<small class=\"bq-peca\">BQ</small>", html);
         Assert.DoesNotContain("acerto=1", html);
 
         // Pedir a janela sem discrepância não a abre.

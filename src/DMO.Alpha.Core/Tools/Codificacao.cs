@@ -119,6 +119,24 @@ public static class Codificacao
     /// O modo da B2 pelas outras linhas: com a C3 é Tripla, com a C1 é Dupla
     /// (Diogo, 28/10/2026); sem nenhuma das duas, null.
     /// </summary>
+    /// <summary>
+    /// O MODO PELO NOME TÉCNICO (Diogo, 02/11/2026): logo a seguir à referência,
+    /// CM «44» = Tripla, «55» = Dupla (M536244MPPSX); MF «4T» = Tripla, «55» = Dupla
+    /// (M53624TMFPSV); BQ «PX77» = Tripla, «PX8855» = Dupla. Outro nome: null.
+    /// </summary>
+    public static B2Modo? ModoPeloNome(string? nomeTecnico)
+    {
+        var nome = nomeTecnico?.Trim().ToUpperInvariant().Replace(".", "") ?? string.Empty;
+        var m = Regex.Match(nome, "^M[A-Z0-9]+?(44|55)MP|^M[A-Z0-9]+?(4T|55)MF|^AB[A-Z0-9]+?PX(77|8855)");
+        if (!m.Success) return null;
+        var codigo = m.Groups[1].Success ? m.Groups[1].Value : m.Groups[2].Success ? m.Groups[2].Value : m.Groups[3].Value;
+        return codigo is "55" or "8855" ? B2Modo.Dupla : B2Modo.Tripla;
+    }
+
+    /// <summary>O modo que a app identifica: as linhas (C1/C3) primeiro, depois o nome técnico.</summary>
+    public static B2Modo? ModoIdentificado(IEnumerable<string> maquinas, string? nomeTecnico) =>
+        ModoPelasLinhas(maquinas) ?? ModoPeloNome(nomeTecnico);
+
     public static B2Modo? ModoPelasLinhas(IEnumerable<string> maquinas)
     {
         var lista = maquinas.ToList();

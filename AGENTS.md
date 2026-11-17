@@ -105,3 +105,7 @@ Não correr o `ci-local.sh` diretamente no Windows (o vstest falha lá). Só val
 ```
 
 Sem conflitos nem falhas, basta: `## Relatório do agente` + Resultado + «Sem correções».
+
+## Testar a app a sério na nuvem
+
+Antes de dizer «pronto» numa mudança de páginas: `bash scripts/nuvem/arrancar.sh` e `node scripts/nuvem/verificar.cjs` (ver [scripts/nuvem/LEIA-ME.md](scripts/nuvem/LEIA-ME.md)). Só dados falsos, nunca a oficial nem o ensaio.

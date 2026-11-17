@@ -55,8 +55,8 @@ public partial class BoquilhasRegistoPageTests
         using var client = await LoginClientAsync("4198", "PainelTroca1!", app);
         var painel = PainelDasLinhas(await GetPageHtmlAsync(client, "/Boquilhas"));
 
-        var posEntra = painel.IndexOf($"data-dmo-open=\"/Boquilhas?bq_id={entra}\"", StringComparison.Ordinal);
-        var posSai = painel.IndexOf($"data-dmo-open=\"/Boquilhas?bq_id={sai}\"", StringComparison.Ordinal);
+        var posEntra = painel.IndexOf($"data-dmo-open=\"/Boquilhas?escolher={entra}\"", StringComparison.Ordinal);
+        var posSai = painel.IndexOf($"data-dmo-open=\"/Boquilhas?escolher={sai}\"", StringComparison.Ordinal);
         Assert.True(posEntra >= 0, "A produção que entra não aparece.");
         Assert.True(posSai > posEntra, "A produção que sai não aparece depois da que entra.");
         Assert.DoesNotContain("Sobreposição na linha TX1", painel);
@@ -92,7 +92,7 @@ public partial class BoquilhasRegistoPageTests
         var painel = PainelDasLinhas(await GetPageHtmlAsync(client, "/Boquilhas"));
 
         Assert.Contains($"/JobOn?jobon_id={entraId}#lightFicha", painel);
-        Assert.Contains($"data-dmo-open=\"/Boquilhas?bq_id={saiCtx}\"", painel);
+        Assert.Contains($"data-dmo-open=\"/Boquilhas?escolher={saiCtx}\"", painel);
 
         // A zona da NX1: do primeiro <strong>NX1</strong> até à linha seguinte
         // de outra linha (ou ao fim do painel).
@@ -118,8 +118,8 @@ public partial class BoquilhasRegistoPageTests
         using var client = await LoginClientAsync("4199", "PainelSobre1!", app);
         var painel = PainelDasLinhas(await GetPageHtmlAsync(client, "/Boquilhas"));
 
-        Assert.Contains($"data-dmo-open=\"/Boquilhas?bq_id={entra}\"", painel);
-        Assert.Contains($"data-dmo-open=\"/Boquilhas?bq_id={sai}\"", painel);
+        Assert.Contains($"data-dmo-open=\"/Boquilhas?escolher={entra}\"", painel);
+        Assert.Contains($"data-dmo-open=\"/Boquilhas?escolher={sai}\"", painel);
         Assert.Contains("Sobreposição na linha SX1: corrija as datas no Job On", painel);
         Assert.Contains("href=\"/JobOn?jobon_id=", painel);
     }
@@ -149,7 +149,7 @@ public partial class BoquilhasRegistoPageTests
         var painel = PainelDasLinhas(await GetPageHtmlAsync(client, "/Boquilhas"));
 
         Assert.Single(System.Text.RegularExpressions.Regex.Matches(painel, "<strong>UX1</strong>"));
-        Assert.Contains($"data-dmo-open=\"/Boquilhas?bq_id={contexto}\"", painel);
+        Assert.Contains($"data-dmo-open=\"/Boquilhas?escolher={contexto}\"", painel);
         Assert.Contains("<span>UNICAUX1 · PN-UNICA</span>", painel);
         Assert.DoesNotContain("dmo-rail-warning", painel);
     }
@@ -183,7 +183,7 @@ public partial class BoquilhasRegistoPageTests
         using var app = FactoryWithBoquilhasClock(new DateTime(2031, 5, 20, 10, 0, 0, DateTimeKind.Utc));
         using var client = await LoginClientAsync("4201", "PainelRegisto1!", app);
         var painel = PainelDasLinhas(await GetPageHtmlAsync(client, "/Boquilhas"));
-        var links = System.Text.RegularExpressions.Regex.Matches(painel, "data-dmo-open=\"(/Boquilhas\\?bq_id=(\\d+))\"")
+        var links = System.Text.RegularExpressions.Regex.Matches(painel, "data-dmo-open=\"(/Boquilhas\\?escolher=(\\d+))\"")
             .Select(m => (Url: System.Net.WebUtility.HtmlDecode(m.Groups[1].Value), Id: int.Parse(m.Groups[2].Value)))
             .Where(l => l.Id == sai || l.Id == entra)
             .ToList();
@@ -193,13 +193,18 @@ public partial class BoquilhasRegistoPageTests
         var quantidades = new Dictionary<int, int> { [sai] = 3, [entra] = 5 };
         foreach (var link in links)
         {
+            // O cartão abre o registo de várias linhas (DMO-754), não o registo antigo.
             var html = await GetPageHtmlAsync(client, link.Url);
-            var (acao, campos) = EnvioDoFormulario.Enviar(html,
-                [("quantity", quantidades[link.Id].ToString()), ("occurredAt", "2031-05-20T09:00")],
-                radios: [("movement_type", "saida")]);
-            Assert.Contains("RegisterMovement", acao);
-            using var response = await client.PostAsync(acao, EnvioDoFormulario.Corpo(campos));
+            Assert.Contains("id=\"bqVarias\"", html);
+            Assert.DoesNotContain("register-open", html);
+            var token = await GetVerificationTokenAsync(client, link.Url);
+            using var response = await client.PostAsync($"{PagePath}?handler=RegisterMany", HtmlFormHelpers.BuildFormPost(
+                ("movement_type", "saida"),
+                ("linha_bq_id", link.Id.ToString()), ("linha_qtd", quantidades[link.Id].ToString()), ("linha_qtd_an", ""),
+                ("occurred_at", "2031-05-20T09:00"),
+                ("__RequestVerificationToken", token)));
             Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+            Assert.DoesNotContain("varias_falhou", response.Headers.Location!.OriginalString);
         }
 
         using var verificar = _factory.Services.CreateScope();

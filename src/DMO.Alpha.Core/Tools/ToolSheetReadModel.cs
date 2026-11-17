@@ -35,4 +35,8 @@ public sealed record ToolSheetReadModel(
     /// <summary>A quantidade de AN do lote (Tool.AnQuantity); null = vazia.</summary>
     int? AnQuantity = null,
     /// <summary>A B2 em que a ferramenta trabalha (Dupla/Tripla); null = sem escolha.</summary>
-    B2Modo? B2Modo = null);
+    B2Modo? B2Modo = null,
+    /// <summary>R6: o fabricante (à mão, ou o fornecedor do SAP); null = em branco.</summary>
+    string? Fabricante = null,
+    /// <summary>R6: a data de aquisição (à mão, ou a do SAP); null = em branco.</summary>
+    DateOnly? DataAquisicao = null);

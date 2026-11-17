@@ -194,6 +194,7 @@ public sealed class ReparacaoProgramadaModel(IReparacaoProgramada programada, Sh
         });
     }
 
+    [EnvioUnico]
     public async Task<IActionResult> OnPostAssociarAsync(string[]? ferramenta, string? destino, int? reparador)
     {
         int? listaDestino = int.TryParse(destino, NumberStyles.None, CultureInfo.InvariantCulture, out var l) ? l : null;
