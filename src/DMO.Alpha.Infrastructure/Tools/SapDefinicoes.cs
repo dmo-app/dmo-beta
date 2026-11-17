@@ -24,14 +24,20 @@ public sealed class SapDefinicoes(DmoDbContext db, IDataProtectionProvider prote
             : SapDefinicoesRegras.DiasPorOmissao;
         return new SapDefinicoesDados(
             string.IsNullOrWhiteSpace(utilizador) ? SapDefinicoesRegras.UtilizadorPorOmissao : utilizador,
-            !string.IsNullOrEmpty(valores.GetValueOrDefault(SapDefinicoesRegras.ChaveSenha)),
+            // «guardada» só quando a senha se consegue mesmo ler (Diogo, 02/11/2026:
+            // dizia «guardada» e não estava; com outra chave de cifra não se lê).
+            !string.IsNullOrEmpty(Decifrar(valores.GetValueOrDefault(SapDefinicoesRegras.ChaveSenha))),
             hora,
             dias);
     }
 
     public async Task<string?> SenhaAsync(CancellationToken cancellationToken = default)
     {
-        var cifrada = await ValorAsync(SapDefinicoesRegras.ChaveSenha, cancellationToken);
+        return Decifrar(await ValorAsync(SapDefinicoesRegras.ChaveSenha, cancellationToken));
+    }
+
+    private string? Decifrar(string? cifrada)
+    {
         if (string.IsNullOrEmpty(cifrada))
         {
             return null;

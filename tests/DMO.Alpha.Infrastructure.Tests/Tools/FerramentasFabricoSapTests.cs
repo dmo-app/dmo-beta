@@ -414,6 +414,23 @@ public sealed class FerramentasFabricoSapTests
         Assert.Equal(2, await db.SapFabricos.CountAsync());
     }
 
+    // DMO-724 / A-0496 (QD253-02): um relatório que não traz um material/linha
+    // não apaga as ordens desse material/linha, mesmo dentro da sua janela.
+    [Fact]
+    public async Task UmRelatorioSemOMaterial_NaoApagaAsOrdensDesseMaterial()
+    {
+        var db = CreateContext();
+        var a = new FabricoSapLinha("5538T324BRA", "C3", new DateOnly(2025, 1, 21), new DateOnly(2025, 2, 4), 1_000, 900, 132m, 14);
+        var outro = new FabricoSapLinha("OUTRO", "C4", new DateOnly(2025, 3, 1), new DateOnly(2025, 3, 10), 500, 400, 50m, 6);
+        var c = new FabricoSapLinha("5538T324BRA", "C3", new DateOnly(2025, 7, 31), new DateOnly(2025, 8, 6), 2_000, 1_900, 131m, 8);
+        await Servico(db).ImportarAsync([a, outro, c], "dmo-fabrico-sap-1.txt", DateTime.UtcNow);
+
+        var outcome = await Servico(db).ImportarAsync([a, c], "dmo-fabrico-sap-2.txt", DateTime.UtcNow);
+
+        Assert.Equal(0, outcome.Retiradas);
+        Assert.Equal(3, await db.SapFabricos.CountAsync());
+    }
+
     // Duas linhas distintas do relatório colapsadas na mesma chave: fica a última, sem apagar nada.
     [Fact]
     public async Task DuasLinhasComAMesmaChave_FicamColapsadasNumaSoSemApagarNada()

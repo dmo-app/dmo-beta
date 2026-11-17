@@ -85,6 +85,7 @@ public sealed partial class IndexModel
     /// POST: põe a zero a discrepância acumulada do registo (Diogo, 17/10/2026:
     /// começar a registar a meio das produções). Os movimentos ficam como estão.
     /// </summary>
+    [EnvioUnico]
     public async Task<IActionResult> OnPostResetDiscrepancyAsync(
         [FromServices] IResetBqDiscrepancyHandler handler,
         [FromForm(Name = "trace_id")] int traceId)
@@ -120,6 +121,7 @@ public sealed partial class IndexModel
     }
 
     /// <summary>POST: corrige o tipo, a quantidade e a data/hora reais de um movimento.</summary>
+    [EnvioUnico]
     public async Task<IActionResult> OnPostEditMovementAsync(
         [FromServices] IEditBqMovementHandler handler,
         [FromForm(Name = "trace_id")] int traceId,
@@ -187,6 +189,7 @@ public sealed partial class IndexModel
     }
 
     /// <summary>POST: apaga um movimento do registo; as discrepâncias recalculam-se.</summary>
+    [EnvioUnico]
     public async Task<IActionResult> OnPostDeleteMovementAsync(
         [FromServices] IDeleteBqMovementHandler handler,
         [FromForm(Name = "trace_id")] int traceId,

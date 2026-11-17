@@ -140,9 +140,26 @@ public sealed class EditToolFactsHandler : IEditToolFactsHandler
         }
 
         // A B2 em que trabalha (Diogo, 28/10/2026): sem a B2 nas linhas não há modo.
-        if (command.B2Modo is not null) tool.B2Modo = Codificacao.ModoDe(command.B2Modo);
-        var naB2 = machineIds.Count > 0 && await _db.Machines.AnyAsync(m => machineIds.Contains(m.Id) && m.Code == "B2", cancellationToken);
-        if (!naB2) tool.B2Modo = null;
+        // R6 (Diogo, 02/11/2026): fabricante e data de aquisição à mão; vazio = em branco.
+        if (command.Fabricante is not null)
+        {
+            var fabricante = TrimToNull(command.Fabricante);
+            tool.Fabricante = fabricante is { Length: > 120 } ? fabricante[..120] : fabricante;
+        }
+        if (command.DataAquisicao is not null)
+        {
+            tool.DataAquisicao = DateOnly.TryParseExact(command.DataAquisicao.Trim(), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var data) ? data : null;
+        }
+
+        // R4 (Diogo, 02/11/2026): a escolha à mão fica e manda; sem escolha, a app
+        // identifica pelas linhas (C1 = Dupla, C3 = Tripla) e depois pelo nome técnico.
+        var codigos = machineIds.Count > 0
+            ? await _db.Machines.Where(m => machineIds.Contains(m.Id)).Select(m => m.Code).ToListAsync(cancellationToken)
+            : [];
+        var naB2 = codigos.Contains("B2");
+        var escolhido = string.IsNullOrWhiteSpace(command.B2Modo) ? null : Codificacao.ModoDe(command.B2Modo);
+        tool.B2Modo = !naB2 ? null
+            : escolhido ?? Codificacao.ModoIdentificado(codigos, tool.TechnicalName) ?? (command.B2Modo is null ? tool.B2Modo : null);
 
         var existingLinks = await _db.ToolMachineLinks
             .Where(link => link.ToolId == tool.ToolId)

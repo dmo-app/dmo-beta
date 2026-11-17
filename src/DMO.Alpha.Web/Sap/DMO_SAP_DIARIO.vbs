@@ -9,7 +9,8 @@
 '       modo=ref     só a % uso das ferramentas do dmo-codigos-pedido.txt.
 '   - pelo Agendador de Tarefas (/agendado, uma vez por dia à HORA, ou ao
 '     ligar o PC se estava desligado): como o modo normal.
-' No fim escreve «feito» no dmo-sap-estado.txt. Cada ficheiro lido vai logo
+' No fim escreve «feito» no dmo-sap-estado.txt (ou «erro», com o passo que
+' falhou e, em «ok:», os que correram bem). Cada ficheiro lido vai logo
 ' para o DMO (URL, com a CHAVE do Admin › SAP): grava sem ninguém abrir a app
 ' (Diogo, 28/10/2026: «sem ter de ler pasta»).
 
@@ -20,11 +21,12 @@ Const HORA = {{HORA}}
 Const URL = "{{URL}}"
 Const CHAVE = "{{CHAVE}}"
 
-Dim fso, shell, pasta, pedido, modo, inicio, fim, comecoGeral, erroGeral
+Dim fso, shell, pasta, pedido, modo, inicio, fim, comecoGeral, erroGeral, okGeral
 Set fso = CreateObject("Scripting.FileSystemObject")
 Set shell = CreateObject("WScript.Shell")
 pasta = fso.GetParentFolderName(WScript.ScriptFullName)
 erroGeral = ""
+okGeral = ""
 
 pedido = ""
 If WScript.Arguments.Count > 0 Then pedido = WScript.Arguments(0)
@@ -77,8 +79,12 @@ EnviarNovos "dmo-fabrico-sap-", ".txt"
 EnviarNovos "dmo-uso-sap-", ".csv"
 If erroGeral = "" Then
     EscreverFicheiro "dmo-sap-estado.txt", "feito " & Agora()
-Else
+ElseIf okGeral = "" Then
     EscreverFicheiro "dmo-sap-estado.txt", "erro " & Trim(erroGeral) & " " & Agora()
+Else
+    ' Uma parte correu bem (Diogo, 02/11/2026: a % uso foi gravada e a app
+    ' dizia «A leitura do SAP falhou»): o estado diz também o que ficou feito.
+    EscreverFicheiro "dmo-sap-estado.txt", "erro " & Trim(erroGeral) & " ok:" & Trim(okGeral) & " " & Agora()
 End If
 Registo "fim, modo " & modo
 
@@ -113,7 +119,11 @@ Sub Correr(ByVal nome, ByVal extra)
         End If
     Loop
     Registo nome & " acabou (código " & processo.ExitCode & ")"
-    If processo.ExitCode <> 0 Then Falhar nome, "codigo" & processo.ExitCode
+    If processo.ExitCode <> 0 Then
+        Falhar nome, "codigo" & processo.ExitCode
+    Else
+        okGeral = okGeral & nome & " "
+    End If
 End Sub
 
 ' O dmo-codigos.txt com todas as ferramentas com nome técnico (/sap/codigos).
@@ -170,12 +180,22 @@ Sub Enviar(ByVal nome)
     stream.LoadFromFile caminho
     Set http = CreateObject("MSXML2.ServerXMLHTTP.6.0")
     http.setTimeouts 30000, 30000, 300000, 300000
-    http.open "POST", URL & "/sap/enviar?ficheiro=" & nome, False
+    ' A hora de Lisboa em que o ficheiro foi escrito: o DMO recusa um ficheiro
+    ' mais antigo do que o �ltimo que leu (DMO-772).
+    http.open "POST", URL & "/sap/enviar?ficheiro=" & nome & "&modificado=" & DataHora(fso.GetFile(caminho).DateLastModified), False
     http.setRequestHeader "X-DMO-SAP", CHAVE
     http.setRequestHeader "Content-Type", "application/octet-stream"
     http.send stream.Read
+    ' DMO-723 (QD253-01): só um 200 é enviado; sem rede ou com 403/500 o
+    ' estado diz «erro envio:…», em vez de «feito» (a app dizia «feita e
+    ' gravada» com o envio recusado). O ficheiro fica na pasta.
     If Err.Number <> 0 Then
         Registo "não foi possível enviar " & nome & ": " & Err.Description
+        Err.Clear
+        Falhar "envio", "rede"
+    ElseIf http.status <> 200 Then
+        Registo "envio recusado " & nome & " (" & http.status & ") " & http.responseText
+        Falhar "envio", "http" & http.status
     Else
         Registo "enviado " & nome & " (" & http.status & ") " & http.responseText
     End If
@@ -228,6 +248,10 @@ End Function
 
 Function DataDoDia(ByVal d)
     DataDoDia = Year(d) & "-" & Right("0" & Month(d), 2) & "-" & Right("0" & Day(d), 2)
+End Function
+
+Function DataHora(ByVal d)
+    DataHora = DataDoDia(d) & "T" & Right("0" & Hour(d), 2) & ":" & Right("0" & Minute(d), 2) & ":" & Right("0" & Second(d), 2)
 End Function
 
 Function Agora()

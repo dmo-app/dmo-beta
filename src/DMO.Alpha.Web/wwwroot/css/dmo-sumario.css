@@ -72,9 +72,9 @@ html body main.sumario-page .beta-production-rail a.beta-production-rail-title:i
 /* A PÁGINA NÃO DESLIZA (Diogo, 27/10/2026): a altura da janela; só a lista do dia
    desliza, por dentro do cartão. À esquerda ficam os filtros e o calendário. */
 @media (min-width:1100px){
-  html body .app:has(.beta-light-layout>main.sumario-page){display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+  html body .app:has(.beta-light-layout>main.sumario-page){display:flex;flex-direction:column;min-height:100dvh}
   html body .app:has(.beta-light-layout>main.sumario-page)>.dmo-shell-header{flex:0 0 auto}
   html body .beta-light-layout:has(>main.sumario-page){flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
-  html body main.sumario-page.dmo-workspace{flex:1 1 auto;min-height:0;overflow:hidden;padding:8px 24px 12px;row-gap:12px;grid-template-rows:auto auto auto minmax(0,1fr)}
+  html body main.sumario-page.dmo-workspace{flex:1 1 auto;min-height:0;padding:8px 24px 12px;row-gap:12px;grid-template-rows:auto auto auto minmax(0,1fr)}
   html body main.sumario-page #sumarioLista{min-height:0;overflow:auto}
 }

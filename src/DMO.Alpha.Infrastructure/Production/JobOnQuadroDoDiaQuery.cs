@@ -28,7 +28,7 @@ public sealed class JobOnQuadroDoDiaQuery(
         var notasDoDia = await lotNotes.ForDayAsync(new DateOnly(ano, mes, dia), doDia, cancellationToken);
         // E as alterações de cada produção: a linha mostra qual foi (o Diogo,
         // 17/10/2026), e a ficha tem o detalhe em «O que mudou».
-        var alteracoes = await changes.AfterStartAsync(doDia, cancellationToken);
+        var alteracoes = await changes.ForJobOnsAsync(doDia, cancellationToken);
         if (notasDoDia.Count > 0 || alteracoes.Count > 0)
         {
             dayRows = dayRows
@@ -39,7 +39,7 @@ public sealed class JobOnQuadroDoDiaQuery(
                         {
                             LotNotes = notasDoDia.Where(n => n.JobOnId == p.JobOnId).Select(n => n.Text).ToList(),
                             ChangeCount = alteracoes.TryGetValue(p.JobOnId, out var mudou) ? mudou.Count : 0,
-                            ChangeSummary = mudou is { Count: > 0 } ? JobOnChangeFields.Summarize(mudou) : null,
+                            ChangeSummary = mudou is { Count: > 0 } ? JobOnChangeFields.Summarize(mudou, mostrarLotes: true) : null,
                             ChangeDetails = mudou?.Select(c => c.Text).ToList() ?? []
                         })
                         .ToList()

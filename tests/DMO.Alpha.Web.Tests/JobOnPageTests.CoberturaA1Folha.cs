@@ -85,9 +85,9 @@ public partial class JobOnPageTests
         var pincas = CoberturaA1Bloco(impressao, "<b>Pinças</b>", "</table>");
         Assert.Matches("<tr><th>Pinças</th><td>Latão duplo com anel</td></tr><tr><th>Diâmetro</th><td>59[.,]3\\d*</td></tr>", pincas);
         Assert.DoesNotContain("<th>Tipo</th>", pincas, StringComparison.Ordinal);
-        // No Trabalho de Equipa, a pinça leva o diâmetro e, por baixo, as pinças como escritas.
+        // No Trabalho de Equipa, a pinça leva o diâmetro e, por baixo, as pinças como escritas e as notas da PI (R11).
         Assert.Matches(
-            "<span>PI</span> Pinça</div>\\s*<div class=\"jfc-ref\"><b>Ø 59[.,]3\\d*</b></div>\\s*<div class=\"jfc-obs\">Latão duplo com anel</div>",
+            "<span>PI</span> Pinça</div>\\s*<div class=\"jfc-ref\"><b>Ø 59[.,]3\\d*</b></div>\\s*<div class=\"jfc-obs\">Latão duplo com anel · CHANFRO POR DENTRO</div>",
             impressao);
     }
 
@@ -234,7 +234,8 @@ public partial class JobOnPageTests
         Assert.Contains("<div><dt>Secções</dt><dd>12</dd></div>", abrir, StringComparison.Ordinal);
         Assert.Contains("<div><dt>Gota</dt><dd>3</dd></div>", abrir, StringComparison.Ordinal);
         Assert.Contains("<div><dt>Processo</dt><dd>PS</dd></div>", abrir, StringComparison.Ordinal);
-        Assert.Contains("<div><dt>Peso</dt><dd>161 g</dd></div>", abrir, StringComparison.Ordinal);
+        // O Peso vem do SAP (R14); sem produção no SAP, «—» mesmo com 161 escrito.
+        Assert.Contains("<div><dt>Peso</dt><dd>—</dd></div>", System.Net.WebUtility.HtmlDecode(abrir), StringComparison.Ordinal);
         // As peças: referência e lote da CM, do MF e da BQ, e a referência do PU.
         Assert.Matches("<th scope=\"row\">CM</th>\\s*<td><b>9395</b></td>\\s*<td>34</td>", abrir);
         Assert.Matches("<th scope=\"row\">MF</th>\\s*<td><b>9395</b></td>\\s*<td>23</td>", abrir);

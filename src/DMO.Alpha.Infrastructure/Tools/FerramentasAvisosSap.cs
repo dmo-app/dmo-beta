@@ -17,7 +17,8 @@ public sealed class FerramentasAvisosSap(DmoDbContext db, ICurrentAccountContext
         return new(toolId, db.Entry(tool).Property<uint>(DmoDbContext.RowVersion).CurrentValue, quantidade,
             tool.SapPecas != quantidade && tool.SapPecas != tool.SapPecasIgnoradas ? tool.SapPecas : null,
             uso?.Percentagem,
-            uso?.Origem == FerramentaUtilizacao.OrigemManual && tool.SapPercentagem != uso.Percentagem && tool.SapPercentagem != tool.SapPercentagemIgnorada ? tool.SapPercentagem : null,
+            // DMO-716: a % do SAP aplica-se sempre na leitura; já não há aviso de %.
+            null,
             tool.SapFornecedor, tool.SapDataAquisicao);
     }
 

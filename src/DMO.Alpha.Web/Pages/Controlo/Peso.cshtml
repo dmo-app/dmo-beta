@@ -1946,6 +1946,8 @@
           <div id="pesoAnteriorContexto" class="dmo-zona" data-dmo-regiao>
             <input type="hidden" name="peso_id" value="@currentPesoForComparison.PesoId" />
             <input type="hidden" name="controlo_id" value="@Model.ControloIdFromQuery" />
+            @* O que estava guardado ao abrir (DMO-760): outra gravação entretanto é avisada. *@
+            <input type="hidden" name="anterior_versao" value="@(Model.ProducaoAnterior?.Versao ?? PesoProducaoAnteriorReadModel.VersaoDe(null, null))" />
             @* Um Peso de antes de uma troca volta pelo peso_id dele (18/10/2026). *@
             @if (Model.PesoIdNoEndereco is not null)
             {

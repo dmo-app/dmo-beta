@@ -22,6 +22,7 @@ public class IndexModel(
     ISapDefinicoes sapDefinicoes,
     SapScripts sapScripts,
     IFerramentasUsoSap usoSap,
+    IFerramentasFabricoSap fabricoSap,
     ISapProcuraRegras sapProcura,
     DMO.Alpha.Core.Production.IMachineListQuery maquinas) : PageModel
 {
@@ -82,6 +83,27 @@ public class IndexModel(
         var ficheiros = await sapScripts.FicheirosAsync($"{Request.Scheme}://{Request.Host}{Request.PathBase}", HttpContext.RequestAborted);
         Response.Headers.CacheControl = "no-store";
         return new JsonResult(ficheiros.Select(f => new { nome = f.Nome, base64 = Convert.ToBase64String(f.Conteudo) }));
+    }
+
+    /// <summary>
+    /// GET: os códigos a pedir ao SAP («Tudo» ou «Desatualizadas») e o último
+    /// ficheiro lido, como o /Ferramentas/Definicoes?handler=UsoSap. O ADMIN não
+    /// entra nas páginas dos módulos (ia para /Admin/Users e o browser recebia
+    /// HTML: Diogo, 02/11/2026, «Unexpected token '<'»).
+    /// </summary>
+    public async Task<IActionResult> OnGetUsoSapAsync(bool todas = false)
+    {
+        var codigos = todas
+            ? await usoSap.TodosOsCodigosAsync(HttpContext.RequestAborted)
+            : await usoSap.CodigosAsync(HttpContext.RequestAborted);
+        var ultima = await usoSap.UltimaLeituraAsync(HttpContext.RequestAborted);
+        var fabrico = await fabricoSap.UltimoFicheiroAsync(HttpContext.RequestAborted);
+        var ultimoFicheiro = new[] { ultima?.FicheiroModificadoEmUtc, fabrico }.Max();
+        return new JsonResult(new
+        {
+            codigos,
+            ficheiroModificadoEm = ultimoFicheiro is { } data ? new DateTimeOffset(DateTime.SpecifyKind(data, DateTimeKind.Utc)).ToUnixTimeMilliseconds() : (long?)null
+        });
     }
 
     /// <summary>GET: os códigos de uma referência (o «Por referência» do Admin › SAP).</summary>

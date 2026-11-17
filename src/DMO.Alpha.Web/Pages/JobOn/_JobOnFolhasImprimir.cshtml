@@ -127,7 +127,10 @@
               C("FF", "Fundo Final", I["mf.fundo"], I["mf.lote_ff"]);
               C("BQ", "Boquilha", I["bq.ref"], I["bq.lote"]);
               C("CS", "Cab. Enchimento", I["cs.ref"], sub: string.Join(" · ", new[] { Abertos(), I["cs.tubo"].Length > 0 ? "Tubo " + I["cs.tubo"] : "" }.Where(s => s.Length > 0)));
-              C("PI", "Pinça", I["pi.diametro"].Length > 0 ? "Ø " + I["pi.diametro"] : "", sub: I["pi.pincas"]);
+              @* R11 (Diogo, 30/10/2026: «a impressão do Job On não traz a informação da pinça»): sem diâmetro, as
+                 Pinças vão no lugar dele em vez de «—»; as notas da PI também saem. *@
+              C("PI", "Pinça", I["pi.diametro"].Length > 0 ? "Ø " + I["pi.diametro"] : I["pi.pincas"],
+                  sub: string.Join(" · ", new[] { I["pi.diametro"].Length > 0 ? I["pi.pincas"] : "", I["pi.notas"] }.Where(s => s.Length > 0)));
           }
         </div>
       </div>

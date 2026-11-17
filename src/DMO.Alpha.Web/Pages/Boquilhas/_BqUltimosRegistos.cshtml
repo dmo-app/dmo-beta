@@ -1,0 +1,25 @@
+@model IReadOnlyList<DMO.Alpha.Core.Boquilhas.BqHistoryMovementItem>
+@* Os últimos registos por baixo do Registo de várias linhas (Diogo, 02/11/2026, DMO-721). *@
+@if (Model.Count > 0)
+{
+  <h3 class="bq-varias-ultimos-titulo">Últimos registos</h3>
+  <div class="dmo-table-wrap">
+    <table class="dmo-table">
+      <thead><tr><th>Data/hora</th><th>Linha</th><th>BQ · lote</th><th>Movimento</th><th>Qtd. BQ</th><th>Qtd. AN</th><th>Produção</th></tr></thead>
+      <tbody>
+        @foreach (var m in Model)
+        {
+          <tr>
+            <td>@DMO.Alpha.Core.Runtime.DmoBusinessTime.ToLocal(m.OccurredAtUtc).ToString("dd/MM/yyyy HH:mm")</td>
+            <td>@(m.MachineCode ?? "—")</td>
+            <td>@m.ToolReference@(m.ToolLot is null ? null : $" · Lote {m.ToolLot}")</td>
+            <td>@DMO.Alpha.Core.Boquilhas.BqMovementLabels.Of(m.MovementType)</td>
+            <td>@m.Quantity</td>
+            <td>@(m.AnQuantity is int an ? an.ToString() : "—")</td>
+            <td>@(m.Reference ?? "—") · @(m.ProductionNumber ?? "—")</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

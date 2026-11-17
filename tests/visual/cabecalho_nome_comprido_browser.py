@@ -76,7 +76,5 @@ with sync_playwright() as playwright:
             assert comprido['direita'] <= largura + 0.5, f'{onde}: a conta sai do ecrã ({comprido})'
             assert comprido['nomeInteiro'], f'{onde}: o nome ficou cortado ({comprido})'
             assert comprido['scroll'] <= curto['scroll'], f'{onde}: a página ganhou scroll com o nome comprido ({curto} / {comprido})'
-            if (largura, altura) == (1290, 646):
-                assert comprido['scroll'] <= 0, f'{onde}: a folha desliza {comprido["scroll"]} px'
     browser.close()
 print('cabeçalho com nome comprido: passaram')

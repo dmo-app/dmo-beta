@@ -40,7 +40,7 @@ html body :is(.dmo-primary-nav,.dmo-secondary-nav) :is(a,button),
 html body .dmo-shell-navigation :is(.dmo-primary-nav,.dmo-secondary-nav) :is(a,button){font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-semibold)}
 
 /* Títulos */
-html body :is(.dmo-page-head,.page-head,.page-heading) :is(h1,h2){font-size:var(--dmo-fs-lg) !important;font-weight:var(--dmo-fw-bold) !important;letter-spacing:-.01em}
+html body :is(.dmo-page-head,.page-head,.page-heading) :is(h1,h2){font-size:var(--dmo-fs-lg);font-weight:var(--dmo-fw-bold);letter-spacing:-.01em}
 html body :is(.dmo-page-head,.page-head,.page-heading) p{font-size:var(--dmo-fs-sm) !important}
 html body :is(.dmo-card,.beta-bq-layout .card,.resumo-card,.ferr-card) :is(h2,h3){font-size:var(--dmo-fs-md);font-weight:var(--dmo-fw-semibold)}
 html body :is(.dmo-card,.beta-bq-layout .card) h4{font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-semibold)}
@@ -205,7 +205,7 @@ html body .dmo-table:has(td:first-child>input[type=radio]) thead th:first-child:
    campo e o select longo transformado em filtro, com o aspeto dos campos. */
 html body .dmo-suggest{position:relative;display:block;min-width:0}
 html body .dmo-suggest > input{width:100%}
-html body .dmo-suggest-native{position:absolute !important;width:1px !important;height:1px !important;min-height:0 !important;padding:0 !important;border:0 !important;opacity:0;pointer-events:none;bottom:0;left:0}
+html body .dmo-suggest-native{position:absolute;width:1px !important;height:1px !important;min-height:0 !important;padding:0 !important;border:0 !important;opacity:0;pointer-events:none;bottom:0;left:0}
 html body input.dmo-suggest-input{box-sizing:border-box;min-width:0;min-height:var(--dmo-control-height);padding:8px 11px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);background-color:var(--dmo-field);color:var(--dmo-text);font-family:inherit;font-size:var(--dmo-fs-base);font-weight:var(--dmo-fw-regular);line-height:1.2}
 html body input.dmo-suggest-combo{padding-right:32px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2364778a' stroke-width='1.6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center}
 html body input.dmo-suggest-input:focus{border-color:var(--dmo-brand-600);outline:none;box-shadow:0 0 0 3px rgba(68,100,124,.13)}
@@ -285,6 +285,9 @@ html body .dmo-secondary-nav .dmo-tab-menu-list{position:absolute;top:100%;left:
 html body .dmo-secondary-nav .dmo-tab-menu-list a{display:block;padding:9px 10px;border:0;border-radius:6px;color:var(--dmo-text);white-space:nowrap}
 html body .dmo-secondary-nav .dmo-tab-menu-list a:hover{background:var(--dmo-subtle);color:var(--dmo-brand-700)}
 html body .dmo-secondary-nav .dmo-tab-menu-list a.active{background:var(--dmo-brand-050);color:var(--dmo-brand-700)}
+/* DMO-694 (Diogo, 02/11/2026: «diminuir tamanho do dropdown»): o menu das Funções mais pequeno. */
+html body .dmo-secondary-nav .dmo-tab-menu-list.dmo-tab-menu-list{min-width:132px;padding:4px}
+html body .dmo-secondary-nav .dmo-tab-menu-list.dmo-tab-menu-list a{padding:5px 10px;font-size:13px;line-height:18px}
 /* «Opções»: as ações raras de uma folha num só botão com dropdown (menos
    clutter, Diogo 17/10/2026). Fecha ao clicar fora ou com Esc (dmo-live.js). */
 html body .dmo-options{position:relative;display:inline-block}
@@ -361,7 +364,7 @@ html body .dmo-dialog input[type=url]{width:100%;min-height:40px;padding:8px 10p
 html body .dmo-dialog textarea{width:100%;padding:8px 10px;border:1px solid var(--dmo-border);border-radius:var(--dmo-r-control);font:inherit;font-size:var(--dmo-fs-base);line-height:1.45;resize:vertical}
 html body .dmo-dialog textarea:focus{border-color:var(--dmo-brand-600);outline:0}
 html body .dmo-dialog-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:4px}
-html body .dmo-dialog .dmo-dialog-cancel{background:none;border-color:var(--dmo-border);color:var(--dmo-brand-700)}
+/* DMO-694 (Diogo, 02/11/2026: «o cancelar aparece carregado»): o Cancelar das janelas é um botão de ação como os outros. */
 /* Job On: as produções encontradas ao escrever, por baixo do campo e afastadas dele. */
 
 /* Avisos (Diogo 17/10/2026: «estes notices estão sempre colados aos
@@ -389,7 +392,7 @@ html body :where(.dmo-field,.dmo-table-wrap)+:where(button.dmo-button,.dmo-butto
    dmo-live.js junta-as numa pilha, põe o «×» e fecha as «ok» sozinhas; as
    «erro» e os «aviso» ficam até se fecharem (ou até à ação seguinte desse
    cartão, ver o DmoTroca). */
-html body [data-dmo-toast]{position:fixed;top:140px;right:16px;z-index:1000;box-sizing:border-box;width:max-content;max-width:min(420px,calc(100vw - 32px));margin:0!important;padding:12px 40px 12px 14px;border:1px solid var(--dmo-border);border-left:4px solid var(--dmo-palette-ocean);border-radius:var(--dmo-r-control);background:var(--dmo-card);color:var(--dmo-text);font-size:var(--dmo-fs-base);line-height:1.4;box-shadow:0 10px 30px rgba(27,40,50,.16)}
+html body [data-dmo-toast]{position:fixed;top:140px;right:16px;z-index:1000;box-sizing:border-box;width:max-content;max-width:min(420px,calc(100vw - 32px));margin:0;padding:12px 40px 12px 14px;border:1px solid var(--dmo-border);border-left:4px solid var(--dmo-palette-ocean);border-radius:var(--dmo-r-control);background:var(--dmo-card);color:var(--dmo-text);font-size:var(--dmo-fs-base);line-height:1.4;box-shadow:0 10px 30px rgba(27,40,50,.16)}
 html body [data-dmo-toast="erro"]{border-left-color:var(--dmo-danger);background:var(--dmo-danger-soft)}
 html body [data-dmo-toast="aviso"]{border-left-color:var(--dmo-warning);background:var(--dmo-warning-soft)}
 html body .dmo-toast-pilha{position:fixed;top:140px;right:16px;z-index:1000;display:flex;flex-direction:column;align-items:flex-end;gap:8px;pointer-events:none}
@@ -456,3 +459,8 @@ html body .jof2-gaveta .rail-item.selected:not(:disabled){background:var(--dmo-c
 html body .jof2-gaveta .rail-item.dmo-linha-cor.selected:not(:disabled){border-left-color:var(--dmo-machine-color)}
 html[data-theme="dark"] body .jof2-gaveta .rail-item.selected:not(:disabled){background:var(--dmo-brand-600);color:#fff;border-color:#fff}
 html[data-theme="dark"] body .jof2-gaveta .rail-item.dmo-linha-cor.selected:not(:disabled){border-left-color:var(--dmo-machine-color)}
+/* R15 (Diogo, 30/10/2026): «Usar o rascunho» / «Descartar rascunho» são links com a cor dos botões, dentro do aviso e separados. */
+.jobon-aviso .jobon-aviso-link{all:unset;cursor:pointer;margin-left:14px;color:var(--dmo-brand-600);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.jobon-aviso .jobon-aviso-link:hover{color:var(--dmo-brand-700)}
+.jobon-aviso .jobon-aviso-link:focus-visible{outline:2px solid var(--dmo-brand-500);outline-offset:2px}
+:root[data-theme="dark"] .jobon-aviso .jobon-aviso-link{color:var(--dmo-brand-300,var(--dmo-text))}

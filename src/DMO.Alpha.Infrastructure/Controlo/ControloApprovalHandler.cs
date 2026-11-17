@@ -113,6 +113,10 @@ public sealed class ControloApprovalHandler
             .Select(c => new
             {
                 PesoNovo = _db.Pesos.Where(p => p.ControloId == c.Id).Max(p => p.RegistadoEmUtc),
+                // Um Peso associado depois da decisão também não foi visto
+                // (PESO-B03), como na regra de ControloAprovacao (audit
+                // externo, 16/11/2026, DMO-762).
+                PesoAssociado = _db.Pesos.Where(p => p.ControloId == c.Id).Max(p => p.AssociadoAoControloEmUtc),
                 PesoLeitura = _db.PesoMeasurements.Where(m => m.Peso.ControloId == c.Id).Max(m => m.RegistadoEmUtc),
                 PesoCorrecao = _db.PesoMeasurementHistorico
                     .Where(h => _db.Pesos.Any(p => p.Id == h.PesoId && p.ControloId == c.Id))
@@ -126,9 +130,12 @@ public sealed class ControloApprovalHandler
 
         return new Dictionary<ControloParte, ControloParteRegistos>
         {
-            [ControloParte.Peso] = new(row.PesoNovo, row.PesoLeitura, row.PesoCorrecao)
+            [ControloParte.Peso] = new(MaisRecente(row.PesoNovo, row.PesoAssociado), row.PesoLeitura, row.PesoCorrecao)
         };
     }
+
+    private static DateTime? MaisRecente(DateTime? a, DateTime? b) =>
+        a is null ? b : b is null ? a : (a > b ? a : b);
 
     /// <summary>
     /// Grava a decisão de uma parte (ou de todas, sem parte: o Aprovar do

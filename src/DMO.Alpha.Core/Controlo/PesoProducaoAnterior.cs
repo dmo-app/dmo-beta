@@ -18,6 +18,16 @@ public sealed record PesoProducaoAnteriorReadModel(
     /// <summary>O controlo da produção escolhida (null sem escolha): a Revisão compara com ele (C6).</summary>
     public int? ControloId { get; init; }
 
+    /// <summary>
+    /// O que estava guardado quando a página abriu (audit externo, 16/11/2026,
+    /// DMO-760): ao gravar, se outra pessoa já mudou a produção anterior, não
+    /// se escreve por cima sem aviso.
+    /// </summary>
+    public string Versao => VersaoDe(ControloId, PesoGramas);
+
+    public static string VersaoDe(int? controloId, decimal? pesoGramas) =>
+        string.Create(System.Globalization.CultureInfo.InvariantCulture, $"{controloId}|{pesoGramas}");
+
     /// <summary>Peso médio atual menos o peso da produção anterior, em g e em %.</summary>
     public (decimal? Grams, decimal? Percent) Delta(decimal? pesoMedioAtual) =>
         PesoCalculation.NominalDeviation(pesoMedioAtual, PesoGramas);
@@ -36,5 +46,8 @@ public enum GuardarProducaoAnteriorResult
     Success,
     PesoNotFound,
     JobOnNotFound,
-    PesoInvalido
+    PesoInvalido,
+
+    /// <summary>Outra pessoa gravou a produção anterior depois de a página abrir: nada foi gravado.</summary>
+    MudouEntretanto
 }

@@ -1,3 +1,4 @@
+@inject DMO.Alpha.Core.Armazem.IReparadores Reparadores
 @model DMO.Alpha.Web.Pages.Ferramentas.FerramentaFactosForm
 @* UM SÓ FORMULÁRIO DE FERRAMENTA (Diogo, 20/10/2026): os campos do Criar e do
    Editar da ficha. Uma linha com os campos curtos, cada um com a largura do
@@ -21,17 +22,20 @@
       @foreach (var machine in Model.Maquinas)
       {
         <label class="ferr-check">
-          <input type="checkbox" name="machine_ids" value="@machine.MachineId" checked="@Model.MaquinaEscolhida(machine.MachineId)" />
+          <input type="checkbox" name="machine_ids" value="@machine.MachineId" checked="@Model.MaquinaEscolhida(machine.MachineId)" data-ferr-b2-linha="@(machine.Code == "B2" ? "true" : null)" />
           <span>@machine.Code</span>
         </label>
       }
     </div>
   </div>
-  @* A B2 em dupla ou em tripla (Diogo, 28/10/2026): só conta com a B2 nas
-     linhas; sem escolha, a C1 dá Dupla e a C3 dá Tripla; senão fica o aviso. *@
-  @if (Model.Maquinas.Any(m => m.Code == "B2"))
+  @* R4 (Diogo, 02/11/2026): a escolha B2 fica; vem já com o que a app identifica
+     (as linhas C1 = Dupla, C3 = Tripla; depois o nome técnico). Sem identificar, aviso. *@
+  @* Só quando a B2 está nas linhas compatíveis (Diogo, 10/11/2026: «se uma ferramenta
+     não tem nome que funciona na B2 não deveria ter o dropdown»). O servidor já ignora
+     a escolha sem a B2; o botão B2 mostra-o ou esconde-o na hora (script abaixo). *@
+  @if (Model.Maquinas.FirstOrDefault(m => m.Code == "B2") is { } maquinaB2)
   {
-    <div class="dmo-field ferr-w-b2">
+    <div class="dmo-field ferr-w-b2" hidden="@(Model.MaquinaEscolhida(maquinaB2.MachineId) ? null : "hidden")">
       <label for="@(p)-b2">B2</label>
       <select id="@(p)-b2" name="b2_modo" title="A B2 em que esta ferramenta trabalha: Dupla (com a C1) ou Tripla (com a C3)">
         <option value="" selected="@(Model.B2Modo is null)">Sem escolha</option>
@@ -105,57 +109,11 @@
     </div>
 </div>
 <span class="ferr-tech-sep ferr-editar-sep" aria-hidden="true"></span>
-@* INFORMAÇÃO OPCIONAL (Diogo, 22/10/2026): a Ref. MF, o nome técnico e a
-   fábrica de origem num bloco à parte, ao lado, com o traço vertical das colunas da Informação técnica (Diogo, 22/10/2026). *@
-<fieldset class="ferr-tech-bloco ferr-opcional" id="@(p)-opcional">
-  @* O triângulo abre e fecha o bloco (Diogo, 27/10/2026: «adiciona o triângulo de minimizar»). *@
-  <legend class="ferr-tech-titulo ferr-opcional-titulo" role="button" tabindex="0" aria-expanded="true" aria-controls="@(p)-opcional-campos"><span class="dmo-caret" aria-hidden="true"></span>Informação opcional</legend>
-  <div class="ferr-tech-campos" id="@(p)-opcional-campos">
-    @if (Model.Sap is { } sap && (sap.Fornecedor is not null || sap.DataAquisicao is not null))
-    {
-      <div class="dmo-field" id="@(p)-sap-fornecedor"><span class="dmo-label">Fornecedor (SAP)</span><span>@(sap.Fornecedor ?? "—")</span></div>
-      <div class="dmo-field" id="@(p)-sap-compra"><span class="dmo-label">Data de aquisição (SAP)</span><span>@(sap.DataAquisicao?.ToString("dd/MM/yyyy") ?? "—")</span></div>
-    }
-    <div class="dmo-field ferr-w-ref" id="@(p)-mf-field" hidden="@(Model.Tipo != "CM")">
-      <label for="@(p)-mf">Ref. MF associada</label>
-      <input id="@(p)-mf" data-dmo-maiusculas autocapitalize="characters" name="mf_reference" value="@Model.RefMf" title="Só quando difere da referência MF em que encaixa" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="mf" />
-    </div>
-    @* O NOME TÉCNICO (o código do desenho — o código de produção; o Owner:
-       «se introduzirmos o nome tecnico, ou seja o que esta no sap.
-       apresenta logo tudo»): no Criar, ao escrever, o vivo decodifica e
-       propõe o tipo; vazio = o formato simples. *@
-    <div class="dmo-field ferr-w-sap">
-      <label for="@(p)-technical">Nome técnico (SAP)</label>
-      <input id="@(p)-technical" data-dmo-maiusculas autocapitalize="characters" name="technical_name" value="@Model.NomeTecnico" placeholder="Ex.: M107544MFNNV" />
-    </div>
-    @if (!Model.Criar)
-    {
-      <div class="dmo-field ferr-w-fab">
-        @* Sem o círculo da ajuda (Diogo, 27/10/2026); o texto passa ao title do campo. *@
-        <label for="@(p)-fabrica">Fábrica de origem</label>
-        @* Escolhe-se das fábricas da BA das Definições (Diogo, 28/10/2026); sem elas, o texto livre. *@
-        @if (Model.Fabricas is { Count: > 0 } fabricas)
-        {
-          <select id="@(p)-fabrica" name="fabrica_origem" title="A fábrica dona da ferramenta. Ajuda a separar as ferramentas emprestadas.">
-            <option value="" selected="@string.IsNullOrEmpty(Model.FabricaOrigem)">—</option>
-            @if (!string.IsNullOrEmpty(Model.FabricaOrigem) && !fabricas.Contains(Model.FabricaOrigem))
-            {
-              <option value="@Model.FabricaOrigem" selected>@Model.FabricaOrigem</option>
-            }
-            @foreach (var sigla in fabricas)
-            {
-              <option value="@sigla" selected="@(Model.FabricaOrigem == sigla)">@sigla</option>
-            }
-          </select>
-        }
-        else
-        {
-          <input id="@(p)-fabrica" data-dmo-maiusculas autocapitalize="characters" name="fabrica_origem" value="@Model.FabricaOrigem" maxlength="32" placeholder="MG" title="A fábrica dona da ferramenta (ex.: MG). Ajuda a separar as ferramentas emprestadas." />
-        }
-      </div>
-    }
-  </div>
-</fieldset>
+@* A Informação opcional: no Criar fica aqui; na ficha vai para um cartão próprio, o último (Diogo, 02/11/2026). *@
+@if (Model.Criar)
+{
+  <partial name="_FerramentaOpcional" model="Model" />
+}
 </div>
 <script>
   // Um só ouvinte para os blocos «Informação opcional» da página (Criar e Editar).
@@ -168,6 +126,12 @@
       if (campos) campos.hidden = !aberto;
     };
     document.addEventListener('click', e => { const t = e.target.closest('.ferr-opcional-titulo'); if (t) alternar(t); });
+    // O seletor B2 só aparece com a linha B2 escolhida nas Linhas compatíveis.
+    document.addEventListener('change', e => {
+      const b2 = e.target.closest?.('input[data-ferr-b2-linha]');
+      const campo = b2?.closest('.ferr-create-row-machines')?.querySelector('.ferr-w-b2');
+      if (campo) campo.hidden = !b2.checked;
+    });
     document.addEventListener('keydown', e => {
       const t = e.target.closest?.('.ferr-opcional-titulo');
       if (t && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); alternar(t); }
