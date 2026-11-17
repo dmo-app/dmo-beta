@@ -270,7 +270,8 @@ public sealed class FolhaModel(
     /// <summary>
     /// A % de uso de cada ferramenta quando esta produção começou, ligada pelo tool_id e nunca pelo que ficou
     /// escrito no Job On (Diogo, 28/10/2026; 29/10/2026: «dupliquei o jobon e % uso do CM passou 6.7% para 2%»,
-    /// «a produção 202601 está a associar % do 202602 como anterior»): a leitura antes dela quando existe; sem
+    /// «a produção 202601 está a associar % do 202602 como anterior»): primeiro o fim medido do último Job On
+    /// da mesma ferramenta e lote (Diogo, 17/11/2026); sem esse valor, a leitura antes dela quando existe; sem
     /// produção feita ainda, a % atual; sem nenhuma produção da ferramenta antes desta, 0.
     /// </summary>
     public static IReadOnlyDictionary<string, decimal> UsoNoInicio(
@@ -283,7 +284,13 @@ public sealed class FolhaModel(
         {
             var lista = producoes.TryGetValue(toolId, out var l) ? l : [];
             var esta = lista.FirstOrDefault(p => p.JobOnId == jobOn.JobOnId);
-            if (esta?.UtilizacaoAntes is { } antes)
+            // O «anterior» é o fim do último Job On desta ferramenta, não
+            // uma leitura posterior feita até ao início do Job On atual.
+            if (ProducoesAnteriores(lista, jobOn).LastOrDefault()?.UtilizacaoDepois is { } fimAnterior)
+            {
+                usos[toolId] = fimAnterior;
+            }
+            else if (esta?.UtilizacaoAntes is { } antes)
             {
                 usos[toolId] = antes;
             }
@@ -304,9 +311,7 @@ public sealed class FolhaModel(
     /// </summary>
     private static decimal? FimDaAnterior(IReadOnlyList<DMO.Alpha.Core.Tools.FerramentaProducao> lista, ProductionContextReadModel jobOn, decimal? atual)
     {
-        var anteriores = lista
-            .Where(p => p.JobOnId != jobOn.JobOnId && (p.ProducaoBruta ?? 0) > 0 && p.InicioEm < jobOn.InicioEm)
-            .OrderBy(p => p.InicioEm).ToList();
+        var anteriores = ProducoesAnteriores(lista, jobOn).ToList();
         if (anteriores.Count == 0)
         {
             return 0m;
@@ -320,6 +325,13 @@ public sealed class FolhaModel(
         var total = lista.Sum(p => p.ProducaoBruta ?? 0);
         return atual is { } a && total > 0 ? Math.Round(a * anteriores.Sum(p => p.ProducaoBruta ?? 0) / total, 2) : null;
     }
+
+    // O relatório de peças do SAP não é obrigatório para uma produção ter
+    // uma leitura de utilização. As relações já vêm filtradas pelo tool_id.
+    private static IOrderedEnumerable<DMO.Alpha.Core.Tools.FerramentaProducao> ProducoesAnteriores(
+        IReadOnlyList<DMO.Alpha.Core.Tools.FerramentaProducao> lista, ProductionContextReadModel jobOn) =>
+        lista.Where(p => p.JobOnId != jobOn.JobOnId && p.InicioEm < jobOn.InicioEm)
+            .OrderBy(p => p.InicioEm).ThenBy(p => p.JobOnId);
 
     /// <summary>
     /// O uso no fim desta produção (R13): o medido pelo SAP depois dela; sem ele, a estimativa «≈» pelo

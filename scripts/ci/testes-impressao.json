@@ -1,5 +1,5 @@
 {
-  "selo": "423cadd3b1dbff08",
+  "selo": "aca91bd5546d4deb",
   "unidades": {
     "scripts/ci/ci-local.sh": "2c1d85034db03a8d",
     "scripts/ci/grupos.py": "bf21e53ba080fa01",
@@ -2984,6 +2984,8 @@
     "tests/DMO.Alpha.Web.Tests/JobOnSidepanelWeekTests.cs :: JobOnSidepanelWeekTests.Em_curso_primeiro_e_as_que_ja_acabaram_ficam_de_fora": "7427f596842d6376",
     "tests/DMO.Alpha.Web.Tests/JobOnSidepanelWeekTests.cs :: JobOnSidepanelWeekTests.Mostra_so_entradas_de_hoje_ate_uma_semana": "c2694f4922b06ee8",
     "tests/DMO.Alpha.Web.Tests/JobOnSidepanelWeekTests.cs :: JobOnSidepanelWeekTests.Uma_linha_so_tem_uma_producao_em_curso": "4d5450b76254b22b",
+    "tests/DMO.Alpha.Web.Tests/JobOnUsoAnteriorPorFerramentaTests.cs :: (resto do ficheiro)": "2a352d3268ab8b77",
+    "tests/DMO.Alpha.Web.Tests/JobOnUsoAnteriorPorFerramentaTests.cs :: JobOnUsoAnteriorPorFerramentaTests.Antes_EOFimDoUltimoJobOnDaMesmaFerramenta_MesmoNoutraLinhaEReferencia": "20ca9494bdef4b57",
     "tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: (resto do ficheiro)": "c96bdcda5ec593e2",
     "tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.PrimeiraProducao_AntesZeroEFimPeloProduzido": "ef333ca932ef8ac4",
     "tests/DMO.Alpha.Web.Tests/JobOnUsoNoInicioTests.cs :: JobOnUsoNoInicioTests.PrimeiraProducao_ComecaAZero": "436caf4e3db8c1b9",

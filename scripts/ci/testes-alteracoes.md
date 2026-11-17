@@ -6872,3 +6872,13 @@ Novos: 2 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `423cadd3b1dbff08`
+
+## A-0541 · 2026-11-17 · teste-novo
+
+Porquê: A percentagem anterior do Job On usa o fim medido do ultimo Job On da mesma ferramenta e lote, para CM/MF/BQ, mesmo noutra linha e referencia e sem relatorio de pecas do SAP. Tres casos falham antes: esperado 12, obtido 25.
+Novos: 2 · mudaram: 0 · saíram: 0
+
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnUsoAnteriorPorFerramentaTests.cs :: (resto do ficheiro)`
+- novo: `tests/DMO.Alpha.Web.Tests/JobOnUsoAnteriorPorFerramentaTests.cs :: JobOnUsoAnteriorPorFerramentaTests.Antes_EOFimDoUltimoJobOnDaMesmaFerramenta_MesmoNoutraLinhaEReferencia`
+
+Selo depois: `aca91bd5546d4deb`
