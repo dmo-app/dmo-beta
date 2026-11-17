@@ -6872,3 +6872,13 @@ Novos: 2 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `423cadd3b1dbff08`
+
+## A-0541 · 2026-11-17 · ok-do-diogo
+
+Porquê: Atualiza apenas os textos esperados no teste existente da cadência para retirar ant. do cabeçalho e da impressão, conforme o novo texto pedido. Mantém os valores e a verificação da origem SAP.
+Referência: Pedido do Diogo nesta conversa em 17/11/2026: retirar ant. do peso e da cadência, ficando apenas o número
+Novos: 0 · mudaram: 1 · saíram: 0
+
+- mudou: `tests/DMO.Alpha.Web.Tests/JobOnPageTests.CadenciaSap.cs :: JobOnPageTests.Folha_MostraACadenciaDoSap_DaOrdemComMaisDias`
+
+Selo depois: `056471de15686e7b`

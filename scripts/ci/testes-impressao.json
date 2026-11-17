@@ -1,5 +1,5 @@
 {
-  "selo": "423cadd3b1dbff08",
+  "selo": "056471de15686e7b",
   "unidades": {
     "scripts/ci/ci-local.sh": "2c1d85034db03a8d",
     "scripts/ci/grupos.py": "bf21e53ba080fa01",
@@ -2846,7 +2846,7 @@
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: JobOnPageTests.JobOnVer_HandlerToolCandidates_EhRedirecionado": "82c864efad2d9ac9",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.AjaxSoVer.cs :: JobOnPageTests.JobOnVer_HandlerToolFacts_EhRedirecionado": "a50a808b50342595",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CadenciaSap.cs :: (resto do ficheiro)": "46ed00d38c642192",
-    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CadenciaSap.cs :: JobOnPageTests.Folha_MostraACadenciaDoSap_DaOrdemComMaisDias": "3d5043c58953093c",
+    "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CadenciaSap.cs :: JobOnPageTests.Folha_MostraACadenciaDoSap_DaOrdemComMaisDias": "75486078132301fa",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CalMm.cs :: (resto do ficheiro)": "6ba5b0c2dcbdac75",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CalMm.cs :: JobOnPageTests.Folha_CalibresComMm_OMmVaiParaOTitulo": "ed775dc68504428c",
     "tests/DMO.Alpha.Web.Tests/JobOnPageTests.CoberturaA1Browser.cs :: (resto do ficheiro)": "9e6ccc81320a2377",
