@@ -1,5 +1,5 @@
 {
-  "selo": "423cadd3b1dbff08",
+  "selo": "c8081e1e7f03a32d",
   "unidades": {
     "scripts/ci/ci-local.sh": "2c1d85034db03a8d",
     "scripts/ci/grupos.py": "bf21e53ba080fa01",
@@ -3499,6 +3499,10 @@
     "tests/ShellProof/excel-bq-escritas.test.cjs :: S03: um registo durante uma escrita lenta volta a escrever e o Excel fica com ele": "7690c95ba2319b24",
     "tests/ShellProof/excel-bq-escritas.test.cjs :: S04: dois separadores escrevem um de cada vez, e o Excel fica com o mais novo": "2401b7378e6226a6",
     "tests/ShellProof/excel-bq-escritas.test.cjs :: sem Web Locks no browser, um separador escreve como antes": "31aa21de75db6ff6",
+    "tests/ShellProof/excel-bq-login.test.cjs :: (resto do ficheiro)": "71b0082542f616b2",
+    "tests/ShellProof/excel-bq-login.test.cjs :: Atualizar com uma resposta HTML preserva o Excel existente e não marca os movimentos como escritos": "c7c58255658542e0",
+    "tests/ShellProof/excel-bq-login.test.cjs :: Escolher a pasta com a sessão terminada não cria um falso Excel com a página de login": "40b0322c6a350015",
+    "tests/ShellProof/excel-bq-login.test.cjs :: Escolher uma pasta vazia com uma resposta Excel válida cria o livro": "870d6989d128bd55",
     "tests/ShellProof/ferramentas-avisos-sap.test.cjs :: (resto do ficheiro)": "f31885cfc77767b9",
     "tests/ShellProof/ferramentas-avisos-sap.test.cjs :: O × fecha só o aviso escolhido, sem decidir «Não» nem enviar o formulário": "d8f77f96bf164566",
     "tests/ShellProof/ferramentas-avisos-sap.test.cjs :: Os avisos carregados depois de uma troca parcial também se podem fechar": "0390f7180905b8a3",
@@ -3583,7 +3587,7 @@
     "tests/ShellProof/jobon-tool-picker.test.cjs :: «Criar BQ» abre o registo das Ferramentas com a máquina da folha no momento do clique": "2747f0dc6012fecf",
     "tests/ShellProof/jobon-tool-picker.test.cjs :: «Mostrar todas as ferramentas» só pede o catálogo inteiro quando está marcado": "61d6174d62480996",
     "tests/ShellProof/package-lock.json": "8cabd09c7635d204",
-    "tests/ShellProof/package.json": "3f7ad2df21ca3e32",
+    "tests/ShellProof/package.json": "6ebae35c5e65c803",
     "tests/ShellProof/painel-apoio-alteracoes.test.cjs :: (resto do ficheiro)": "746debc2c59fb275",
     "tests/ShellProof/painel-apoio-alteracoes.test.cjs :: Painel de apoio: um <dmo-painel> com alterações por guardar fica com o aviso e o apoio não abre por cima": "0b2b99e6fc3e1cbc",
     "tests/ShellProof/painel-estrutura.test.cjs :: (resto do ficheiro)": "c525db31e3b4284e",

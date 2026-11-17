@@ -6872,3 +6872,16 @@ Novos: 2 · mudaram: 1 · saíram: 0
 - mudou: `tests/ShellProof/package.json`
 
 Selo depois: `423cadd3b1dbff08`
+
+## A-0541 · 2026-11-17 · contagem-lista
+
+Porquê: Acrescenta excel-bq-login.test.cjs à lista executada por test:js no package.json, sem mudar testes existentes. Os testes novos garantem que uma página de login não cria nem substitui um Excel e que a criação válida continua a funcionar.
+Novos: 4 · mudaram: 1 · saíram: 0
+
+- novo: `tests/ShellProof/excel-bq-login.test.cjs :: (resto do ficheiro)`
+- novo: `tests/ShellProof/excel-bq-login.test.cjs :: Atualizar com uma resposta HTML preserva o Excel existente e não marca os movimentos como escritos`
+- novo: `tests/ShellProof/excel-bq-login.test.cjs :: Escolher a pasta com a sessão terminada não cria um falso Excel com a página de login`
+- novo: `tests/ShellProof/excel-bq-login.test.cjs :: Escolher uma pasta vazia com uma resposta Excel válida cria o livro`
+- mudou: `tests/ShellProof/package.json`
+
+Selo depois: `c8081e1e7f03a32d`

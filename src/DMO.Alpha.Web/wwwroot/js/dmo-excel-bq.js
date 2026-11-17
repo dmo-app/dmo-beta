@@ -101,6 +101,17 @@
     return campo ? campo.value : "";
   }
 
+  // O fetch segue o redirecionamento para o login e recebe HTML com 200.
+  // Nunca gravar essa página por cima do Excel do computador.
+  function validarLivro(resposta) {
+    var tipo = (resposta.headers.get("Content-Type") || "").split(";")[0].trim().toLowerCase();
+    if (resposta.redirected || (tipo && tipo !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
+      var erro = new Error("O servidor não enviou um Excel válido. Volte a entrar no DMO e tente novamente. O Excel não foi substituído.");
+      erro.name = "ExcelRespostaInvalida";
+      throw erro;
+    }
+  }
+
   function permission(handle, ask) {
     var options = { mode: "readwrite" };
     return handle.queryPermission(options).then(function (state) {
@@ -179,6 +190,7 @@
                 return null;
               });
             }
+            validarLivro(resposta);
             var novaVersao = resposta.headers.get("X-Dmo-Excel-Versao") || versao;
             var avisos = resposta.headers.get("X-Dmo-Excel-Avisos");
             var escritas = resposta.headers.get("X-Dmo-Excel-Escritas");
@@ -203,10 +215,10 @@
           });
         });
       });
-    }); }).catch(function () {
+    }); }).catch(function (erro) {
       if (manual || !avisouFalha) {
         avisouFalha = true;
-        toast("Não foi possível gravar o Excel das Boquilhas. Se estiver aberto, feche-o e use «Atualizar» nas Definições das Boquilhas.", "erro");
+        toast(erro && erro.name === "ExcelRespostaInvalida" ? erro.message : "Não foi possível gravar o Excel das Boquilhas. Se estiver aberto, feche-o e use «Atualizar» nas Definições das Boquilhas.", "erro");
       }
       return null;
     }).then(function (r) { return r; }, function () { return null; }).then(function (r) {
@@ -280,15 +292,22 @@
       // vazio no formato do Excel das Boquilhas.
       var nome = "Saida Entrada BQ " + new Date().getFullYear() + ".xlsx";
       window.showDirectoryPicker({ mode: "readwrite" }).then(function (pasta) {
-        return pasta.getFileHandle(nome, { create: true }).then(function (handle) {
-          return handle.getFile().then(function (ficheiro) {
+        return pasta.getFileHandle(nome).catch(function (erro) {
+          if (erro && erro.name === "NotFoundError") return null;
+          throw erro;
+        }).then(function (handle) {
+          return (handle ? handle.getFile() : Promise.resolve({ size: 0 })).then(function (ficheiro) {
             if (ficheiro.size > 0) return handle;
             return fetch(base + "?handler=ExcelNovo&dia=" + hoje(), { credentials: "same-origin" }).then(function (r) {
               if (!r.ok) throw new Error("novo");
+              validarLivro(r);
               return r.blob();
             }).then(function (livro) {
-              return handle.createWritable().then(function (escrita) {
-                return escrita.write(livro).then(function () { return escrita.close(); });
+              return (handle ? Promise.resolve(handle) : pasta.getFileHandle(nome, { create: true })).then(function (destino) {
+                handle = destino;
+                return handle.createWritable().then(function (escrita) {
+                  return escrita.write(livro).then(function () { return escrita.close(); });
+                });
               });
             }).then(function () {
               toast("Criado o Excel «" + nome + "» na pasta escolhida.", "ok");
@@ -298,7 +317,7 @@
         });
       }).then(function (handle) { return ligar(handle); }, function (erro) {
         if (erro && erro.name === "AbortError") return;
-        toast("Não foi possível criar o Excel nessa pasta. Escolha outra pasta.", "erro");
+        toast(erro && erro.name === "ExcelRespostaInvalida" ? erro.message : "Não foi possível criar o Excel nessa pasta. Escolha outra pasta.", "erro");
       });
     } else if (alvo.hasAttribute("data-bq-excel-escolher")) {
       alvo.closest("details") && alvo.closest("details").removeAttribute("open");
