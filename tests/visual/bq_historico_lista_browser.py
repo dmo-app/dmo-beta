@@ -8,7 +8,10 @@ Só ficheiros locais; nada vai ao DEV.
 
 Boquilhas > Movimentos (vista «Movimentos detalhados»): a lista fica sempre com espaço para
 o cabeçalho e pelo menos uma linha completa, mesmo quando o painel das linhas de produção e
-os filtros ocupam mais espaço (o relatório mediu só 4 px úteis a 1290×646). A página não desliza.
+os filtros ocupam mais espaço (o relatório mediu só 4 px úteis a 1290×646). Os cartões das
+linhas também nunca ficam esmagados (Diogo, 30/10/2026); se não couber tudo, a página desliza
+(Diogo, 30/10/2026 13:35: nunca pediu páginas presas sem scroll, só o menos scroll possível).
+A 1366×768, o ecrã que conta (Diogo, 31/10/2026), a página não desliza.
 """
 import mimetypes
 import sys
@@ -35,8 +38,10 @@ MEDIR = '''() => {
     const wrap = document.querySelector('#bqHistLista .movement-card .dmo-table-wrap');
     const thead = wrap && wrap.querySelector('thead');
     const linha = wrap && wrap.querySelector('tbody tr');
+    const faixa = document.querySelector('#historico .beta-production-rail');
     if (!wrap) return null;
-    return { altura: wrap.getBoundingClientRect().height,
+    return { faixa: faixa ? faixa.getBoundingClientRect().height : null,
+             altura: wrap.getBoundingClientRect().height,
              cabecalhoVisivel: thead ? thead.getBoundingClientRect().height > 0 : false,
              linhaInteira: linha ? (linha.getBoundingClientRect().bottom <= wrap.getBoundingClientRect().bottom + 0.5) : null,
              scroll: document.scrollingElement.scrollHeight - document.scrollingElement.clientHeight };
@@ -75,7 +80,10 @@ with sync_playwright() as playwright:
                 assert medida['altura'] >= 60, f'{onde}: lista com só {medida["altura"]} px úteis'
                 assert medida['cabecalhoVisivel'], f'{onde}: o cabeçalho da tabela não aparece'
                 assert medida['linhaInteira'] is not False, f'{onde}: a linha fica cortada'
-                assert medida['scroll'] <= 0, f'{onde}: a página desliza {medida["scroll"]} px'
+                assert medida['faixa'] is None or medida['faixa'] >= 70, f'{onde}: cartões das linhas esmagados ({medida["faixa"]} px)'
+                # O ecrã que conta é o 1366×768 (Diogo, 31/10/2026: «mais pequenos não têm relevância»): aí a página não desliza.
+                if (largura, altura) == (1366, 768):
+                    assert medida['scroll'] <= 0, f'{onde}: a página desliza {medida["scroll"]} px'
                 assert not erros, erros
                 context.close()
     browser.close()

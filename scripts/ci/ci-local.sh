@@ -334,6 +334,7 @@ elif python3 tests/visual/cabecalho_nome_comprido_browser.py "$ui" >"$logs/ui-ca
 else
   tail -30 "$logs/ui-cabecalho.log"
   summary+=("FALHOU  Browser no cabeçalho com nome comprido")
+  failed=1
 fi
 
 echo

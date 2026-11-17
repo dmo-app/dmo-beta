@@ -106,6 +106,12 @@ public sealed class Tool
     /// </summary>
     public string? FabricaOrigem { get; set; }
 
+    /// <summary>R6 (Diogo, 02/11/2026): quem fabricou o molde (escolhido dos reparadores ou escrito à mão). Null = o do SAP, se houver.</summary>
+    public string? Fabricante { get; set; }
+
+    /// <summary>R6 (Diogo, 02/11/2026): a data de aquisição escrita à mão. Null = a do SAP, se houver.</summary>
+    public DateOnly? DataAquisicao { get; set; }
+
     /// <summary>
     /// FERRAMENTA REPETIDA (o proprietário, 18/10/2026): quando alguém tenta
     /// registar outra ferramenta com o mesmo tipo, referência e lote, o

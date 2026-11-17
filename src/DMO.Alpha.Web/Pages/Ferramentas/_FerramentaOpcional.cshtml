@@ -1,0 +1,73 @@
+@inject DMO.Alpha.Core.Armazem.IReparadores Reparadores
+@model DMO.Alpha.Web.Pages.Ferramentas.FerramentaFactosForm
+@* Os campos da Informação opcional. No Criar vêm dentro do formulário; na ficha ficam num
+   cartão próprio e gravam com o Editar pelo atributo form (ViewData["form"]). *@
+@{
+    var p = Model.Prefixo;
+    var form = ViewData["form"] as string;
+}
+@* INFORMAÇÃO OPCIONAL (Diogo, 22/10/2026): a Ref. MF, o nome técnico e a
+   fábrica de origem num bloco à parte, ao lado, com o traço vertical das colunas da Informação técnica (Diogo, 22/10/2026). *@
+<fieldset class="ferr-tech-bloco ferr-opcional" id="@(p)-opcional">
+  @* O triângulo abre e fecha o bloco (Diogo, 27/10/2026: «adiciona o triângulo de minimizar»). *@
+  @if (Model.Criar)
+  {
+  <legend class="ferr-tech-titulo ferr-opcional-titulo" role="button" tabindex="0" aria-expanded="true" aria-controls="@(p)-opcional-campos"><span class="dmo-caret" aria-hidden="true"></span>Informação opcional</legend>
+  }
+  <div class="ferr-tech-campos" id="@(p)-opcional-campos">
+    @* R6 (Diogo, 02/11/2026): o fabricante do molde (dos reparadores ou à mão) e a data de aquisição, no Criar e no Editar.
+       Vêm do SAP quando o SAP os tem; senão escrevem-se à mão ou ficam em branco. *@
+    <div class="dmo-field" id="@(p)-fabricante-field">
+      <label for="@(p)-fabricante">Fabricante</label>
+      <input id="@(p)-fabricante" form="@form" name="fabricante" value="@Model.Fabricante" maxlength="120" list="@(p)-fabricantes" autocomplete="off" title="Quem fabricou o molde. Escolha um reparador ou escreva." />
+      <datalist id="@(p)-fabricantes">
+        @foreach (var reparador in (await Reparadores.ListarAsync()).Where(r => r.Ativo))
+        {
+          <option value="@reparador.Nome"></option>
+        }
+      </datalist>
+    </div>
+    <div class="dmo-field" id="@(p)-data-aquisicao-field">
+      <label for="@(p)-data-aquisicao">Data de aquisição</label>
+      <input id="@(p)-data-aquisicao" form="@form" name="data_aquisicao" type="date" value="@Model.DataAquisicao" />
+    </div>
+    <div class="dmo-field ferr-w-ref" id="@(p)-mf-field" hidden="@(Model.Tipo != "CM")">
+      <label for="@(p)-mf">Ref. MF associada</label>
+      <input id="@(p)-mf" form="@form" data-dmo-maiusculas autocapitalize="characters" name="mf_reference" value="@Model.RefMf" title="Só quando difere da referência MF em que encaixa" data-dmo-suggest="ferramentas" data-dmo-suggest-tipo="mf" />
+    </div>
+    @* O NOME TÉCNICO (o código do desenho — o código de produção; o Owner:
+       «se introduzirmos o nome tecnico, ou seja o que esta no sap.
+       apresenta logo tudo»): no Criar, ao escrever, o vivo decodifica e
+       propõe o tipo; vazio = o formato simples. *@
+    <div class="dmo-field ferr-w-sap">
+      <label for="@(p)-technical">Nome técnico (SAP)</label>
+      <input id="@(p)-technical" form="@form" data-dmo-maiusculas autocapitalize="characters" name="technical_name" value="@Model.NomeTecnico" placeholder="Ex.: M107544MFNNV" />
+    </div>
+    @if (!Model.Criar)
+    {
+      <div class="dmo-field ferr-w-fab">
+        @* Sem o círculo da ajuda (Diogo, 27/10/2026); o texto passa ao title do campo. *@
+        <label for="@(p)-fabrica">Fábrica de origem</label>
+        @* Escolhe-se das fábricas da BA das Definições (Diogo, 28/10/2026); sem elas, o texto livre. *@
+        @if (Model.Fabricas is { Count: > 0 } fabricas)
+        {
+          <select id="@(p)-fabrica" form="@form" name="fabrica_origem" title="A fábrica dona da ferramenta. Ajuda a separar as ferramentas emprestadas.">
+            <option value="" selected="@string.IsNullOrEmpty(Model.FabricaOrigem)">—</option>
+            @if (!string.IsNullOrEmpty(Model.FabricaOrigem) && !fabricas.Contains(Model.FabricaOrigem))
+            {
+              <option value="@Model.FabricaOrigem" selected>@Model.FabricaOrigem</option>
+            }
+            @foreach (var sigla in fabricas)
+            {
+              <option value="@sigla" selected="@(Model.FabricaOrigem == sigla)">@sigla</option>
+            }
+          </select>
+        }
+        else
+        {
+          <input id="@(p)-fabrica" form="@form" data-dmo-maiusculas autocapitalize="characters" name="fabrica_origem" value="@Model.FabricaOrigem" maxlength="32" placeholder="MG" title="A fábrica dona da ferramenta (ex.: MG). Ajuda a separar as ferramentas emprestadas." />
+        }
+      </div>
+    }
+  </div>
+</fieldset>

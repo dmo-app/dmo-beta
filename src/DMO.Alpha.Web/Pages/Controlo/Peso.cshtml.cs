@@ -998,6 +998,7 @@ public sealed class PesoModel : PageModel
         {
             "peso" => "O peso da produção anterior tem de ser um número maior que 0. Nada foi guardado.",
             "jobon" => "A produção anterior escolhida já não existe. Nada foi guardado.",
+            "mudou" => "Outra pessoa gravou a produção anterior entretanto. Veja o que ficou e grave outra vez se for preciso. Nada foi guardado.",
             _ => null
         };
         ProducaoAnteriorEcho = ProducaoAnteriorRefusal is null ? null : Sanitize(anteriorPeso);
@@ -1987,7 +1988,8 @@ public sealed class PesoModel : PageModel
         [FromForm(Name = "anterior")] int? anteriorJobOnId,
         [FromForm(Name = "anterior_peso")] string? anteriorPeso,
         [FromForm(Name = "supor_calote")] string? suporCalote = null,
-        [FromForm(Name = "peso_anterior")] string? pesoAnteriorAberto = null)
+        [FromForm(Name = "peso_anterior")] string? pesoAnteriorAberto = null,
+        [FromForm(Name = "anterior_versao")] string? anteriorVersao = null)
     {
         // O «Supomos» aberto volta com a folha (gravar sem recarregar troca a
         // zona dele pelo que o endereço traz). Um Peso de antes de uma troca
@@ -2038,7 +2040,7 @@ public sealed class PesoModel : PageModel
         }
 
         var result = await ProducaoAnteriorQuery.SaveAsync(
-            pesoId, anteriorControloId, pesoGramas, HttpContext.RequestAborted);
+            pesoId, anteriorControloId, pesoGramas, HttpContext.RequestAborted, anteriorVersao);
         return RedirectToPage("/Controlo/Peso", new
         {
             controlo_id = controloId,
@@ -2050,6 +2052,7 @@ public sealed class PesoModel : PageModel
             {
                 GuardarProducaoAnteriorResult.JobOnNotFound => "jobon",
                 GuardarProducaoAnteriorResult.PesoInvalido => "peso",
+                GuardarProducaoAnteriorResult.MudouEntretanto => "mudou",
                 _ => null
             },
             anterior_ok = result == GuardarProducaoAnteriorResult.Success ? "1" : null

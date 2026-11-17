@@ -126,7 +126,8 @@ public sealed class DefinicoesModel(
     /// POST: criar uma ENTIDADE REPARADORA. Recusa tipada no nome vazio e no
     /// nome repetido; a gravação nunca bloqueia a folha.
     /// </summary>
-    [DefinicaoGeral]
+    // R6 (Diogo, 02/11/2026): os reparadores não ficam atrás do PIN.
+    [DefinicaoSemPin]
     public async Task<IActionResult> OnPostCreateRepairerAsync(string? name)
     {
         var outcome = await createRepairer.HandleAsync(
@@ -146,7 +147,8 @@ public sealed class DefinicoesModel(
     /// JSON) ou por PRG. Não reescreve os movimentos passados: cada saída
     /// guarda o nome com que foi feita.
     /// </summary>
-    [DefinicaoGeral]
+    // R6 (Diogo, 02/11/2026): os reparadores não ficam atrás do PIN.
+    [DefinicaoSemPin]
     public async Task<IActionResult> OnPostEditRepairerAsync(
         [FromForm(Name = "repairer_id")] int? repairerId,
         string? name)
@@ -175,7 +177,8 @@ public sealed class DefinicoesModel(
     /// POST: remover um reparador (Diogo, 21/10/2026). As saídas já feitas
     /// guardam o nome; as rotas que o usavam ficam sem reparador.
     /// </summary>
-    [DefinicaoGeral]
+    // R6 (Diogo, 02/11/2026): os reparadores não ficam atrás do PIN.
+    [DefinicaoSemPin]
     public async Task<IActionResult> OnPostDeleteRepairerAsync(
         [FromForm(Name = "repairer_id")] int? repairerId)
     {

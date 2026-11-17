@@ -149,7 +149,8 @@
     function botao(id, texto, acao) {
       const b = document.createElement('button');
       b.type = 'button';
-      b.className = 'dmo-button';
+      // R15 (Diogo 30/10/2026): links com a cor dos botões dentro do aviso, separados (como o R3).
+      b.className = 'jobon-aviso-link';
       b.id = id;
       b.textContent = texto;
       b.addEventListener('click', acao);

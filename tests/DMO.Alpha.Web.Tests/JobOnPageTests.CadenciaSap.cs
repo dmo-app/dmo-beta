@@ -11,8 +11,7 @@ namespace DMO.Alpha.Web.Tests;
 /// Job On»; 28/10/2026: «fica Cadência usada»): o cabeçalho da folha e a folha
 /// impressa mostram a «Cadência usada», a moda das ordens do SAP com a mesma
 /// referência, máquina e datas (a das ordens com mais dias), com a média no
-/// título. Sem relatório dessa produção, a da produção anterior, marcada
-/// «ant.»; sem nenhuma, «—» no ecrã e a linha para escrever à mão.
+/// título. Sem relatório dessa produção, a da produção anterior; sem nenhuma, «—» no ecrã e a linha para escrever à mão.
 /// </summary>
 public partial class JobOnPageTests
 {
@@ -47,8 +46,8 @@ public partial class JobOnPageTests
 
         // Sem relatório desta produção: a da anterior da mesma referência.
         var semRelatorio = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={semSap}"));
-        Assert.Contains("<span class=\"fl\">Cadência usada</span><span class=\"fv\"><strong title=\"Do SAP, produção anterior 202682: moda 489 · média 492.30\">489</strong><span class=\"unit\">ant.</span></span>", semRelatorio, StringComparison.Ordinal);
-        Assert.Contains("<div><span>Cadência usada</span><b class=\"jfn-escrever\">489 ant.</b></div>", semRelatorio, StringComparison.Ordinal);
+        Assert.Contains("<span class=\"fl\">Cadência usada</span><span class=\"fv\"><strong title=\"Do SAP, produção anterior 202682: moda 489 · média 492.30\">489</strong></span>", semRelatorio, StringComparison.Ordinal);
+        Assert.Contains("<div><span>Cadência usada</span><b class=\"jfn-escrever\">489</b></div>", semRelatorio, StringComparison.Ordinal);
 
         // Sem nenhuma: «—» e a linha para escrever à mão.
         var semNenhuma = WebUtility.HtmlDecode(await GetPageHtmlAsync(client, $"{FolhaPath}?jobon_id={outraReferencia}"));
