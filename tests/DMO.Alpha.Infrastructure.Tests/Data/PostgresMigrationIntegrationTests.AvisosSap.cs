@@ -49,8 +49,9 @@ public sealed partial class PostgresMigrationIntegrationTests
             Assert.Equal(DecisaoSapResultado.Gravado, await servico.DecidirAsync(id, aviso.Versao, "pecas", true));
             await using var leitura = CreateContext();
             var tool = await leitura.Tools.AsNoTracking().SingleAsync(t => t.ToolId == id);
-            Assert.Equal(98, tipo == ToolType.Bq ? tool.BqAccountedQuantity : tool.AnQuantity);
-            Assert.Equal(tipo == ToolType.Bq ? 20 : 10, tipo == ToolType.Bq ? tool.AnQuantity : tool.BqAccountedQuantity);
+            // A quantidade do lote é a mesma em todos os tipos; os AN não mudam (Diogo, 10/11/2026).
+            Assert.Equal(98, tool.BqAccountedQuantity);
+            Assert.Equal(20, tool.AnQuantity);
             var outra = await leitura.Tools.AsNoTracking().SingleAsync(t => t.ToolId == id + "OUTRA");
             Assert.Equal((10, 20), (outra.BqAccountedQuantity, outra.AnQuantity));
             Assert.Equal("Fornecedor de teste", tool.SapFornecedor);
